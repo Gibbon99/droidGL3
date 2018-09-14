@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
+  <component name="CidrRootsConfiguration">
+    <sourceRoots>
+      <file path="$PROJECT_DIR$/data" />
+      <file path="$PROJECT_DIR$/hdr/console" />
+      <file path="$PROJECT_DIR$/hdr/game" />
+      <file path="$PROJECT_DIR$/hdr/io" />
+      <file path="$PROJECT_DIR$/hdr/libGL" />
+      <file path="$PROJECT_DIR$/hdr/opengl" />
+      <file path="$PROJECT_DIR$/hdr/physfs" />
+      <file path="$PROJECT_DIR$/hdr/script" />
+      <file path="$PROJECT_DIR$/hdr/system" />
+      <file path="$PROJECT_DIR$/src/console" />
+      <file path="$PROJECT_DIR$/src/game" />
+      <file path="$PROJECT_DIR$/src/io" />
+      <file path="$PROJECT_DIR$/src/libGL" />
+      <file path="$PROJECT_DIR$/src/opengl" />
+      <file path="$PROJECT_DIR$/src/physfs" />
+      <file path="$PROJECT_DIR$/src/script" />
+      <file path="$PROJECT_DIR$/src/system" />
+    </sourceRoots>
+    <libraryRoots>
+      <file path="$PROJECT_DIR$/hdr/libGL/glm" />
+    </libraryRoots>
+  </component>
+  <component name="JavaScriptSettings">
+    <option name="languageLevel" value="ES6" />
+  </component>
+</project>
