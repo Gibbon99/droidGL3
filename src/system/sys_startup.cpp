@@ -1,5 +1,6 @@
-#include <hdr/io/io_fileSystem.h>
-#include <hdr/console/con_conScript.h>
+#include "hdr/io/io_fileSystem.h"
+#include "hdr/console/con_conScript.h"
+#include "hdr/game/s_gamePhysics.h"
 #include "hdr/system/sys_main.h"
 #include "hdr/libGL/gl_window.h"
 #include "sys_timing.h"
@@ -50,9 +51,9 @@ bool sys_initAll()
 #endif
 
 	con_print (CON_INFO, true, "OpenGL system version [ %d.%d ]", GLVersion.major, GLVersion.minor);
-	if ( GLVersion.major < 2 )
+	if ( GLVersion.major < 3 )
 	{
-		con_print (CON_ERROR, true, "Your system doesn't support OpenGL >= 2.");
+		con_print (CON_ERROR, true, "Your system doesn't support OpenGL >= 3.x");
 		return false;
 	}
 
@@ -69,17 +70,21 @@ bool sys_initAll()
 		con_print(CON_ERROR, true, "Could not start filesystem.");
 //		return false;
 	}
-	con_print(CON_INFO, true, "Filesystem started.");
+	else
+		con_print(CON_INFO, true, "Filesystem started.");
 
 	if ( !util_startScriptEngine ())
 	{
 		con_print (CON_ERROR, true, "Error: Unable to start scripting engine.");
-		return false;
+	}
+	else
+	{
+
+		util_registerVariables ();
+		util_registerFunctions ();
+		util_loadAndCompileScripts ();
+		util_cacheFunctionIDs ();
 	}
 
-	util_registerVariables ();
-	util_registerFunctions ();
-	util_loadAndCompileScripts ();
-	util_cacheFunctionIDs ();
-
+	sys_setupPhysicsEngine ();
 }

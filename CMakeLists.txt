@@ -24,6 +24,7 @@ include_directories(
         hdr/system
         hdr/physfs
         hdr/libGL/freetype-gl
+        hdr/libGL/chipmunk
         /usr/include/freetype2
 )
 
@@ -34,24 +35,25 @@ set(CMAKE_LDFLAGS "${CMAKE_LDFLAGS} -L. -L/usr/local/lib ")
 set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_main.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_shutdown.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/gl_window.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_startup.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_events.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_opengl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_embedFont.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_audio.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_openGLWrap.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_opengl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/game/s_gameEvents.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/gl_window.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/glad/glad.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_keyboard.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_logfile.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_fileSystem.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/console/con_console.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_embedFont.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/glad/glad.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/console/con_comHelp.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/console/con_conScript.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/console/con_openGLInfo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/console/con_quit.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/console/con_variables.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_openGLWrap.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_timing.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_scriptengine.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_objecttype.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_callfunc_arm.cpp
@@ -80,7 +82,6 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_callfunc_mips.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_thread.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_callfunc_x86.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/io/io_logfile.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/scriptstdstring_utils.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_outputbuffer.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_datatype.cpp
@@ -131,7 +132,40 @@ set(C_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/physfs/physfs_archiver_grp.c
         ${CMAKE_CURRENT_LIST_DIR}/src/physfs/physfs_archiver_7z.c
         ${CMAKE_CURRENT_LIST_DIR}/src/physfs/physfs_archiver_dir.c
-        src/system/sys_timing.cpp src/system/sys_timing.h)
+
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/chipmunk.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpArbiter.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpArray.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpBBTree.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpBody.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpCollision.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpConstraint.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpDampedRotarySpring.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpDampedSpring.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpGearJoint.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpGrooveJoint.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpHashSet.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpHastySpace.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpMarch.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpPinJoint.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpPivotJoint.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpPolyline.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpPolyShape.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpRatchetJoint.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpRobust.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpRotaryLimitJoint.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpShape.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSimpleMotor.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSlideJoint.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSpace.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSpaceComponent.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSpaceDebug.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSpaceHash.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSpaceQuery.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSpaceStep.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSpatialIndex.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSweep1D.c
+        src/game/s_gamePhysics.cpp hdr/game/s_gamePhysics.h)
 
 set_source_files_properties(
         ${CXX_SRCS} PROPERTIES COMPILE_FLAGS

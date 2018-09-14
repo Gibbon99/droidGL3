@@ -20,7 +20,7 @@ void io_readChar ( char *character )
 {
 	if ( conCurrentCharCount < MAX_STRING_SIZE - 1 )
 	{
-		if ( (char)character >= 32 )
+		if ( character >= ' ' )
 		{
 			conCurrentLine.conLine += character[0];
 			conCurrentCharCount++;
