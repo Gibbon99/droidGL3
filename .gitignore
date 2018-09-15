@@ -3,3 +3,9 @@
 ################################################################################
 
 /.vs/droidGL3/v15/ipch/AutoPCH
+/Debug/droidGL3.tlog
+/Debug
+/Debug_win32
+/packages
+/logfile.log
+/packages.config

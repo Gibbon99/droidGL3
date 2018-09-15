@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDL2/SDL_mixer.h"
+#include "SDL_mixer.h"
 #include "hdr/system/sys_events.h"
 #include "data/scripts/commonDefines.h"
 

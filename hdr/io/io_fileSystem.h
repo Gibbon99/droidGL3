@@ -1,9 +1,10 @@
 #pragma once
 
 #include "hdr/system/sys_main.h"
+#include "hdr/physfs/physfs.h"
 
 // Get the length of a file
-int io_getFileSize ( const char *fileName );
+PHYSFS_sint64 io_getFileSize ( const char *fileName );
 
 // Start the packfile system
 bool io_startFileSystem();

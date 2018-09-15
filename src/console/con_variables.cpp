@@ -95,7 +95,7 @@ void conSetVariableValue ( string whichVar, string newValue )
 	else if ( varType == "float" )
 		{
 			con_print ( CON_INFO, false, "Set varible to value [ %f ]", atof ( newValue.c_str() ) );
-			* ( float * ) varPointer = atof ( newValue.c_str() );
+			* ( float * ) varPointer = (float)atof ( newValue.c_str() );
 		}
 
 	else if ( varType == "bool" )

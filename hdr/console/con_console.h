@@ -82,7 +82,7 @@ extern _conLine		conLines[NUM_CON_LINES];
 extern _conLine		conPrevCommands[NUM_MAX_CON_COMMANDS];
 extern _conLine		conCurrentLine;
 
-extern uint		    conCurrentCharCount;
+extern unsigned int		    conCurrentCharCount;
 
 extern _glColor     currentConLineColor;
 
@@ -90,7 +90,7 @@ extern _glColor     currentConLineColor;
 
 extern bool			conCursorIsOn;
 
-extern uint		    conHistoryPtr;			// Which history command are we at
+extern unsigned int		    conHistoryPtr;			// Which history command are we at
 
 // Show the console
 void con_showConsole();

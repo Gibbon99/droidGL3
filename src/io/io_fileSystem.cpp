@@ -126,7 +126,7 @@ bool io_startFileSystem()
 //-----------------------------------------------------------------------------
 //
 // Get the length of a file
-int io_getFileSize ( const char *fileName )
+PHYSFS_sint64 io_getFileSize ( const char *fileName )
 //-----------------------------------------------------------------------------
 {
 	PHYSFS_file		*compFile;

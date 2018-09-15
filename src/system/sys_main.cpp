@@ -1,10 +1,9 @@
-#include <hdr/system/sys_embedFont.h>
-#include "hdr/system/sys_main.h"
-
 #include "hdr/libGL/gl_window.h"
+#include "hdr/system/sys_embedFont.h"
+#include "hdr/system/sys_main.h"
 #include "hdr/system/sys_startup.h"
+#include "hdr/system/sys_timing.h"
 #include "data/scripts/commonDefines.h"
-#include "sys_timing.h"
 
 bool    quitProgram;
 int     loops;
@@ -91,6 +90,8 @@ int main (int argc, char *argv[] )
 	}
 
 sys_shutdownToSystem();
+
+return 0;
 }
 
 

@@ -68,9 +68,9 @@ int con_processConsoleUserEvent ( void *ptr )
 			{
 				case CONSOLE_ADD_LINE:
 					_glColor lineColor;
-					lineColor.red = tempEventData.data1;
-					lineColor.green = tempEventData.data2;
-					lineColor.blue = tempEventData.data3;
+					lineColor.red = (float)tempEventData.data1;
+					lineColor.green = (float)tempEventData.data2;
+					lineColor.blue = (float)tempEventData.data3;
 					lineColor.alpha = 1.0f;
 					con_incLine (lineColor, tempEventData.eventString);
 					break;
@@ -351,13 +351,13 @@ void con_print ( int type, bool fileLog, const char *printText, ... )
 	// check and make sure we don't overflow our string buffer
 	//
 	if ( strlen ( printText ) >= MAX_STRING_SIZE - 1 )
-		printf ( __FILE__, __LINE__, "String passed to console is too long", ( MAX_STRING_SIZE - 1 ), strlen ( printText ) - ( MAX_STRING_SIZE - 1 ) );
+		printf ( "String passed to console is too long - Max [ %i ] - [ %i ]", ( MAX_STRING_SIZE - 1 ), strlen ( printText ) - ( MAX_STRING_SIZE - 1 ) );
 
 	//
 	// get out the passed in parameters
 	//
 	va_start ( args, printText );
-	vsprintf ( conText, printText, args );
+	vsprintf_s ( conText, printText, args );
 	va_end ( args );
 
 	if ( fileLog )
@@ -387,7 +387,7 @@ void con_print ( int type, bool fileLog, const char *printText, ... )
 		}
 
 		finalText += conText;
-		evt_sendEvent(USER_EVENT_CONSOLE, CONSOLE_ADD_LINE, currentConLineColor.red, currentConLineColor.green, currentConLineColor.blue, glm::vec2(), glm::vec2(), finalText);
+		evt_sendEvent(USER_EVENT_CONSOLE, CONSOLE_ADD_LINE, (int)currentConLineColor.red, (int)currentConLineColor.green, (int)currentConLineColor.blue, glm::vec2(), glm::vec2(), finalText);
 }
 
 //-----------------------------------------------------------------------------

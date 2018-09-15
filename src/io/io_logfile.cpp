@@ -11,6 +11,7 @@
 
 static bool		fileLoggingOn;
 static int		logFile;			// file handle to the logfile
+FILE			*logFileHandle;
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -56,49 +57,30 @@ int io_processLoggingEventQueue( void *ptr )
 		}
 	}
 	printf ("LOGGING thread stopped.\n");
+
+	return 0;
 }
 
 //--------------------------------------------------------
-// open the log file for writing
-// returns TRUE/FALSE for operation
-bool openLogFile ( const char *logFileName )
+//
+// Open the log file for writing - pass in fileName
+// Returns TRUE/FALSE for operation
+//
+bool openLogFile(const char *logFileName)
 //--------------------------------------------------------
 {
-//#define APPEND_LOGFILE 1
-
 #if defined (WIN32)
-
-#ifdef APPEND_LOGFILE	// append logfile entrys
-	logFile = _open ( logFileName, _O_WRONLY | _O_APPEND, _S_IREAD | _S_IWRITE );
-#else					// or else create a new one each time
-	logFile = _creat ( logFileName, _S_IWRITE );
+	logFileHandle = fopen(logFileName, "w");
+	setbuf(logFileHandle, nullptr);	// Set as unbuffered stream
 #endif
 
-#else
-
-#ifdef APPEND_LOGFILE	// append logfile entries
-	logFile = open ( logFileName, O_WRONLY | O_APPEND, S_IREAD | S_IWRITE );
-#else					// or else create a new one each time
-	logFile = creat ( logFileName, S_IWRITE );
+#if defined __linux__
+	logFileHandle = fopen(logFileName, "w");
+	setbuf(logFileHandle, nullptr);	// Set as unbuffered stream
 #endif
 
-#endif
-
-	if ( logFile == -1 )
-		{
-			// file not found - doesn't exist ??
-			// try to create it
-#if defined (WIN32)
-			logFile = _open ( logFileName, _O_WRONLY | _O_CREAT, _S_IREAD | _S_IWRITE );
-#else
-			logFile = open ( logFileName, O_WRONLY | O_CREAT, S_IREAD | S_IWRITE );
-#endif
-
-			if ( logFile == -1 )	// can't even create it
-				return false;	// return failure
-			else
-				return true;
-		}
+	if (logFileHandle == nullptr)
+		return false;	// return failure
 	else
 		return true;
 }
@@ -113,17 +95,18 @@ bool openLogFile ( const char *logFileName )
 void io_writeToFile(string textToWrite)
 //-----------------------------------------------------------------------------------------------------
 {
-	ssize_t byteswritten;
+	int bytesWritten;
 
 	if (!fileLoggingOn)
 		return;
 
 	#if defined (WIN32)
-		if ( ( byteswritten = _write ( logFile, textToWrite, strlen ( textToWrite ) ) ) == -1 )
+		bytesWritten = fprintf(logFileHandle, textToWrite.c_str());
 	#else
-		if ((byteswritten = write (logFile, textToWrite.c_str(), strlen (textToWrite.c_str()))) == -1 )
+		bytesWritten = fprintf(logFileHandle, textToWrite.c_str());
 	#endif
-		printf("Write to logfile failed.\n" );
+		if (bytesWritten < 0)
+			printf("Write to logfile failed.\n" );
 }
 
 //--------------------------------------------------------
@@ -135,9 +118,6 @@ void io_logToFile ( const char *format, ... )
 	va_list		args;
 	char		logText[MAX_STRING_SIZE];
 
-#if defined (WIN32)
-	char		tmpTime[32];
-#endif
 	//
 	// check if filelogging is actually enabled
 	//
@@ -148,29 +128,18 @@ void io_logToFile ( const char *format, ... )
 	// check and make sure we don't overflow our string buffer
 	//
 	if ( strlen ( format ) >= MAX_STRING_SIZE - 1 )
-		printf ( __FILE__, __LINE__, "String passed to logfile too long", ( MAX_STRING_SIZE - 1 ), strlen ( format ) - ( MAX_STRING_SIZE - 1 ) );
+		printf ("String passed to logfile too long max [ %i ] - [ %i ]", ( MAX_STRING_SIZE - 1 ), strlen ( format ) - ( MAX_STRING_SIZE - 1 ) );
 
 	//
 	// get out the passed in parameters
 	//
 	va_start ( args, format );
-	vsprintf ( logText, format, args );
+	vsprintf_s ( logText, format, args );
 	va_end ( args );
-	//
-	// get the current time and log to file
-	//
-#if defined (WIN32)
-	_strtime ( tmpTime );
-	strcat ( tmpTime, " > " );
-
-	if ( ( byteswritten = _write ( logFile, tmpTime, strlen ( tmpTime ) ) ) == -1 )
-		ErrorFatal ( __FILE__, __LINE__, "Write to logfile failed." );
-
-#endif
 	//
 	// put a linefeed onto the end of the text line
 	// and send it to the logging queue
-	strcat ( logText, "\n" );
+	strcat_s ( logText, "\n" );
 
 	evt_sendEvent (USER_EVENT_LOGGING, USER_EVENT_LOGGING_ADD_LINE, 0, 0, 0, vec2 (), vec2 (), logText);
 }
@@ -184,8 +153,8 @@ void logTimeToFile()
 	char tmpdate[128];
 
 #if defined (WIN32)
-	_strtime ( tmptime );
-	_strdate ( tmpdate );
+	_strtime_s ( tmptime );
+	_strdate_s ( tmpdate );
 #else
 	strcpy ( tmptime, "Unknown" );
 	strcpy ( tmpdate, "Unknown" );

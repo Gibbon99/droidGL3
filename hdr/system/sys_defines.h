@@ -113,3 +113,7 @@ extern int __gl_error_code;
 #define TEXTURE_FILENAME_LENGTH     32
 
 #define INVALID_UNIFORM_LOCATION 0xffffffff
+
+#if defined _WIN32_
+	#define uint unsigned int
+#endif

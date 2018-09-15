@@ -18,8 +18,9 @@
 #     include <OpenGL/gl.h>
 #   endif
 #elif defined(_WIN32) || defined(_WIN64)
-#  include <GL/glew.h>
-#  include <GL/wglew.h>
+#include "hdr/libGL/glad/glad.h"
+//#  include <GL/glew.h>
+//#  include <GL/wglew.h>
 #elif defined(__ANDROID__)
 #  include <GLES3/gl3.h>
 #else

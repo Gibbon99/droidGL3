@@ -3,7 +3,7 @@
 #include "hdr/game/s_gamePhysics.h"
 #include "hdr/system/sys_main.h"
 #include "hdr/libGL/gl_window.h"
-#include "sys_timing.h"
+#include "hdr/system/sys_timing.h"
 
 #ifdef GLAD_DEBUG
 
@@ -87,4 +87,6 @@ bool sys_initAll()
 	}
 
 	sys_setupPhysicsEngine ();
+
+	return true;
 }

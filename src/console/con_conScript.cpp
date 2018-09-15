@@ -1,6 +1,6 @@
 
-#include "io_fileSystem.h"
-#include "as_scriptbuilder.h"
+#include "hdr/io/io_fileSystem.h"
+#include "hdr/script/as_scriptbuilder.h"
 #include "hdr/io/io_logfile.h"
 #include "hdr/physfs/physfs.h"
 
@@ -375,7 +375,7 @@ bool sys_fileIntoMemory ( char *whichFile )
 	char 				fileName[128];
 	PHYSFS_File*		fileHandle;
 
-	strcpy ( fileName, whichFile );
+	strcpy_s ( fileName, whichFile );
 
 	printf ( "Opening file [ %s ] into memory\n", fileName );
 

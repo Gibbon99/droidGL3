@@ -27,7 +27,7 @@ using namespace std;
 
 typedef struct
 {
-	uint            eventType;
+	unsigned int            eventType;
 	int             eventAction;
 	int             data1;
 	int             data2;

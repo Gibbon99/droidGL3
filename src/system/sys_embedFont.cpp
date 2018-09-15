@@ -125,7 +125,7 @@ bool fnt_compileLinkShaders ()
 
 	glGetProgramiv (fnt_shaderProgram_ID, GL_LINK_STATUS, &linked);
 
-	if ( true == linked )
+	if ( GL_TRUE == linked )
 	{
 		con_print (CON_TEXT, true, "INFO: Shaders linked ok - [ %s ]", "Embedded font Shader.");
 
@@ -216,8 +216,8 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 		if ( !fnt_compileLinkShaders ())
 			return;
 
-		fnt_screenSize.x = winWidth / 2;
-		fnt_screenSize.y = winHeight / 2;
+		fnt_screenSize.x = float(winWidth / 2);
+		fnt_screenSize.y = float(winHeight / 2);
 
 		initDone = true;
 	}
@@ -235,7 +235,7 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 			if ( embeddedFontData.glyphs[j].codepoint == ftgl::utf8_to_utf32 (textLine + i))
 			{
 				glyph = &embeddedFontData.glyphs[j];
-				offset_y = glyph->height - glyph->offset_y;
+				offset_y = float(glyph->height - glyph->offset_y);
 				break;
 			}
 		}
@@ -283,7 +283,10 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 	//
 	// Bind the vertex info
 	GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, fnt_g_vertVBO_ID));
-	GL_ASSERT (glBufferData (GL_ARRAY_BUFFER, sizeof (_fnt_vertex) * fnt_vertex.size (), &fnt_vertex[0].position, GL_DYNAMIC_DRAW));
+	if (fnt_vertex.size() > 0)
+		GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, sizeof(_fnt_vertex) * fnt_vertex.size(), &fnt_vertex[0].position, GL_DYNAMIC_DRAW));
+	else
+		printf("Error: Vertex is empty.\n");
 	GL_ASSERT (glVertexAttribPointer (fnt_inPosition_ID, 2, GL_FLOAT, GL_FALSE, sizeof (_fnt_vertex), (GLvoid *) offsetof (_fnt_vertex, position)));
 	GL_ASSERT (glEnableVertexAttribArray (fnt_inPosition_ID));
 	//

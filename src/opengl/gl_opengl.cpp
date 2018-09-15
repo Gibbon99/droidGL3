@@ -1,6 +1,10 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/opengl/gl_opengl.h"
-#include <execinfo.h>
+
+#ifdef __linux__
+	#include <execinfo.h>
+#endif
+
 #include <map>
 
 typedef struct
@@ -98,6 +102,7 @@ std::string getStringForSeverity ( GLenum severity )
 	}
 }
 
+#ifdef __linux__
 
 /* Obtain a backtrace and print it to stdout. */
 void print_trace ()
@@ -117,6 +122,8 @@ void print_trace ()
 
 	free (strings);
 }
+
+#endif
 
 //--------------------------------------------------------------------------------------------
 //
@@ -142,7 +149,7 @@ void gl_displayErrors ()
 //--------------------------------------------------------------------------------------------
 //
 // OpenGL Debug Callback
-void gl_DebugCallback ( GLenum source, GLenum type, GLenum id, GLenum severity, GLsizei length, const GLchar *msg, const void *data )
+void APIENTRY gl_DebugCallback ( GLenum source, GLenum type, GLenum id, GLenum severity, GLsizei length, const GLchar *msg, const void *data )
 //--------------------------------------------------------------------------------------------
 {
 //	if ( false == g_debugOpenGL )
@@ -179,7 +186,7 @@ void gl_DebugCallback ( GLenum source, GLenum type, GLenum id, GLenum severity, 
 void gl_registerDebugCallback ()
 //--------------------------------------------------------------------------------------------
 {
-	glEnable (GL_DEBUG_OUTPUT);
+	glEnable (GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback (gl_DebugCallback, nullptr);
 	glDebugMessageControl (GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 }

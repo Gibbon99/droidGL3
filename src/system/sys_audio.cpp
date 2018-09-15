@@ -1,4 +1,4 @@
-#include <SDL2/SDL_rwops.h>
+#include <SDL_rwops.h>
 #include "hdr/system/sys_main.h"
 
 #include <hdr/io/io_fileSystem.h>
@@ -52,7 +52,7 @@ void aud_loadSoundSamples ()
 //-------------------------------------------------------------------------
 {
 	int *soundfileMemory = nullptr;
-	int soundfileSize = -1;
+	PHYSFS_sint64 soundfileSize = -1;
 	SDL_RWops *filePtr;
 
 	if ((!audioAvailable) || (!as_useSound))
@@ -70,7 +70,7 @@ void aud_loadSoundSamples ()
 		}
 		io_getFileIntoMemory (sound[i].fileName, (void *) soundfileMemory);
 
-		filePtr = SDL_RWFromMem (soundfileMemory, soundfileSize);
+		filePtr = SDL_RWFromMem ((void *)soundfileMemory, soundfileSize);
 
 		sound[i].sample = Mix_LoadWAV_RW (filePtr, 0);
 
@@ -281,7 +281,7 @@ int aud_processAudioEventQueue ( void *ptr )
 					break;
 
 				case AUDIO_PLAY_SAMPLE:
-					aud_playSound (tempEventData.data1, tempEventData.data2, tempEventData.data3);
+					aud_playSound (tempEventData.data1, (float)tempEventData.data2, tempEventData.data3);
 					break;
 
 				case AUDIO_LOAD_ALL:

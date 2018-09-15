@@ -44,7 +44,7 @@ font_manager_new( size_t width, size_t height, size_t depth )
     }
     self->atlas = atlas;
     self->fonts = vector_new( sizeof(texture_font_t *) );
-    self->cache = strdup( " " );
+    self->cache = _strdup( " " );
     return self;
 }
 
@@ -144,7 +144,7 @@ font_manager_get_from_description( font_manager_t *self,
 
     if( file_exists( family ) )
     {
-        filename = strdup( family );
+        filename = _strdup( family );
     }
     else
     {
