@@ -40,7 +40,7 @@ _sounds sound[] = {{nullptr, "collosion1.wav",       false},
 
 int as_audioVolume;
 int as_numAudioSamples;         // Set from script
-bool as_useSound;                // Set from script
+bool as_useSound = true;                // Set from script
 int as_numMultiSamples;        // Set from script
 bool pauseSound = false;
 bool audioAvailable = false;

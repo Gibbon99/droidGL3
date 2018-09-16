@@ -357,7 +357,7 @@ void con_print ( int type, bool fileLog, const char *printText, ... )
 	// get out the passed in parameters
 	//
 	va_start ( args, printText );
-	vsprintf_s ( conText, printText, args );
+	vsprintf ( conText, printText, args );
 	va_end ( args );
 
 	if ( fileLog )

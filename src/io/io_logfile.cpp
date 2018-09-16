@@ -22,7 +22,7 @@ FILE			*logFileHandle;
 int io_processLoggingEventQueue( void *ptr )
 //-----------------------------------------------------------------------------------------------------
 {
-	_myEventData tempEventData;
+	_myEventData tempEventData = _myEventData ();
 
 	while ( runThreads )
 	{
@@ -40,6 +40,9 @@ int io_processLoggingEventQueue( void *ptr )
 			switch ( tempEventData.eventAction )
 			{
 				case USER_EVENT_LOGGING_START:
+
+					printf("Start logging file\n");
+
 					io_startLogFile (tempEventData.eventString.c_str());
 					break;
 
@@ -74,7 +77,7 @@ bool openLogFile(const char *logFileName)
 	setbuf(logFileHandle, nullptr);	// Set as unbuffered stream
 #endif
 
-#if defined __linux__
+#if defined __gnu_linux__
 	logFileHandle = fopen(logFileName, "w");
 	setbuf(logFileHandle, nullptr);	// Set as unbuffered stream
 #endif
@@ -100,13 +103,16 @@ void io_writeToFile(string textToWrite)
 	if (!fileLoggingOn)
 		return;
 
-	#if defined (WIN32)
-		bytesWritten = fprintf(logFileHandle, textToWrite.c_str());
-	#else
-		bytesWritten = fprintf(logFileHandle, textToWrite.c_str());
+	#if defined _WIN32
+		bytesWritten = fprintf(logFileHandle, "%s", textToWrite.c_str());
 	#endif
-		if (bytesWritten < 0)
-			printf("Write to logfile failed.\n" );
+
+	#if defined __gnu_linux__
+		bytesWritten = fprintf(logFileHandle, "%s", textToWrite.c_str());
+	#endif
+
+	if (bytesWritten < 0)
+		printf("Write to logfile failed.\n" );
 }
 
 //--------------------------------------------------------
@@ -128,18 +134,18 @@ void io_logToFile ( const char *format, ... )
 	// check and make sure we don't overflow our string buffer
 	//
 	if ( strlen ( format ) >= MAX_STRING_SIZE - 1 )
-		printf ("String passed to logfile too long max [ %i ] - [ %i ]", ( MAX_STRING_SIZE - 1 ), strlen ( format ) - ( MAX_STRING_SIZE - 1 ) );
+		printf ("String passed to logfile too long max [ %i ] - [ %i ]", ( MAX_STRING_SIZE - 1 ), (int)strlen ( format ) - ( MAX_STRING_SIZE - 1 ) );
 
 	//
 	// get out the passed in parameters
 	//
 	va_start ( args, format );
-	vsprintf_s ( logText, format, args );
+	vsprintf ( logText, format, args );
 	va_end ( args );
 	//
 	// put a linefeed onto the end of the text line
 	// and send it to the logging queue
-	strcat_s ( logText, "\n" );
+	strcat ( logText, "\n" );
 
 	evt_sendEvent (USER_EVENT_LOGGING, USER_EVENT_LOGGING_ADD_LINE, 0, 0, 0, vec2 (), vec2 (), logText);
 }

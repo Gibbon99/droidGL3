@@ -18,6 +18,7 @@ void sys_shutdownToSystem ()
 	io_closeLogFile();
 	runThreads = false;
 	SDL_Delay (1000);
+	sys_reportMemLeak ("leakReport.txt");
 	evt_shutdownMutex ();
 	SDL_Quit ();
 }

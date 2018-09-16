@@ -170,21 +170,20 @@ PHYSFS_sint64 io_getFileSize ( const char *fileName )
 int io_getFileIntoMemory ( const char *fileName, void *results )
 // ---------------------------------------------------------------------------
 {
-
-	PHYSFS_file		*compFile = NULL;
+	PHYSFS_file		*compFile = nullptr;
 	PHYSFS_sint64	fileLength;
 
-	if ( false == fileSystemReady )
+	if ( !fileSystemReady )
 		{
 			io_logToFile ( "PHYSFS system has not been initialised. Can't load [ %s ]", fileName );
-			return false;
+			return -1;
 		}
 
 	//
 	// Get a handle to the file
 	compFile = PHYSFS_openRead ( fileName );
 
-	if ( NULL == compFile )
+	if ( nullptr == compFile )
 		{
 			io_logToFile ( "ERROR: Filesystem can't open file [ %s ]", fileName );
 			return -1;
@@ -197,6 +196,7 @@ int io_getFileIntoMemory ( const char *fileName, void *results )
 	if ( -1 == fileLength )
 		{
 			io_logToFile ( "Unable to determine file length for [ %s ]", fileName );
+			PHYSFS_close (compFile);
 			return -1;
 		}
 
@@ -207,6 +207,7 @@ int io_getFileIntoMemory ( const char *fileName, void *results )
 	if ( -1 == returnCode )
 		{
 			io_logToFile ( "ERROR: Filesystem read failed - [ %s ]", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ) );
+			PHYSFS_close (compFile);
 			return -1;
 		}
 

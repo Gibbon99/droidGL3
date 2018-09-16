@@ -1,9 +1,12 @@
+#include <unordered_map>
+#include <string>
+#include <hdr/io/io_textures.h>
+#include <hdr/system/sys_audio.h>
 #include "hdr/libGL/gl_window.h"
 #include "hdr/system/sys_embedFont.h"
 #include "hdr/system/sys_main.h"
 #include "hdr/system/sys_startup.h"
 #include "hdr/system/sys_timing.h"
-#include "data/scripts/commonDefines.h"
 
 bool    quitProgram;
 int     loops;
@@ -32,6 +35,9 @@ void sys_displayScreen(float interpolation)
 	}
 
 	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ]", fpsPrint, thinkFpsPrint);
+	if ( g_memLeakLastRun)
+		fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "MEM LEAK");
+
 	lib_swapBuffers ();
 }
 
@@ -68,6 +74,22 @@ int main (int argc, char *argv[] )
 
 	sys_initAll();
 
+	evt_sendEvent (USER_EVENT_AUDIO, AUDIO_INIT_ENGINE, 0, 0, 0, vec2 (), vec2 (), "");
+
+
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "splash.png");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "alltiles.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "001.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "123.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "139.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "247.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "249.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "296.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "302.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "329.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "420.bmp");
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "476.bmp");
+
 	while ( !quitProgram )
 	{
 		loops = 0;
@@ -88,6 +110,8 @@ int main (int argc, char *argv[] )
 
 		fps++;
 	}
+
+	con_print(CON_INFO, true, "Texture ID for [ %s ] is [ %i ]", "splash", io_getTextureID ("splash.png"));
 
 sys_shutdownToSystem();
 

@@ -18,7 +18,7 @@ void scr_Output ( const char *msgText, void *outParam );
 void MessageCallback ( const asSMessageInfo *msg, void *param );
 
 // Change to string??
-static char *fileLocation = NULL; // Pointer to memory to hold the scriptFile7
+static char *fileLocation = NULL; // Pointer to memory to hold the scriptFile
 
 //-----------------------------------------------------------------------------
 //
@@ -375,41 +375,41 @@ bool sys_fileIntoMemory ( char *whichFile )
 	char 				fileName[128];
 	PHYSFS_File*		fileHandle;
 
-	strcpy_s ( fileName, whichFile );
+	strcpy ( fileName, whichFile );
 
 	printf ( "Opening file [ %s ] into memory\n", fileName );
 
 	fileHandle = PHYSFS_openRead ( fileName );
 
-	if ( NULL == fileHandle )
+	if ( nullptr == fileHandle )
 		{
 			con_print ( true, true, "Open error [ %s ]", fileName );
 			return false;
 		}
 
 	fileSize = PHYSFS_fileLength ( fileHandle );
-	con_print ( true, true, "Size of script [ %i ] - [ %s ]", fileSize, fileName );
+	con_print ( true, true, "Size of file [ %i ] - [ %s ]", fileSize, fileName );
 
 	//
 	// if memory already allocated - free and remalloc it
 	if ( fileLocation )
 		{
 			free ( fileLocation );
-			fileLocation = NULL;
+			fileLocation = nullptr;
 		}
-
 
 	fileLocation = ( char * ) malloc ( sizeof ( char ) * ( int ) fileSize );
 
-	if ( NULL == fileLocation )
+	if ( nullptr == fileLocation )
 		{
-			//sys_errorFatal ( "sys_fileIntoMemory.cpp", __LINE__, ( char * ) "Memory allocation failed for [ %s ]", fileName );
 			return false;
 		}
 
 	if ( PHYSFS_readBytes ( fileHandle, ( void * ) fileLocation, ( size_t ) fileSize) <= 0 )
-		//sys_errorFatal ( "sys_fileIntoMemory", __LINE__, ( char * ) "Read error [ %s ]", fileName );
-		return false;
+		{
+			free(fileLocation);
+			return false;
+		}
 
 	PHYSFS_close ( fileHandle );
 
@@ -454,10 +454,16 @@ bool util_loadAndCompileScripts()
 				}
 
 			fileCounter++;
+
+			if ( fileLocation )
+			{
+				free (fileLocation);        // Prevent memory leak if it fails to build
+				fileLocation = nullptr;
+			}
 		}
 
 	//
-	// Build the script from the loaded setions using ScriptBuilder
+	// Build the script from the loaded sections using ScriptBuilder
 	//
 	if ( builder.BuildModule() < 0 )
 		{
@@ -472,7 +478,7 @@ bool util_loadAndCompileScripts()
 	if ( fileLocation )
 		{
 			free ( fileLocation );
-			fileLocation = NULL;
+			fileLocation = nullptr;
 		}
 
 	return true;

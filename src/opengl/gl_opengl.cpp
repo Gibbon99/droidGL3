@@ -1,5 +1,6 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/opengl/gl_opengl.h"
+#include "hdr/opengl/gl_openGLWrap.h"
 
 #ifdef __linux__
 	#include <execinfo.h>
@@ -102,11 +103,14 @@ std::string getStringForSeverity ( GLenum severity )
 	}
 }
 
+//--------------------------------------------------------------------------------------------
+//
+// Obtain a backtrace and print it to stdout.
+void print_trace () // TODO Move to better file
+//--------------------------------------------------------------------------------------------
+{
 #ifdef __linux__
 
-/* Obtain a backtrace and print it to stdout. */
-void print_trace ()
-{
 	void *array[10];
 	size_t size;
 	char **strings;
@@ -121,9 +125,10 @@ void print_trace ()
 		printf ("%s\n", strings[i]);
 
 	free (strings);
+#endif
 }
 
-#endif
+
 
 //--------------------------------------------------------------------------------------------
 //
@@ -190,3 +195,81 @@ void gl_registerDebugCallback ()
 	glDebugMessageCallback (gl_DebugCallback, nullptr);
 	glDebugMessageControl (GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 }
+
+/*
+
+//-----------------------------------------------------------------------------
+//
+// Draw a 2D quad
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, int whichShader, GLuint whichTexture)
+//-----------------------------------------------------------------------------
+{
+	glm::vec2 quadVerts[4];
+	static GLuint vao = 0;
+	static GLuint buffers[2];
+	static bool initDone = false;
+
+	quadVerts[0].x = position.x;
+	quadVerts[0].y = position.y;
+
+	quadVerts[1].x = position.x;
+	quadVerts[1].y = position.y + quadSize.y;
+
+	quadVerts[2].x = position.x + quadSize.x;
+	quadVerts[2].y = position.y + quadSize.y;
+
+	quadVerts[3].x = position.x + quadSize.x;
+	quadVerts[3].y = position.y;
+
+	GLfloat quadTexCoords[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,};
+
+	if ( !initDone )
+	{
+		// create the VAO
+		GL_ASSERT (glGenVertexArrays (1, &vao));
+		GL_CHECK (glBindVertexArray (vao));
+
+		// Create buffers for the vertex data
+		buffers[0] = wrapglGenBuffers (1, __func__);
+		buffers[1] = wrapglGenBuffers (1, __func__);
+
+		GL_CHECK (glUseProgram (shaderProgram[whichShader].programID));
+
+		// Vertex coordinates buffer
+		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[0]));
+		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (quadVerts), quadVerts, GL_DYNAMIC_DRAW));
+		GL_CHECK (glEnableVertexAttribArray (shaderProgram[whichShader].inVertsID));
+		GL_CHECK (glVertexAttribPointer (shaderProgram[whichShader].inVertsID, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
+
+		// Texture coordinates buffer
+		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[1]));
+		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (quadTexCoords), quadTexCoords, GL_DYNAMIC_DRAW));
+		GL_CHECK (glEnableVertexAttribArray (shaderProgram[whichShader].inTextureCoordsID));
+		GL_CHECK (glVertexAttribPointer (shaderProgram[whichShader].inTextureCoordsID, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
+
+		initDone = false;
+	}
+
+	GL_CHECK (glUseProgram (shaderProgram[whichShader].programID));
+	//
+	// Bind texture if it's not already bound as current texture
+	GL_CHECK (glActiveTexture (GL_TEXTURE0));
+
+	GL_CHECK (glBindTexture (GL_TEXTURE_2D, whichTexture));
+
+	GL_CHECK (glUniform1i (shaderProgram[whichShader].inTextureUnit, 0));
+
+	GL_CHECK (glUniform2f (shaderProgram[whichShader].screenSizeID, (float) winWidth / 2, (float) winHeight / 2));
+
+	GL_CHECK (glBindVertexArray (vao));
+	//
+	// Enable attribute to hold vertex information
+	GL_CHECK (glEnableVertexAttribArray (shaderProgram[whichShader].inVertsID));
+	GL_CHECK (glEnableVertexAttribArray (shaderProgram[whichShader].inTextureCoordsID));
+
+	GL_CHECK (glDrawArrays (GL_TRIANGLE_FAN, 0, 4));
+
+	glDeleteBuffers (2, buffers);
+	glDeleteVertexArrays (1, &vao);
+}
+ */

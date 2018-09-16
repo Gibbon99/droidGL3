@@ -1,11 +1,14 @@
 #pragma once
 
+#include <stdio.h>
 #include <SDL.h>
 #include <string>
 #include <vector>
 #include <utility>
 #include <queue>
 #include "hdr/libGL/glad/glad.h"
+
+#include "hdr/system/sys_leakDetector.h"
 
 // Include GLM
 #include "glm/glm.hpp"
@@ -25,6 +28,8 @@
 #include "hdr/system/sys_shutdown.h"
 #include "hdr/console/con_console.h"
 #include "hdr/system/sys_events.h"
+
+#include "data/scripts/commonDefines.h"
 
 using namespace std;
 using namespace glm;

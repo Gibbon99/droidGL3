@@ -24,6 +24,12 @@ using namespace std;
 #define USER_EVENT_LOGGING_ADD_LINE     0x14
 #define USER_EVENT_LOGGING_START        0x15
 #define USER_EVENT_LOGGING_STOP         0x16
+#define USER_EVENT_TEXTURE              0x17
+#define USER_EVENT_TEXTURE_LOAD         0x18
+#define USER_EVENT_TEXTURE_UPLOAD       0x19
+#define USER_EVENT_TEXTURE_ERROR        0x20
+#define EVENT_TYPE_DO_TEXTURE_UPLOAD    0x21
+#define USER_EVENT_TEXTURE_UPLOAD_DONE  0x22
 
 typedef struct
 {
@@ -60,6 +66,10 @@ void evt_shutdownMutex ();
 
 // Setup user event source and event data
 bool evt_registerUserEventSetup ();
+
+/// \param Pass in user event code, data1 and data2
+/// \return None
+void evt_sendSDLEvent ( int myEventCode, int myEventData1, int myEventData2 );
 
 // Create a custom event to be sent
 void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, vec2 vec2_1, vec2 vec2_2, string textString );

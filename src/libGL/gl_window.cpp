@@ -1,4 +1,3 @@
-#include "data/scripts/commonDefines.h"
 #include "hdr/system/sys_main.h"
 #include "hdr/console/con_console.h"
 #include "hdr/libGL/gl_window.h"
@@ -71,11 +70,6 @@ bool lib_openWindow ()
 	// Initialize SDL
 	if ( SDL_Init (SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0 )
 		return false;
-
-	if ( !evt_registerUserEventSetup ())      // Start all the threads
-		return false;
-
-	evt_sendEvent (USER_EVENT_LOGGING, USER_EVENT_LOGGING_START, 0, 0, 0, vec2 (), vec2 (), "logfile.log");
 
 	// Set the OpenGL version.
 	// SDL_GL_CONTEXT_CORE gives us only the newer version, deprecated functions are disabled

@@ -1,9 +1,10 @@
+#include "hdr/io/io_textures.h"
 #include "hdr/system/sys_events.h"
-
 #include "hdr/io/io_logfile.h"
 #include "hdr/system/sys_audio.h"
 #include "hdr/game/s_gameEvents.h"
 #include "hdr/io/io_keyboard.h"
+
 
 SDL_TimerID timerCursorFlash;
 
@@ -23,6 +24,7 @@ queue <_myEventData> loggingEventQueue;
 queue <_myEventData> gameEventQueue;
 
 bool runThreads = true;     // Master flag to control state of detached threads
+uint32_t        SDL_myEventType;
 
 //------------------------------------------------------------------------
 //
@@ -65,6 +67,13 @@ void evt_cursorChangeState ( int newState )
 bool evt_registerUserEventSetup ()
 //------------------------------------------------------------------------
 {
+	SDL_myEventType = SDL_RegisterEvents (1);
+	if (SDL_myEventType == (Uint32) - 1)
+	{
+		printf("SDL_RegisterEvents failed. Not enough memory for user-defined event. Exiting.\n");
+		sys_shutdownToSystem ();
+	}
+
 	timerCursorFlash = SDL_AddTimer (500, evt_cursorTimerCallback, nullptr);   // Time in milliseconds
 
 	userEventConsoleThread = SDL_CreateThread (con_processConsoleUserEvent, "userEventConsoleThread", (void *) nullptr);
@@ -143,6 +152,25 @@ void evt_shutdownMutex ()
 	SDL_DestroyMutex (gameMutex);
 }
 
+//-----------------------------------------------------------------------------------------------------
+//
+/// \param Pass in user event code, data1 and data2
+/// \return None
+//
+// Send an event passing an index to the array entry holding the memory pointer to upload the texture
+void evt_sendSDLEvent(int myEventCode, int myEventData1, int myEventData2)
+//-----------------------------------------------------------------------------------------------------
+{
+	SDL_Event event;
+
+	SDL_memset (&event, 0, sizeof (event)); /* or SDL_zero(event) */
+	event.type = SDL_myEventType;
+	event.user.code = myEventCode;
+	event.user.data1 = (void *)myEventData1;
+	event.user.data2 = (void *)myEventData2;
+	SDL_PushEvent (&event);
+}
+
 //------------------------------------------------------------------------
 //
 // Create a custom event to be sent
@@ -187,6 +215,7 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			break;
 
 		case USER_EVENT_GAME:
+		case USER_EVENT_TEXTURE:
 			if ( SDL_LockMutex (gameMutex) == 0 )
 			{
 				gameEventQueue.push (eventData);
@@ -344,7 +373,16 @@ void evt_handleEvents ()
 				break;
 
 			case SDL_USEREVENT:     // A user-specified event
-				break;
+				switch (event.user.code)
+				{
+					case EVENT_TYPE_DO_TEXTURE_UPLOAD:
+						io_uploadTextureIntoGL ((intptr_t)event.user.data1 );
+						break;
+
+					default:
+						break;
+				}
+			break;  // end of SDL_USEREVENT
 
 			default:
 				break;

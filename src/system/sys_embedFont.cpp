@@ -197,6 +197,9 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 	if ( !initDone )
 	{
 		glGenTextures (1, &embeddedTexID);
+
+		printf("Embedded font ID [ %i ]\n", embeddedTexID);
+
 		glBindTexture (GL_TEXTURE_2D, embeddedTexID);
 
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -216,8 +219,8 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 		if ( !fnt_compileLinkShaders ())
 			return;
 
-		fnt_screenSize.x = float(winWidth / 2);
-		fnt_screenSize.y = float(winHeight / 2);
+		fnt_screenSize.x = winWidth * 0.5f;
+		fnt_screenSize.y = winHeight * 0.5f;
 
 		initDone = true;
 	}
@@ -226,7 +229,8 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 	// Populate the vectors with the vertex and texture information for this line of text
 	for ( i = 0; i != strlen (textLine); i++ )
 	{
-		texture_glyph_t *glyph;
+		texture_glyph_t *glyph = nullptr;
+
 		float offset_y = 0.0f;
 
 		for ( j = 0; j < embeddedFontData.glyphs_count; ++j )
@@ -259,6 +263,9 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 		currentY += glyph->advance_y;
 	}
 
+	if (fnt_vertex.empty())
+		return; // No character to display
+
 	//
 	// Now upload and draw the line of text
 	//
@@ -283,10 +290,9 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 	//
 	// Bind the vertex info
 	GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, fnt_g_vertVBO_ID));
-	if (fnt_vertex.size() > 0)
-		GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, sizeof(_fnt_vertex) * fnt_vertex.size(), &fnt_vertex[0].position, GL_DYNAMIC_DRAW));
-	else
-		printf("Error: Vertex is empty.\n");
+
+	GL_ASSERT(glBufferData(GL_ARRAY_BUFFER, sizeof(_fnt_vertex) * fnt_vertex.size(), &fnt_vertex[0].position, GL_DYNAMIC_DRAW));
+
 	GL_ASSERT (glVertexAttribPointer (fnt_inPosition_ID, 2, GL_FLOAT, GL_FALSE, sizeof (_fnt_vertex), (GLvoid *) offsetof (_fnt_vertex, position)));
 	GL_ASSERT (glEnableVertexAttribArray (fnt_inPosition_ID));
 	//

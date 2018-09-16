@@ -25,7 +25,9 @@ include_directories(
         hdr/physfs
         hdr/libGL/freetype-gl
         hdr/libGL/chipmunk
+        hdr/libGL/soil
         /usr/include/freetype2
+        /usr/local/include/SDL2
 )
 
 # Library path
@@ -33,6 +35,7 @@ set(CMAKE_LDFLAGS "${CMAKE_LDFLAGS} -L. -L/usr/local/lib ")
 
 # Define the CXX sources
 set ( CXX_SRCS
+        ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_leakDetector.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_main.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_shutdown.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_startup.cpp
@@ -42,6 +45,7 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_openGLWrap.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_opengl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/game/s_gameEvents.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/game/s_gamePhysics.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/gl_window.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/glad/glad.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_keyboard.cpp
@@ -165,11 +169,16 @@ set(C_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSpaceStep.c
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSpatialIndex.c
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/chipmunk/cpSweep1D.c
-        src/game/s_gamePhysics.cpp hdr/game/s_gamePhysics.h)
+
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/image_DXT.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/image_helper.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/soil.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/stb_image_aug.c
+        src/io/io_textures.cpp hdr/io/io_textures.h)
 
 set_source_files_properties(
         ${CXX_SRCS} PROPERTIES COMPILE_FLAGS
-        " -pg -g -O0 -fpermissive")
+        " -pg -g -O0")
 
 set_source_files_properties(
         ${C_SRCS} PROPERTIES COMPILE_FLAGS

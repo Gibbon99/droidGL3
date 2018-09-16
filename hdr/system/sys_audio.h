@@ -2,7 +2,6 @@
 
 #include "SDL_mixer.h"
 #include "hdr/system/sys_events.h"
-#include "data/scripts/commonDefines.h"
 
 #define AUDIO_INIT_ENGINE   0x00
 #define AUDIO_PLAY_SAMPLE   0x02

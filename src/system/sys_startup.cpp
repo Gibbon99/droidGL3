@@ -9,6 +9,8 @@
 
 typedef void (*GLADcallback) ( const char *name, void *funcptr, int len_args, ... );
 
+bool g_memLeakLastRun;
+
 //-----------------------------------------------------------------------------------------------------
 //
 // Sets a callback which will be called before every function call to a function loaded by glad.
@@ -32,6 +34,17 @@ bool sys_initAll()
 {
 	// Init the console
 	con_initConsole ();
+
+	if ( sys_checkMemLeak ("leakReport.txt"))
+	{
+		con_print (CON_INFO, true, "No memory leak from last run.");
+		g_memLeakLastRun = false;
+	}
+	else
+	{
+		con_print (CON_ERROR, true, "MEMORY LEAK: Check logfile for details.");
+		g_memLeakLastRun = true;
+	}
 
 	if (!lib_openWindow ())
 		return false;
@@ -72,6 +85,11 @@ bool sys_initAll()
 	}
 	else
 		con_print(CON_INFO, true, "Filesystem started.");
+
+	if ( !evt_registerUserEventSetup ())      // Start all the threads
+		return false;
+
+	evt_sendEvent (USER_EVENT_LOGGING, USER_EVENT_LOGGING_START, 0, 0, 0, vec2 (), vec2 (), "logfile.log");
 
 	if ( !util_startScriptEngine ())
 	{

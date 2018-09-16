@@ -1,3 +1,4 @@
+#include <hdr/io/io_textures.h>
 #include "hdr/game/s_gameEvents.h"
 #include "hdr/system/sys_events.h"
 
@@ -39,6 +40,19 @@ int gam_processGameEventQueue ( void *ptr )
 							break;
 					}
 				}
+
+				case USER_EVENT_TEXTURE_LOAD:
+					io_loadTextureFile (tempEventData.eventString);
+					break;
+
+				case USER_EVENT_TEXTURE_ERROR:
+					io_handleTextureFileError(tempEventData.data1, tempEventData.eventString);
+					break;
+
+				case USER_EVENT_TEXTURE_UPLOAD_DONE:
+					io_storeTextureInfoIntoMap (tempEventData.data1, tempEventData.eventString);
+					break;
+
 				default:
 					break;
 			}

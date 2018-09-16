@@ -44,7 +44,15 @@ font_manager_new( size_t width, size_t height, size_t depth )
     }
     self->atlas = atlas;
     self->fonts = vector_new( sizeof(texture_font_t *) );
+
+#if defined _WIN32_
     self->cache = _strdup( " " );
+#endif
+
+#if defined __linux__
+    self->cache = strdup (" ");
+#endif
+
     return self;
 }
 
@@ -144,7 +152,13 @@ font_manager_get_from_description( font_manager_t *self,
 
     if( file_exists( family ) )
     {
-        filename = _strdup( family );
+#if defined _WIN32_
+        filename = _strdup( " " );
+#endif
+
+#if defined __linux__
+        filename = strdup (" ");
+#endif
     }
     else
     {

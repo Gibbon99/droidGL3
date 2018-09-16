@@ -1,5 +1,4 @@
 #include "hdr/system/sys_main.h"
-#include "data/scripts/commonDefines.h"
 #include "hdr/system/sys_events.h"
 
 bool keyForwardDown = false;
@@ -15,14 +14,18 @@ bool keyDoorRightDown = false;
 //-----------------------------------------------------------------------------
 //
 // Read a unicode character
-void io_readChar ( char *character )
+void io_readChar ( const char *character )
 //-----------------------------------------------------------------------------
 {
+	char    compareChar;
+
+	compareChar = *character;
+
 	if ( conCurrentCharCount < MAX_STRING_SIZE - 1 )
 	{
-		if ( (int)character >= 32 )
+		if ( compareChar >= char(' ') )
 		{
-			conCurrentLine.conLine += character[0];
+			conCurrentLine.conLine += compareChar;
 			conCurrentCharCount++;
 		}
 	}

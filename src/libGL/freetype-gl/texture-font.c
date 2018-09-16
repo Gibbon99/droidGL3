@@ -263,18 +263,16 @@ texture_font_init(texture_font_t *self)
 }
 
 // --------------------------------------------- texture_font_new_from_file ---
-texture_font_t *
-texture_font_new_from_file(texture_atlas_t *atlas, const float pt_size,
-        const char *filename)
+texture_font_t * texture_font_new_from_file(texture_atlas_t *atlas, const float pt_size, const char *filename)
 {
     texture_font_t *self;
 
     assert(filename);
 
     self = calloc(1, sizeof(*self));
-    if (!self) {
-        fprintf(stderr,
-                "line %d: No more memory for allocating data\n", __LINE__);
+    if (!self)
+    {
+        fprintf(stderr, "line %d: No more memory for allocating data\n", __LINE__);
         return NULL;
     }
 
@@ -282,9 +280,17 @@ texture_font_new_from_file(texture_atlas_t *atlas, const float pt_size,
     self->size  = pt_size;
 
     self->location = TEXTURE_FONT_FILE;
-    self->filename = _strdup(filename);
 
-    if (texture_font_init(self)) {
+#if defined _WIN32
+    self->filename = _strdup(filename);
+#endif
+
+#if defined __gnu_linux__
+    self->filename = strdup (filename);
+#endif
+
+    if (texture_font_init(self))
+    {
         texture_font_delete(self);
         return NULL;
     }
