@@ -30,6 +30,10 @@ void sys_displayScreen(float interpolation)
 			con_showConsole ();
 			break;
 
+		case MODE_GAME:
+			gl_draw2DQuad (glm::vec2(100,100), glm::vec2(200,200), "quad2d", io_getTextureID ("splash.png") );
+			break;
+
 		default:
 			break;
 	}

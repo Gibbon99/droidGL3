@@ -84,7 +84,6 @@ void aud_loadSoundSamples ()
 		}
 		else
 		{
-			con_print (CON_ERROR, true, "Loaded sample [ %s ]", sound[i].fileName);
 			sound[i].loadedOk = true;
 		}
 	}

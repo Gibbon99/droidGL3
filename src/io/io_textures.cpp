@@ -91,7 +91,7 @@ void io_loadTextureFile(const string fileName)
 	int         imageLength;
 	long       textureMemoryIndex;
 
-	con_print(CON_INFO, true, "Step 1 - load texture file [ %s ]", fileName.c_str());
+//	con_print(CON_INFO, true, "Step 1 - load texture file [ %s ]", fileName.c_str());
 
 	imageLength = (int)io_getFileSize (fileName.c_str());
 
@@ -101,7 +101,7 @@ void io_loadTextureFile(const string fileName)
 		return;
 	}
 
-	con_print (CON_INFO, true, "Image size [ %i ]", imageLength);
+//	con_print (CON_INFO, true, "Image size [ %i ]", imageLength);
 
 	imageBuffer = (char *) malloc (sizeof (char) * imageLength);
 
@@ -122,13 +122,13 @@ void io_loadTextureFile(const string fileName)
 		return;
 	}
 
-	con_print (CON_INFO, true, "File is loaded into memory [ %i ]", imageBuffer);
+//	con_print (CON_INFO, true, "File is loaded into memory [ %i ]", imageBuffer);
 
 	textureMemoryIndex = io_addTextureInfo ( imageBuffer, imageLength, fileName );
 
-	con_print (CON_INFO, true, "Index into array for [ %s ] is [ %i ]", fileName.c_str (), textureMemoryIndex);
+//	con_print (CON_INFO, true, "Index into array for [ %s ] is [ %i ]", fileName.c_str (), textureMemoryIndex);
 
-	con_print (CON_INFO, true, "Send event to main thread to upload into OpenGL.");
+//	con_print (CON_INFO, true, "Send event to main thread to upload into OpenGL.");
 
 	evt_sendSDLEvent (EVENT_TYPE_DO_TEXTURE_UPLOAD, (int)textureMemoryIndex, 0 );
 }
@@ -151,9 +151,9 @@ void io_uploadTextureIntoGL(intptr_t textureMemoryIndex)
 		return;
 	}
 
-	con_print (CON_INFO, true, "File is now loaded into OpenGL.");
+//	con_print (CON_INFO, true, "File is now loaded into OpenGL.");
 
-	con_print (CON_INFO, true, "Send USER EVENT_UPLOAD_DONE.");
+//	con_print (CON_INFO, true, "Send USER EVENT_UPLOAD_DONE.");
 
 	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_UPLOAD_DONE, textureID, 0, 0, vec2 (), vec2 (), textureMemory[(size_t)textureMemoryIndex].textureName);
 
@@ -190,11 +190,8 @@ void io_storeTextureInfoIntoMap(int textureID, string fileName)
 	tempSet.loaded = true;
 	textureSet.insert (std::pair<string, _textureSet> (fileName, tempSet));
 
-	con_print (CON_INFO, true, "Texture [ %s ] with ID [ %i ] now stored in lookup map", fileName.c_str (), textureID);
-
 	// TODO - free memory from vector ??
 }
-
 
 //-----------------------------------------------------------------------------------------------------
 //

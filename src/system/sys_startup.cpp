@@ -1,3 +1,4 @@
+#include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/console/con_conScript.h"
 #include "hdr/game/s_gamePhysics.h"
@@ -49,6 +50,11 @@ bool sys_initAll()
 	if (!lib_openWindow ())
 		return false;
 
+	if ( !evt_registerUserEventSetup ())      // Start all the threads
+		return false;
+
+	SDL_Delay(1000);
+
 	if ( !gladLoadGL ())
 	{
 		con_print (CON_ERROR, true, "Failed to initialize GLAD");
@@ -86,8 +92,7 @@ bool sys_initAll()
 	else
 		con_print(CON_INFO, true, "Filesystem started.");
 
-	if ( !evt_registerUserEventSetup ())      // Start all the threads
-		return false;
+
 
 	evt_sendEvent (USER_EVENT_LOGGING, USER_EVENT_LOGGING_START, 0, 0, 0, vec2 (), vec2 (), "logfile.log");
 
@@ -105,6 +110,27 @@ bool sys_initAll()
 	}
 
 	sys_setupPhysicsEngine ();
+
+	if (!gl_addShaders ())
+		con_print(CON_ERROR, true, "Unable to add shaders.");
+
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition" ), "inPosition");
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
+
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inTextureCoords"), "inTextureCoords");
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inTextureCoords"), "inTextureCoords");
+
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
+
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getUniform ("quad2d", "inTexture0"), "inTexture0");
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getUniform ("quad2d", "inTexture0"), "inTexture0");
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getUniform ("quad2d", "inTexture0"), "inTexture0");
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getUniform ("quad2d", "inTexture0"), "inTexture0");
+
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
+	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
+
 
 	return true;
 }

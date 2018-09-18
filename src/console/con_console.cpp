@@ -63,6 +63,8 @@ int con_processConsoleUserEvent ( void *ptr )
 				consoleEventQueue.pop ();
 				SDL_UnlockMutex (consoleMutex);
 			}
+			else
+				printf("Unable to lock Mutex for CONSOLE\n");
 
 			switch ( tempEventData.eventAction )
 			{

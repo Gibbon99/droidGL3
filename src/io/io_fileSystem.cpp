@@ -206,7 +206,7 @@ int io_getFileIntoMemory ( const char *fileName, void *results )
 
 	if ( -1 == returnCode )
 		{
-			io_logToFile ( "ERROR: Filesystem read failed - [ %s ]", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ) );
+			io_logToFile ( "ERROR: Filesystem read failed - [ %s ] for [ %s ]", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ), fileName );
 			PHYSFS_close (compFile);
 			return -1;
 		}

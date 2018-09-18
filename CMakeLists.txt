@@ -174,7 +174,7 @@ set(C_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/image_helper.c
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/soil.c
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/stb_image_aug.c
-        src/io/io_textures.cpp hdr/io/io_textures.h)
+        src/io/io_textures.cpp hdr/io/io_textures.h src/opengl/gl_shaders.cpp hdr/opengl/gl_shaders.h)
 
 set_source_files_properties(
         ${CXX_SRCS} PROPERTIES COMPILE_FLAGS

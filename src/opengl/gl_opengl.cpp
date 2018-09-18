@@ -1,6 +1,7 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/opengl/gl_opengl.h"
 #include "hdr/opengl/gl_openGLWrap.h"
+#include "hdr/opengl/gl_shaders.h"
 
 #ifdef __linux__
 	#include <execinfo.h>
@@ -22,6 +23,46 @@ std::map<int, _errorMessage> shaderErrorsMap;
 std::map<int, _errorMessage>::iterator it;
 
 int __gl_error_code;
+
+
+//-----------------------------------------------------------------------------
+//
+// Get all the openGL errors
+void gl_getAllGLErrors ( int errorNum, const char *calledFrom, int line )
+//-----------------------------------------------------------------------------
+{
+	errorNum = glGetError ();
+
+	while ( errorNum != GL_NO_ERROR )
+	{
+		con_print (CON_TEXT, true, "OpenGL Error: [ %i ] - [ %i ] - [ %s ]", line, errorNum, calledFrom);
+
+		switch ( errorNum )
+		{
+			case GL_INVALID_ENUM:
+				con_print (CON_TEXT, true, "[ %s ]", "GL_INVALID_ENUM: An unacceptable value is specified for an enumerated argument.");
+				break;
+
+			case GL_INVALID_VALUE:
+				con_print (CON_TEXT, true, "[ %s ]", "GL_INVALID_VALUE: A numeric argument is out of range.");
+				break;
+
+			case GL_INVALID_OPERATION:
+				con_print (CON_TEXT, true, "[ %s ]", "GL_INVALID_OPERATION: The specified operation is not allowed in the current state.");
+				break;
+
+			case GL_OUT_OF_MEMORY:
+				con_print (CON_TEXT, true, "[ %s ]", "GL_OUT_OF_MEMORY: There is not enough memory left to execute the command.");
+				break;
+
+			default:
+				con_print (CON_TEXT, true, "[ %s ]", "Unknown error.");
+				break;
+		}
+
+		errorNum = glGetError ();
+	}
+}
 
 //--------------------------------------------------------------------------------------------
 //
@@ -196,18 +237,18 @@ void gl_registerDebugCallback ()
 	glDebugMessageControl (GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 }
 
-/*
+
 
 //-----------------------------------------------------------------------------
 //
 // Draw a 2D quad
-void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, int whichShader, GLuint whichTexture)
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture)
 //-----------------------------------------------------------------------------
 {
-	glm::vec2 quadVerts[4];
-	static GLuint vao = 0;
-	static GLuint buffers[2];
-	static bool initDone = false;
+	glm::vec2           quadVerts[4];
+	static GLuint       vao = 0;
+	static GLuint       buffers[2];
+	static bool         initDone = false;
 
 	quadVerts[0].x = position.x;
 	quadVerts[0].y = position.y;
@@ -233,43 +274,42 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, int whichShader, GL
 		buffers[0] = wrapglGenBuffers (1, __func__);
 		buffers[1] = wrapglGenBuffers (1, __func__);
 
-		GL_CHECK (glUseProgram (shaderProgram[whichShader].programID));
+		GL_CHECK (glUseProgram (gl_getShaderID(whichShader)));
 
 		// Vertex coordinates buffer
 		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[0]));
 		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (quadVerts), quadVerts, GL_DYNAMIC_DRAW));
-		GL_CHECK (glEnableVertexAttribArray (shaderProgram[whichShader].inVertsID));
-		GL_CHECK (glVertexAttribPointer (shaderProgram[whichShader].inVertsID, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
+		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib(whichShader, "inPosition")));
+		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
 
 		// Texture coordinates buffer
 		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[1]));
 		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (quadTexCoords), quadTexCoords, GL_DYNAMIC_DRAW));
-		GL_CHECK (glEnableVertexAttribArray (shaderProgram[whichShader].inTextureCoordsID));
-		GL_CHECK (glVertexAttribPointer (shaderProgram[whichShader].inTextureCoordsID, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
+		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib(whichShader, "inTextureCoords")));
+		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inTextureCoords"), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
 
 		initDone = false;
 	}
 
-	GL_CHECK (glUseProgram (shaderProgram[whichShader].programID));
+	GL_CHECK (glUseProgram (gl_getShaderID(whichShader)));
 	//
 	// Bind texture if it's not already bound as current texture
 	GL_CHECK (glActiveTexture (GL_TEXTURE0));
 
 	GL_CHECK (glBindTexture (GL_TEXTURE_2D, whichTexture));
 
-	GL_CHECK (glUniform1i (shaderProgram[whichShader].inTextureUnit, 0));
+	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture0"), 0));
 
-	GL_CHECK (glUniform2f (shaderProgram[whichShader].screenSizeID, (float) winWidth / 2, (float) winHeight / 2));
+	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
 
 	GL_CHECK (glBindVertexArray (vao));
 	//
 	// Enable attribute to hold vertex information
-	GL_CHECK (glEnableVertexAttribArray (shaderProgram[whichShader].inVertsID));
-	GL_CHECK (glEnableVertexAttribArray (shaderProgram[whichShader].inTextureCoordsID));
+	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib(whichShader, "inPosition")));
+	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib(whichShader, "inTextureCoords")));
 
 	GL_CHECK (glDrawArrays (GL_TRIANGLE_FAN, 0, 4));
 
 	glDeleteBuffers (2, buffers);
 	glDeleteVertexArrays (1, &vao);
 }
- */
