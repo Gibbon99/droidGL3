@@ -61,7 +61,7 @@ bool io_startFileSystem()
 		{
 			con_print (CON_ERROR, true, "Failed to set write path [ %s ]", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ) );
 			con_print (CON_ERROR, true, "The directory [ data ] holding all the data files is not present. Check the installation." );
-			printf ( "INFO: The directory [ data ] holding all the data files is not present. Check the installation.\n" );
+			printf ( "ERROR: The directory [ data ] holding all the data files is not present. Check the installation.\n" );
 			fileSystemReady = false;
 			return false;
 		}
@@ -93,7 +93,7 @@ bool io_startFileSystem()
 	// Add directory for loading textures - move to archive file
 	if ( 0 == PHYSFS_mount ( "data//textures", "/", 1 ) )
 		{
-			con_print (CON_ERROR, true, "Failed to set search path - shaders [ %s ]", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ) );
+			con_print (CON_ERROR, true, "Failed to set search path - textures [ %s ]", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ) );
 			fileSystemReady = false;
 			return false;
 		}
@@ -101,7 +101,7 @@ bool io_startFileSystem()
 	// Add directory for loading old levels for tile information
 	if ( 0 == PHYSFS_mount ( "data//maps", "/", 1 ) )
 		{
-			con_print (CON_ERROR, true, "Failed to set search path - import [ %s ]", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ) );
+			con_print (CON_ERROR, true, "Failed to set search path - maps [ %s ]", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ) );
 			fileSystemReady = false;
 			return false;
 		}
@@ -134,7 +134,7 @@ PHYSFS_sint64 io_getFileSize ( const char *fileName )
 
 	if ( false == fileSystemReady )
 		{
-			io_logToFile ( "PHYSFS system has not been initialised. Can't load [ %s ]", fileName );
+			con_print(CON_ERROR, true, "PHYSFS system has not been initialised. Can't process [ %s ].", fileName );
 			return -1;
 		}
 
@@ -144,7 +144,7 @@ PHYSFS_sint64 io_getFileSize ( const char *fileName )
 
 	if ( NULL == compFile )
 		{
-			io_logToFile ( "ERROR: Filesystem can't open file [ %s ]", fileName );
+			con_print(CON_ERROR, true, "Filesystem can't open file [ %s ] - [ %s ].", fileName, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 			return -1;
 		}
 
@@ -154,7 +154,7 @@ PHYSFS_sint64 io_getFileSize ( const char *fileName )
 
 	if ( -1 == fileLength )
 		{
-			io_logToFile ( "ERROR: Unable to determine file length for [ %s ]", fileName );
+			con_print(CON_ERROR, true, "Unable to determine file length for [ %s ] - [ %s ].", fileName, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 			return -1;
 		}
 
@@ -175,7 +175,7 @@ int io_getFileIntoMemory ( const char *fileName, void *results )
 
 	if ( !fileSystemReady )
 		{
-			io_logToFile ( "PHYSFS system has not been initialised. Can't load [ %s ]", fileName );
+			con_print(CON_ERROR, true, "PHYSFS system has not been initialised. Can't load [ %s ].", fileName );
 			return -1;
 		}
 
@@ -185,7 +185,7 @@ int io_getFileIntoMemory ( const char *fileName, void *results )
 
 	if ( nullptr == compFile )
 		{
-			io_logToFile ( "ERROR: Filesystem can't open file [ %s ]", fileName );
+			con_print(CON_ERROR, true, "Filesystem can't open file [ %s ] - [ %s ].", fileName, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 			return -1;
 		}
 
@@ -195,18 +195,18 @@ int io_getFileIntoMemory ( const char *fileName, void *results )
 
 	if ( -1 == fileLength )
 		{
-			io_logToFile ( "Unable to determine file length for [ %s ]", fileName );
+			con_print(CON_ERROR, true, "Unable to determine file length for [ %s ] - [ %s ].", fileName, PHYSFS_getErrorByCode(PHYSFS_getLastErrorCode()));
 			PHYSFS_close (compFile);
 			return -1;
 		}
 
 	//
 	// Read contents of file into the pointer
-	int returnCode = ( int ) PHYSFS_readBytes ( compFile, ( void * ) results, ( PHYSFS_uint32 ) fileLength );
+	PHYSFS_sint64 returnCode = PHYSFS_readBytes ( compFile, ( void * ) results, fileLength);
 
 	if ( -1 == returnCode )
 		{
-			io_logToFile ( "ERROR: Filesystem read failed - [ %s ] for [ %s ]", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ), fileName );
+			con_print(CON_ERROR, true, "ERROR: Filesystem read failed - [ %s ] for [ %s ].", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ), fileName );
 			PHYSFS_close (compFile);
 			return -1;
 		}

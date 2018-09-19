@@ -1,6 +1,6 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/io/io_fileSystem.h"
-#include "gl_shaders.h"
+#include "hdr/openGL/gl_shaders.h"
 #include <map>
 
 typedef struct

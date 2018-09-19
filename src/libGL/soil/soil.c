@@ -13,13 +13,20 @@
 	* everybody at gamedev.net
 */
 
+#pragma comment(lib,"OpenGL32")
+
 #define SOIL_CHECK_FOR_GL_ERRORS 0
+
+#define GL_LUMINANCE 1
+#define GL_LUMINANCE_ALPHA 2
 
 #ifdef WIN32
 	#define WIN32_LEAN_AND_MEAN
 	#include <windows.h>
 	#include <wingdi.h>
-	#include <GL/gl.h>
+//	#include <GL/gl.h>
+#include "hdr/libGL/glad/glad.h"
+
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
 	/*	I can't test this Apple stuff!	*/
 	#include <OpenGL/gl.h>
@@ -30,10 +37,10 @@
 	#include <GL/glx.h>
 #endif
 
-#include "soil.h"
-#include "stb_image_aug.h"
-#include "image_helper.h"
-#include "image_DXT.h"
+#include "hdr/libGL/soil/soil.h"
+#include "hdr/libGL/soil/stb_image_aug.h"
+#include "hdr/libGL/soil/image_helper.h"
+#include "hdr/libGL/soil/image_DXT.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -1291,8 +1298,8 @@ unsigned int
 			check_for_GL_errors( "GL_TEXTURE_WRAP_*" );
 		} else
 		{
-			/*	unsigned int clamp_mode = SOIL_CLAMP_TO_EDGE;	*/
-			unsigned int clamp_mode = GL_CLAMP;
+			unsigned int clamp_mode = SOIL_CLAMP_TO_EDGE;
+			//unsigned int clamp_mode = GL_CLAMP;
 			glTexParameteri( opengl_texture_type, GL_TEXTURE_WRAP_S, clamp_mode );
 			glTexParameteri( opengl_texture_type, GL_TEXTURE_WRAP_T, clamp_mode );
 			if( opengl_texture_type == SOIL_TEXTURE_CUBE_MAP )
@@ -1655,8 +1662,8 @@ unsigned int SOIL_direct_load_DDS_from_memory(
 			glTexParameteri( opengl_texture_type, SOIL_TEXTURE_WRAP_R, GL_REPEAT );
 		} else
 		{
-			/*	unsigned int clamp_mode = SOIL_CLAMP_TO_EDGE;	*/
-			unsigned int clamp_mode = GL_CLAMP;
+			unsigned int clamp_mode = SOIL_CLAMP_TO_EDGE;
+			//unsigned int clamp_mode = GL_CLAMP;
 			glTexParameteri( opengl_texture_type, GL_TEXTURE_WRAP_S, clamp_mode );
 			glTexParameteri( opengl_texture_type, GL_TEXTURE_WRAP_T, clamp_mode );
 			glTexParameteri( opengl_texture_type, SOIL_TEXTURE_WRAP_R, clamp_mode );

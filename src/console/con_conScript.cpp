@@ -17,9 +17,6 @@ void scr_Output ( const char *msgText, void *outParam );
 
 void MessageCallback ( const asSMessageInfo *msg, void *param );
 
-// Change to string??
-static char *fileLocation = NULL; // Pointer to memory to hold the scriptFile
-
 //-----------------------------------------------------------------------------
 //
 // AngelScript engine
@@ -238,7 +235,7 @@ bool util_registerFunctions()
 
 	if ( false == scriptEngineStarted )
 		{
-			con_print ( true, true, "Failed to register functions. ScriptEngine is not ready." );
+			con_print ( CON_ERROR, true, "Failed to register functions. ScriptEngine is not ready." );
 			return false;
 		}
 
@@ -260,15 +257,15 @@ bool util_registerFunctions()
 
 			if ( r < 0 )
 				{
-					con_print ( true, true, "Failed to registerGlobalFunction [ %s ]", hostScriptFunctions[count].scriptFunctionName.c_str() );
-					con_print ( true, true, "Error [ %s ]", sys_getScriptError ( r ) );
+					con_print (CON_ERROR, true, "Failed to registerGlobalFunction [ %s ]", hostScriptFunctions[count].scriptFunctionName.c_str() );
+					con_print (CON_ERROR, true, "Error [ %s ]", sys_getScriptError ( r ) );
 					return false;
 
 				}
 
 			else
 				{
-					con_print ( true, true, "Registered function [ %s ]", hostScriptFunctions[count].scriptFunctionName.c_str() );
+//					con_print ( CON_INFO, true, "Registered function [ %s ]", hostScriptFunctions[count].scriptFunctionName.c_str() );
 				}
 
 			count++;
@@ -305,7 +302,7 @@ bool util_registerVariables()
 					con_print (CON_ERROR, true, "Script: Error: Couldn't register variable - [ %s ]", hostVariables[count].scriptFunctionName.c_str() );
 					return false;
 				}
-			con_print (CON_ERROR, true, "Script: Registered variable - [ %s ]", hostVariables[count].scriptFunctionName.c_str() );
+//			con_print (CON_INFO, true, "Script: Registered variable - [ %s ]", hostVariables[count].scriptFunctionName.c_str() );
 			count++;
 		}
 
@@ -343,7 +340,7 @@ bool util_cacheFunctionIDs()
 
 			else
 				{
-					con_print (CON_ERROR, false, "Func ID for [ %s ] - [ %i ]", scriptFunctionName[i].functionName.c_str(), tempFunctionName.funcID );
+//					con_print (CON_ERROR, false, "Func ID for [ %s ] - [ %i ]", scriptFunctionName[i].functionName.c_str(), tempFunctionName.funcID );
 				}
 
 			//
@@ -365,72 +362,22 @@ bool util_cacheFunctionIDs()
 	return true;
 }
 
-//-------------------------------------------------------------------------------
-//
-// Load into memory the file to be read
-bool sys_fileIntoMemory ( char *whichFile )
-//-------------------------------------------------------------------------------
-{
-	PHYSFS_sint64 		fileSize;
-	char 				fileName[128];
-	PHYSFS_File*		fileHandle;
-
-	strcpy ( fileName, whichFile );
-
-	printf ( "Opening file [ %s ] into memory\n", fileName );
-
-	fileHandle = PHYSFS_openRead ( fileName );
-
-	if ( nullptr == fileHandle )
-		{
-			con_print ( true, true, "Open error [ %s ]", fileName );
-			return false;
-		}
-
-	fileSize = PHYSFS_fileLength ( fileHandle );
-	con_print ( true, true, "Size of file [ %i ] - [ %s ]", fileSize, fileName );
-
-	//
-	// if memory already allocated - free and remalloc it
-	if ( fileLocation )
-		{
-			free ( fileLocation );
-			fileLocation = nullptr;
-		}
-
-	fileLocation = ( char * ) malloc ( sizeof ( char ) * ( int ) fileSize );
-
-	if ( nullptr == fileLocation )
-		{
-			return false;
-		}
-
-	if ( PHYSFS_readBytes ( fileHandle, ( void * ) fileLocation, ( size_t ) fileSize) <= 0 )
-		{
-			free(fileLocation);
-			return false;
-		}
-
-	PHYSFS_close ( fileHandle );
-
-	fileLocation[fileSize - 1] = '\0';
-	return true;
-}
-
 //-----------------------------------------------------------------------------
 //
 // Load the scripts into memory
 bool util_loadAndCompileScripts()
 //-----------------------------------------------------------------------------
 {
-	int fileCounter = 0;
-	int retCode = 0;
+	int				fileCounter = 0;
+	int				retCode = 0;
+	char			*fileResults = nullptr;
+	PHYSFS_sint64	fileLength;
 
 	retCode = builder.StartNewModule ( scriptEngine, "ModuleName" );
 
 	if ( retCode < 0 )
 		{
-			con_print (CON_ERROR, true, "Error: Failed to start new module" );
+			con_print (CON_ERROR, true, "Failed to start script module." );
 			return false;
 		}
 
@@ -439,26 +386,39 @@ bool util_loadAndCompileScripts()
 			//
 			// Load the script file
 			//
-			if ( !sys_fileIntoMemory (( char* ) scriptInfo[fileCounter].scriptFileName.c_str() ))
+			fileLength = io_getFileSize(scriptInfo[fileCounter].scriptFileName.c_str());
+			if (fileLength < 0)
 				{
-					con_print (CON_ERROR, true, "Error: Failed to load scriptFile [ %s ]", scriptInfo[fileCounter].scriptFileName.c_str() );
+					con_print(CON_ERROR, true, "Failed to locate script file [ %s ].", scriptInfo[fileCounter].scriptFileName.c_str());
 					return false;
 				}
 
-			retCode = builder.AddSectionFromMemory ( scriptInfo[fileCounter].scriptName.c_str(), fileLocation, ( int ) strlen ( fileLocation ), 0 );
+			fileResults = (char *)malloc(fileLength);
+			if (nullptr == fileResults)
+			{
+				con_print(CON_ERROR, true, "Failed to get memory to hold script file [ %s ].", scriptInfo[fileCounter].scriptFileName.c_str());
+				return false;
+			}
 
+			if (-1 == io_getFileIntoMemory(scriptInfo[fileCounter].scriptFileName.c_str(), fileResults))
+				{
+					con_print (CON_ERROR, true, "Failed to load script file [ %s ].", scriptInfo[fileCounter].scriptFileName.c_str() );
+					return false;
+				}
+
+			retCode = builder.AddSectionFromMemory(scriptInfo[fileCounter].scriptName.c_str(), fileResults, (unsigned int)fileLength, 0);
 			if ( retCode < 0 )
 				{
-					con_print (CON_ERROR, true, "Error: Failed to add script file [ %s ]", scriptInfo[fileCounter].scriptFileName.c_str() );
+					con_print (CON_ERROR, true, "Failed to add script file [ %s ].", scriptInfo[fileCounter].scriptFileName.c_str() );
 					return false;
 				}
 
 			fileCounter++;
 
-			if ( fileLocation )
+			if (fileResults)
 			{
-				free (fileLocation);        // Prevent memory leak if it fails to build
-				fileLocation = nullptr;
+				free (fileResults);        // Prevent memory leak if it fails to build
+				fileResults = nullptr;
 			}
 		}
 
@@ -467,7 +427,7 @@ bool util_loadAndCompileScripts()
 	//
 	if ( builder.BuildModule() < 0 )
 		{
-			con_print (CON_ERROR, true, "Error: Failed to build the module." );
+			con_print (CON_ERROR, true, "Failed to build the script module." );
 			return false;
 		}
 
@@ -475,10 +435,10 @@ bool util_loadAndCompileScripts()
 	// Free memory used to hold scripts while they are loaded into engine
 	// if memory already allocated - free and remalloc it
 	//
-	if ( fileLocation )
+	if (fileResults)
 		{
-			free ( fileLocation );
-			fileLocation = nullptr;
+			free (fileResults);
+			fileResults = nullptr;
 		}
 
 	return true;
@@ -567,9 +527,7 @@ bool util_executeScriptFunction ( string functionName, string funcParam )
 					//
 					testInt = atoi ( funcParam.c_str() );
 					scriptContext->SetArgAddress ( 0, &testInt );
-
 				}
-
 			else
 				{
 					//
@@ -590,11 +548,11 @@ bool util_executeScriptFunction ( string functionName, string funcParam )
 			// The execution didn't finish as we had planned. Determine why.
 			//
 			if ( ret == asEXECUTION_ABORTED )
-				con_print (CON_ERROR, true, "Script: Error: The script was aborted before it could finish. Probably it timed out." );
+				con_print (CON_ERROR, true, "Script: The script was aborted before it could finish. Probably it timed out." );
 
 			else if ( ret == asEXECUTION_EXCEPTION )
 				{
-					con_print (CON_ERROR, true, "Script: Error: The script ended with an exception." );
+					con_print (CON_ERROR, true, "Script: The script ended with an exception." );
 					//
 					// Write some information about the script exception
 					//
@@ -661,14 +619,14 @@ bool util_startScriptEngine()
 	if ( !strstr ( asGetLibraryOptions(), "AS_MAX_PORTABILTY" ) )
 		{
 			callType = asCALL_CDECL;
-			con_print (CON_ERROR, true, "Script: Call type [ %s ]", "asCALL_CDECL" );
+//			con_print (CON_ERROR, true, "Script: Call type [ %s ]", "asCALL_CDECL" );
 
 		}
 
 	else
 		{
 			callType = asCALL_STDCALL;
-			con_print (CON_ERROR, true, "Script: Call type [ %s ]", "asCALL_STDCALL" );
+//			con_print (CON_ERROR, true, "Script: Call type [ %s ]", "asCALL_STDCALL" );
 		}
 
 	// Register the script string type
@@ -702,11 +660,11 @@ bool sys_addScriptConsoleFunction ( string funcName, string funcPtr, bool setPar
 
 	if ( tempScriptFunction.funcID == NULL  )
 		{
-			con_print ( true, true, "Err: Failed to get function ID for [ %s ].", tempScriptFunction.functionName.c_str() );
+			con_print ( CON_ERROR, true, "Script: Failed to get function ID for [ %s ].", tempScriptFunction.functionName.c_str() );
 			return false;
 		}
 
-	con_print ( true, true, "FuncID for script function [ %s ] is [ %i ]", tempScriptFunction.functionName.c_str(), tempScriptFunction.funcID );
+//	con_print ( true, true, "FuncID for script function [ %s ] is [ %i ]", tempScriptFunction.functionName.c_str(), tempScriptFunction.funcID );
 
 	// TODO: Handle adding parameter value
 
@@ -722,7 +680,7 @@ bool sys_shutDownScriptEngine()
 //-----------------------------------------------------------------------------
 {
 	context->Release();
-	con_print ( CON_TEXT, true, "Script: Info: Script engine released." );
+	con_print ( CON_INFO, true, "Script: Script engine released." );
 	return true;
 }
 
@@ -738,7 +696,7 @@ bool sys_shutDownScriptEngine()
 void scr_Output ( const char *msgText, void *outParam )
 //-----------------------------------------------------------------------------
 {
-	con_print ( CON_TEXT, true, "Script output > [ %s ]", msgText );
+	con_print ( CON_INFO, true, "Script > [ %s ]", msgText );
 }
 
 void MessageCallback ( const asSMessageInfo *msg, void *param )
@@ -751,6 +709,7 @@ void MessageCallback ( const asSMessageInfo *msg, void *param )
 	else if ( msg->type == asMSGTYPE_INFORMATION )
 		type = "INFO";
 
+	con_print(CON_INFO, true, "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
 	printf ( "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message );
 }
 

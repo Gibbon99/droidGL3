@@ -34,7 +34,7 @@
 using namespace std;
 using namespace glm;
 
-const int TICKS_PER_SECOND = 60;
+const int TICKS_PER_SECOND = 30;
 const int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
 const int MAX_FRAMESKIP = 5;
 

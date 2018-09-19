@@ -5,6 +5,7 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/libGL/gl_window.h"
 #include "hdr/system/sys_timing.h"
+#include "hdr/system/sys_audio.h"
 
 #ifdef GLAD_DEBUG
 
@@ -87,32 +88,47 @@ bool sys_initAll()
 	if (!io_startFileSystem ())
 	{
 		con_print(CON_ERROR, true, "Could not start filesystem.");
-//		return false;
+		return false;
 	}
 	else
+	{
 		con_print(CON_INFO, true, "Filesystem started.");
 
+		evt_sendEvent(USER_EVENT_LOGGING, USER_EVENT_LOGGING_START, 0, 0, 0, vec2(), vec2(), "logfile.log");
+
+		if (!util_startScriptEngine())
+		{
+			con_print(CON_ERROR, true, "Error: Unable to start scripting engine.");
+		}
+		else
+		{
+
+			util_registerVariables();
+			util_registerFunctions();
+			util_loadAndCompileScripts();
+			util_cacheFunctionIDs();
+		}
+
+		sys_setupPhysicsEngine();
+
+		if (!gl_addShaders())
+			con_print(CON_ERROR, true, "Unable to add shaders.");
+
+		evt_sendEvent(USER_EVENT_AUDIO, AUDIO_INIT_ENGINE, 0, 0, 0, vec2(), vec2(), "");
 
 
-	evt_sendEvent (USER_EVENT_LOGGING, USER_EVENT_LOGGING_START, 0, 0, 0, vec2 (), vec2 (), "logfile.log");
-
-	if ( !util_startScriptEngine ())
-	{
-		con_print (CON_ERROR, true, "Error: Unable to start scripting engine.");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "splash.png");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "alltiles.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "001.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "123.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "139.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "247.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "249.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "296.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "302.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "329.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "420.bmp");
+		evt_sendEvent(USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "476.bmp");
 	}
-	else
-	{
-
-		util_registerVariables ();
-		util_registerFunctions ();
-		util_loadAndCompileScripts ();
-		util_cacheFunctionIDs ();
-	}
-
-	sys_setupPhysicsEngine ();
-
-	if (!gl_addShaders ())
-		con_print(CON_ERROR, true, "Unable to add shaders.");
-
 	return true;
 }

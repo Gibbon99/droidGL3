@@ -6,7 +6,7 @@
     MIT license
 */
 
-#include "image_helper.h"
+#include "hdr/libGL/soil/image_helper.h"
 #include <stdlib.h>
 #include <math.h>
 

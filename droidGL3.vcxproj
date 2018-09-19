@@ -69,12 +69,17 @@
     <LibraryPath>C:\Users\dberry\source\repos\droidGL3\packages\sdl2.nuget.2.0.8\build\native\lib\Win32\dynamic;C:\Users\dberry\source\repos\droidGL3\packages\sdl2_mixer.vc.2.0.1.1\build\native\lib\Win32\dynamic;$(LibraryPath)</LibraryPath>
     <IntDir>$(Configuration)_win32\</IntDir>
     <TargetName>$(ProjectName)_win32</TargetName>
-    <OutDir>$(SolutionDir)$(Configuration)_win32\</OutDir>
+    <OutDir>$(SolutionDir)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(Configuration)_win32\</IntDir>
-    <OutDir>$(SolutionDir)$(Configuration)_win32\</OutDir>
+    <OutDir>../.</OutDir>
+    <IncludePath>C:\Users\dberry\source\repos\droidGL3;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\dberry\source\repos\droidGL3\packages\soil.1.16.0\build\native\lib\Win32\Debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Users\dberry\source\repos\droidGL3;C:\Users\dberry\source\repos\droidGL3\hdr\script;C:\Users\dberry\source\repos\droidGL3\hdr\physfs;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -104,6 +109,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -213,7 +219,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="CMakeLists.txt" />
+    <Text Include="CMakeLists.txt">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="hdr\console\con_conScript.h" />
@@ -223,6 +231,7 @@
     <ClInclude Include="hdr\io\io_fileSystem.h" />
     <ClInclude Include="hdr\io\io_keyboard.h" />
     <ClInclude Include="hdr\io\io_logfile.h" />
+    <ClInclude Include="hdr\io\io_textures.h" />
     <ClInclude Include="hdr\libGL\chipmunk\chipmunk.h" />
     <ClInclude Include="hdr\libGL\chipmunk\chipmunk_ffi.h" />
     <ClInclude Include="hdr\libGL\chipmunk\chipmunk_private.h" />
@@ -394,8 +403,15 @@
     <ClInclude Include="hdr\libGL\glm\virtrev\xstream.hpp" />
     <ClInclude Include="hdr\libGL\gl_window.h" />
     <ClInclude Include="hdr\libGL\KHR\khrplatform.h" />
+    <ClInclude Include="hdr\libGL\soil\image_DXT.h" />
+    <ClInclude Include="hdr\libGL\soil\image_helper.h" />
+    <ClInclude Include="hdr\libGL\soil\soil.h" />
+    <ClInclude Include="hdr\libGL\soil\stbi_DDS_aug.h" />
+    <ClInclude Include="hdr\libGL\soil\stbi_DDS_aug_c.h" />
+    <ClInclude Include="hdr\libGL\soil\stb_image_aug.h" />
     <ClInclude Include="hdr\opengl\gl_opengl.h" />
     <ClInclude Include="hdr\opengl\gl_openGLWrap.h" />
+    <ClInclude Include="hdr\opengl\gl_shaders.h" />
     <ClInclude Include="hdr\physfs\physfs.h" />
     <ClInclude Include="hdr\physfs\physfs_casefolding.h" />
     <ClInclude Include="hdr\physfs\physfs_internal.h" />
@@ -447,6 +463,7 @@
     <ClInclude Include="hdr\system\sys_defines.h" />
     <ClInclude Include="hdr\system\sys_embedFont.h" />
     <ClInclude Include="hdr\system\sys_events.h" />
+    <ClInclude Include="hdr\system\sys_leakDetector.h" />
     <ClInclude Include="hdr\system\sys_main.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
@@ -467,6 +484,7 @@
     <ClCompile Include="src\io\io_fileSystem.cpp" />
     <ClCompile Include="src\io\io_keyboard.cpp" />
     <ClCompile Include="src\io\io_logfile.cpp" />
+    <ClCompile Include="src\io\io_textures.cpp" />
     <ClCompile Include="src\libGL\chipmunk\chipmunk.c" />
     <ClCompile Include="src\libGL\chipmunk\cpArbiter.c" />
     <ClCompile Include="src\libGL\chipmunk\cpArray.c" />
@@ -512,8 +530,13 @@
     <ClCompile Include="src\libGL\freetype-gl\vertex-buffer.c" />
     <ClCompile Include="src\libGL\glad\glad.cpp" />
     <ClCompile Include="src\libGL\gl_window.cpp" />
+    <ClCompile Include="src\libGL\soil\image_DXT.c" />
+    <ClCompile Include="src\libGL\soil\image_helper.c" />
+    <ClCompile Include="src\libGL\soil\soil.c" />
+    <ClCompile Include="src\libGL\soil\stb_image_aug.c" />
     <ClCompile Include="src\opengl\gl_opengl.cpp" />
     <ClCompile Include="src\opengl\gl_openGLWrap.cpp" />
+    <ClCompile Include="src\opengl\gl_shaders.cpp" />
     <ClCompile Include="src\physfs\physfs.c" />
     <ClCompile Include="src\physfs\physfs_archiver_7z.c" />
     <ClCompile Include="src\physfs\physfs_archiver_dir.c" />
@@ -581,6 +604,7 @@
     <ClCompile Include="src\system\sys_audio.cpp" />
     <ClCompile Include="src\system\sys_embedFont.cpp" />
     <ClCompile Include="src\system\sys_events.cpp" />
+    <ClCompile Include="src\system\sys_leakDetector.cpp" />
     <ClCompile Include="src\system\sys_main.cpp" />
     <ClCompile Include="src\system\sys_shutdown.cpp" />
     <ClCompile Include="src\system\sys_startup.cpp" />
