@@ -114,23 +114,5 @@ bool sys_initAll()
 	if (!gl_addShaders ())
 		con_print(CON_ERROR, true, "Unable to add shaders.");
 
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition" ), "inPosition");
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
-
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inTextureCoords"), "inTextureCoords");
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inTextureCoords"), "inTextureCoords");
-
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
-
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getUniform ("quad2d", "inTexture0"), "inTexture0");
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getUniform ("quad2d", "inTexture0"), "inTexture0");
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getUniform ("quad2d", "inTexture0"), "inTexture0");
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getUniform ("quad2d", "inTexture0"), "inTexture0");
-
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
-	con_print (CON_INFO, true, "ID [ %i ] for [ %s ]", gl_getAttrib ("quad2d", "inPosition"), "inPosition");
-
-
 	return true;
 }

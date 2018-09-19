@@ -17,3 +17,6 @@ void io_handleKeyboardEvent ( SDL_Event event );
 
 // Read a unicode character
 void io_readChar ( int character );
+
+// Process keyboard presses
+void io_processKeyboard ();

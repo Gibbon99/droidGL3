@@ -13,6 +13,88 @@ bool keyDoorRightDown = false;
 
 //-----------------------------------------------------------------------------
 //
+// Process keyboard presses
+void io_processKeyboard()
+//-----------------------------------------------------------------------------
+{
+	float moveSpeed = 1.0f;
+
+	if (keyLeftDown)
+		currentVelocity.x -= moveSpeed;
+
+	if (keyRightDown)
+		currentVelocity.x += moveSpeed;
+
+	if (keyUpDown)
+		currentVelocity.y += moveSpeed;
+
+	if (keyDownDown)
+		currentVelocity.y -= moveSpeed;
+
+
+	if ( !keyLeftDown )
+	{
+		if ( currentVelocity.x < 0.0f )
+		{
+			currentVelocity.x += moveSpeed;
+			if ( currentVelocity.x > 0.0f )
+				currentVelocity.x = 0.0f;
+		}
+	}
+
+	if ( !keyRightDown )
+	{
+		if (currentVelocity.x > 0.0f)
+		{
+			currentVelocity.x -= moveSpeed;
+			if (currentVelocity.x < 0.0f)
+				currentVelocity.x = 0.0f;
+		}
+	}
+
+
+	if ( !keyUpDown )
+	{
+		if (currentVelocity.y > 0.0f)
+		{
+			currentVelocity.y -= moveSpeed;
+			if (currentVelocity.y < 0.0f)
+				currentVelocity.y = 0.0f;
+		}
+	}
+
+
+	if ( !keyDownDown )
+	{
+		if (currentVelocity.y < 0.0f)
+		{
+			currentVelocity.y += moveSpeed;
+			if ( currentVelocity.y > 0.0f )
+				currentVelocity.y = 0.0f;
+		}
+	}
+
+
+	// Check bounds
+	if (currentVelocity.x < -5.0f)
+		currentVelocity.x = -5.0f;
+
+	if (currentVelocity.x > 5.0f)
+		currentVelocity.x = 5.0f;
+
+	if (currentVelocity.y < -5.0f)
+		currentVelocity.y = -5.0f;
+
+	if (currentVelocity.y > 5.0f)
+		currentVelocity.y = 5.0f;
+
+	quadPosition.x += currentVelocity.x;
+	quadPosition.y += currentVelocity.y;
+}
+
+
+//-----------------------------------------------------------------------------
+//
 // Read a unicode character
 void io_readChar ( const char *character )
 //-----------------------------------------------------------------------------
@@ -58,19 +140,11 @@ void io_readGameSpecialKeys ( SDL_Keycode key, int action )
 				conCurrentCharCount = 0;
 				break;
 
-			case SDLK_w:
-				keyForwardDown = true;
-				break;
-
-			case SDLK_s:
-				keyBackwardDown = true;
-				break;
-
-			case SDLK_a:
+			case SDLK_LEFT:
 				keyLeftDown = true;
 				break;
 
-			case SDLK_d:
+			case SDLK_RIGHT:
 				keyRightDown = true;
 				break;
 
@@ -100,19 +174,11 @@ void io_readGameSpecialKeys ( SDL_Keycode key, int action )
 	{
 		switch ( key )
 		{
-			case SDLK_w:
-				keyForwardDown = false;
-				break;
-
-			case SDLK_s:
-				keyBackwardDown = false;
-				break;
-
-			case SDLK_a:
+			case SDLK_LEFT:
 				keyLeftDown = false;
 				break;
 
-			case SDLK_d:
+			case SDLK_RIGHT:
 				keyRightDown = false;
 				break;
 
@@ -122,14 +188,6 @@ void io_readGameSpecialKeys ( SDL_Keycode key, int action )
 
 			case SDLK_DOWN:
 				keyDownDown = false;
-				break;
-
-			case SDLK_LEFT:
-				keyDoorLeftDown = false;
-				break;
-
-			case SDLK_RIGHT:
-				keyDoorRightDown = false;
 				break;
 
 			default:

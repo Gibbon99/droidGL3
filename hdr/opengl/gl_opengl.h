@@ -19,7 +19,7 @@ typedef struct
 void gl_getAllGLErrors ( int errorNum, const char *calledFrom, int line );
 
 // Draw a 2D quad
-void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichShader, GLuint whichTexture );
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichShader, GLuint whichTexture, float interpolation );
 
 // Load the font texture
 bool gl_loadFontTexture ( const char *fontFilename );

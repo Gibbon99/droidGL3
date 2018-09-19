@@ -2,6 +2,7 @@
 #include <string>
 #include <hdr/io/io_textures.h>
 #include <hdr/system/sys_audio.h>
+#include <hdr/io/io_keyboard.h>
 #include "hdr/libGL/gl_window.h"
 #include "hdr/system/sys_embedFont.h"
 #include "hdr/system/sys_main.h"
@@ -12,6 +13,9 @@ bool    quitProgram;
 int     loops;
 float   interpolation;
 int     currentMode;
+
+vec2 quadPosition;
+vec2 currentVelocity;
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -31,16 +35,17 @@ void sys_displayScreen(float interpolation)
 			break;
 
 		case MODE_GAME:
-			gl_draw2DQuad (glm::vec2(100,100), glm::vec2(200,200), "quad2d", io_getTextureID ("splash.png") );
+			gl_draw2DQuad (quadPosition, glm::vec2(400,400), "quad2d", io_getTextureID ("splash.png"), interpolation );
 			break;
 
 		default:
 			break;
 	}
 
-	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ]", fpsPrint, thinkFpsPrint);
+	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ]", fpsPrint, thinkFpsPrint, interpolation);
+	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Velocity [ %3.3f %3.3f ] Pos [ %3.3f %3.3f ]", currentVelocity.x, currentVelocity.y, quadPosition.x, quadPosition.y);
 	if ( g_memLeakLastRun)
-		fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "MEM LEAK");
+		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
 
 	lib_swapBuffers ();
 }
@@ -56,6 +61,10 @@ void sys_gameTickRun()
 	{
 		case MODE_SHUTDOWN:
 			quitProgram = true;
+			break;
+
+		case MODE_GAME:
+			io_processKeyboard ();
 			break;
 
 		default:
@@ -112,12 +121,12 @@ int main (int argc, char *argv[] )
 
 		sys_displayScreen ( interpolation );
 
+		printf("interpolation [ %3.4f ] Pos x [ %3.3f ]\n", interpolation, quadPosition.x);
+
 		fps++;
 	}
 
-	con_print(CON_INFO, true, "Texture ID for [ %s ] is [ %i ]", "splash", io_getTextureID ("splash.png"));
-
-sys_shutdownToSystem();
+	sys_shutdownToSystem();
 
 return 0;
 }

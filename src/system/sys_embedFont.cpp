@@ -283,8 +283,12 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 	wrapglDisable (GL_DEPTH_TEST);
 	//
 	// Bind texture if it's not already bound as current texture
-	wrapglBindTexture (GL_TEXTURE0, embeddedTexID);
-	GL_ASSERT (glUniform1i (fnt_inTextureUnit_ID, 0));
+//	wrapglBindTexture (GL_TEXTURE0, embeddedTexID);
+//	GL_ASSERT (glUniform1i (fnt_inTextureUnit_ID, 0));
+
+	GL_CHECK (glActiveTexture (GL_TEXTURE0));
+	GL_CHECK (glBindTexture (GL_TEXTURE_2D, embeddedTexID));
+	GL_CHECK (glUniform1i (fnt_inTextureUnit_ID, 0));
 
 	GL_ASSERT (glUniform2f (fnt_inScreenSize_ID, (float) winWidth / 2, (float) winHeight / 2));    // Pass screen size for
 	//

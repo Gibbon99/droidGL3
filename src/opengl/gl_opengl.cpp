@@ -242,7 +242,7 @@ void gl_registerDebugCallback ()
 //-----------------------------------------------------------------------------
 //
 // Draw a 2D quad
-void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture)
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture, float interpolation)
 //-----------------------------------------------------------------------------
 {
 	glm::vec2           quadVerts[4];
@@ -250,17 +250,23 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	static GLuint       buffers[2];
 	static bool         initDone = false;
 
-	quadVerts[0].x = position.x;
-	quadVerts[0].y = position.y;
+	glm::vec2           viewPosition;
 
-	quadVerts[1].x = position.x;
-	quadVerts[1].y = position.y + quadSize.y;
+	viewPosition.x += position.x + (currentVelocity.x * interpolation);
+	viewPosition.y += position.y + (currentVelocity.y * interpolation);
 
-	quadVerts[2].x = position.x + quadSize.x;
-	quadVerts[2].y = position.y + quadSize.y;
 
-	quadVerts[3].x = position.x + quadSize.x;
-	quadVerts[3].y = position.y;
+	quadVerts[0].x = viewPosition.x;
+	quadVerts[0].y = viewPosition.y;
+
+	quadVerts[1].x = viewPosition.x;
+	quadVerts[1].y = viewPosition.y + quadSize.y;
+
+	quadVerts[2].x = viewPosition.x + quadSize.x;
+	quadVerts[2].y = viewPosition.y + quadSize.y;
+
+	quadVerts[3].x = viewPosition.x + quadSize.x;
+	quadVerts[3].y = viewPosition.y;
 
 	GLfloat quadTexCoords[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,};
 
