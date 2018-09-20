@@ -108,7 +108,9 @@ bool sys_initAll()
 			con_cacheFunctionIDs ();
 
 			con_executeScriptFunction ("scr_setGameVariables", "");
-			con_executeScriptFunction ("scr_addAllScriptCommands", "");
+			//
+			// Crashes with an exception around the strings on Windows
+//	con_executeScriptFunction ("scr_addAllScriptCommands", "");
 		}
 
 		sys_setupPhysicsEngine();

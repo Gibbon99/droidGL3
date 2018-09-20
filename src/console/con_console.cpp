@@ -200,10 +200,12 @@ void con_addScriptCommand ( string command, string usage, string funcPtr, bool s
 {
 	_conCommand			tempConCommand;
 
+	return;
+
 	tempConCommand.type =		CON_COMMAND_SCRIPT;
-	tempConCommand.command = 	std::move(command);
-	tempConCommand.usage =      std::move (usage);
-	tempConCommand.scriptFunc = std::move(funcPtr);
+	tempConCommand.command = 	command;
+	tempConCommand.usage =      usage;
+	tempConCommand.scriptFunc = funcPtr;
 
 	conCommands.push_back ( tempConCommand );
 	con_addScriptConsoleFunction (conCommands.back ().command, conCommands.back ().scriptFunc, setParam);
