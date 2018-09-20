@@ -1,6 +1,6 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/io/io_fileSystem.h"
-#include "hdr/openGL/gl_shaders.h"
+#include "hdr/opengl/gl_shaders.h"
 #include <map>
 
 typedef struct
@@ -345,6 +345,10 @@ bool gl_addShaders ()
 {
 	if (!gl_createShader ("quad2d", "quad2D.vert", "quad2D.frag", ""))
 		return false;
+
+	if ( !gl_createShader ("colorLine", "colorLine.vert", "colorLine.frag", ""))
+		return false;
+
 
 	return true;
 }

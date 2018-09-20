@@ -252,6 +252,12 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 
 	glm::vec2           viewPosition;
 
+	if (interpolation == 0.0f)
+		interpolation = 0.1f;
+
+	if (interpolation == 1.0f)
+		interpolation = 0.99f;
+
 	viewPosition.x += position.x + (currentVelocity.x * interpolation);
 	viewPosition.y += position.y + (currentVelocity.y * interpolation);
 
@@ -305,6 +311,7 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	GL_CHECK (glBindTexture (GL_TEXTURE_2D, whichTexture));
 
 	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture0"), 0));
+	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), 1.0));
 
 	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
 
@@ -318,4 +325,59 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 
 	glDeleteBuffers (2, buffers);
 	glDeleteVertexArrays (1, &vao);
+}
+
+
+//--------------------------------------------------------------------------------------------
+//
+// Draw a debug line
+void gl_drawLine ( const glm::vec2 startPoint, const glm::vec2 endPoint, const string whichShader, glm::vec4 lineColor )
+//--------------------------------------------------------------------------------------------
+{
+	static      GLuint lineVAO = 0;
+	static      GLuint buffers[2];
+	static bool initDone = false;
+
+	glm::vec2 lineCoords[2];
+
+	lineCoords[0] = startPoint;
+	lineCoords[1] = endPoint;
+
+	if ( !initDone )
+	{
+		GL_ASSERT (glGenVertexArrays (1, &lineVAO));
+		GL_CHECK ( glBindVertexArray(lineVAO));
+
+		// Create buffers for the attrib pointers
+		buffers[0] = wrapglGenBuffers (1, __func__);
+
+		GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
+
+		// Vertex coordinates buffer
+		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[0]));
+		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (lineCoords), lineCoords, GL_DYNAMIC_DRAW));
+		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
+		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
+
+		initDone = false;
+	}
+
+	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
+
+	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
+	GL_CHECK (glUniform4fv (gl_getUniform (whichShader, "inLineColor"), 1, glm::value_ptr(lineColor)));
+
+	GL_CHECK (glBindVertexArray (lineVAO));
+
+	//
+	// Enable attribute to hold vertex information
+	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
+
+	GL_CHECK (glDrawArrays (GL_LINES, 0, 2));
+
+	glUseProgram (0);
+	glBindVertexArray (0);
+
+	glDeleteBuffers (1, buffers);
+	glDeleteVertexArrays (1, &lineVAO);
 }

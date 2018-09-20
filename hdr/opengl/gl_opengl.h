@@ -21,6 +21,9 @@ void gl_getAllGLErrors ( int errorNum, const char *calledFrom, int line );
 // Draw a 2D quad
 void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichShader, GLuint whichTexture, float interpolation );
 
+// Draw a debug line
+void gl_drawLine ( glm::vec2 startPoint, glm::vec2 endPoint, std::string whichShader, glm::vec4 lineColor );
+
 // Load the font texture
 bool gl_loadFontTexture ( const char *fontFilename );
 

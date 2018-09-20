@@ -35,7 +35,12 @@ void sys_displayScreen(float interpolation)
 			break;
 
 		case MODE_GAME:
-			gl_draw2DQuad (quadPosition, glm::vec2(400,400), "quad2d", io_getTextureID ("splash.png"), interpolation );
+			gl_draw2DQuad (vec2(500, 500), glm::vec2 (32, 32), "quad2d", io_getTextureID ("white_square.jpg"), interpolation);
+
+			gl_draw2DQuad (quadPosition, glm::vec2(200,200), "quad2d", io_getTextureID ("splash.png"), interpolation );
+
+			gl_drawLine (vec2(50, 50), vec2(100, 200), "colorLine", vec4(1, 1, 1, 1));
+
 			break;
 
 		default:
@@ -99,13 +104,13 @@ int main (int argc, char *argv[] )
 			next_game_tick += SKIP_TICKS;
 			loops++;
 			thinkFPS++;
+
+			printf ("loops [ %i ] interpolation [ %3.4f ] Pos x [ %3.3f ]\n", loops, interpolation, quadPosition.x);
 		}
 
 		interpolation = float( SDL_GetTicks() + SKIP_TICKS - next_game_tick ) / float( SKIP_TICKS );
 
 		sys_displayScreen ( interpolation );
-
-		printf("interpolation [ %3.4f ] Pos x [ %3.3f ]\n", interpolation, quadPosition.x);
 
 		fps++;
 	}
