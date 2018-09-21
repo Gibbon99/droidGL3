@@ -34,24 +34,31 @@ int gam_processGameEventQueue ( void *ptr )
 							// Change the state of the console timer cursor animation
 							evt_cursorChangeState (tempEventData.data2);
 						}
-							break;
+						break;
 
 						default:
 							break;
 					}
+					break;
 				}
 
 				case USER_EVENT_TEXTURE_LOAD:
+				{
 					io_loadTextureFile (tempEventData.eventString);
 					break;
+				}
 
 				case USER_EVENT_TEXTURE_ERROR:
-					io_handleTextureFileError(tempEventData.data1, tempEventData.eventString);
+				{
+					io_handleTextureFileError (tempEventData.data1, tempEventData.eventString);
 					break;
+				}
 
 				case USER_EVENT_TEXTURE_UPLOAD_DONE:
+				{
 					io_storeTextureInfoIntoMap (tempEventData.data1, tempEventData.eventString);
 					break;
+				}
 
 				default:
 					break;

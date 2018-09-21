@@ -82,7 +82,7 @@ bool lib_openWindow ()
 	// May need to change this to 16 or 32
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
 
-	SDL_GL_SetSwapInterval (0);  // Make VSYNC set from script 1 = on
+	SDL_GL_SetSwapInterval (1);  // Make VSYNC set from script 1 = on
 
 	numVideoDrivers = SDL_GetNumVideoDrivers ();
 
@@ -94,7 +94,7 @@ bool lib_openWindow ()
 	con_print (CON_INFO, true, "Num video displays [ %i ]", SDL_GetNumVideoDisplays ());
 
 	// Create the window centered at resolution
-	mainWindow = SDL_CreateWindow ("droidGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, SDL_WINDOW_OPENGL);
+	mainWindow = SDL_CreateWindow ("droidGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, SDL_WINDOW_OPENGL); // | SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 	// Was the window created ok
 	if ( !mainWindow )

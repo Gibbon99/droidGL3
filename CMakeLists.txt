@@ -100,7 +100,7 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_generic.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_parser.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_callfunc_ppc.cpp
-        )
+        src/game/s_shadows.cpp hdr/game/s_shadows.h)
 
 # Define the C sources
 set(C_SRCS

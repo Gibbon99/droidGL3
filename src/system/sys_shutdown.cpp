@@ -3,6 +3,7 @@
 #include "hdr/libGL/gl_window.h"
 #include "hdr/system/sys_shutdown.h"
 #include "hdr/io/io_logfile.h"
+#include "hdr/console/con_conScript.h"
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -15,6 +16,7 @@ void sys_shutdownToSystem ()
 {
 	sys_freePhysicsEngine ();
 	lib_destroyWindow();
+	con_shutDownScriptEngine ();
 	io_closeLogFile();
 	runThreads = false;
 	SDL_Delay (1000);

@@ -4,10 +4,13 @@ extern bool 		scriptEngineStarted;
 extern unsigned int	numFunctionsInScripts;
 extern unsigned int numHostScriptFunctions;
 
-bool util_startScriptEngine();
-bool util_registerVariables();
-bool util_registerFunctions();
-bool util_loadAndCompileScripts();
-bool util_cacheFunctionIDs();
+bool con_startScriptEngine ();
+bool con_registerVariables ();
+bool con_registerFunctions ();
+bool con_loadAndCompileScripts ();
+bool con_cacheFunctionIDs ();
 
-bool sys_addScriptConsoleFunction ( string funcName, string funcPtr, bool setParam );
+bool con_addScriptConsoleFunction ( std::string funcName, std::string funcPtr, bool setParam );
+
+// Shutdown the scripting engine
+bool con_shutDownScriptEngine ();

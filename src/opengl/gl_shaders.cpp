@@ -349,6 +349,8 @@ bool gl_addShaders ()
 	if ( !gl_createShader ("colorLine", "colorLine.vert", "colorLine.frag", ""))
 		return false;
 
+	if ( !gl_createShader ("colorDisc", "colorDisc.vert", "colorDisc.frag", ""))
+		return false;
 
 	return true;
 }

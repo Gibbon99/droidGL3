@@ -96,16 +96,19 @@ bool sys_initAll()
 
 		evt_sendEvent(USER_EVENT_LOGGING, USER_EVENT_LOGGING_START, 0, 0, 0, vec2(), vec2(), "logfile.log");
 
-		if (!util_startScriptEngine())
+		if (!con_startScriptEngine ())
 		{
 			con_print(CON_ERROR, true, "Error: Unable to start scripting engine.");
 		}
 		else
 		{
-			util_registerVariables();
-			util_registerFunctions();
-			util_loadAndCompileScripts();
-			util_cacheFunctionIDs();
+			con_registerVariables ();
+			con_registerFunctions ();
+			con_loadAndCompileScripts ();
+			con_cacheFunctionIDs ();
+
+			con_executeScriptFunction ("scr_setGameVariables", "");
+			con_executeScriptFunction ("scr_addAllScriptCommands", "");
 		}
 
 		sys_setupPhysicsEngine();

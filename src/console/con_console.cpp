@@ -33,10 +33,10 @@ void con_addConsoleCommands()
 {
 	con_addCommand ( "help",			"List out available commands",	( ExternFunc ) conHelp );
 	con_addCommand ( "glInfo",			"Info about openGL",			( ExternFunc ) conOpenGLInfo );
-	con_addCommand ( "listVars",		"List script variables",		( ExternFunc ) conListVariables );
-	con_addCommand ( "listFunctions",	"List script functions",		( ExternFunc ) conListFunctions );
-	con_addCommand ( "getVar",     		"Get the value of a variable",  ( ExternFunc ) conGetVariableValue );
-	con_addCommand ( "setVar",     		"Set the value of a variable",  ( ExternFunc ) conSetVariableValue );
+	con_addCommand ("listVars", "List script variables", (ExternFunc) con_listVariables);
+	con_addCommand ("listFunctions", "List script functions", (ExternFunc) con_listFunctions);
+	con_addCommand ("getVar", "Get the value of a variable", (ExternFunc) con_getVariableValue);
+	con_addCommand ("setVar", "Set the value of a variable", (ExternFunc) con_setVariableValue);
 	con_addCommand ( "scShowFunc", 		"Show all script added commands", ( ExternFunc ) showScriptAddedCommands );
 	con_addCommand ( "quit",            "Shutdown the game",            (ExternFunc) conQuit );
 
@@ -206,7 +206,7 @@ void con_addScriptCommand ( string command, string usage, string funcPtr, bool s
 	tempConCommand.scriptFunc = std::move(funcPtr);
 
 	conCommands.push_back ( tempConCommand );
-	sys_addScriptConsoleFunction ( conCommands.back().command, conCommands.back().scriptFunc, setParam );
+	con_addScriptConsoleFunction (conCommands.back ().command, conCommands.back ().scriptFunc, setParam);
 	conCurrentNumCommands++;
 }
 
@@ -456,7 +456,7 @@ void con_processCommand ( string comLine )
 						conCommands[i].conFunc ( param, param2 );
 					else
 						{
-							util_executeScriptFunction ( conCommands[i].command, param );
+							con_executeScriptFunction (conCommands[i].command, param);
 						}
 
 					conMatchFound = true;

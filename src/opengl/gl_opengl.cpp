@@ -8,6 +8,7 @@
 #endif
 
 #include <map>
+#include <hdr/io/io_textures.h>
 
 typedef struct
 {
@@ -24,6 +25,16 @@ std::map<int, _errorMessage>::iterator it;
 
 int __gl_error_code;
 
+uint quadVBO = 0;
+uint quadVAO = 0;
+
+glm::mat4   MVP;
+
+float nearPlane;
+float farPlane;
+float cameraDistance;
+
+float g_gamma;
 
 //-----------------------------------------------------------------------------
 //
@@ -252,15 +263,8 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 
 	glm::vec2           viewPosition;
 
-	if (interpolation == 0.0f)
-		interpolation = 0.1f;
-
-	if (interpolation == 1.0f)
-		interpolation = 0.99f;
-
 	viewPosition.x += position.x + (currentVelocity.x * interpolation);
 	viewPosition.y += position.y + (currentVelocity.y * interpolation);
-
 
 	quadVerts[0].x = viewPosition.x;
 	quadVerts[0].y = viewPosition.y;
@@ -312,6 +316,7 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 
 	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture0"), 0));
 	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), 1.0));
+	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "outerRadius"), 0.2f));
 
 	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
 
@@ -365,7 +370,7 @@ void gl_drawLine ( const glm::vec2 startPoint, const glm::vec2 endPoint, const s
 	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
 	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
-	GL_CHECK (glUniform4fv (gl_getUniform (whichShader, "inLineColor"), 1, glm::value_ptr(lineColor)));
+	GL_CHECK (glUniform4fv (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr(lineColor)));
 
 	GL_CHECK (glBindVertexArray (lineVAO));
 
@@ -380,4 +385,35 @@ void gl_drawLine ( const glm::vec2 startPoint, const glm::vec2 endPoint, const s
 
 	glDeleteBuffers (1, buffers);
 	glDeleteVertexArrays (1, &lineVAO);
+}
+
+//-----------------------------------------------------------------------------
+//
+// Set OpenGL matrices
+void gl_set2DMode (float interpolate)
+//-----------------------------------------------------------------------------
+{
+	glm::mat4       projMatrix;
+	glm::mat4       viewMatrix;
+	glm::mat4       modelMatrix;
+
+	glm::vec3       camPosition;
+	glm::vec3       camTarget;
+	glm::vec3       upVector = vec3 (0.0f, 1.0f, 0.0f);
+
+	projMatrix = glm::perspective (60.0f, (float) winWidth / (float) winHeight, nearPlane, farPlane);
+
+	camPosition.x = quadPosition.x + (currentVelocity.x * interpolate);
+	camPosition.y = quadPosition.y + (currentVelocity.y * interpolate);
+	camPosition.z = quadPosition.z + cameraDistance;       // Distance camera is away from the viewpoint
+
+	camTarget.x = quadPosition.x + (currentVelocity.x * interpolate);
+	camTarget.y = quadPosition.y + (currentVelocity.y * interpolate);
+	camTarget.z = 0.0f;
+
+	viewMatrix = glm::lookAt (camPosition, camTarget, upVector );
+
+	modelMatrix = glm::mat4 ();
+
+	MVP = projMatrix * viewMatrix * modelMatrix;
 }

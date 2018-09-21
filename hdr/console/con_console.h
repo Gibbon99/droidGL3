@@ -135,7 +135,7 @@ void con_completeCommand ( string lookFor );
 void con_setColor ( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha );
 
 // Add a script console command to the executable list of functions
-bool sys_addScriptConsoleFunction ( string funcName, string funcPtr, bool setParam );
+bool con_addScriptConsoleFunction ( string funcName, string funcPtr, bool setParam );
 
 void con_addScriptCommand ( string command, string usage, string funcPtr, bool setParam );
 
@@ -143,10 +143,10 @@ void con_addScriptCommand ( string command, string usage, string funcPtr, bool s
 void con_pushScriptCommand ( std::string command );
 
 // Print to console from the scripts - String version
-void sys_scriptPrintStr ( std::string *msgText, std::string *msgParam );
+void con_scriptPrintStr ( std::string *msgText, std::string *msgParam );
 
 // Execute a function from the script
-bool util_executeScriptFunction ( string functionName, string funcParam );
+bool con_executeScriptFunction ( string functionName, string funcParam );
 
 // Handle a console user event
 int con_processConsoleUserEvent ( void *ptr );
@@ -171,15 +171,15 @@ int conOpenGLInfo();
 int showScriptAddedCommands();
 
 // List the variables we can change
-void conListVariables();
+void con_listVariables ();
 
-void conListFunctions();
+void con_listFunctions ();
 
 // Get the value of a single variable
-void conGetVariableValue ( string whichVar );
+void con_getVariableValue ( string whichVar );
 
 // Set the value of a global script variable
-void conSetVariableValue ( string whichVar, string newValue );
+void con_setVariableValue ( string whichVar, string newValue );
 
 // Quit the game from the console
 int conQuit ();

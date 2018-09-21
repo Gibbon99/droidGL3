@@ -3,19 +3,24 @@
 #include <hdr/io/io_textures.h>
 #include <hdr/system/sys_audio.h>
 #include <hdr/io/io_keyboard.h>
+#include <hdr/game/s_shadows.h>
 #include "hdr/libGL/gl_window.h"
 #include "hdr/system/sys_embedFont.h"
 #include "hdr/system/sys_main.h"
 #include "hdr/system/sys_startup.h"
 #include "hdr/system/sys_timing.h"
+#include "hdr/opengl/gl_opengl.h"
 
 bool    quitProgram;
 int     loops;
 float   interpolation;
 int     currentMode;
 
-vec2 quadPosition;
-vec2 currentVelocity;
+Uint32 frameStart;
+Uint32 frameTime;
+
+vec3 quadPosition;
+vec3 currentVelocity;
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -35,20 +40,29 @@ void sys_displayScreen(float interpolation)
 			break;
 
 		case MODE_GAME:
+
+			gam_drawAllObjects (interpolation);
+
+//			gl_drawAllQuads ("quad2d", "splash.png", interpolation);
+			/*
 			gl_draw2DQuad (vec2(500, 500), glm::vec2 (32, 32), "quad2d", io_getTextureID ("white_square.jpg"), interpolation);
 
-			gl_draw2DQuad (quadPosition, glm::vec2(200,200), "quad2d", io_getTextureID ("splash.png"), interpolation );
+			gl_draw2DQuad (quadPosition, glm::vec2(600,600), "colorDisc", io_getTextureID ("splash.png"), interpolation );
 
 			gl_drawLine (vec2(50, 50), vec2(100, 200), "colorLine", vec4(1, 1, 1, 1));
 
+			gam_drawAllObjects (interpolation );
+			 */
 			break;
 
 		default:
 			break;
 	}
 
-	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ]", fpsPrint, thinkFpsPrint, interpolation);
-	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Velocity [ %3.3f %3.3f ] Pos [ %3.3f %3.3f ]", currentVelocity.x, currentVelocity.y, quadPosition.x, quadPosition.y);
+	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ]", fpsPrint, thinkFpsPrint, interpolation, frameTime / 1000.0f);
+	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Velocity [ %3.3f %3.3f %3.3f ] Pos [ %3.3f %3.3f %3.3f ]", currentVelocity.x, currentVelocity.y, currentVelocity.z,
+			quadPosition.x, quadPosition.y,quadPosition.z);
+
 	if ( g_memLeakLastRun)
 		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
 
@@ -95,6 +109,7 @@ int main (int argc, char *argv[] )
 	while ( !quitProgram )
 	{
 		loops = 0;
+		frameStart = SDL_GetTicks ();
 
 		evt_handleEvents();
 
@@ -104,8 +119,6 @@ int main (int argc, char *argv[] )
 			next_game_tick += SKIP_TICKS;
 			loops++;
 			thinkFPS++;
-
-			printf ("loops [ %i ] interpolation [ %3.4f ] Pos x [ %3.3f ]\n", loops, interpolation, quadPosition.x);
 		}
 
 		interpolation = float( SDL_GetTicks() + SKIP_TICKS - next_game_tick ) / float( SKIP_TICKS );
@@ -113,13 +126,13 @@ int main (int argc, char *argv[] )
 		sys_displayScreen ( interpolation );
 
 		fps++;
+		frameTime = SDL_GetTicks () - frameStart;
 	}
 
 	sys_shutdownToSystem();
 
 return 0;
 }
-
 
 //-----------------------------------------------------------------------------
 //
@@ -145,13 +158,13 @@ void changeMode ( int newMode )
 
 	if ( newMode == MODE_GAME )
 	{
-		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "");
+		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GAME_TIMER_OFF");
 	}
 
 	if ( newMode == MODE_CONSOLE )
 	{
 		SDL_StartTextInput ();
-		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_ON, 0, glm::vec2 (), glm::vec2 (), "");
+		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_ON, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GAME_TIMER_ON");
 	}
 
 	currentMode = newMode;

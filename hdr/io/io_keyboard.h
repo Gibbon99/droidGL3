@@ -9,9 +9,6 @@ extern bool keyRightDown;
 extern bool keyUpDown;
 extern bool keyDownDown;
 
-extern bool keyDoorLeftDown;
-extern bool keyDoorRightDown;
-
 // Handle a keyboard event
 void io_handleKeyboardEvent ( SDL_Event event );
 

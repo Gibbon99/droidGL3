@@ -8,16 +8,13 @@ bool keyRightDown = false;
 bool keyUpDown = false;
 bool keyDownDown = false;
 
-bool keyDoorLeftDown = false;
-bool keyDoorRightDown = false;
-
 //-----------------------------------------------------------------------------
 //
 // Process keyboard presses
 void io_processKeyboard()
 //-----------------------------------------------------------------------------
 {
-	float moveSpeed = 1.0f;
+	float moveSpeed = 1.0f / 200.0f;
 
 	if (keyLeftDown)
 		currentVelocity.x -= moveSpeed;
@@ -31,6 +28,32 @@ void io_processKeyboard()
 	if (keyDownDown)
 		currentVelocity.y -= moveSpeed;
 
+	if (keyForwardDown)
+		currentVelocity.z += moveSpeed;
+
+	if (keyBackwardDown)
+		currentVelocity.z -= moveSpeed;
+
+	if (!keyForwardDown)
+	{
+		if (currentVelocity.z > 0.0f)
+		{
+			currentVelocity.z -= moveSpeed;
+			if (currentVelocity.z < 0.0f)
+				currentVelocity.z = 0.0f;
+		}
+	}
+
+
+	if (!keyBackwardDown)
+	{
+		if (currentVelocity.z < 0.0f)
+		{
+			currentVelocity.z += moveSpeed;
+			if (currentVelocity.z > 0.0f)
+				currentVelocity.z = 0.0f;
+		}
+	}
 
 	if ( !keyLeftDown )
 	{
@@ -51,7 +74,6 @@ void io_processKeyboard()
 				currentVelocity.x = 0.0f;
 		}
 	}
-
 
 	if ( !keyUpDown )
 	{
@@ -90,6 +112,7 @@ void io_processKeyboard()
 
 	quadPosition.x += currentVelocity.x;
 	quadPosition.y += currentVelocity.y;
+	quadPosition.z += currentVelocity.z;
 }
 
 
@@ -156,6 +179,14 @@ void io_readGameSpecialKeys ( SDL_Keycode key, int action )
 				keyDownDown = true;
 				break;
 
+			case SDLK_w:
+				keyForwardDown = true;
+				break;
+
+			case SDLK_s:
+				keyBackwardDown = true;
+				break;
+
 			case SDLK_F12:
 //				io_saveScreenToFile ();
 				break;
@@ -188,6 +219,14 @@ void io_readGameSpecialKeys ( SDL_Keycode key, int action )
 
 			case SDLK_DOWN:
 				keyDownDown = false;
+				break;
+
+			case SDLK_w:
+				keyForwardDown = false;
+				break;
+
+			case SDLK_s:
+				keyBackwardDown = false;
 				break;
 
 			default:

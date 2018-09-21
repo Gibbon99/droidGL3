@@ -13,7 +13,9 @@
 	* everybody at gamedev.net
 */
 
+#ifdef __WIN32__
 #pragma comment(lib,"OpenGL32")
+#endif
 
 #define SOIL_CHECK_FOR_GL_ERRORS 0
 

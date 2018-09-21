@@ -1,5 +1,6 @@
 #include "hdr/console/con_console.h"
 #include "hdr/system/sys_audio.h"
+#include "hdr/opengl/gl_opengl.h"
 
 _hostScriptFunctions hostVariables[] =
 {
@@ -10,13 +11,17 @@ _hostScriptFunctions hostVariables[] =
 	{"bool as_useSound",                    &as_useSound},
 	{"int as_audioVolume",                  &as_audioVolume},
 	{"int as_numAudioSamples",              &as_numAudioSamples},
+	{"float nearPlane",                     &nearPlane},
+	{"float farPlane",                      &farPlane},
+	{"float cameraDistance",                &cameraDistance},
+	{"float g_gamma",                       &g_gamma},
 	{"",                                    nullptr},
 };
 
 //-----------------------------------------------------------------------------
 //
 // Helper function to assign a num value to a var type string
-int conGetVarType ( char *whichType )
+int con_getVarType ( char *whichType )
 //-----------------------------------------------------------------------------
 {
 	if ( strlen ( whichType ) == 0 )
@@ -39,7 +44,7 @@ int conGetVarType ( char *whichType )
 // Search for a variable name within all the global names
 // return the index if found
 // otherwise return -1
-int util_getVariableIndex ( string whichVar )
+int con_getVariableIndex ( string whichVar )
 //-----------------------------------------------------------
 {
 	const char 	*name;
@@ -61,12 +66,12 @@ int util_getVariableIndex ( string whichVar )
 //-----------------------------------------------------------
 //
 // Set the value of a global script variable
-void conSetVariableValue ( string whichVar, string newValue )
+void con_setVariableValue ( string whichVar, string newValue )
 //-----------------------------------------------------------
 {
 	int		variableIndex;
 
-	variableIndex = util_getVariableIndex ( whichVar );
+	variableIndex = con_getVariableIndex (whichVar);
 
 	if ( -1 == variableIndex )
 		{
@@ -88,13 +93,13 @@ void conSetVariableValue ( string whichVar, string newValue )
 
 	if ( varType == "int" )
 		{
-			con_print ( CON_INFO, false, "Set varible to value [ %i ]", atoi ( newValue.c_str() ) );
+			con_print ( CON_INFO, false, "Set variable to value [ %i ]", atoi ( newValue.c_str() ) );
 			* ( int * ) varPointer = atoi ( newValue.c_str() );
 		}
 
 	else if ( varType == "float" )
 		{
-			con_print ( CON_INFO, false, "Set varible to value [ %f ]", atof ( newValue.c_str() ) );
+			con_print ( CON_INFO, false, "Set variable to value [ %f ]", atof ( newValue.c_str() ) );
 			* ( float * ) varPointer = (float)atof ( newValue.c_str() );
 		}
 
@@ -112,12 +117,12 @@ void conSetVariableValue ( string whichVar, string newValue )
 //-----------------------------------------------------------
 //
 // Get the value of a global script variable
-void conGetVariableValue ( string whichVar )
+void con_getVariableValue ( string whichVar )
 //-----------------------------------------------------------
 {
 	int		variableIndex;
 
-	variableIndex = util_getVariableIndex ( whichVar );
+	variableIndex = con_getVariableIndex (whichVar);
 
 	if ( -1 == variableIndex )
 		{
@@ -175,7 +180,7 @@ void conGetVariableValue ( string whichVar )
 //
 // List all the variables registered to the script module
 // TODO: Pass in module name and select variables from module name
-void conListVariables()
+void con_listVariables ()
 //-----------------------------------------------------------
 {
 	asUINT n;
@@ -215,7 +220,7 @@ void conListVariables()
 //
 // List all the functions registed with the script engine
 // TODO: Make module name a paramter to list functions from it
-void conListFunctions()
+void con_listFunctions ()
 //-----------------------------------------------------------
 {
 	asUINT n;

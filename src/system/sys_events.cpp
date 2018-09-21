@@ -166,8 +166,8 @@ void evt_sendSDLEvent(int myEventCode, int myEventData1, int myEventData2)
 	SDL_memset (&event, 0, sizeof (event)); /* or SDL_zero(event) */
 	event.type = SDL_myEventType;
 	event.user.code = myEventCode;
-	event.user.data1 = (void *)myEventData1;
-	event.user.data2 = (void *)myEventData2;
+	event.user.data1 = reinterpret_cast<void *>(myEventData1);
+	event.user.data2 = reinterpret_cast<void *>(myEventData2);
 	SDL_PushEvent (&event);
 }
 
@@ -238,56 +238,56 @@ void evt_handleDisplayEvents ( SDL_Event event )
 	switch ( event.window.event )
 	{
 		case SDL_WINDOWEVENT_SHOWN:
-			con_print (CON_INFO, true, "Window %d shown", event.window.windowID);
+//			con_print (CON_INFO, true, "Window %d shown", event.window.windowID);
 			break;
 
 		case SDL_WINDOWEVENT_HIDDEN:
-			con_print (CON_INFO, true, "Window %d hidden", event.window.windowID);
+//			con_print (CON_INFO, true, "Window %d hidden", event.window.windowID);
 			break;
 
 		case SDL_WINDOWEVENT_EXPOSED:
-			con_print (CON_INFO, true, "Window %d exposed", event.window.windowID);
+//			con_print (CON_INFO, true, "Window %d exposed", event.window.windowID);
 			break;
 
 		case SDL_WINDOWEVENT_MOVED:
-			con_print (CON_INFO, true, "Window %d moved to %d,%d", event.window.windowID, event.window.data1, event.window.data2);
+//			con_print (CON_INFO, true, "Window %d moved to %d,%d", event.window.windowID, event.window.data1, event.window.data2);
 			break;
 
 		case SDL_WINDOWEVENT_RESIZED:
-			con_print (CON_INFO, true, "Window %d resized to %dx%d", event.window.windowID, event.window.data1, event.window.data2);
+//			con_print (CON_INFO, true, "Window %d resized to %dx%d", event.window.windowID, event.window.data1, event.window.data2);
 			break;
 
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
-			con_print (CON_INFO, true, "Window %d size changed to %dx%d", event.window.windowID, event.window.data1, event.window.data2);
+//			con_print (CON_INFO, true, "Window %d size changed to %dx%d", event.window.windowID, event.window.data1, event.window.data2);
 			break;
 
 		case SDL_WINDOWEVENT_MINIMIZED:
-			con_print (CON_INFO, true, "Window %d minimized", event.window.windowID);
+//			con_print (CON_INFO, true, "Window %d minimized", event.window.windowID);
 			break;
 
 		case SDL_WINDOWEVENT_MAXIMIZED:
-			con_print (CON_INFO, true, "Window %d maximized", event.window.windowID);
+//			con_print (CON_INFO, true, "Window %d maximized", event.window.windowID);
 			break;
 
 		case SDL_WINDOWEVENT_RESTORED:
-			con_print (CON_INFO, true, "Window %d restored", event.window.windowID);
+//			con_print (CON_INFO, true, "Window %d restored", event.window.windowID);
 			break;
 
 		case SDL_WINDOWEVENT_ENTER:
-			con_print (CON_INFO, true, "Mouse entered window %d", event.window.windowID);
+//			con_print (CON_INFO, true, "Mouse entered window %d", event.window.windowID);
 			break;
 
 		case SDL_WINDOWEVENT_LEAVE:
-			con_print (CON_INFO, true, "Mouse left window %d", event.window.windowID);
+//			con_print (CON_INFO, true, "Mouse left window %d", event.window.windowID);
 			break;
 
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
-			con_print (CON_INFO, true, "Window %d gained keyboard focus", event.window.windowID);
+//			con_print (CON_INFO, true, "Window %d gained keyboard focus", event.window.windowID);
 //			changeMode(-1);
 			break;
 
 		case SDL_WINDOWEVENT_FOCUS_LOST:
-			con_print (CON_INFO, true, "Window %d lost keyboard focus", event.window.windowID);
+//			con_print (CON_INFO, true, "Window %d lost keyboard focus", event.window.windowID);
 //			changeMode (MODE_PAUSE);
 			break;
 
@@ -297,15 +297,15 @@ void evt_handleDisplayEvents ( SDL_Event event )
 
 #if SDL_VERSION_ATLEAST (2, 0, 5)
 		case SDL_WINDOWEVENT_TAKE_FOCUS:
-			con_print(CON_INFO, true, "Window %d is offered a focus", event.window.windowID);
+//			con_print(CON_INFO, true, "Window %d is offered a focus", event.window.windowID);
 			break;
 
 		case SDL_WINDOWEVENT_HIT_TEST:
-			con_print(CON_INFO, true, "Window %d has a special hit test", event.window.windowID);
+//			con_print(CON_INFO, true, "Window %d has a special hit test", event.window.windowID);
 			break;
 #endif
 		default:
-			con_print (CON_INFO, true, "Window %d got unknown event %d", event.window.windowID, event.window.event);
+//			con_print (CON_INFO, true, "Window %d got unknown event %d", event.window.windowID, event.window.event);
 			break;
 	}
 }

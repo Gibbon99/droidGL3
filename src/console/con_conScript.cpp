@@ -1,4 +1,4 @@
-
+#include <utility>
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/script/as_scriptbuilder.h"
 #include "hdr/io/io_logfile.h"
@@ -8,14 +8,9 @@ unsigned int		numFunctionsInScripts;
 unsigned int		numHostScriptFunctions;
 bool				scriptEngineStarted = false;
 asDWORD				callType;
-asIScriptEngine 	*scriptEngine = NULL;
-asIScriptContext 	*scriptContext = NULL;
+asIScriptEngine 	*scriptEngine = nullptr;
+asIScriptContext 	*scriptContext = nullptr;
 CScriptBuilder 		builder;
-
-// Print messages from script compiler to console
-void scr_Output ( const char *msgText, void *outParam );
-
-void MessageCallback ( const asSMessageInfo *msg, void *param );
 
 //-----------------------------------------------------------------------------
 //
@@ -31,10 +26,9 @@ void MessageCallback ( const asSMessageInfo *msg, void *param );
 //
 //--------------------------------------------------------
 
-//static char		    *fileLocation;				// Pointer to memory to hold the scriptFile
 int				    numScriptFunctions = 0;		// Number of functions declared in script
-asIScriptContext    *context = NULL;
-asIScriptModule     *myModule= NULL;
+asIScriptContext    *context = nullptr;
+asIScriptModule     *myModule= nullptr;
 
 //-----------------------------------------------------------------------------
 //
@@ -65,7 +59,7 @@ _scriptInfo     scriptInfo[] =
 
 _hostScriptFunctions hostScriptFunctions[] =
 {
-	{"void printCon_AS(string &in, string &in)",            ( void * )&sys_scriptPrintStr},
+	{"void printCon_AS(string &in, string &in)",                        (void * ) &con_scriptPrintStr},
 
 	{"void sys_addScriptCommand(string &in, string &in, string &in, bool setParam)", ( void * ) &con_addScriptCommand},
 
@@ -87,22 +81,20 @@ _hostScriptFunctions hostScriptFunctions[] =
 typedef struct
 {
 	asIScriptFunction 		*funcID;
-	bool 					fromScript; // Is this created from a console script
+	bool 					fromScript;         // Is this created from a console script
 	string 					functionName;
 	string 					scriptName;
-	bool 					param1; // Does this function need something passed to it
+	bool 					param1;             // Does this function need something passed to it
 } _scriptFunctionName;
 
 //
-// This is how we call a script from the C program
+// This is how we call a script from the host program
 //
 _scriptFunctionName     scriptFunctionName[] =
 {
 	// Name of function in script			Name we call from host
 	{0, false, "void as_addAllScriptCommands()",		"scr_addAllScriptCommands",		NULL},
 	{0, false, "void as_setGameVariables()",			"scr_setGameVariables",         NULL},
-	{0, false, "void as_loadAllModels()",				"scr_loadAllModels",			NULL},
-	{0, false, "void as_loadParticleTexture()",         "scr_loadParticleTextures",     NULL},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},
@@ -123,7 +115,7 @@ vector<_scriptFunctionName> scriptFunctions;
 //-----------------------------------------------------------------------------
 //
 // Error codes for AngelScript
-const char *sys_getScriptError ( int errNo )
+const char *con_getScriptError ( int errNo )
 //-----------------------------------------------------------------------------
 {
 	switch ( errNo )
@@ -221,19 +213,16 @@ const char *sys_getScriptError ( int errNo )
 		}
 }
 
-
 //-----------------------------------------------------------------------------
 //
 // Register all the functions to make available to the script
-bool util_registerFunctions()
+bool con_registerFunctions ()
 //-----------------------------------------------------------------------------
 {
 	int 		r = 0;
 	int 		count = 0;
 
-	string test1, test2;
-
-	if ( false == scriptEngineStarted )
+	if ( !scriptEngineStarted )
 		{
 			con_print ( CON_ERROR, true, "Failed to register functions. ScriptEngine is not ready." );
 			return false;
@@ -258,16 +247,13 @@ bool util_registerFunctions()
 			if ( r < 0 )
 				{
 					con_print (CON_ERROR, true, "Failed to registerGlobalFunction [ %s ]", hostScriptFunctions[count].scriptFunctionName.c_str() );
-					con_print (CON_ERROR, true, "Error [ %s ]", sys_getScriptError ( r ) );
+					con_print (CON_ERROR, true, "Error [ %s ]", con_getScriptError (r) );
 					return false;
-
 				}
-
 			else
 				{
 //					con_print ( CON_INFO, true, "Registered function [ %s ]", hostScriptFunctions[count].scriptFunctionName.c_str() );
 				}
-
 			count++;
 			numHostScriptFunctions++;
 		}
@@ -279,7 +265,7 @@ bool util_registerFunctions()
 //-----------------------------------------------------------------------------
 //
 // Add global variables to be used by the scriptEngine
-bool util_registerVariables()
+bool con_registerVariables ()
 //-----------------------------------------------------------------------------
 {
 	int result = 0;
@@ -295,7 +281,7 @@ bool util_registerVariables()
 
 	while ( hostVariables[count].scriptFunctionName.size() > 1 )
 		{
-			result = scriptEngine->RegisterGlobalProperty ( hostVariables[count].scriptFunctionName.c_str(), ( void * ) hostVariables[count].hostFunctionPtr );
+			result = scriptEngine->RegisterGlobalProperty ( hostVariables[count].scriptFunctionName.c_str(), hostVariables[count].hostFunctionPtr );
 
 			if ( result < 0 )
 				{
@@ -312,7 +298,7 @@ bool util_registerVariables()
 //-----------------------------------------------------------------------------
 //
 // Get the script function ID's and cache them
-bool util_cacheFunctionIDs()
+bool con_cacheFunctionIDs ()
 //-----------------------------------------------------------------------------
 {
 	_scriptFunctionName tempFunctionName;
@@ -322,7 +308,7 @@ bool util_cacheFunctionIDs()
 	//
 	scriptFunctions.reserve ( numFunctionsInScripts );
 
-	con_print (CON_ERROR, true, "Number of functions in script [ %i ]", numFunctionsInScripts );
+//	con_print (CON_ERROR, true, "Number of functions in script [ %i ]", numFunctionsInScripts );
 
 	//
 	// Get function ID's for each function we will call in the script
@@ -335,7 +321,6 @@ bool util_cacheFunctionIDs()
 				{
 					con_print (CON_ERROR, true, "Failed to get function ID for [ %s ]", scriptFunctionName[i].functionName.c_str() );
 //					return false;
-
 				}
 
 			else
@@ -365,7 +350,7 @@ bool util_cacheFunctionIDs()
 //-----------------------------------------------------------------------------
 //
 // Load the scripts into memory
-bool util_loadAndCompileScripts()
+bool con_loadAndCompileScripts ()
 //-----------------------------------------------------------------------------
 {
 	int				fileCounter = 0;
@@ -444,11 +429,10 @@ bool util_loadAndCompileScripts()
 	return true;
 }
 
-
 //-----------------------------------------------------------------------------
 //
 // Execute a function from the script
-bool util_executeScriptFunction ( string functionName, string funcParam )
+bool con_executeScriptFunction ( string functionName, string funcParam )
 //-----------------------------------------------------------------------------
 {
 	unsigned int i = 0;
@@ -471,7 +455,7 @@ bool util_executeScriptFunction ( string functionName, string funcParam )
 
 	if ( nullptr == scriptContext )
 		{
-			con_print (CON_ERROR, false, "Couldn't execute [ %s ]. Script context not ready", functionName.c_str() );
+			con_print (CON_ERROR, false, "Couldn't execute [ %s ]. Script context not ready.", functionName.c_str() );
 			return false;
 		}
 
@@ -492,7 +476,7 @@ bool util_executeScriptFunction ( string functionName, string funcParam )
 
 	if ( i == numHostScriptFunctions )
 		{
-			con_print (CON_ERROR, false, "Couldn't find function name [ %s ]", functionName.c_str() );
+			con_print (CON_ERROR, false, "Couldn't find function name [ %s ].", functionName.c_str() );
 			return false;
 		}
 
@@ -562,22 +546,19 @@ bool util_executeScriptFunction ( string functionName, string funcParam )
 					con_print (CON_ERROR, true, "Section: [ %s ]", func->GetScriptSectionName() );
 					con_print (CON_ERROR, true, "Line: [ %i ]", scriptContext->GetExceptionLineNumber() );
 					con_print (CON_ERROR, true, "Desc: [ %s ]", scriptContext->GetExceptionString() );
-
 				}
-
 			else
-				con_print (CON_ERROR, true, "The script ended for some unforeseen reason [ %i ]", ret );
+				con_print (CON_ERROR, true, "The script ended for an unknown reason [ %i ].", ret );
 
 			return false;
 		}
-
 	return true;
 }
 
 //------------------------------------------------------------------
 //
 // Return messages to console from script engine
-void util_scriptMessageCallback ( const asSMessageInfo *msg, void *param )
+void con_scriptMessageCallback ( const asSMessageInfo *msg, void *param )
 //------------------------------------------------------------------
 {
 	string messageType;
@@ -591,19 +572,19 @@ void util_scriptMessageCallback ( const asSMessageInfo *msg, void *param )
 		messageType = "INFO";
 
 	printf ( "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, messageType.c_str(), msg->message );
-	con_print (CON_ERROR, false, "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, messageType.c_str(), msg->message );
+	con_print (CON_ERROR, true, "%s (%d, %d) : %s : %s", msg->section, msg->row, msg->col, messageType.c_str(), msg->message );
 }
 
 //----------------------------------------------------------------
 //
 // Start the script engine - no script registrations yet
-bool util_startScriptEngine()
+bool con_startScriptEngine ()
 //----------------------------------------------------------------
 {
 	// Create the script engine
 	scriptEngine = asCreateScriptEngine();
 
-	if ( scriptEngine == 0 )
+	if ( scriptEngine == nullptr )
 		{
 			con_print ( CON_ERROR, false, "Failed to create script engine." );
 			scriptEngineStarted = false;
@@ -612,7 +593,7 @@ bool util_startScriptEngine()
 
 	//
 	// The script compiler will write any compiler messages to the callback.
-	scriptEngine->SetMessageCallback ( asFUNCTION ( util_scriptMessageCallback ), 0, asCALL_CDECL );
+	scriptEngine->SetMessageCallback (asFUNCTION (con_scriptMessageCallback), nullptr, asCALL_CDECL);
 
 	//
 	// Find out how to call functions
@@ -620,7 +601,6 @@ bool util_startScriptEngine()
 		{
 			callType = asCALL_CDECL;
 //			con_print (CON_ERROR, true, "Script: Call type [ %s ]", "asCALL_CDECL" );
-
 		}
 
 	else
@@ -646,19 +626,19 @@ bool util_startScriptEngine()
 // funcName - what the console command is
 // funcPtr - which function gets called from the console command
 //
-bool sys_addScriptConsoleFunction ( string funcName, string funcPtr, bool setParam )
+bool con_addScriptConsoleFunction ( string funcName, string funcPtr, bool setParam )
 //-----------------------------------------------------------------------------
 {
 	_scriptFunctionName tempScriptFunction;
 
-	tempScriptFunction.functionName = funcPtr;
-	tempScriptFunction.scriptName = funcName;
+	tempScriptFunction.functionName = std::move (funcPtr);
+	tempScriptFunction.scriptName = std::move (funcName);
 	tempScriptFunction.fromScript = true;
 	tempScriptFunction.param1 = setParam;
 
 	tempScriptFunction.funcID = scriptEngine->GetModule ( "ModuleName" )->GetFunctionByDecl ( tempScriptFunction.functionName.c_str() );
 
-	if ( tempScriptFunction.funcID == NULL  )
+	if ( tempScriptFunction.funcID == nullptr )
 		{
 			con_print ( CON_ERROR, true, "Script: Failed to get function ID for [ %s ].", tempScriptFunction.functionName.c_str() );
 			return false;
@@ -676,11 +656,12 @@ bool sys_addScriptConsoleFunction ( string funcName, string funcPtr, bool setPar
 //-----------------------------------------------------------------------------
 //
 // Shutdown the scripting engine
-bool sys_shutDownScriptEngine()
+bool con_shutDownScriptEngine ()
 //-----------------------------------------------------------------------------
 {
-	context->Release();
-	con_print ( CON_INFO, true, "Script: Script engine released." );
+	scriptContext->Release ();
+	scriptEngine->Release ();
+	con_print ( CON_INFO, true, "Script engine released." );
 	return true;
 }
 
@@ -692,31 +673,8 @@ bool sys_shutDownScriptEngine()
 
 //-----------------------------------------------------------------------------
 //
-// Print messages from script compiler to console
-void scr_Output ( const char *msgText, void *outParam )
-//-----------------------------------------------------------------------------
-{
-	con_print ( CON_INFO, true, "Script > [ %s ]", msgText );
-}
-
-void MessageCallback ( const asSMessageInfo *msg, void *param )
-{
-	const char *type = "ERR ";
-
-	if ( msg->type == asMSGTYPE_WARNING )
-		type = "WARN";
-
-	else if ( msg->type == asMSGTYPE_INFORMATION )
-		type = "INFO";
-
-	con_print(CON_INFO, true, "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
-	printf ( "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message );
-}
-
-//-----------------------------------------------------------------------------
-//
 // Print to console from the scripts - String version
-void sys_scriptPrintStr ( std::string *msgText, std::string *msgParam )
+void con_scriptPrintStr ( std::string *msgText, std::string *msgParam )
 //-----------------------------------------------------------------------------
 {
 	con_print ( CON_TEXT, true, "[ %s ] [ %s ]", msgText->c_str(), msgParam->c_str() );
