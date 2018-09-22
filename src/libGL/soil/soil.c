@@ -13,7 +13,7 @@
 	* everybody at gamedev.net
 */
 
-#ifdef __WIN32__
+#ifdef WIN32
 #pragma comment(lib,"OpenGL32")
 #endif
 
