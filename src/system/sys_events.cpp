@@ -4,6 +4,7 @@
 #include "hdr/system/sys_audio.h"
 #include "hdr/game/s_gameEvents.h"
 #include "hdr/io/io_keyboard.h"
+#include "hdr/io/io_mouse.h"
 
 
 SDL_TimerID timerCursorFlash;
@@ -335,11 +336,9 @@ void evt_handleEvents ()
 		switch ( event.type )
 		{
 			case SDL_MOUSEMOTION:
-				evt_sendEvent (USER_EVENT_MOUSE, USER_EVENT_MOUSE_MOTION, event.motion.x, event.motion.y, event.motion.state, glm::vec2 (), glm::vec2 (), "");
-				break;
-
 			case SDL_MOUSEBUTTONUP:
-				evt_sendEvent (USER_EVENT_MOUSE, USER_EVENT_MOUSE_BUTTON_UP, event.motion.state, 0, 0, glm::vec2 (), glm::vec2 (), "");
+			case SDL_MOUSEBUTTONDOWN:
+				io_handleMouseEvent ( event );
 				break;
 
 			case SDL_MOUSEWHEEL:

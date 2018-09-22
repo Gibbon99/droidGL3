@@ -1,9 +1,10 @@
 #include <unordered_map>
 #include <string>
-#include <hdr/io/io_textures.h>
-#include <hdr/system/sys_audio.h>
-#include <hdr/io/io_keyboard.h>
-#include <hdr/game/s_shadows.h>
+#include "hdr/io/io_textures.h"
+#include "hdr/system/sys_audio.h"
+#include "hdr/io/io_keyboard.h"
+#include "hdr/io/io_mouse.h"
+#include "hdr/game/s_shadows.h"
 #include "hdr/libGL/gl_window.h"
 #include "hdr/system/sys_embedFont.h"
 #include "hdr/system/sys_main.h"
@@ -53,13 +54,15 @@ void sys_displayScreen(float interpolation)
 
 			gam_drawAllObjects (interpolation );
 			 */
+			io_renderMouseCursor ();
 			break;
 
 		default:
 			break;
 	}
 
-	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ]", fpsPrint, thinkFpsPrint, interpolation, frameTime / 1000.0f);
+	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,
+			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
 	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Velocity [ %3.3f %3.3f %3.3f ] Pos [ %3.3f %3.3f %3.3f ]", currentVelocity.x, currentVelocity.y, currentVelocity.z,
 			quadPosition.x, quadPosition.y,quadPosition.z);
 
@@ -159,12 +162,15 @@ void changeMode ( int newMode )
 	if ( newMode == MODE_GAME )
 	{
 		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GAME_TIMER_OFF");
+		SDL_ShowCursor(SDL_DISABLE);
+		SDL_WarpMouseInWindow (NULL, 200, 200);
 	}
 
 	if ( newMode == MODE_CONSOLE )
 	{
 		SDL_StartTextInput ();
 		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_ON, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GAME_TIMER_ON");
+		SDL_ShowCursor (SDL_ENABLE);
 	}
 
 	currentMode = newMode;

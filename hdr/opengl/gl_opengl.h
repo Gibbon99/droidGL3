@@ -1,5 +1,6 @@
 #pragma once
 
+#include <hdr/game/s_shadows.h>
 #include "hdr/system/sys_main.h"
 
 extern glm::mat4            MVP;
@@ -28,7 +29,9 @@ void gl_getAllGLErrors ( int errorNum, const char *calledFrom, int line );
 void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichShader, GLuint whichTexture, float interpolation );
 
 // Draw a debug line
-void gl_drawLine ( glm::vec2 startPoint, glm::vec2 endPoint, std::string whichShader, glm::vec4 lineColor );
+void gl_drawLine ( glm::vec3 startPoint, glm::vec3 endPoint, std::string whichShader, glm::vec4 lineColor );
+
+void gl_drawPolygon ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec3 mousePosition, std::string whichShader );
 
 void gl_drawQuad ();
 

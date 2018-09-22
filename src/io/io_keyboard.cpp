@@ -248,7 +248,6 @@ void io_readConsoleSpecialKeys ( SDL_Keycode key, int action )
 		switch ( key )
 		{
 			case SDLK_BACKQUOTE:
-				printf("Pressed tick on console mode - change to MODE_GAME\n");
 				changeMode (MODE_GAME);
 				conCurrentCharCount = 0;
 				SDL_StopTextInput ();
