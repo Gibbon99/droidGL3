@@ -249,8 +249,6 @@ void gl_registerDebugCallback ()
 	glDebugMessageControl (GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 }
 
-
-
 //-----------------------------------------------------------------------------
 //
 // Draw a 2D quad
@@ -370,14 +368,16 @@ void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const s
 
 	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
-	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
+//	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
 	GL_CHECK (glUniform4fv (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr(lineColor)));
+	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), 1.0));
 
 	GL_CHECK (glBindVertexArray (lineVAO));
 
 	//
 	// Enable attribute to hold vertex information
 	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
+	GL_ASSERT (glUniformMatrix4fv (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
 
 	GL_CHECK (glDrawArrays (GL_LINES, 0, 2));
 
@@ -391,7 +391,7 @@ void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const s
 //-----------------------------------------------------------------------------
 //
 // Set OpenGL matrices
-void gl_set2DMode (float interpolate)
+void gl_setupMatrixes ( float interpolate )
 //-----------------------------------------------------------------------------
 {
 	glm::mat4       projMatrix;
@@ -469,13 +469,15 @@ void gl_drawPolygon ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec
 
 	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
-	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
+//	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
 	GL_CHECK (glUniform4fv (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr (lineColor)));
+	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), 1.0));
 
 	GL_CHECK (glBindVertexArray (vao));
 	//
 	// Enable attribute to hold vertex information
 	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
+	GL_ASSERT (glUniformMatrix4fv (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
 
 	GL_CHECK (glDrawArrays (GL_TRIANGLE_FAN, 0, hullPoints.size ()));
 

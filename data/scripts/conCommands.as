@@ -16,7 +16,7 @@ void as_setGameVariables()
 
     nearPlane = 0.0;
     farPlane = 400.0;
-    cameraDistance = 100.0;
+    cameraDistance = 350.0;
 
     g_gamma = 0.5;
 

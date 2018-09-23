@@ -20,7 +20,7 @@ int     currentMode;
 Uint32 frameStart;
 Uint32 frameTime;
 
-vec3 quadPosition;
+vec3 quadPosition{250,250,0};
 vec3 currentVelocity;
 
 //-----------------------------------------------------------------------------------------------------

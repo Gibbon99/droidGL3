@@ -36,7 +36,7 @@ void gl_drawPolygon ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec
 void gl_drawQuad ();
 
 // Set OpenGL to 2d orthographic mode
-void gl_set2DMode (float interpolate);
+void gl_setupMatrixes ( float interpolate );
 
 // Load the font texture
 bool gl_loadFontTexture ( const char *fontFilename );

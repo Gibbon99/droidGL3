@@ -318,15 +318,12 @@ void gam_drawAllObjects(float interpolate)
 	shadowHull.clear();
 	circlePoints.clear();
 
-//	if (!objectsAdded)
-	{
-		gam_addObjects ();
-		gam_getLineSegments ();
+	gl_setupMatrixes (interpolate);
 
-		DrawCircle (tempMouse.x, tempMouse.y, 220, 32 );
-	}
+	gam_addObjects ();
+	gam_getLineSegments ();
 
-	gl_set2DMode (interpolate);
+	DrawCircle (tempMouse.x, tempMouse.y, 220, 32 );
 
 	for (auto itr: lineSegments)
 	{

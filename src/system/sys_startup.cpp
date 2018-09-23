@@ -77,6 +77,8 @@ bool sys_initAll()
 		return false;
 	}
 
+	gl_registerDebugCallback ();
+
 	sys_initTimingVars ();
 
 	//----------------------------------------------------------------------------------------

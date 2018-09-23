@@ -15,6 +15,7 @@ void sys_shutdownToSystem ()
 //-----------------------------------------------------------------------------------------------------
 {
 	sys_freePhysicsEngine ();
+	gl_displayErrors ();
 	lib_destroyWindow();
 	con_shutDownScriptEngine ();
 	io_closeLogFile();
