@@ -3,10 +3,11 @@
 //
 // Draws a texture mapped 2d quad
 //
+
+uniform vec2    inScreenSize;
+
 layout (location = 0) in vec3         inPosition;
 layout (location = 1) in vec2         inTextureCoords;
-
-uniform mat4                          MVP_Matrix;
 
 out vec2                              texCoord0;
 
@@ -14,5 +15,8 @@ void main(void)
 {
 	texCoord0 = inTextureCoords;
 
-	gl_Position = MVP_Matrix * vec4(inPosition, 1);
+	vec2 vertexPosition = inPosition.xy - inScreenSize.xy;
+	vertexPosition /= inScreenSize.xy;
+
+	gl_Position =  vec4(vertexPosition,0,1);
 }

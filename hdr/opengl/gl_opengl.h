@@ -31,12 +31,12 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichSh
 // Draw a debug line
 void gl_drawLine ( glm::vec3 startPoint, glm::vec3 endPoint, std::string whichShader, glm::vec4 lineColor );
 
-void gl_drawPolygon ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec3 mousePosition, std::string whichShader );
+void gl_drawShadowHull ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec3 mousePosition, std::string whichShader );
 
 void gl_drawQuad ();
 
 // Set OpenGL to 2d orthographic mode
-void gl_setupMatrixes ( float interpolate );
+void gl_set3DMode ( float interpolate );
 
 // Load the font texture
 bool gl_loadFontTexture ( const char *fontFilename );

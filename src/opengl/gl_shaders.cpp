@@ -137,6 +137,8 @@ bool gl_shaderLoadAndCompile ( const string fileName, GLuint *returnObject_ID, i
 	{
 		con_print (CON_TEXT, true, "Shader compile failed [ %s]", fileName.c_str ());
 		gl_getGLSLError (shaderObject_ID, GLSL_SHADER);
+		free(sourceText);       // Stop memory leak if shader fails to compile
+		*returnObject_ID = shaderObject_ID;
 		return false;
 	}
 

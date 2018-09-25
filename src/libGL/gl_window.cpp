@@ -78,6 +78,8 @@ bool lib_openWindow ()
 	SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
+	SDL_GL_SetAttribute (SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
+
 	// Turn on double buffering with a 24bit Z buffer.
 	// May need to change this to 16 or 32
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
@@ -124,6 +126,10 @@ bool lib_openWindow ()
 
 	SDL_GL_GetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, &value);
 	con_print (CON_INFO, true, "SDL_GL_CONTEXT_MINOR_VERSION: %i ", value);
+
+	SDL_GL_GetAttribute (SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, &value);
+	con_print (CON_INFO, true, "SDL_GL_FRAMEBUFFER_SRGB_CAPABLE: %i :", value);
+	printf("SDL_GL_FRAMEBUFFER_SRGB_CAPABLE: %i : \n", value);
 
 	changeMode (MODE_CONSOLE);
 

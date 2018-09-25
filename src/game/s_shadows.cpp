@@ -30,8 +30,6 @@ vector<glm::vec3>       circlePoints;
 
 void DrawCircle ( float cx, float cy, float r, int num_segments )
 {
-
-
 	float theta = 2 * 3.1415926 / float (num_segments);
 	float c = cosf (theta);//precalculate the sine and cosine
 	float s = sinf (theta);
@@ -318,7 +316,7 @@ void gam_drawAllObjects(float interpolate)
 	shadowHull.clear();
 	circlePoints.clear();
 
-	gl_setupMatrixes (interpolate);
+	gl_set3DMode (interpolate);
 
 	gam_addObjects ();
 	gam_getLineSegments ();
@@ -412,6 +410,7 @@ void gam_drawCrossAtPoint(glm::vec3 point)
 	             vec4 (0, 1, 1, 1));
 
 }
+
 //-----------------------------------------------------------------------------------------------------
 //
 /// \param argc
@@ -461,7 +460,7 @@ void gam_doAngleRays()
 		shadowHull.insert(tempHullPoint);
 		}
 
-		gl_drawPolygon (shadowHull, io_getMousePosition (), "colorLine" );
+	gl_drawShadowHull (shadowHull, io_getMousePosition (), "colorLine");
 
 	for (auto hullPointItr : shadowHull)
 	{

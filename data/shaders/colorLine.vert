@@ -21,5 +21,4 @@ void main(void)
 	gl_Position =  vec4(vertexPosition,0,1);
 	*/
 	gl_Position = MVP_Matrix * vec4(inPosition, 1);
-
 }

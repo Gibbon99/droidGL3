@@ -1,5 +1,6 @@
 #include <unordered_map>
 #include <string>
+#include <hdr/opengl/gl_fbo.h>
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
 #include "hdr/io/io_keyboard.h"
@@ -42,18 +43,14 @@ void sys_displayScreen(float interpolation)
 
 		case MODE_GAME:
 
+			gl_renderToFrameBuffer();
+
 			gam_drawAllObjects (interpolation);
 
-//			gl_drawAllQuads ("quad2d", "splash.png", interpolation);
-			/*
-			gl_draw2DQuad (vec2(500, 500), glm::vec2 (32, 32), "quad2d", io_getTextureID ("white_square.jpg"), interpolation);
+			gl_renderToScreen ();
 
-			gl_draw2DQuad (quadPosition, glm::vec2(600,600), "colorDisc", io_getTextureID ("splash.png"), interpolation );
+			gl_draw2DQuad (vec2{0,0}, vec2{800,600}, "quad2d", gl_getFrameBufferTexture(), interpolation);
 
-			gl_drawLine (vec2(50, 50), vec2(100, 200), "colorLine", vec4(1, 1, 1, 1));
-
-			gam_drawAllObjects (interpolation );
-			 */
 			io_renderMouseCursor ();
 			break;
 

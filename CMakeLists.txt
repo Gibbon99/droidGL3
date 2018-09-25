@@ -100,7 +100,7 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_generic.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_parser.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_callfunc_ppc.cpp
-        src/game/s_shadows.cpp hdr/game/s_shadows.h src/io/io_mouse.cpp hdr/io/io_mouse.h)
+        src/game/s_shadows.cpp hdr/game/s_shadows.h src/io/io_mouse.cpp hdr/io/io_mouse.h src/opengl/gl_fbo.cpp hdr/opengl/gl_fbo.h)
 
 # Define the C sources
 set(C_SRCS

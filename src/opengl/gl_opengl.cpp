@@ -31,6 +31,14 @@ uint quadVAO = 0;
 
 glm::mat4   MVP;
 
+glm::mat4 projMatrix;
+glm::mat4 viewMatrix;
+glm::mat4 modelMatrix;
+
+glm::vec3 camPosition;
+glm::vec3 camTarget;
+glm::vec3 upVector = vec3 (0.0f, 1.0f, 0.0f);
+
 float nearPlane;
 float farPlane;
 float cameraDistance;
@@ -251,7 +259,7 @@ void gl_registerDebugCallback ()
 
 //-----------------------------------------------------------------------------
 //
-// Draw a 2D quad
+// Draw a 2D quad - uses ortho matrix to draw - screen pixel coordinates
 void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture, float interpolation)
 //-----------------------------------------------------------------------------
 {
@@ -260,22 +268,17 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	static GLuint       buffers[2];
 	static bool         initDone = false;
 
-	glm::vec2           viewPosition;
+	quadVerts[0].x = position.x;
+	quadVerts[0].y = position.y;
 
-	viewPosition.x += position.x + (currentVelocity.x * interpolation);
-	viewPosition.y += position.y + (currentVelocity.y * interpolation);
+	quadVerts[1].x = position.x;
+	quadVerts[1].y = position.y + quadSize.y;
 
-	quadVerts[0].x = viewPosition.x;
-	quadVerts[0].y = viewPosition.y;
+	quadVerts[2].x = position.x + quadSize.x;
+	quadVerts[2].y = position.y + quadSize.y;
 
-	quadVerts[1].x = viewPosition.x;
-	quadVerts[1].y = viewPosition.y + quadSize.y;
-
-	quadVerts[2].x = viewPosition.x + quadSize.x;
-	quadVerts[2].y = viewPosition.y + quadSize.y;
-
-	quadVerts[3].x = viewPosition.x + quadSize.x;
-	quadVerts[3].y = viewPosition.y;
+	quadVerts[3].x = position.x + quadSize.x;
+	quadVerts[3].y = position.y;
 
 	GLfloat quadTexCoords[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,};
 
@@ -314,8 +317,7 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	GL_CHECK (glBindTexture (GL_TEXTURE_2D, whichTexture));
 
 	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture0"), 0));
-	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), 1.0));
-	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "outerRadius"), 0.2f));
+	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), g_gamma));
 
 	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
 
@@ -331,10 +333,9 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	glDeleteVertexArrays (1, &vao);
 }
 
-
 //--------------------------------------------------------------------------------------------
 //
-// Draw a debug line
+// Draw a debug line - draws in 3d space using MVP matrix
 void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const string whichShader, glm::vec4 lineColor )
 //--------------------------------------------------------------------------------------------
 {
@@ -349,7 +350,7 @@ void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const s
 
 	if ( !initDone )
 	{
-		GL_ASSERT (glGenVertexArrays (1, &lineVAO));
+		GL_CHECK (glGenVertexArrays (1, &lineVAO));
 		GL_CHECK ( glBindVertexArray(lineVAO));
 
 		// Create buffers for the attrib pointers
@@ -358,7 +359,7 @@ void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const s
 		GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
 		// Vertex coordinates buffer
-		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[0]));
+		GL_CHECK (glBindBuffer (GL_ARRAY_BUFFER, buffers[0]));
 		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (lineCoords), lineCoords, GL_DYNAMIC_DRAW));
 		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
 		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
@@ -368,16 +369,13 @@ void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const s
 
 	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
-//	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
 	GL_CHECK (glUniform4fv (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr(lineColor)));
-	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), 1.0));
 
 	GL_CHECK (glBindVertexArray (lineVAO));
-
 	//
 	// Enable attribute to hold vertex information
 	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
-	GL_ASSERT (glUniformMatrix4fv (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
+	GL_CHECK (glUniformMatrix4fv (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
 
 	GL_CHECK (glDrawArrays (GL_LINES, 0, 2));
 
@@ -388,20 +386,27 @@ void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const s
 	glDeleteVertexArrays (1, &lineVAO);
 }
 
+//-----------------------------------------------------------------------------------------------------
+//
+/// \param argc
+/// \param argv
+/// \return
+void gl_set2DMode (float interpolate )
+//-----------------------------------------------------------------------------------------------------
+{
+	projMatrix = glm::ortho(winWidth, 0, winHeight, 0, 0, 0);
+
+	viewMatrix = glm::mat4();
+
+	modelMatrix = glm::mat4();
+}
+
 //-----------------------------------------------------------------------------
 //
 // Set OpenGL matrices
-void gl_setupMatrixes ( float interpolate )
+void gl_set3DMode ( float interpolate )
 //-----------------------------------------------------------------------------
 {
-	glm::mat4       projMatrix;
-	glm::mat4       viewMatrix;
-	glm::mat4       modelMatrix;
-
-	glm::vec3       camPosition;
-	glm::vec3       camTarget;
-	glm::vec3       upVector = vec3 (0.0f, 1.0f, 0.0f);
-
 	projMatrix = glm::perspective (60.0f, (float) winWidth / (float) winHeight, nearPlane, farPlane);
 
 	camPosition.x = quadPosition.x + (currentVelocity.x * interpolate);
@@ -419,32 +424,31 @@ void gl_setupMatrixes ( float interpolate )
 	MVP = projMatrix * viewMatrix * modelMatrix;
 }
 
-
 //-----------------------------------------------------------------------------
 //
-// Draw a polygon
-void gl_drawPolygon ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec3 mousePosition, string whichShader )
+// Draw the shadowHull
+void gl_drawShadowHull ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec3 lightPosition, string whichShader )
 //-----------------------------------------------------------------------------
 {
 	static GLuint vao = 0;
-	static GLuint buffers[2];
+	static GLuint buffers;
 	static bool initDone = false;
 
-	glm::vec4 lineColor{1,1,0,1};
+	glm::vec4 debugColor{1,1,0,1};
 
 	vector<glm::vec3>       hullPoints;
 
+	//
+	// Create the triangle fan from the already sorted drawShadowHull
+	//
 	hullPoints.clear();
-
-	hullPoints.push_back (mousePosition);
+	hullPoints.push_back (lightPosition);
 	for (auto sourceItr : drawShadowHull)
 	{
 		hullPoints.push_back(sourceItr.position);
 	}
 	auto sourceItr = drawShadowHull.begin();
 	hullPoints.push_back (sourceItr->position);
-//	hullPoints.push_back (mousePosition);
-
 
 	if ( !initDone )
 	{
@@ -453,13 +457,12 @@ void gl_drawPolygon ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec
 		GL_CHECK (glBindVertexArray (vao));
 
 		// Create buffers for the vertex data
-		buffers[0] = wrapglGenBuffers (1, __func__);
-		buffers[1] = wrapglGenBuffers (1, __func__);
+		buffers = wrapglGenBuffers (1, __func__);
 
 		GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
 		// Vertex coordinates buffer
-		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[0]));
+		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers));
 		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (glm::vec3) * hullPoints.size(), &hullPoints[0], GL_DYNAMIC_DRAW));
 		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
 		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
@@ -469,18 +472,15 @@ void gl_drawPolygon ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec
 
 	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
-//	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
-	GL_CHECK (glUniform4fv (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr (lineColor)));
-	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), 1.0));
-
 	GL_CHECK (glBindVertexArray (vao));
 	//
 	// Enable attribute to hold vertex information
-	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
-	GL_ASSERT (glUniformMatrix4fv (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
+	GL_CHECK (glUniform4fv                 (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr (debugColor)));
+	GL_CHECK (glUniformMatrix4fv           (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
+	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib  (whichShader, "inPosition")));
 
 	GL_CHECK (glDrawArrays (GL_TRIANGLE_FAN, 0, hullPoints.size ()));
 
-	glDeleteBuffers (2, buffers);
+	glDeleteBuffers (1, &buffers);
 	glDeleteVertexArrays (1, &vao);
 }
