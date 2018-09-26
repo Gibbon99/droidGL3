@@ -62,9 +62,6 @@ void lib_resizeWindow ( int newWidth, int newHeight )
 bool lib_openWindow ()
 //-----------------------------------------------------------------------------
 {
-	winWidth = 800;
-	winHeight = 600;
-
 	int numVideoDrivers = 0;
 
 	// Initialize SDL

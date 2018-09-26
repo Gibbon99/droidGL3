@@ -100,7 +100,13 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_generic.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_parser.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_callfunc_ppc.cpp
-        src/game/s_shadows.cpp hdr/game/s_shadows.h src/io/io_mouse.cpp hdr/io/io_mouse.h src/opengl/gl_fbo.cpp hdr/opengl/gl_fbo.h)
+
+        ${CMAKE_CURRENT_LIST_DIR}/src/io/io_textures.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/game/s_shadows.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/io/io_mouse.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_fbo.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_shaders.cpp
+        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h)
 
 # Define the C sources
 set(C_SRCS
@@ -174,7 +180,7 @@ set(C_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/image_helper.c
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/soil.c
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/stb_image_aug.c
-        src/io/io_textures.cpp hdr/io/io_textures.h src/opengl/gl_shaders.cpp hdr/opengl/gl_shaders.h)
+        ${CMAKE_CURRENT_LIST_DIR}/src/io/simpleIni/io_convertUTF.c )
 
 set_source_files_properties(
         ${CXX_SRCS} PROPERTIES COMPILE_FLAGS

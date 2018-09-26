@@ -14,6 +14,11 @@ void main()
 	textureColor = texture2D(inTexture0, texCoord0.st);
 	//
 	// Apply Gamma setting to the texture colors
-	pixelColor.rgb = pow (textureColor.rgb, vec3 (1.0 / gamma));
-	pixelColor.a = 1.0f;
+
+	vec4 finalGamma = vec4 (1.0 / gamma);
+	finalGamma.w = 1.0;
+	pixelColor = pow (textureColor, finalGamma);
+
+//	pixelColor.rgb = pow (textureColor.rgb, vec3 (1.0 / gamma));
+//	pixelColor.a = 1.0f;
 }

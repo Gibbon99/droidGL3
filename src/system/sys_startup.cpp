@@ -1,3 +1,4 @@
+#include <hdr/io/io_gameprefs.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -37,6 +38,9 @@ bool sys_initAll()
 {
 	// Init the console
 	con_initConsole ();
+
+	if (!io_getGamePrefs("data/gameprefs.ini"))
+		return false;
 
 	if ( sys_checkMemLeak ("leakReport.txt"))
 	{
