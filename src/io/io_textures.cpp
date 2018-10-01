@@ -23,6 +23,21 @@ typedef struct
 
 unordered_map <string, _textureSet> textureSet;
 
+unsigned int numTexturesToLoad = 0;
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Check if all the textures are loaded or not
+bool io_allTexturesLoaded()
+//-----------------------------------------------------------------------------------------------------
+{
+	bool result = false;
+
+	result = textureSet.size() == numTexturesToLoad;
+
+	return result;
+}
+
 //-----------------------------------------------------------------------------------------------------
 //
 // Check if a texture has been loaded or not
@@ -195,17 +210,12 @@ vec2 io_getTextureSize(const string fileName)
 
 	unordered_map<string, _textureSet>::const_iterator textureItr;
 
-	if ( SDL_LockMutex (textureSetMutex) == 0 )
+	textureItr = textureSet.find (fileName);
+	if ( textureItr != textureSet.end ())    // Found
 	{
-		textureItr = textureSet.find (fileName);
-		if ( textureItr != textureSet.end ())    // Found
-		{
-			returnResults.x = textureItr->second.width;
-			returnResults.y = textureItr->second.height;
-			SDL_UnlockMutex (textureSetMutex);
-			return returnResults;
-		}
-		SDL_UnlockMutex (textureSetMutex);
+		returnResults.x = textureItr->second.width;
+		returnResults.y = textureItr->second.height;
+		return returnResults;
 	}
 
 	return vec2{-1,-1};

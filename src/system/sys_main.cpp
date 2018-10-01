@@ -1,6 +1,7 @@
 #include <unordered_map>
 #include <string>
-#include <hdr/opengl/gl_fbo.h>
+#include <hdr/game/s_render.h>
+#include "hdr/opengl/gl_fbo.h"
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
 #include "hdr/io/io_keyboard.h"
@@ -40,6 +41,8 @@ void sys_displayScreen(float interpolation)
 	switch (currentMode)
 	{
 		case MODE_CONSOLE:
+		case MODE_LOADING:
+		case MODE_INIT:
 			con_showConsole ();
 			break;
 
@@ -82,6 +85,18 @@ void sys_gameTickRun()
 	{
 		case MODE_SHUTDOWN:
 			quitProgram = true;
+			break;
+
+		case MODE_LOADING:
+			if ((io_allTexturesLoaded()) && allLevelsLoaded)
+			{
+				sys_changeMode(MODE_INIT);
+			}
+			break;
+
+		case MODE_INIT:
+			gam_calcTileTexCoords("alltiles.bmp");
+			sys_changeMode(MODE_CONSOLE);
 			break;
 
 		case MODE_GAME:
@@ -131,8 +146,6 @@ int main (int argc, char *argv[] )
 		frameTime = SDL_GetTicks () - frameStart;
 	}
 
-	printf ("at [ %s ]\n", levelInfo.at ("Airlock").levelName);
-
 	sys_shutdownToSystem();
 
 return 0;
@@ -141,7 +154,7 @@ return 0;
 //-----------------------------------------------------------------------------
 //
 // Change game mode
-void changeMode ( int newMode )
+void sys_changeMode ( int newMode )
 //-----------------------------------------------------------------------------
 {
 	static int previousMode = -1;

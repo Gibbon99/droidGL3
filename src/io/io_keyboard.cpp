@@ -159,7 +159,7 @@ void io_readGameSpecialKeys ( SDL_Keycode key, int action )
 		switch ( key )
 		{
 			case SDLK_BACKQUOTE:
-				changeMode (MODE_CONSOLE);
+				sys_changeMode (MODE_CONSOLE);
 				conCurrentCharCount = 0;
 				break;
 
@@ -248,7 +248,7 @@ void io_readConsoleSpecialKeys ( SDL_Keycode key, int action )
 		switch ( key )
 		{
 			case SDLK_BACKQUOTE:
-				changeMode (MODE_GAME);
+				sys_changeMode (MODE_GAME);
 				conCurrentCharCount = 0;
 				SDL_StopTextInput ();
 				break;
@@ -308,7 +308,7 @@ void io_handleKeyboardEvent ( SDL_Event event )
 //-----------------------------------------------------------------------------
 {
 	if ( event.key.keysym.sym == SDLK_ESCAPE && event.type == SDL_KEYDOWN )
-		changeMode (MODE_SHUTDOWN);
+		sys_changeMode (MODE_SHUTDOWN);
 
 	switch ( currentMode )
 	{

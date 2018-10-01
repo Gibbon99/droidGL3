@@ -322,16 +322,16 @@ void evt_handleDisplayEvents ( SDL_Event event )
 
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
 //			con_print (CON_INFO, true, "Window %d gained keyboard focus", event.window.windowID);
-//			changeMode(-1);
+//			sys_changeMode(-1);
 			break;
 
 		case SDL_WINDOWEVENT_FOCUS_LOST:
 //			con_print (CON_INFO, true, "Window %d lost keyboard focus", event.window.windowID);
-//			changeMode (MODE_PAUSE);
+//			sys_changeMode (MODE_PAUSE);
 			break;
 
 		case SDL_WINDOWEVENT_CLOSE:
-//			changeMode (MODE_SHUTDOWN);
+//			sys_changeMode (MODE_SHUTDOWN);
 			break;
 
 #if SDL_VERSION_ATLEAST (2, 0, 5)

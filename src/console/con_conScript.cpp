@@ -69,7 +69,7 @@ _hostScriptFunctions hostScriptFunctions[] =
 //	{"void lib_resizeWindow(int newWidth, int newHeight)",              (void * ) lib_resizeWindow},
 //	{"void sdf_addFontInfo(uint whichFont, string &in, uint fontSize)", (void * ) sdf_addFontInfo},
 //	{"bool sdf_initFontSystem()",	                                    (void * ) sdf_initFontSystem},
-	{"void sys_changeMode(int newMode)",                                (void * ) changeMode},
+	{"void sys_changeMode(int newMode)",                                (void * ) sys_changeMode},
 //	{"void aud_setAudioGain(int newLevel)",                             (void * ) aud_setAudioGain},
 	{"",							NULL},
 };

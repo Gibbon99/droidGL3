@@ -128,7 +128,7 @@ bool lib_openWindow ()
 	con_print (CON_INFO, true, "SDL_GL_FRAMEBUFFER_SRGB_CAPABLE: %i :", value);
 	printf("SDL_GL_FRAMEBUFFER_SRGB_CAPABLE: %i : \n", value);
 
-	changeMode (MODE_CONSOLE);
+	sys_changeMode (MODE_CONSOLE);
 
 	return true;
 }

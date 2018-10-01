@@ -88,6 +88,8 @@ bool sys_initAll()
 
 	sys_initTimingVars ();
 
+	sys_changeMode (MODE_LOADING);
+
 	//----------------------------------------------------------------------------------------
 	//
 	// Console running now
@@ -150,7 +152,6 @@ bool sys_initAll()
 	}   // end of file system check
 
 	gl_createFBO ();
-	gam_calcTileTexCoords("alltiles.bmp");
 
 	return true;
 }

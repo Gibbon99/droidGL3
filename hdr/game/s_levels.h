@@ -84,6 +84,8 @@ struct _levelStruct {
 extern int                  currentLevel;
 extern unordered_map<string, _levelStruct>::const_iterator currentLevelItr;
 
+extern bool allLevelsLoaded;
+
 //-----------------------------------------------------------------------------
 //
 // structure to hold information for healing tiles

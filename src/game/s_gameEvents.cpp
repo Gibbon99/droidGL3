@@ -46,6 +46,7 @@ int gam_processGameEventQueue ( void *ptr )
 
 				case USER_EVENT_TEXTURE_LOAD:
 				{
+					numTexturesToLoad++;    // Count how many textures should be loaded - one per event
 					io_loadTextureFile (tempEventData.eventString);
 					break;
 				}
@@ -81,6 +82,7 @@ int gam_processGameEventQueue ( void *ptr )
 
 				case USER_EVENT_LEVEL_LOAD_DONE:    // Levels all loaded - do lifts, droids etc
 				{
+					allLevelsLoaded = true;
 					con_print(CON_INFO, true, "All levels are loaded. Run physics, droid etc setup here.");
 					break;
 				}

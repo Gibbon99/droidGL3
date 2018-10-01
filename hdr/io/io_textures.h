@@ -7,6 +7,8 @@
 
 #include "hdr/system/sys_main.h"
 
+extern unsigned int numTexturesToLoad;
+
 // Handle a texture file error event
 void io_handleTextureFileError ( int errorCode, string fileName );
 
@@ -28,3 +30,6 @@ void io_loadTextureFile ( string fileName );
 
 // Set the texture slot in the map as an error
 void io_setTextureError ( string fileName );
+
+// Check if all the textures are loaded or not
+bool io_allTexturesLoaded();

@@ -52,4 +52,4 @@ extern vec3 quadPosition;
 extern vec3 currentVelocity;
 
 // Change game mode
-void changeMode ( int newMode );
+void sys_changeMode ( int newMode );

@@ -5,6 +5,8 @@ vector<_levelMemory>  levelMemoryPointers;
 unordered_map <string, _levelStruct> levelInfo;
 unordered_map<string, _levelStruct>::const_iterator currentLevelItr;
 
+bool allLevelsLoaded = false;
+
 //----------------------------------------------------------------------------
 //
 // Structure holding all the level information

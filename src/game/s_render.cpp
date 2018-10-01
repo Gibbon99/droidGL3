@@ -11,7 +11,7 @@ void gam_calcTileTexCoords(const string textureName)
 	int             totalNumTiles;
 	int             numTileAcrossInTexture, numTilesDownInTexture;
 	vec2            imageSize;
-	_tileTexCoords  tempCoords;
+	_tileTexCoords  tempCoords{};   // TODO: Check the affect of this {}
 
 	imageSize = io_getTextureSize(textureName);
 	if (imageSize.x == -1)

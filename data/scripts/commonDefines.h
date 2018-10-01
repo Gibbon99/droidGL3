@@ -8,10 +8,12 @@ const float AUDIO_PAN_RIGHT = 1.0f;
 //
 //		Defines for Game Modes
 
-const int MODE_CONSOLE        = 1;
-const int MODE_GAME           = 2;
-const int MODE_PAUSE          = 3;
-const int MODE_SHUTDOWN       = 4;
+const int MODE_CONSOLE          = 1;
+const int MODE_GAME             = 2;
+const int MODE_PAUSE            = 3;
+const int MODE_SHUTDOWN         = 4;
+const int MODE_LOADING          = 5;
+const int MODE_INIT             = 6;
 
 enum mySounds
 {
