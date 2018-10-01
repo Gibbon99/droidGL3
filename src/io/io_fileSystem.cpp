@@ -6,6 +6,15 @@ bool        fileSystemReady = false;
 
 //--------------------------------------------------------
 //
+// Return the state of the file system
+bool io_isFileSystemReady()
+//--------------------------------------------------------
+{
+	return fileSystemReady;
+}
+
+//--------------------------------------------------------
+//
 // Get archive types supported by this version
 bool io_getArchivers ( void )
 //--------------------------------------------------------
@@ -206,7 +215,7 @@ int io_getFileIntoMemory ( const char *fileName, void *results )
 
 	if ( -1 == returnCode )
 		{
-			con_print(CON_ERROR, true, "ERROR: Filesystem read failed - [ %s ] for [ %s ].", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ), fileName );
+			con_print(CON_ERROR, true, "Filesystem read failed - [ %s ] for [ %s ].", PHYSFS_getErrorByCode ( PHYSFS_getLastErrorCode() ), fileName );
 			PHYSFS_close (compFile);
 			return -1;
 		}

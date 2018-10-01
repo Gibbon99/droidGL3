@@ -13,6 +13,8 @@
 #include "hdr/system/sys_timing.h"
 #include "hdr/opengl/gl_opengl.h"
 
+#include "hdr/game/s_levels.h"
+
 bool    quitProgram;
 int     loops;
 float   interpolation;
@@ -128,6 +130,8 @@ int main (int argc, char *argv[] )
 		fps++;
 		frameTime = SDL_GetTicks () - frameStart;
 	}
+
+	printf ("at [ %s ]\n", levelInfo.at ("Airlock").levelName);
 
 	sys_shutdownToSystem();
 

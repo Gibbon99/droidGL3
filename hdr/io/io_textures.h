@@ -8,20 +8,23 @@
 #include "hdr/system/sys_main.h"
 
 // Handle a texture file error event
-void io_handleTextureFileError ( const int errorCode, const string fileName );
+void io_handleTextureFileError ( int errorCode, string fileName );
 
 // Called from main thread on user event
 // Upload texture in memory information to OpenGL texture
 void io_uploadTextureIntoGL ( intptr_t textureMemoryIndex );
 
 // Return the textureID for a texture name
-int io_getTextureID ( const string fileName );
+int io_getTextureID ( string fileName );
+
+// Return the image size for a texture name
+vec2 io_getTextureSize(const string fileName);
 
 // Store the new TextureID and fileName into the lookup map
-void io_storeTextureInfoIntoMap ( int textureID, string fileName );
+void io_storeTextureInfoIntoMap(int textureID, vec2 imageSize, string fileName);
 
 // Puts the image information into a queue of memory pointers
-void io_loadTextureFile ( const string fileName );
+void io_loadTextureFile ( string fileName );
 
 // Set the texture slot in the map as an error
-void io_setTextureError ( const string fileName );
+void io_setTextureError ( string fileName );

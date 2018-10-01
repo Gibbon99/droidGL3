@@ -26,9 +26,6 @@ void as_setGameVariables()
 
 //    sdf_initFontSystem();
     //
-    // Use the sound system or not
-    as_useSound = true;
-    //
     // Number of samples to play at once
     as_numAudioSamples = 16;
 }

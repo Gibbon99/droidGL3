@@ -20,6 +20,8 @@
 #include "glm/gtx/intersect.hpp"
 #include "glm/gtc/matrix_inverse.hpp"
 
+#include "hdr/libGL/chipmunk/cpVect.h"
+
 #include "hdr/system/sys_defines.h"
 #include "hdr/script/angelscript.h"
 #include "hdr/script/scriptstdstring.h"

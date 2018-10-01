@@ -30,6 +30,11 @@ using namespace std;
 #define USER_EVENT_TEXTURE_ERROR        0x20
 #define EVENT_TYPE_DO_TEXTURE_UPLOAD    0x21
 #define USER_EVENT_TEXTURE_UPLOAD_DONE  0x22
+#define USER_EVENT_GAME_LOAD_LEVEL      0x23
+#define EVENT_TYPE_DO_LEVEL_LOAD        0x24
+#define USER_EVENT_LEVEL_ERROR          0x25
+#define USER_EVENT_LEVEL_EXTRAS         0x26
+#define USER_EVENT_LEVEL_LOAD_DONE      0x27
 
 typedef struct
 {
@@ -52,6 +57,8 @@ extern SDL_mutex *consoleMutex;
 extern SDL_mutex *audioMutex;
 extern SDL_mutex *loggingMutex;
 extern SDL_mutex *gameMutex;
+extern SDL_mutex *levelMutex;
+extern SDL_mutex *textureSetMutex;
 
 extern bool runThreads;
 

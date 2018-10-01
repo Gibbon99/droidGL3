@@ -1,4 +1,6 @@
 #include <hdr/io/io_textures.h>
+#include <hdr/game/s_levels.h>
+#include <hdr/system/sys_events.h>
 #include "hdr/game/s_gameEvents.h"
 #include "hdr/system/sys_events.h"
 
@@ -56,7 +58,30 @@ int gam_processGameEventQueue ( void *ptr )
 
 				case USER_EVENT_TEXTURE_UPLOAD_DONE:
 				{
-					io_storeTextureInfoIntoMap (tempEventData.data1, tempEventData.eventString);
+					io_storeTextureInfoIntoMap (tempEventData.data1, tempEventData.vec2_1, tempEventData.eventString);
+					break;
+				}
+
+				case USER_EVENT_GAME_LOAD_LEVEL:
+				{
+					gam_loadLevelFromFile(tempEventData.eventString);
+				}
+
+				case USER_EVENT_LEVEL_ERROR:
+				{
+					gam_handleLevelFileError(tempEventData.data1, tempEventData.eventString);
+					break;
+				}
+
+				case USER_EVENT_LEVEL_EXTRAS:
+				{
+					lvl_addPaddingToLevel(tempEventData.eventString);
+					break;
+				}
+
+				case USER_EVENT_LEVEL_LOAD_DONE:    // Levels all loaded - do lifts, droids etc
+				{
+					con_print(CON_INFO, true, "All levels are loaded. Run physics, droid etc setup here.");
 					break;
 				}
 

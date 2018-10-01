@@ -8,7 +8,6 @@ _hostScriptFunctions hostVariables[] =
 	{"int winWidth",                        &winWidth},
 	{"int winHeight",                       &winHeight},
 	{"int currentMode",                     &currentMode},
-	{"bool as_useSound",                    &as_useSound},
 	{"int as_audioVolume",                  &as_audioVolume},
 	{"int as_numAudioSamples",              &as_numAudioSamples},
 	{"float nearPlane",                     &nearPlane},

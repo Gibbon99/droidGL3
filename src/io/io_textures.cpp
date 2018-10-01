@@ -17,9 +17,28 @@ typedef struct
 {
 	int textureID;
 	bool loaded;
+	int width;
+	int height;
 } _textureSet;
 
 unordered_map <string, _textureSet> textureSet;
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Check if a texture has been loaded or not
+bool io_isTextureLoaded(const string fileName)
+//-----------------------------------------------------------------------------------------------------
+{
+	bool result;
+
+	if ( SDL_LockMutex (textureSetMutex) == 0 )
+	{
+		result = textureSet.at(fileName).loaded;
+		SDL_UnlockMutex (textureSetMutex);
+		return result;
+	}
+	return false;
+}
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -141,8 +160,15 @@ void io_uploadTextureIntoGL(intptr_t textureMemoryIndex)
 //-----------------------------------------------------------------------------------------------------
 {
 	uint textureID;
+	int imageWidth, imageHeight, numChannels;
 
-//	con_print (CON_INFO, true, "Texture index [ %z ] - name [ %s ]", textureMemoryIndex, textureMemory[(size_t)textureMemoryIndex].textureName.c_str ());
+	//
+	// TODO: Does this leak memory?
+	if ( nullptr == SOIL_load_image_from_memory	( (const unsigned char *)textureMemory[(size_t)textureMemoryIndex].memPointer,textureMemory[(size_t)textureMemoryIndex].imageLength,
+					&imageWidth, &imageHeight, &numChannels, SOIL_LOAD_AUTO))
+	{
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_SOIL, 0, 0, vec2 (), vec2 (), textureMemory[(size_t)textureMemoryIndex].textureName);
+	}
 
 	textureID = SOIL_load_OGL_texture_from_memory ((const unsigned char *)textureMemory[(size_t)textureMemoryIndex].memPointer, textureMemory[(size_t)textureMemoryIndex].imageLength, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS | SOIL_FLAG_INVERT_Y);
 	if ( 0 == textureID ) // failed to load texture
@@ -151,13 +177,38 @@ void io_uploadTextureIntoGL(intptr_t textureMemoryIndex)
 		return;
 	}
 
-//	con_print (CON_INFO, true, "File is now loaded into OpenGL.");
-
-//	con_print (CON_INFO, true, "Send USER EVENT_UPLOAD_DONE.");
-
-	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_UPLOAD_DONE, textureID, 0, 0, vec2 (), vec2 (), textureMemory[(size_t)textureMemoryIndex].textureName);
+	evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_UPLOAD_DONE, textureID, 0, 0, vec2{imageWidth, imageHeight} , vec2 (), textureMemory[(size_t)textureMemoryIndex].textureName);
 
 	free(textureMemory[(size_t)textureMemoryIndex].memPointer);
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Pass in the fileName to find
+// Return texture dimensions in vec2, or -1 in each if not found
+//
+// Return the image size for a texture name
+vec2 io_getTextureSize(const string fileName)
+//-----------------------------------------------------------------------------------------------------
+{
+	vec2        returnResults;
+
+	unordered_map<string, _textureSet>::const_iterator textureItr;
+
+	if ( SDL_LockMutex (textureSetMutex) == 0 )
+	{
+		textureItr = textureSet.find (fileName);
+		if ( textureItr != textureSet.end ())    // Found
+		{
+			returnResults.x = textureItr->second.width;
+			returnResults.y = textureItr->second.height;
+			SDL_UnlockMutex (textureSetMutex);
+			return returnResults;
+		}
+		SDL_UnlockMutex (textureSetMutex);
+	}
+
+	return vec2{-1,-1};
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -171,24 +222,37 @@ int io_getTextureID(const string fileName)
 {
 	unordered_map<string, _textureSet>::const_iterator textureItr;
 
-	textureItr = textureSet.find (fileName);
-	if ( textureItr != textureSet.end ())    // Found
-		return textureItr->second.loaded ? textureItr->second.textureID : -1;   // Not loaded
 
-	return 1;   // Not found
+	if ( SDL_LockMutex (textureSetMutex) == 0 )
+	{
+		textureItr = textureSet.find (fileName);
+		if ( textureItr != textureSet.end ())    // Found
+		{
+			SDL_UnlockMutex (gameMutex);
+			return textureItr->second.loaded ? textureItr->second.textureID : -1;   // Not loaded
+		}
+	}
+
+	return 0;   // Not found
 }
 
 //-----------------------------------------------------------------------------------------------------
 //
 // Store the new TextureID and fileName into the lookup map
-void io_storeTextureInfoIntoMap(int textureID, string fileName)
+void io_storeTextureInfoIntoMap(int textureID, vec2 imageSize, string fileName)
 //-----------------------------------------------------------------------------------------------------
 {
 	_textureSet tempSet;
 
 	tempSet.textureID = textureID;
 	tempSet.loaded = true;
-	textureSet.insert (std::pair<string, _textureSet> (fileName, tempSet));
+	tempSet.width = static_cast<int>(imageSize.x);
+	tempSet.height = static_cast<int>(imageSize.y);
+	if ( SDL_LockMutex (textureSetMutex) == 0 )
+	{
+		textureSet.insert (std::pair<string, _textureSet> (fileName, tempSet));
+		SDL_UnlockMutex (gameMutex);
+	}
 
 	// TODO - free memory from vector ??
 }

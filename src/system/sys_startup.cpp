@@ -1,4 +1,6 @@
 #include <hdr/io/io_gameprefs.h>
+#include <hdr/game/s_levels.h>
+#include <hdr/game/s_render.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -39,7 +41,7 @@ bool sys_initAll()
 	// Init the console
 	con_initConsole ();
 
-	if (!io_getGamePrefs("data/gameprefs.ini"))
+	if (!io_getGamePrefs(GAME_PREFS_FILENAME))
 		return false;
 
 	if ( sys_checkMemLeak ("leakReport.txt"))
@@ -143,9 +145,12 @@ bool sys_initAll()
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "329.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "420.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "476.bmp");
+
+		gam_loadAllLevels();
 	}   // end of file system check
 
 	gl_createFBO ();
+	gam_calcTileTexCoords("alltiles.bmp");
 
 	return true;
 }

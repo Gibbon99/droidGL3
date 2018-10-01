@@ -106,4 +106,6 @@ bool gl_createFBO()
 	//
 	// Set default frameBuffer ( Screen )
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	return true;
 }

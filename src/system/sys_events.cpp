@@ -1,3 +1,4 @@
+#include <hdr/game/s_levels.h>
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_events.h"
 #include "hdr/io/io_logfile.h"
@@ -6,6 +7,7 @@
 #include "hdr/io/io_keyboard.h"
 #include "hdr/io/io_mouse.h"
 
+SDL_TimerID testLevelLoad;
 
 SDL_TimerID timerCursorFlash;
 
@@ -18,6 +20,8 @@ SDL_mutex *consoleMutex;
 SDL_mutex *audioMutex;
 SDL_mutex *loggingMutex;
 SDL_mutex *gameMutex;
+SDL_mutex *levelMutex;
+SDL_mutex *textureSetMutex;
 
 queue <_myEventData> consoleEventQueue;
 queue <_myEventData> audioEventQueue;
@@ -25,7 +29,23 @@ queue <_myEventData> loggingEventQueue;
 queue <_myEventData> gameEventQueue;
 
 bool runThreads = true;     // Master flag to control state of detached threads
+
 uint32_t        SDL_myEventType;
+
+//------------------------------------------------------------------------
+//
+// Thread to keep checking if all the level information has been loaded
+Uint32 evt_getLevelInfo ( Uint32 interval, void *param)
+//------------------------------------------------------------------------
+{
+	if (levelInfo.size() == 19)
+	{
+		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_LEVEL_LOAD_DONE, 0, 0, 0, vec2 (), vec2 (), "");
+		return 0;       // Stop checking now
+	}
+
+	return interval;
+}
 
 //------------------------------------------------------------------------
 //
@@ -74,6 +94,8 @@ bool evt_registerUserEventSetup ()
 		printf("SDL_RegisterEvents failed. Not enough memory for user-defined event. Exiting.\n");
 		sys_shutdownToSystem ();
 	}
+
+	testLevelLoad = SDL_AddTimer (500, evt_getLevelInfo, nullptr);
 
 	timerCursorFlash = SDL_AddTimer (500, evt_cursorTimerCallback, nullptr);   // Time in milliseconds
 
@@ -133,6 +155,20 @@ bool evt_registerUserEventSetup ()
 		return false;
 	}
 
+	levelMutex = SDL_CreateMutex ();
+	if ( !levelMutex )
+	{
+		printf ("Couldn't create mutex - levelMutex");
+		return false;
+	}
+
+	textureSetMutex = SDL_CreateMutex ();
+	if ( !textureSetMutex )
+	{
+		printf ("Couldn't create mutex - textureSetMutex");
+		return false;
+	}
+
 	SDL_DetachThread (userEventConsoleThread);
 	SDL_DetachThread (userEventAudioThread);
 	SDL_DetachThread (userEventLoggingThread);
@@ -151,6 +187,8 @@ void evt_shutdownMutex ()
 	SDL_DestroyMutex (audioMutex);
 	SDL_DestroyMutex (loggingMutex);
 	SDL_DestroyMutex (gameMutex);
+	SDL_DestroyMutex (levelMutex);
+	SDL_DestroyMutex (textureSetMutex);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -376,6 +414,10 @@ void evt_handleEvents ()
 				{
 					case EVENT_TYPE_DO_TEXTURE_UPLOAD:
 						io_uploadTextureIntoGL ((intptr_t)event.user.data1 );
+						break;
+
+					case EVENT_TYPE_DO_LEVEL_LOAD:
+						gam_loadLevel ((intptr_t)event.user.data1);
 						break;
 
 					default:
