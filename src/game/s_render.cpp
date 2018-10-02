@@ -17,11 +17,13 @@ typedef struct
 } _tileCoords;
 
 vector<_tileCoords>     tileCoords;
+vector<unsigned int>             tileCoordsIndex;
 
 vector<_tileTexCoords>  tileTexCoords;
 
 int                     numTileAcrossInTexture, numTilesDownInTexture;
 float                   tileTextureWidth;
+int indexCounter = 0;
 
 //-----------------------------------------------------------------------------
 //
@@ -92,7 +94,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	}
 
 	//
-	// Corner 0 - Triangle 1
+	// Corner 0
 	//
 	tempCoord.position.x = destX;
 	tempCoord.position.y = destY;
@@ -103,7 +105,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 
 	tileCoords.push_back(tempCoord);
 	//
-	// Corner 1 - Triangle 1
+	// Corner 1
 	//
 	tempCoord.position.x = destX;
 	tempCoord.position.y = destY + TILE_SIZE;
@@ -114,7 +116,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 
 	tileCoords.push_back(tempCoord);
 	//
-	// Corner 2 - Triangle 1
+	// Corner 2
 	//
 	tempCoord.position.x = destX + TILE_SIZE;
 	tempCoord.position.y = destY + TILE_SIZE;
@@ -126,31 +128,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	tileCoords.push_back(tempCoord);
 
 	//
-	// Corner 0 - Triangle 2
-	//
-	tempCoord.position.x = destX;
-	tempCoord.position.y = destY;
-	tempCoord.position.z = 0.0f;
-
-	tempCoord.textureCoords.x = textureCoords.x;
-	tempCoord.textureCoords.y = textureCoords.y;
-
-	tileCoords.push_back(tempCoord);
-
-	//
-	// Corner 2 - Triangle 2
-	//
-	tempCoord.position.x = destX + TILE_SIZE;
-	tempCoord.position.y = destY + TILE_SIZE;
-	tempCoord.position.z = 0.0f;
-
-	tempCoord.textureCoords.x = textureCoords.x + tileTextureWidth;
-	tempCoord.textureCoords.y = textureCoords.y + tileTextureWidth;
-
-	tileCoords.push_back(tempCoord);
-
-	//
-	// Corner 3 - Triangle 1
+	// Corner 3
 	//
 	tempCoord.position.x = destX + TILE_SIZE;
 	tempCoord.position.y = destY;
@@ -160,6 +138,16 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	tempCoord.textureCoords.y = textureCoords.y;
 
 	tileCoords.push_back(tempCoord);
+	//
+	// Indexes into the vertex array
+	tileCoordsIndex.push_back(0 + indexCounter);
+	tileCoordsIndex.push_back(1 + indexCounter);
+	tileCoordsIndex.push_back(2 + indexCounter);
+	tileCoordsIndex.push_back(2 + indexCounter);
+	tileCoordsIndex.push_back(3 + indexCounter);
+	tileCoordsIndex.push_back(0 + indexCounter);
+
+	indexCounter+= 4;
 }
 
 //-----------------------------------------------------------------------------
@@ -181,6 +169,8 @@ void gam_drawAllTiles(string whichShader, GLuint whichTexture)
 	down = winHeight / TILE_SIZE;
 
 	tileCoords.clear();
+	tileCoordsIndex.clear();
+	indexCounter = 0;
 
 	for (countY = 0; countY < down + 1; countY++) // +1 to allow overdraw for fine scroll
 	{
@@ -238,10 +228,16 @@ void gam_drawAllTiles(string whichShader, GLuint whichTexture)
 
 	static GLuint       vao = 0;
 	static GLuint       vbo = 0;
+	static GLuint       elementbuffer = 0;
 
 	// create the VAO
 	GL_ASSERT (glGenVertexArrays (1, &vao));
 	GL_CHECK (glBindVertexArray (vao));
+
+
+	glGenBuffers(1, &elementbuffer);
+	GL_CHECK (glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer));
+	GL_CHECK (glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * tileCoordsIndex.size(), &tileCoordsIndex[0], GL_DYNAMIC_DRAW));
 
 	// Create buffers for the vertex data
 	vbo = wrapglGenBuffers (1, __func__);
@@ -263,9 +259,7 @@ void gam_drawAllTiles(string whichShader, GLuint whichTexture)
 
 
 	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
-
 	GL_CHECK (glBindVertexArray (vao));
-
 	//
 	// Bind texture if it's not already bound as current texture
 	GL_CHECK (glActiveTexture (GL_TEXTURE0));
@@ -280,11 +274,21 @@ void gam_drawAllTiles(string whichShader, GLuint whichTexture)
 	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib  (whichShader, "inPosition")));
 	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib  (whichShader, "inTextureCoords")));
 
-	GL_CHECK (glDrawArrays (GL_TRIANGLES, 0, tileCoords.size()));
+	// Index buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+
+//	GL_CHECK (glDrawArrays (GL_TRIANGLES, 0, tileCoords.size()));
+	GL_CHECK (glDrawElements(
+			GL_TRIANGLES,      // mode
+			tileCoordsIndex.size(),    // count
+			GL_UNSIGNED_INT,   // type
+			(void*)0           // element array buffer offset
+	));
 
 	glUseProgram (0);
 	glBindVertexArray (0);
 
+	glDeleteBuffers (1, &elementbuffer);
 	glDeleteBuffers (1, &vbo);
 	glDeleteVertexArrays (1, &vao);
 }
