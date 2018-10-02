@@ -153,5 +153,7 @@ bool sys_initAll()
 
 	gl_createFBO ();
 
+	currentLevelName = "Bridge";
+
 	return true;
 }

@@ -82,9 +82,11 @@ struct _levelStruct {
 };
 
 extern int                  currentLevel;
+extern string               currentLevelName;
 extern unordered_map<string, _levelStruct>::const_iterator currentLevelItr;
 
-extern bool allLevelsLoaded;
+extern bool     allLevelsLoaded;
+extern int      currentAlertLevel;
 
 //-----------------------------------------------------------------------------
 //

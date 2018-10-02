@@ -172,7 +172,7 @@ GLint gl_getShaderID(string shaderName)
 //
 // If variable is not found, still record, but mark has invalid - count how many
 // times it is called.
-GLint gl_getAttrib ( string whichShader, string keyName )
+GLuint gl_getAttrib ( string whichShader, string keyName )
 //-----------------------------------------------------------------------------
 {
 	string          u_keyName;
@@ -186,7 +186,7 @@ GLint gl_getAttrib ( string whichShader, string keyName )
 	{
 		con_print (CON_INFO, true, "Key [ %s ] doesn't exist in map.", u_keyName.c_str ());
 
-		keyLocation = glGetAttribLocation (gl_getShaderID(whichShader), keyName.c_str ());
+		keyLocation = glGetAttribLocation (static_cast<GLuint>(gl_getShaderID(whichShader)), keyName.c_str ());
 
 		if ( keyLocation == -1 )
 		{
@@ -346,6 +346,9 @@ bool gl_addShaders ()
 //-----------------------------------------------------------------------------
 {
 	if (!gl_createShader ("quad2d", "quad2D.vert", "quad2D.frag", ""))
+		return false;
+
+	if (!gl_createShader ("quad3d", "quad3D.vert", "quad2D.frag", ""))
 		return false;
 
 	if ( !gl_createShader ("colorLine", "colorLine.vert", "colorLine.frag", ""))

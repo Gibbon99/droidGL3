@@ -14,7 +14,7 @@ bool keyDownDown = false;
 void io_processKeyboard()
 //-----------------------------------------------------------------------------
 {
-	float moveSpeed = 1.0f / 200.0f;
+	float moveSpeed = 1.0f / 20.0f;
 
 	if (keyLeftDown)
 		currentVelocity.x -= moveSpeed;

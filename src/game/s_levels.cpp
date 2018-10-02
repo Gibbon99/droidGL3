@@ -5,7 +5,7 @@ vector<_levelMemory>  levelMemoryPointers;
 unordered_map <string, _levelStruct> levelInfo;
 unordered_map<string, _levelStruct>::const_iterator currentLevelItr;
 
-bool allLevelsLoaded = false;
+bool                allLevelsLoaded = false;
 
 //----------------------------------------------------------------------------
 //
@@ -15,6 +15,8 @@ bool allLevelsLoaded = false;
 int             currentLevel = -1;
 _levelStruct    shipLevel[NUM_OF_LEVELS];
 vec2            drawOffset;
+string          currentLevelName;
+int             currentAlertLevel = ALERT_GREEN_TILE;
 
 //-----------------------------------------------------------------------------
 //
@@ -225,7 +227,6 @@ bool gam_loadLevel ( intptr_t levelMemoryIndex )
 	return true;
 }
 
-
 //---------------------------------------------------------
 //
 // Convert current tile information into padded array
@@ -236,13 +237,10 @@ void lvl_addPaddingToLevel( const string levelName)
 	vec2                tempDimensions;
 	int                 countY, countX, whichTile;
 	int                 destX, destY;
+	int                 tileIndexPtr;
 
-	countY = 0;
-	countX = 0;
-
-	destX = static_cast<int>(drawOffset.x / 2);
+//	destX = static_cast<int>(drawOffset.x / 2);
 	destY = static_cast<int>(drawOffset.y / 2);
-
 
 	tempDimensions.x = static_cast<float>(levelInfo.at(levelName).levelDimensions.x);
 	tempDimensions.y = static_cast<float>(levelInfo.at(levelName).levelDimensions.y);
@@ -253,10 +251,11 @@ void lvl_addPaddingToLevel( const string levelName)
 
 	for ( countY = 0; countY != levelInfo.at(levelName).levelDimensions.y; countY++ )
 	{
-		destX = static_cast<int>(drawOffset.x * 0.5);
+		destX = static_cast<int>(drawOffset.x / 2);
 		for ( countX = 0; countX != levelInfo.at(levelName).levelDimensions.x; countX++ )
 		{
-			whichTile = levelInfo.at(levelName).tiles[ ( countY * levelInfo.at(levelName).levelDimensions.x ) + countX];
+			tileIndexPtr = static_cast<int>((countY * levelInfo.at(levelName).levelDimensions.x ) + countX);
+			whichTile = levelInfo.at(levelName).tiles[ tileIndexPtr ];
 			tempLevel[ ( destY * ( tempDimensions.x + drawOffset.x ) ) + destX] = whichTile;
 			destX++;
 		}

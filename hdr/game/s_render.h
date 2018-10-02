@@ -6,8 +6,11 @@
 
 struct _tileTexCoords
 {
-	cpVect texCoord;
+	vec2 texCoord;
 };
 
 // Setup up precalculated coords for the tiles
 void gam_calcTileTexCoords(string textureName);
+
+// Copy all the tiles that are visible this screen to the array
+void gam_drawAllTiles(string whichShader, GLuint whichTexture);

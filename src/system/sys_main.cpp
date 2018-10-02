@@ -48,15 +48,18 @@ void sys_displayScreen(float interpolation)
 
 		case MODE_GAME:
 
-			gl_renderToFrameBuffer();
+//			gl_renderToFrameBuffer();
 
-			gam_drawAllObjects (interpolation);
+//			gam_drawAllObjects (interpolation);
 
 			gl_renderToScreen ();
 
-			gl_draw2DQuad (vec2{0,0}, vec2{800,600}, "quad2d", gl_getFrameBufferTexture(), interpolation);
+//			gl_draw2DQuad (vec2{0,0}, vec2{800,600}, "quad2d", gl_getFrameBufferTexture(), interpolation);
 
-			io_renderMouseCursor ();
+//			io_renderMouseCursor ();
+
+			gl_set3DMode (interpolation);
+			gam_drawAllTiles("quad3d", io_getTextureID ("alltiles.bmp"));
 			break;
 
 		default:
