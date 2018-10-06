@@ -2,7 +2,7 @@
 #include <hdr/opengl/gl_shaders.h>
 #include "hdr/game/s_render.h"
 
-//#define USE_TILE_LOOKUP 1
+#define USE_TILE_LOOKUP 1
 
 //	1--------2
 //	|        |
@@ -17,13 +17,27 @@ typedef struct
 } _tileCoords;
 
 vector<_tileCoords>     tileCoords;
-vector<unsigned int>             tileCoordsIndex;
+vector<unsigned int>    tileCoordsIndex;
 
-vector<_tileTexCoords>  tileTexCoords;
+vector<float>           singleTileTexCoords;
 
 int                     numTileAcrossInTexture, numTilesDownInTexture;
 float                   tileTextureWidth;
-int indexCounter = 0;
+int                     indexCounter = 0;
+
+//-----------------------------------------------------------------------------
+//
+// Set the X Position for each tile in the master texture
+void gam_setSingleTileCoords(int posX, int totalWidth)
+//-----------------------------------------------------------------------------
+
+{
+	float glPosX = 0.0f;
+
+	glPosX = (float)posX / (float)totalWidth;
+
+	singleTileTexCoords.push_back(glPosX);
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -31,44 +45,12 @@ int indexCounter = 0;
 vec2 gam_getTileTexCoords(int whichTile)
 //-----------------------------------------------------------------------------
 {
-	return tileTexCoords[whichTile].texCoord;
-}
+	vec2 returnValue;
 
-//-----------------------------------------------------------------------------
-//
-// Setup up precalculated coords for the tiles
-void gam_calcTileTexCoords(const string textureName)
-//-----------------------------------------------------------------------------
-{
-	int             totalNumTiles;
-	vec2            imageSize;
-	_tileTexCoords  tempCoords{};   // TODO: Check the affect of this {}
+	returnValue.x = singleTileTexCoords[whichTile];
+	returnValue.y = 0.0f;
 
-	imageSize = io_getTextureSize(textureName);
-	if (imageSize.x < 0)
-	{
-		con_print(CON_ERROR, true, "Unable to get image size to calculate tile coordinates [ %s ].", textureName.c_str());
-		return;
-	}
-
-	//
-	// How many tiles fit into the texture
-	numTileAcrossInTexture = static_cast<int>(imageSize.x / TILE_SIZE);
-	numTilesDownInTexture = static_cast<int>(imageSize.y / TILE_SIZE);
-
-	totalNumTiles = numTileAcrossInTexture * numTilesDownInTexture;
-
-	//
-	// How wide is a single tile in the texture
-	tileTextureWidth = 1.0f /  numTileAcrossInTexture;
-
-	for (int i = 0; i != totalNumTiles; i++)
-	{
-		tempCoords.texCoord.x = (float) (i % numTileAcrossInTexture) * tileTextureWidth;
-		tempCoords.texCoord.y = (float) (i / numTilesDownInTexture) * tileTextureWidth;
-
-		tileTexCoords.push_back (tempCoords);
-	}
+	return returnValue;
 }
 
 //-----------------------------------------------------------------------------
@@ -87,11 +69,16 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 #ifdef USE_TILE_LOOKUP
 		textureCoords = gam_getTileTexCoords(whichTile);
 #else
-		textureCoords.x = (float) (whichTile % numTileAcrossInTexture) * (1.0f / numTileAcrossInTexture);
-		textureCoords.y = (float) (whichTile / numTilesDownInTexture) * (1.0f / numTilesDownInTexture);
+//		textureCoords.x = (float) (whichTile % numTileAcrossInTexture) * (1.0f / numTileAcrossInTexture);
+//		textureCoords.y = (float) (whichTile / numTilesDownInTexture) * (1.0f / numTilesDownInTexture);
+
+		textureCoords.x = (float) (whichTile % 64) * (1.0f / 64);
+		textureCoords.y = (float) (whichTile / 1) * (1.0f / 1);
 #endif
 		previousTile = whichTile;
 	}
+
+	tileTextureWidth = 1.0f / 70.0f;    // TODO: Why 70 - double 35??
 
 	//
 	// Corner 0
@@ -112,7 +99,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	tempCoord.position.z = 0.0f;
 
 	tempCoord.textureCoords.x = textureCoords.x;
-	tempCoord.textureCoords.y = textureCoords.y + tileTextureWidth;
+	tempCoord.textureCoords.y = (textureCoords.y + 1.0f);
 
 	tileCoords.push_back(tempCoord);
 	//
@@ -122,8 +109,8 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	tempCoord.position.y = destY + TILE_SIZE;
 	tempCoord.position.z = 0.0f;
 
-	tempCoord.textureCoords.x = textureCoords.x + tileTextureWidth;
-	tempCoord.textureCoords.y = textureCoords.y + tileTextureWidth;
+	tempCoord.textureCoords.x = (textureCoords.x + tileTextureWidth);
+	tempCoord.textureCoords.y = (textureCoords.y + 1.0f);
 
 	tileCoords.push_back(tempCoord);
 
@@ -134,7 +121,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	tempCoord.position.y = destY;
 	tempCoord.position.z = 0.0f;
 
-	tempCoord.textureCoords.x = textureCoords.x + tileTextureWidth;
+	tempCoord.textureCoords.x = (textureCoords.x + tileTextureWidth);
 	tempCoord.textureCoords.y = textureCoords.y;
 
 	tileCoords.push_back(tempCoord);
@@ -190,7 +177,6 @@ void gam_drawAllTiles(string whichShader, GLuint whichTexture)
 			}
 
 			whichTile = levelInfo.at(currentLevelName).tiles[whichTilePtr];
-
 
 			if ((whichTile < 0) || (whichTile > 64))
 				whichTile = 10;
@@ -277,13 +263,7 @@ void gam_drawAllTiles(string whichShader, GLuint whichTexture)
 	// Index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
-//	GL_CHECK (glDrawArrays (GL_TRIANGLES, 0, tileCoords.size()));
-	GL_CHECK (glDrawElements(
-			GL_TRIANGLES,      // mode
-			tileCoordsIndex.size(),    // count
-			GL_UNSIGNED_INT,   // type
-			(void*)0           // element array buffer offset
-	));
+	GL_CHECK (glDrawElements(GL_TRIANGLES, (GLsizei)tileCoordsIndex.size(), GL_UNSIGNED_INT, (void*)0 ));
 
 	glUseProgram (0);
 	glBindVertexArray (0);

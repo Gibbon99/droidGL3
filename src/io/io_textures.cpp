@@ -3,6 +3,7 @@
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/io/io_textures.h"
 #include <unordered_map>
+#include <hdr/game/s_render.h>
 
 typedef struct
 {
@@ -23,7 +24,11 @@ typedef struct
 
 unordered_map <string, _textureSet> textureSet;
 
+vector<int>         tileTextureSet;
+
 unsigned int numTexturesToLoad = 0;
+
+uint                 tileTextureID = 0;
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -187,7 +192,7 @@ void io_uploadTextureIntoGL(intptr_t textureMemoryIndex)
 
 	// TODO: Check  | SOIL_FLAG_INVERT_Y
 
-	textureID = SOIL_load_OGL_texture_from_memory ((const unsigned char *)textureMemory[(size_t)textureMemoryIndex].memPointer, textureMemory[(size_t)textureMemoryIndex].imageLength, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_TEXTURE_REPEATS);
+	textureID = SOIL_load_OGL_texture_from_memory ((const unsigned char *)textureMemory[(size_t)textureMemoryIndex].memPointer, textureMemory[(size_t)textureMemoryIndex].imageLength, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS); //SOIL_FLAG_TEXTURE_REPEATS);
 	if ( 0 == textureID ) // failed to load texture
 	{
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_SOIL, 0, 0, vec2 (), vec2 (), textureMemory[(size_t)textureMemoryIndex].textureName);
@@ -235,14 +240,10 @@ int io_getTextureID(const string fileName)
 	unordered_map<string, _textureSet>::const_iterator textureItr;
 //TODO: Check if compare is case sensitive or not
 
-//	if ( SDL_LockMutex (textureSetMutex) == 0 )
+	textureItr = textureSet.find (fileName);
+	if ( textureItr != textureSet.end ())    // Found
 	{
-		textureItr = textureSet.find (fileName);
-		if ( textureItr != textureSet.end ())    // Found
-		{
-//			SDL_UnlockMutex (gameMutex);
-			return textureItr->second.loaded ? textureItr->second.textureID : -1;   // Not loaded
-		}
+		return textureItr->second.loaded ? textureItr->second.textureID : -1;   // Not loaded
 	}
 
 	return 0;   // Not found
@@ -280,4 +281,224 @@ void io_setTextureError ( const string fileName )
 	tempSet.textureID = -1;
 	tempSet.loaded = false;
 	textureSet.insert (std::pair<string, _textureSet> (fileName, tempSet));
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Load the tile spriteSheet from a file and break it up into a OpenGL texture for each tile
+// Put each tile into a larger texture with a 1 pixel border on left and right to stop bleeding from
+// linear filtering
+//
+// Is called from the MAIN thread
+// Uses a single texture Atlas, puts coords for each tile into vector array for X position
+//
+void io_loadTileTextureFile(const string fileName)
+//-----------------------------------------------------------------------------------------------------
+{
+	char                    *imageBuffer = nullptr;
+	int                     imageLength;
+	SDL_Surface             *spriteSheetSurface;
+	SDL_RWops               *filePointerMem;
+
+//	con_print(CON_INFO, true, "Step 1 - load texture file [ %s ]", fileName.c_str());
+
+	imageLength = (int)io_getFileSize (fileName.c_str());
+
+	if ( imageLength < 0 )
+	{
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_NOT_FOUND, 0, 0, vec2 (), vec2 (), fileName);
+		return;
+	}
+
+//	con_print (CON_INFO, true, "Image size [ %i ]", imageLength);
+
+	imageBuffer = (char *) malloc (sizeof (char) * imageLength);
+
+	if ( nullptr == imageBuffer )
+	{
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_MALLOC_ERROR, 0, 0, vec2 (), vec2 (), fileName);
+		return;
+	}
+
+	if ( -1 == io_getFileIntoMemory (fileName.c_str(), imageBuffer))
+	{
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_MEMORY_ERROR, 0, 0, vec2 (), vec2 (), fileName);
+		free(imageBuffer);
+		imageBuffer = nullptr;
+		return;
+	}
+
+	filePointerMem = SDL_RWFromMem(imageBuffer, imageLength);
+	if (nullptr == filePointerMem)
+	{
+		con_print(CON_ERROR, true, "Error getting SDL RWops from bitmap memory file.");
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_SOIL, 0, 0, vec2 (), vec2 (), fileName);
+	}
+
+	spriteSheetSurface = SDL_LoadBMP_RW (filePointerMem, 1);     // free stream
+	if (nullptr == spriteSheetSurface)
+	{
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_SOIL, 0, 0, vec2 (), vec2 (), fileName);
+		return;
+	}
+
+	//
+	// Now get each tile and create a border around the left and right of the tile
+	//
+	// Then blit to new large tile image
+	//
+	SDL_Surface         *singleTile;
+	SDL_Rect            srcRect;
+	SDL_Rect            destRect;
+	SDL_Surface         *allTiles;
+
+#define NUM_BITS 32
+
+	Uint32 rmask, gmask, bmask, amask;
+
+	// SDL interprets each pixel as a 32-bit number, so our masks must depend  on the endianness (byte order) of the machine
+	//
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+	rmask = 0x000000ff;
+	gmask = 0x0000ff00;
+	bmask = 0x00ff0000;
+	amask = 0xff000000;
+#endif
+
+	allTiles = SDL_CreateRGBSurface(0, 34*64, TILE_SIZE, NUM_BITS, rmask, gmask, bmask, amask);
+	if (nullptr == allTiles)
+	{
+		con_print(CON_ERROR, true, "Error creating allTiles surface [ %s ]", __func__);
+		return;
+	}
+
+	singleTile = SDL_CreateRGBSurface(0, TILE_SIZE, TILE_SIZE, NUM_BITS, rmask, gmask, bmask, amask);
+	if (nullptr == singleTile)
+	{
+		con_print(CON_ERROR, true, "Error creating singleTile surface [ %s ]", __func__);
+		return;
+	}
+
+	int indexCount = 0;
+
+	for (int i= 0; i != 64; i++)
+	{
+		//
+		// Single Tile
+		//
+		srcRect.x = (i % 8) * TILE_SIZE;
+		srcRect.y = (i / 8) * TILE_SIZE;
+		srcRect.w = TILE_SIZE;
+		srcRect.h = TILE_SIZE;
+
+		destRect.x = 0;
+		destRect.y = 0;
+		destRect.w = TILE_SIZE;
+		destRect.h = TILE_SIZE;
+
+		if (SDL_BlitSurface(spriteSheetSurface, &srcRect, singleTile, &destRect) < 0)
+		{
+			con_print(CON_ERROR, true, "Blit tile surface failed [ %s ]", SDL_GetError ());
+			return;
+		}
+		//
+		// LEFT Edge
+		//
+		srcRect.x = 0;
+		srcRect.y = 0;
+		srcRect.w = 1;
+		srcRect.h = TILE_SIZE;
+
+		destRect.x = (i * singleTile->w) + indexCount;
+		destRect.y = 0;
+		destRect.w = 1;
+		destRect.h = TILE_SIZE;
+
+		if (SDL_BlitSurface(singleTile, &srcRect, allTiles, &destRect) < 0)
+		{
+			con_print(CON_ERROR, true, "Blit tile surface failed [ %s ]", SDL_GetError ());
+			return;
+		}
+
+		indexCount++;
+
+		//
+		// Tile
+		//
+		srcRect.x = 0;
+		srcRect.y = 0;
+		srcRect.w = TILE_SIZE;
+		srcRect.h = TILE_SIZE;
+
+		destRect.x = (i * singleTile->w) + indexCount;
+		destRect.y = 0;
+		destRect.w = TILE_SIZE;
+		destRect.h = TILE_SIZE;
+
+		gam_setSingleTileCoords(destRect.x , allTiles->w);
+
+		if (SDL_BlitSurface(singleTile, &srcRect, allTiles, &destRect) < 0)
+		{
+			con_print(CON_ERROR, true, "Blit tile surface failed [ %s ]", SDL_GetError ());
+			return;
+		}
+
+		//
+		// RIGHT edge
+		//
+		indexCount++;
+
+		srcRect.x = singleTile->w - 1;
+		srcRect.y = 0;
+		srcRect.w = TILE_SIZE;
+		srcRect.h = TILE_SIZE;
+
+		destRect.x = (i * singleTile->w) + ((singleTile->w - 1) + indexCount);
+		destRect.y = 0;
+		destRect.w = TILE_SIZE;
+		destRect.h = TILE_SIZE;
+
+		if (SDL_BlitSurface(singleTile, &srcRect, allTiles, &destRect) < 0)
+		{
+			con_print(CON_ERROR, true, "Blit tile surface failed [ %s ]", SDL_GetError ());
+			return;
+		}
+	}
+
+	//
+	// Upload SDL_Surface into a OpenGL texture
+	//
+	SDL_LockSurface (allTiles);
+
+	glGenTextures( 1, &tileTextureID );
+	glBindTexture( GL_TEXTURE_2D, tileTextureID );
+
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int Mode = GL_RGBA;
+
+	glTexImage2D(GL_TEXTURE_2D, 0, Mode, allTiles->w, allTiles->h, 0, Mode, GL_UNSIGNED_BYTE, allTiles->pixels);
+
+	SDL_UnlockSurface (allTiles);
+
+	if (0 == tileTextureID)
+	{
+		con_print(CON_ERROR, true, "Soil load error [ %s ]", SOIL_last_result ());
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_SOIL, 0, 0, vec2 (), vec2 (), fileName);
+		return;
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+//	SDL_SaveBMP(allTiles, "tilesTest.bmp");
+
+	free(imageBuffer);
 }

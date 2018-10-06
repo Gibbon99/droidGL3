@@ -8,6 +8,7 @@
 #include "hdr/system/sys_main.h"
 
 extern unsigned int numTexturesToLoad;
+extern uint                 tileTextureID;
 
 // Handle a texture file error event
 void io_handleTextureFileError ( int errorCode, string fileName );
@@ -33,3 +34,5 @@ void io_setTextureError ( string fileName );
 
 // Check if all the textures are loaded or not
 bool io_allTexturesLoaded();
+
+void io_loadTileTextureFile(const string fileName);

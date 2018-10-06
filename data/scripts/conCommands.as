@@ -18,7 +18,7 @@ void as_setGameVariables()
     farPlane = 400.0;
     cameraDistance = 350.0;
 
-    g_gamma = 0.5;
+    g_gamma = 1.0;
 
 //    sdf_addFontInfo(0, "Digital.ttf", 24);
   //  sdf_addFontInfo(1, "oldDigital.ttf", 28);

@@ -5,7 +5,7 @@ uniform float       gamma;
 
 in      vec2        texCoord0;
 
-out     vec4        pixelColor;     // Relates to frameBuffer - writing to render buffer 0 - which is linked to the targetTexture as GL_COLOR_ATTACHMENT 0
+layout(location = 0)    out     vec4        pixelColor;     // Relates to frameBuffer - writing to render buffer 0 - which is linked to the targetTexture as GL_COLOR_ATTACHMENT 0
 
 vec4 textureColor;
 

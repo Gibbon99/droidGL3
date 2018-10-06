@@ -23,10 +23,10 @@ void io_processKeyboard()
 		currentVelocity.x += moveSpeed;
 
 	if (keyUpDown)
-		currentVelocity.y += moveSpeed;
+		currentVelocity.y -= moveSpeed;
 
 	if (keyDownDown)
-		currentVelocity.y -= moveSpeed;
+		currentVelocity.y += moveSpeed;
 
 	if (keyForwardDown)
 		currentVelocity.z += moveSpeed;
@@ -75,7 +75,7 @@ void io_processKeyboard()
 		}
 	}
 
-	if ( !keyUpDown )
+	if ( !keyDownDown )
 	{
 		if (currentVelocity.y > 0.0f)
 		{
@@ -86,7 +86,7 @@ void io_processKeyboard()
 	}
 
 
-	if ( !keyDownDown )
+	if ( !keyUpDown )
 	{
 		if (currentVelocity.y < 0.0f)
 		{

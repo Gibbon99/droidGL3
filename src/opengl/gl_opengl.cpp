@@ -37,7 +37,7 @@ glm::mat4 modelMatrix;
 
 glm::vec3 camPosition;
 glm::vec3 camTarget;
-glm::vec3 upVector = vec3 (0.0f, 1.0f, 0.0f);
+glm::vec3 upVector = vec3 (0.0f, -1.0f, 0.0f);
 
 float nearPlane;
 float farPlane;
@@ -209,7 +209,7 @@ void gl_displayErrors ()
 		con_print (CON_INFO, true, "---------------------------------------------------");
 		con_print (CON_INFO, true, "");
 	}
-//	print_trace();
+	print_trace();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -220,6 +220,8 @@ void APIENTRY gl_DebugCallback ( GLenum source, GLenum type, GLenum id, GLenum s
 {
 //	if ( false == g_debugOpenGL )
 //		return;
+
+	printf("OpenGL debug call\n");
 
 	it = shaderErrorsMap.find (id);
 	if ( it != shaderErrorsMap.end ())

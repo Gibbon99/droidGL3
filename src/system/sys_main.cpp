@@ -24,7 +24,7 @@ int     currentMode;
 Uint32 frameStart;
 Uint32 frameTime;
 
-vec3 quadPosition{250,250,0};
+vec3 quadPosition{640.0f,380.0f,-560.0f};
 vec3 currentVelocity;
 
 //-----------------------------------------------------------------------------------------------------
@@ -50,16 +50,18 @@ void sys_displayScreen(float interpolation)
 
 //			gl_renderToFrameBuffer();
 
-//			gam_drawAllObjects (interpolation);
+// 			gam_drawAllObjects (interpolation);
 
-			gl_renderToScreen ();
+			gl_set3DMode (interpolation);
+			gam_drawAllTiles("quad3d", tileTextureID); //io_getTextureID ("alltiles.bmp"));
+
+
+//			gl_renderToScreen ();
 
 //			gl_draw2DQuad (vec2{0,0}, vec2{800,600}, "quad2d", gl_getFrameBufferTexture(), interpolation);
 
 //			io_renderMouseCursor ();
 
-			gl_set3DMode (interpolation);
-			gam_drawAllTiles("quad3d", io_getTextureID ("alltiles.bmp"));
 			break;
 
 		default:
@@ -98,7 +100,6 @@ void sys_gameTickRun()
 			break;
 
 		case MODE_INIT:
-			gam_calcTileTexCoords("alltiles.bmp");
 			sys_changeMode(MODE_CONSOLE);
 			break;
 
