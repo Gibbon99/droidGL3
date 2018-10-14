@@ -137,15 +137,14 @@ bool fnt_compileLinkShaders ()
 
 		glUseProgram (fnt_shaderProgram_ID);
 
-		fnt_inPosition_ID = glGetAttribLocation (fnt_shaderProgram_ID, "inPosition");
-		fnt_inTextureCoords_ID = glGetAttribLocation (fnt_shaderProgram_ID, "inTextureCoords");
-		fnt_inColor_ID = glGetAttribLocation (fnt_shaderProgram_ID, "inFontColor");
+		fnt_inPosition_ID = static_cast<GLuint>(glGetAttribLocation (fnt_shaderProgram_ID, "inPosition"));
+		fnt_inTextureCoords_ID = static_cast<GLuint>(glGetAttribLocation (fnt_shaderProgram_ID, "inTextureCoords"));
+		fnt_inColor_ID = static_cast<GLuint>(glGetAttribLocation (fnt_shaderProgram_ID, "inFontColor"));
 
-		fnt_inScreenSize_ID = glGetUniformLocation (fnt_shaderProgram_ID, "inScreenSize");
-		fnt_inTextureUnit_ID = glGetUniformLocation (fnt_shaderProgram_ID, "inTexture0");
+		fnt_inScreenSize_ID = static_cast<GLuint>(glGetUniformLocation (fnt_shaderProgram_ID, "inScreenSize"));
+		fnt_inTextureUnit_ID = static_cast<GLuint>(glGetUniformLocation (fnt_shaderProgram_ID, "inTexture0"));
 		return true;
 	}
-
 	else
 	{
 		con_print (CON_TEXT, true, "ERROR: Shaders failed to link - [ %s ]", "Embedded font Shader.");
@@ -175,13 +174,12 @@ void fnt_addVertexInfo ( glm::vec2 position, glm::vec2 texCoord, glm::vec4 color
 void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, ... )
 // -------------------------------------------------------------------
 {
-	static bool initDone = false;
-	size_t i, j;
-	float currentX, currentY;
-	glm::vec2 fnt_screenSize;
+	static bool         initDone = false;
+	size_t              i, j;
+	float               currentX, currentY;
+	va_list             args;
+	char                textLine[MAX_STRING_SIZE];
 
-	va_list args;
-	char textLine[MAX_STRING_SIZE];
 	//
 	// get out the passed in parameters
 	//
@@ -198,8 +196,6 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 	{
 		glGenTextures (1, &embeddedTexID);
 
-		printf("Embedded font ID [ %i ]\n", embeddedTexID);
-
 		glBindTexture (GL_TEXTURE_2D, embeddedTexID);
 
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -207,7 +203,8 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glTexImage2D (GL_TEXTURE_2D, 0, GL_R8, embeddedFontData.tex_width, embeddedFontData.tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, embeddedFontData.tex_data);
+		glTexImage2D (GL_TEXTURE_2D, 0, GL_R8, static_cast<GLsizei>(embeddedFontData.tex_width),
+		              static_cast<GLsizei>(embeddedFontData.tex_height), 0, GL_RED, GL_UNSIGNED_BYTE, embeddedFontData.tex_data);
 		//
 		// Setup the Vertex Array Object that will have the VBO's associated to it
 		GL_ASSERT (glGenVertexArrays (1, &fnt_g_glyphVAO_ID));
@@ -218,9 +215,6 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 
 		if ( !fnt_compileLinkShaders ())
 			return;
-
-		fnt_screenSize.x = winWidth * 0.5f;
-		fnt_screenSize.y = winHeight * 0.5f;
 
 		initDone = true;
 	}
@@ -235,7 +229,6 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 
 		for ( j = 0; j < embeddedFontData.glyphs_count; ++j )
 		{
-
 			if ( embeddedFontData.glyphs[j].codepoint == ftgl::utf8_to_utf32 (textLine + i))
 			{
 				glyph = &embeddedFontData.glyphs[j];
@@ -246,6 +239,7 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 
 		if ( !glyph )
 			continue;
+
 		// Triangle One - First point
 		fnt_addVertexInfo (glm::vec2{currentX + glyph->offset_x, currentY - offset_y}, glm::vec2{glyph->s0, glyph->t1}, lineColor);
 
@@ -283,9 +277,6 @@ void fnt_printText ( glm::vec2 position, glm::vec4 lineColor, const char *text, 
 	wrapglDisable (GL_DEPTH_TEST);
 	//
 	// Bind texture if it's not already bound as current texture
-//	wrapglBindTexture (GL_TEXTURE0, embeddedTexID);
-//	GL_ASSERT (glUniform1i (fnt_inTextureUnit_ID, 0));
-
 	GL_CHECK (glActiveTexture (GL_TEXTURE0));
 	GL_CHECK (glBindTexture (GL_TEXTURE_2D, embeddedTexID));
 	GL_CHECK (glUniform1i (fnt_inTextureUnit_ID, 0));

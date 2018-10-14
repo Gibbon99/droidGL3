@@ -1,6 +1,7 @@
 #include <unordered_map>
 #include <string>
 #include <hdr/game/s_render.h>
+#include <src/game/s_movement.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
@@ -48,17 +49,21 @@ void sys_displayScreen(float interpolation)
 
 		case MODE_GAME:
 
+			gam_processMovement (interpolation);
+
 //			gl_renderToFrameBuffer();
 
 // 			gam_drawAllObjects (interpolation);
 
-			gl_set3DMode (interpolation);
-			gam_drawAllTiles("quad3d", tileTextureID); //io_getTextureID ("alltiles.bmp"));
+//			gl_set3DMode (interpolation);
+//			gam_drawAllTiles("quad3d", tileTextureID);
 
+			gam_drawFullLevel(currentLevelName, "quad3d", tileTextureID);
 
+//			gl_set2DMode();
 //			gl_renderToScreen ();
 
-//			gl_draw2DQuad (vec2{0,0}, vec2{800,600}, "quad2d", gl_getFrameBufferTexture(), interpolation);
+//			gl_draw2DQuad (vec2{0,0}, vec2{winWidth,winHeight}, "quad2d", gl_getFrameBufferTexture(), interpolation);
 
 //			io_renderMouseCursor ();
 
@@ -68,10 +73,14 @@ void sys_displayScreen(float interpolation)
 			break;
 	}
 
+	glViewport (0, 0, winWidth, winHeight);
+
 	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,
 			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
 	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Velocity [ %3.3f %3.3f %3.3f ] Pos [ %3.3f %3.3f %3.3f ]", currentVelocity.x, currentVelocity.y, currentVelocity.z,
 			quadPosition.x, quadPosition.y,quadPosition.z);
+
+	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "PixelX [ %3.3f ] Pixel Y [ %3.3f ]", pixelX, pixelY);
 
 	if ( g_memLeakLastRun)
 		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
@@ -126,6 +135,14 @@ int main (int argc, char *argv[] )
 	Uint32 next_game_tick = SDL_GetTicks();
 
 	sys_initAll();
+
+	//
+	// TODO: Locate on tile
+	viewPixelX = 220.0f;
+	viewPixelY = -170.0f;
+
+	pixelX = viewPixelX;
+	pixelY = viewPixelY;
 
 	while ( !quitProgram )
 	{

@@ -10,6 +10,8 @@
 
 #include <map>
 #include <hdr/io/io_textures.h>
+#include <hdr/game/s_levels.h>
+#include <hdr/game/s_render.h>
 
 typedef struct
 {
@@ -282,7 +284,12 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	quadVerts[3].x = position.x + quadSize.x;
 	quadVerts[3].y = position.y;
 
-	GLfloat quadTexCoords[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0,};
+	GLfloat quadTexCoords[] = {
+			0.0, 0.0,
+			0.0, 1.0,
+			1.0, 1.0,
+			1.0, 0.0,
+	};
 
 	if ( !initDone )
 	{
@@ -393,14 +400,19 @@ void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const s
 /// \param argc
 /// \param argv
 /// \return
-void gl_set2DMode (float interpolate )
+void gl_set2DMode ( GLsizei viewPortX, GLsizei viewPortY, glm::vec3 scale)
 //-----------------------------------------------------------------------------------------------------
 {
-	projMatrix = glm::ortho(winWidth, 0, winHeight, 0, 0, 0);
+	aspectRatioX = (float)viewPortX / winWidth;
+	aspectRatioY = (float)viewPortY / winHeight;
+
+	projMatrix = glm::ortho(0.0f, (float)winWidth * aspectRatioX, 0.0f, (float)winHeight * aspectRatioY, 0.0f, 100.0f);
 
 	viewMatrix = glm::mat4();
 
-	modelMatrix = glm::mat4();
+	modelMatrix = glm::scale(glm::mat4(), scale);
+
+	MVP = projMatrix * viewMatrix * modelMatrix;
 }
 
 //-----------------------------------------------------------------------------
@@ -409,7 +421,12 @@ void gl_set2DMode (float interpolate )
 void gl_set3DMode ( float interpolate )
 //-----------------------------------------------------------------------------
 {
-	projMatrix = glm::perspective (60.0f, (float) winWidth / (float) winHeight, nearPlane, farPlane);
+	float aspectRatio = (float)winWidth / (float)winHeight;
+
+//	gluPerspective(45.0, 16.0/9.0*float(Width)/float(Height), 0.1, 100.0);
+
+	projMatrix = glm::perspective (90.0f, (float) winWidth / ((float) winHeight * aspectRatio), nearPlane, farPlane);
+//	projMatrix = glm::perspective (60.0f, (float)(16.0/9.0*(float) winWidth / (float) winHeight), nearPlane, farPlane);
 
 	camPosition.x = quadPosition.x + (currentVelocity.x * interpolate);
 	camPosition.y = quadPosition.y + (currentVelocity.y * interpolate);

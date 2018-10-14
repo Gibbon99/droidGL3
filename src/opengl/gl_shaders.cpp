@@ -151,7 +151,7 @@ bool gl_shaderLoadAndCompile ( const string fileName, GLuint *returnObject_ID, i
 //-----------------------------------------------------------------------------
 //
 // Return the Shader ID
-GLint gl_getShaderID(string shaderName)
+GLuint gl_getShaderID( string shaderName)
 //-----------------------------------------------------------------------------
 {
 	std::map<std::string, int>::const_iterator shaderIDIter;
@@ -160,7 +160,7 @@ GLint gl_getShaderID(string shaderName)
 	if (shaderIDIter == shaderProgram.end())
 	{
 		con_print(CON_ERROR, true, "Unable to find shaderID by name [ %s ]", shaderName);
-		return -1;
+		return 0;
 	}
 
 	return shaderProgram[shaderName];

@@ -6,7 +6,7 @@
 bool gl_addShaders ();
 
 // Return the Shader ID
-GLint gl_getShaderID ( string shaderName );
+GLuint gl_getShaderID ( string shaderName );
 
 // If variable is not found, still record, but mark has invalid - count how many
 // times it is called.

@@ -93,7 +93,7 @@ bool lib_openWindow ()
 	con_print (CON_INFO, true, "Num video displays [ %i ]", SDL_GetNumVideoDisplays ());
 
 	// Create the window centered at resolution
-	mainWindow = SDL_CreateWindow ("droidGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, SDL_WINDOW_OPENGL); // | SDL_WINDOW_FULLSCREEN_DESKTOP);
+	mainWindow = SDL_CreateWindow ("droidGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (int)winWidth, (int)winHeight, SDL_WINDOW_OPENGL); // | SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 	// Was the window created ok
 	if ( !mainWindow )

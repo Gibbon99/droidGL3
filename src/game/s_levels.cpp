@@ -233,6 +233,7 @@ bool gam_loadLevel ( intptr_t levelMemoryIndex )
 void lvl_addPaddingToLevel( const string levelName)
 //---------------------------------------------------------
 {
+
 	std::vector<int>    tempLevel;
 	vec2                tempDimensions;
 	int                 countY, countX, whichTile;
@@ -274,7 +275,7 @@ void lvl_addPaddingToLevel( const string levelName)
 
 	levelInfo.at(levelName).tiles.assign (static_cast<unsigned long>(tempDimensions.x * tempDimensions.y), 0);
 
-	for ( int i = 0; i != tempDimensions.x * tempDimensions.y; i++ )
+	for ( int i = 0; i != (int)tempDimensions.x * (int)tempDimensions.y; i++ )
 	{
 		levelInfo.at(levelName).tiles[i] = tempLevel[i];
 	}

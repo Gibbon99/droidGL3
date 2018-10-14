@@ -12,7 +12,7 @@ GLuint depthTargetBuffer = 0;
 GLuint gl_getFrameBufferTexture()
 //-----------------------------------------------------------------------------------------------------
 {
-	return frameBufferName;
+	return targetTexture;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ bool gl_createFBO()
 	glGenTextures(1, &targetTexture);
 	glBindTexture(GL_TEXTURE_2D, targetTexture);
 	// Texture is empty
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, winWidth, winHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, winWidth, winHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	//
 	// TODO: Add filtering options
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -79,11 +79,11 @@ bool gl_createFBO()
 	glDrawBuffers(1, DrawBuffers);
 	//
 	// Check the association worked ok
-	GLenum Status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
+	GLenum checkStatus = glCheckFramebufferStatus (GL_FRAMEBUFFER);
 
-	if ( Status != GL_FRAMEBUFFER_COMPLETE )
+	if ( checkStatus != GL_FRAMEBUFFER_COMPLETE )
 	{
-		switch ( Status )
+		switch ( checkStatus )
 		{
 			case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
 				con_print (CON_ERROR, true, "Not all framebuffer attachment points are framebuffer attachment complete. This means that at least one attachment point with a renderbuffer or texture attached has its attached object no longer in existence or has an attached image with a width or height of zero, or the color attachment point has a non-color-renderable image attached, or the depth attachment point has a non-depth-renderable image attached, or the stencil attachment point has a non-stencil-renderable image attached.");
@@ -98,7 +98,7 @@ bool gl_createFBO()
 				break;
 
 			default:
-				con_print (CON_ERROR, true, "Error: Failed to create GBuffers - status [ 0x%x ]", Status);
+				con_print (CON_ERROR, true, "Error: Failed to create GBuffers - status [ 0x%x ]", checkStatus);
 				break;
 		}
 		return false;
@@ -108,4 +108,62 @@ bool gl_createFBO()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	return true;
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Show info on the currently bound frame buffer
+//
+// Call with GL_DRAW_FRAMEBUFFER_BINDING, frameBufferName
+void gl_getFramebufferInfo(GLenum target, GLuint fbo)
+//-----------------------------------------------------------------------------------------------------
+{
+	int res, i = 0;
+	GLint buffer;
+
+	glBindFramebuffer(target,fbo);
+
+	do
+		{
+		glGetIntegerv(GL_DRAW_BUFFER0+i, &buffer);
+
+		if (buffer != GL_NONE)
+		{
+
+			con_print(CON_INFO, true, "Shader Output Location [ %d ] - color attachment [ %d ]", i, buffer - GL_COLOR_ATTACHMENT0);
+
+			glGetFramebufferAttachmentParameteriv(target, buffer, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &res);
+
+			con_print(CON_INFO, true, "Attachment Type [ %s ]", res==GL_TEXTURE?"Texture":"Render Buffer");
+
+			glGetFramebufferAttachmentParameteriv(target, buffer, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &res);
+			con_print(CON_INFO, true, "Attachment object name [ %d ]",res);
+		}
+		++i;
+
+	} while (buffer != GL_NONE);
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Shows framebuffer limits
+void gl_getFramebufferLimits()
+//-----------------------------------------------------------------------------------------------------
+{
+	int res;
+	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &res);
+	con_print(CON_INFO, true, "Max Color Attachments [ %d ]", res);
+
+	glGetIntegerv(GL_MAX_FRAMEBUFFER_WIDTH, &res);
+	con_print(CON_INFO, true, "Max Framebuffer Width [ %d ]", res);
+
+	glGetIntegerv(GL_MAX_FRAMEBUFFER_HEIGHT, &res);
+	con_print(CON_INFO, true, "Max Framebuffer Height [ %d ]", res);
+
+	glGetIntegerv(GL_MAX_FRAMEBUFFER_SAMPLES, &res);
+	con_print(CON_INFO, true, "Max Framebuffer Samples [ %d ]", res);
+
+	glGetIntegerv(GL_MAX_FRAMEBUFFER_LAYERS, &res);
+	con_print(CON_INFO, true, "Max Framebuffer Layers [ %d ]", res);
+
 }

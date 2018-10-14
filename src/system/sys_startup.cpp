@@ -153,8 +153,11 @@ bool sys_initAll()
 		gam_loadAllLevels();
 	}   // end of file system check
 
-	gl_createFBO ();
+	if (!gl_createFBO ())
+		con_print(CON_ERROR, true, "Could not create frameBuffer.");
 
+	gl_getFramebufferLimits();
+	gl_getFramebufferInfo (GL_DRAW_FRAMEBUFFER_BINDING, gl_getFrameBufferTexture ());
 	currentLevelName = "Bridge";
 
 	return true;

@@ -35,6 +35,8 @@ void gl_drawShadowHull ( std::set<_shadowHullPoint> const &drawShadowHull, glm::
 
 void gl_drawQuad ();
 
+void gl_set2DMode ( GLsizei viewPortX, GLsizei viewPortY, glm::vec3 scale);
+
 // Set OpenGL to 2d orthographic mode
 void gl_set3DMode ( float interpolate );
 
