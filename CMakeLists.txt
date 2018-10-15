@@ -102,11 +102,10 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/script/as_callfunc_ppc.cpp
 
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_textures.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/game/s_shadows.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_mouse.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_fbo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_shaders.cpp
-        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/s_levels.cpp hdr/game/s_levels.h src/game/s_render.cpp hdr/game/s_render.h src/game/s_movement.cpp src/game/s_movement.h)
+        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/s_levels.cpp hdr/game/s_levels.h src/game/s_render.cpp hdr/game/s_render.h src/game/s_movement.cpp hdr/game/s_movement.h src/game/s_renderDebug.cpp hdr/game/s_renderDebug.h src/game/s_lightCaster.cpp hdr/game/s_lightCaster.h)
 
 # Define the C sources
 set(C_SRCS

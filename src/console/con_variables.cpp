@@ -1,3 +1,4 @@
+#include "hdr/game/s_renderDebug.h"
 #include "hdr/console/con_console.h"
 #include "hdr/system/sys_audio.h"
 #include "hdr/opengl/gl_opengl.h"
@@ -14,6 +15,8 @@ _hostScriptFunctions hostVariables[] =
 	{"float farPlane",                      &farPlane},
 	{"float cameraDistance",                &cameraDistance},
 	{"float g_gamma",                       &g_gamma},
+	{"bool g_debugShowWaypoints",           &g_debugShowWaypoints},
+	{"bool g_debugShowPhysicsLines",        &g_debugShowPhysicsLines},
 	{"",                                    nullptr},
 };
 

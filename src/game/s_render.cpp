@@ -1,6 +1,9 @@
 #include <hdr/opengl/gl_openGLWrap.h>
 #include <hdr/opengl/gl_shaders.h>
 #include <hdr/opengl/gl_fbo.h>
+#include <hdr/game/s_renderDebug.h>
+#include <hdr/io/io_mouse.h>
+#include <hdr/game/s_lightCaster.h>
 #include "hdr/game/s_render.h"
 
 #define USE_TILE_LOOKUP 1
@@ -304,7 +307,7 @@ void gam_drawAllTiles ( const string whichShader, GLuint whichTexture )
 
 		whichTile = levelInfo.at(currentLevelName).tiles[static_cast<int>(tilePtr)];
 
-		if (whichTile > 0)
+		if ((whichTile > 0) && (whichTile < 64))
 		{
 			switch (whichTile)
 			{
@@ -331,6 +334,9 @@ void gam_drawAllTiles ( const string whichShader, GLuint whichTexture )
 			}
 			gam_drawSingleTile ((countX * TILE_SIZE), (countY * TILE_SIZE), whichTile);
 		}
+		else
+			if (whichTile != 0)
+				con_print(CON_ERROR, true, "Invalid tile index [ %i ].", whichTile);
 
 		countX++;
 		if (countX == (int)levelInfo.at(currentLevelName).levelDimensions.x )
@@ -474,6 +480,17 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 	//
 	// Draw tiles to bound texture
 	gam_drawAllTiles ("quad3d", whichTexture);
+
+	gam_showLineSegments();
+	gam_showWayPoints();
+
+	io_renderMouseCursor();
+
+	glEnable(GL_BLEND);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+
+	do_light();
 	//
 	// Switch back to rendering to default frame buffer
 	gl_renderToScreen ();

@@ -1,4 +1,5 @@
 #include <hdr/game/s_render.h>
+#include <hdr/game/s_lightCaster.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/system/sys_events.h"
 
@@ -164,6 +165,22 @@ void io_readGameSpecialKeys ( SDL_Keycode key, int action )
 			case SDLK_BACKQUOTE:
 				sys_changeMode (MODE_CONSOLE);
 				conCurrentCharCount = 0;
+				break;
+
+			case SDLK_o:
+				lightPosition.x -= 1.5f;
+				break;
+
+			case SDLK_i:
+				lightPosition.x += 1.5f;
+				break;
+
+			case SDLK_k:
+				lightPosition.y -= 1.5f;
+				break;
+
+			case SDLK_m:
+				lightPosition.y += 1.5f;
 				break;
 
 			case SDLK_LEFT:

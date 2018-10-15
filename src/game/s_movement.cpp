@@ -1,5 +1,5 @@
-#include <hdr/game/s_render.h>
-#include "s_movement.h"
+#include "hdr/game/s_render.h"
+#include "hdr/game/s_movement.h"
 
 //---------------------------------------------------------------------------
 //

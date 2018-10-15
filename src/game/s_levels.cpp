@@ -113,6 +113,10 @@ bool gam_loadLevel ( intptr_t levelMemoryIndex )
 	SDL_RWops      *fp;
 	_levelStruct   tempLevel;
 
+	tempLevel.lineSegments.clear();
+	tempLevel.wayPoints.clear();
+	tempLevel.droidTypes.clear();
+
 	fp = SDL_RWFromMem(levelMemoryPointers[(size_t)levelMemoryIndex].memPointer, levelMemoryPointers[(size_t)levelMemoryIndex].levelLength);
 
 	//
@@ -147,32 +151,43 @@ bool gam_loadLevel ( intptr_t levelMemoryIndex )
 	SDL_RWread ( fp, ( void * ) &tempLevel.numDroids, sizeof ( tempLevel.numDroids ), 1 );
 	SDL_RWread ( fp, ( void * ) &tempLevel.numLifts, sizeof ( tempLevel.numLifts ), 1 );
 	SDL_RWread ( fp, ( void * ) &tempLevel.levelDimensions, sizeof ( tempLevel.levelDimensions ), 1 );
+
 	//
 	// Line segments for physics collisions
 	//
-	_lineSegment tempSegment;
+	_lineSegment    tempSegment;
+	size_t          returnCodeLine;
+	cpVect          lineStart;
+	cpVect          lineFinish;
+
 	for ( int i = 0; i != tempLevel.numLineSegments; i++ )
 	{
-		SDL_RWread ( fp, &tempSegment.start, sizeof ( tempSegment.start ), 1);
-		SDL_RWread ( fp, &tempSegment.finish, sizeof ( tempSegment.finish ), 1 );
+		returnCodeLine = SDL_RWread ( fp, &tempSegment, sizeof ( _lineSegment), 1);
+		if (returnCodeLine != 1)
+			printf("Error: Reading line segment [ %i ]\n", i);
 
+		lineStart = tempSegment.start;
+		lineFinish = tempSegment.finish;
 
-		tempSegment.start.x += ( drawOffset.x * 0.5 ) * TILE_SIZE;
-		tempSegment.start.y += ( drawOffset.y * 0.5 ) * TILE_SIZE;
+		lineStart.x += ( drawOffset.x * 0.5 ) * TILE_SIZE;
+		lineStart.y += ( drawOffset.y * 0.5 ) * TILE_SIZE;
 
-		tempSegment.start.y -= ( TILE_SIZE * 0.5 );
+		lineStart.x -= ( TILE_SIZE * 0.5 );
 
-		tempSegment.finish.x += ( drawOffset.x * 0.5 ) * TILE_SIZE;
-		tempSegment.finish.y += ( drawOffset.y * 0.5 ) * TILE_SIZE;
+		lineFinish.x += ( drawOffset.x * 0.5 ) * TILE_SIZE;
+		lineFinish.y += ( drawOffset.y * 0.5 ) * TILE_SIZE;
 
-		tempSegment.finish.y -= ( TILE_SIZE * 0.5 );
+		lineFinish.x -= ( TILE_SIZE * 0.5 );
 
-		tempLevel.lineSegments.push_back ( tempSegment );
+		tempLevel.lineSegments.push_back ( lineStart );
+		tempLevel.lineSegments.push_back ( lineFinish );
 	}
+
 	//
 	// Waypoints for Droid patrol
 	//
 	cpVect tempWaypoint;
+
 	for ( int i = 0; i != tempLevel.numWaypoints; i++ )
 	{
 		SDL_RWread ( fp, &tempWaypoint, sizeof ( tempWaypoint ), 1 );
@@ -183,7 +198,7 @@ bool gam_loadLevel ( intptr_t levelMemoryIndex )
 		tempWaypoint.x += ( drawOffset.x * 0.5 ) * TILE_SIZE;
 		tempWaypoint.y += ( drawOffset.y * 0.5 ) * TILE_SIZE;
 
-		tempWaypoint.y -= ( TILE_SIZE * 0.5 );
+		tempWaypoint.x -= ( TILE_SIZE * 0.5 );
 
 		tempLevel.wayPoints.push_back ( tempWaypoint );
 	}

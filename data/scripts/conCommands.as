@@ -20,6 +20,9 @@ void as_setGameVariables()
 
     g_gamma = 1.0;
 
+    g_debugShowWaypoints = false;
+    g_debugShowPhysicsLines = true;
+
 //    sdf_addFontInfo(0, "Digital.ttf", 24);
   //  sdf_addFontInfo(1, "oldDigital.ttf", 28);
 //    sdf_addFontInfo(2, "President.ttf", 38);

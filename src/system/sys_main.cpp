@@ -1,7 +1,9 @@
 #include <unordered_map>
 #include <string>
 #include <hdr/game/s_render.h>
-#include <src/game/s_movement.h>
+#include <hdr/game/s_movement.h>
+#include <hdr/game/s_renderDebug.h>
+#include <hdr/game/s_lightCaster.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
@@ -51,21 +53,9 @@ void sys_displayScreen(float interpolation)
 
 			gam_processMovement (interpolation);
 
-//			gl_renderToFrameBuffer();
-
-// 			gam_drawAllObjects (interpolation);
-
-//			gl_set3DMode (interpolation);
-//			gam_drawAllTiles("quad3d", tileTextureID);
-
 			gam_drawFullLevel(currentLevelName, "quad3d", tileTextureID);
 
-//			gl_set2DMode();
-//			gl_renderToScreen ();
 
-//			gl_draw2DQuad (vec2{0,0}, vec2{winWidth,winHeight}, "quad2d", gl_getFrameBufferTexture(), interpolation);
-
-//			io_renderMouseCursor ();
 
 			break;
 
@@ -138,11 +128,14 @@ int main (int argc, char *argv[] )
 
 	//
 	// TODO: Locate on tile
-	viewPixelX = 220.0f;
-	viewPixelY = -170.0f;
+	viewPixelX = 741.0f;
+	viewPixelY = -70.0f;
 
 	pixelX = viewPixelX;
 	pixelY = viewPixelY;
+
+	lightPosition.x = 843;
+	lightPosition.y = 420;
 
 	while ( !quitProgram )
 	{

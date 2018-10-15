@@ -1,3 +1,4 @@
+#include <hdr/game/s_render.h>
 #include "hdr/io/io_mouse.h"
 
 vec3 mousePosition{0,0,0};

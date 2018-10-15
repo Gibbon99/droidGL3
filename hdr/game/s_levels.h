@@ -68,7 +68,8 @@ struct _levelStruct {
 	int                     numDroids;
 	int                     numLifts;
 	cpVect                  levelDimensions;
-	vector<_lineSegment>    lineSegments;
+//	vector<_lineSegment>    lineSegments;
+	vector<cpVect>          lineSegments;
 	vector<cpVect>          wayPoints;
 	vector<int>             tiles;
 	vector<int>             droidTypes;
