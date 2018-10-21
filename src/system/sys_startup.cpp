@@ -1,6 +1,7 @@
 #include <hdr/io/io_gameprefs.h>
 #include <hdr/game/s_levels.h>
 #include <hdr/game/s_render.h>
+#include <hdr/opengl/s_renderSprite.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -138,7 +139,8 @@ bool sys_initAll()
 
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), "white_square.jpg");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "splash.png");
-//		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "alltiles.bmp");
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "lightmap.bmp");
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "hud.tga");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "001.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "123.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "139.bmp");
@@ -149,6 +151,8 @@ bool sys_initAll()
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "329.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "420.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "476.bmp");
+
+		gl_createSprite("hud", glm::vec3{0.0f, 0.0f, 0.0f}, 1, glm::vec2{1.3f, 1.2f});
 
 		gam_loadAllLevels();
 	}   // end of file system check

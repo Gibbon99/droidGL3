@@ -26,12 +26,10 @@ typedef struct
 void gl_getAllGLErrors ( int errorNum, const char *calledFrom, int line );
 
 // Draw a 2D quad
-void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichShader, GLuint whichTexture, float interpolation );
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichShader, GLuint whichTexture, glm::vec3 colorKey);
 
 // Draw a debug line
 void gl_drawLine ( glm::vec3 startPoint, glm::vec3 endPoint, std::string whichShader, glm::vec4 lineColor );
-
-void gl_drawShadowHull ( std::set<_shadowHullPoint> const &drawShadowHull, glm::vec3 mousePosition, std::string whichShader );
 
 void gl_drawQuad ();
 
@@ -49,4 +47,5 @@ void gl_registerDebugCallback ();
 // Print out all the GLSL error messages
 void gl_displayErrors ();
 
-void gl_drawAllQuads ( std::string shaderName, std::string textureName, float interpolation );
+// Create a new empty texture
+GLuint gl_createNewTexture(GLuint width, GLuint height);

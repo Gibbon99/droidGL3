@@ -1,3 +1,4 @@
+#include <hdr/game/s_lightCaster.h>
 #include "hdr/game/s_renderDebug.h"
 #include "hdr/console/con_console.h"
 #include "hdr/system/sys_audio.h"
@@ -17,6 +18,8 @@ _hostScriptFunctions hostVariables[] =
 	{"float g_gamma",                       &g_gamma},
 	{"bool g_debugShowWaypoints",           &g_debugShowWaypoints},
 	{"bool g_debugShowPhysicsLines",        &g_debugShowPhysicsLines},
+	{"bool g_debugShowHullCircle",          &g_debugShowHullCircle},
+	{"bool g_debugShowHullLines",           &g_debugShowHullLines},
 	{"",                                    nullptr},
 };
 

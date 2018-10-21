@@ -21,7 +21,10 @@ void as_setGameVariables()
     g_gamma = 1.0;
 
     g_debugShowWaypoints = false;
-    g_debugShowPhysicsLines = true;
+    g_debugShowPhysicsLines = false;
+
+    g_debugShowHullLines = false;
+    g_debugShowHullCircle = false;
 
 //    sdf_addFontInfo(0, "Digital.ttf", 24);
   //  sdf_addFontInfo(1, "oldDigital.ttf", 28);

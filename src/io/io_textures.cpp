@@ -234,11 +234,11 @@ vec2 io_getTextureSize(const string fileName)
 // Return textureID or -1 if not loaded
 //
 // Return the textureID for a texture name
+// Comparision is CASE SENSITIVE
 int io_getTextureID(const string fileName)
 //-----------------------------------------------------------------------------------------------------
 {
 	unordered_map<string, _textureSet>::const_iterator textureItr;
-//TODO: Check if compare is case sensitive or not
 
 	textureItr = textureSet.find (fileName);
 	if ( textureItr != textureSet.end ())    // Found
@@ -252,21 +252,36 @@ int io_getTextureID(const string fileName)
 //-----------------------------------------------------------------------------------------------------
 //
 // Store the new TextureID and fileName into the lookup map
-void io_storeTextureInfoIntoMap(int textureID, vec2 imageSize, string fileName)
+//
+// Strip off any file extension before storing the filename as the key
+void io_storeTextureInfoIntoMap(int textureID, vec2 imageSize, string fileName, bool checkMutex)
 //-----------------------------------------------------------------------------------------------------
 {
-	_textureSet tempSet;
+	_textureSet     tempSet;
+	size_t          position;
+	string          extractedName;
 
 	tempSet.textureID = textureID;
 	tempSet.loaded = true;
 	tempSet.width = static_cast<int>(imageSize.x);
 	tempSet.height = static_cast<int>(imageSize.y);
-	if ( SDL_LockMutex (textureSetMutex) == 0 )
-	{
-		textureSet.insert (std::pair<string, _textureSet> (fileName, tempSet));
-		SDL_UnlockMutex (gameMutex);
-	}
+	//
+	// Strip any file extension off
+	position = fileName.find(".");
+	extractedName = (string::npos == position)? fileName : fileName.substr(0, position);
 
+	if (checkMutex)
+	{
+		if ( SDL_LockMutex (textureSetMutex) == 0 )
+		{
+			textureSet.insert (std::pair<string, _textureSet> (extractedName, tempSet));
+			SDL_UnlockMutex (gameMutex);
+		}
+	}
+	else
+		{
+			textureSet.insert (std::pair<string, _textureSet> (extractedName, tempSet));
+		}
 	// TODO - free memory from vector ??
 }
 

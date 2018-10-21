@@ -6,7 +6,7 @@
 bool gl_createFBO ();
 
 // Make the render target the frameBuffer and associated texture
-void gl_renderToFrameBuffer ();
+bool gl_renderToFrameBuffer (string whichTexture);
 
 // Reset drawing back to the default frameBuffer ( Screen )
 void gl_renderToScreen ();

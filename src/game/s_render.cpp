@@ -4,6 +4,8 @@
 #include <hdr/game/s_renderDebug.h>
 #include <hdr/io/io_mouse.h>
 #include <hdr/game/s_lightCaster.h>
+#include <hdr/opengl/s_renderSprite.h>
+#include <hdr/game/s_hud.h>
 #include "hdr/game/s_render.h"
 
 #define USE_TILE_LOOKUP 1
@@ -463,7 +465,9 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 			return;
 		}
 
-		textureCreated = true;
+		io_storeTextureInfoIntoMap(fullLevelTexture, glm::vec2{textureWidth,textureHeight}, "fullLevelTexture", false);
+
+		textureCreated = true;  // Reset on level change
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
@@ -478,7 +482,7 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 	gl_set2DMode(viewPortX, viewPortY, glm::vec3(1, 1, 1));
 
 	//
-	// Draw tiles to bound texture
+	// Draw tiles to bound texture from 'whichTexture'
 	gam_drawAllTiles ("quad3d", whichTexture);
 
 	gam_showLineSegments();
@@ -486,11 +490,24 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 
 	io_renderMouseCursor();
 
-	glEnable(GL_BLEND);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
-	glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+	glViewport(0,0,256, 256); // Render on the whole framebuffer
+	light_createLightCaster (testLightPosition);
 
-	do_light();
+	glViewport(0,0,viewPortX, viewPortY); // Render on the whole framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fullLevelTexture, 0);
+
+glm::vec2       lightSize;
+
+lightSize = io_getTextureSize ("lightcaster");
+
+	gl_draw2DQuad (glm::vec2{testLightPosition.x, testLightPosition.y}, glm::vec2{256,256}, "lightmapRender", io_getTextureID ("lightmap"), glm::vec3{0,0,0});
+//	gl_draw2DQuad (glm::vec2{testLightPosition.x, testLightPosition.y}, glm::vec2{lightSize.x,lightSize.y}, "lightmapRender", io_getTextureID ("lightmap"), 0.0f);
+
+//	light_createLightCaster (vec3(750.0, 400.0, 0.0));
 	//
 	// Switch back to rendering to default frame buffer
 	gl_renderToScreen ();
@@ -507,4 +524,10 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 	//
 	// Copy screen sized quad from backing texture to visible screen
 	gam_blitFrameBufferToScreen("quad3d", fullLevelTexture);
+
+	gl_renderToScreen ();
+	//
+	// Render HUD on top of everything
+	gl_set2DMode(viewPortX, viewPortY, glm::vec3(1, 1, 1));
+	s_renderHUD();
 }

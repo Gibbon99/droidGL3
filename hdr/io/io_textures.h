@@ -24,7 +24,7 @@ int io_getTextureID ( string fileName );
 vec2 io_getTextureSize(const string fileName);
 
 // Store the new TextureID and fileName into the lookup map
-void io_storeTextureInfoIntoMap(int textureID, vec2 imageSize, string fileName);
+void io_storeTextureInfoIntoMap(int textureID, vec2 imageSize, string fileName, bool checkMutex);
 
 // Puts the image information into a queue of memory pointers
 void io_loadTextureFile ( string fileName );

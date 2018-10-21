@@ -59,7 +59,7 @@ int gam_processGameEventQueue ( void *ptr )
 
 				case USER_EVENT_TEXTURE_UPLOAD_DONE:
 				{
-					io_storeTextureInfoIntoMap (tempEventData.data1, tempEventData.vec2_1, tempEventData.eventString);
+					io_storeTextureInfoIntoMap (tempEventData.data1, tempEventData.vec2_1, tempEventData.eventString, true);
 					break;
 				}
 

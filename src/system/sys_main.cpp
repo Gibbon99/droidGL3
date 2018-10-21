@@ -30,6 +30,8 @@ Uint32 frameTime;
 vec3 quadPosition{640.0f,380.0f,-560.0f};
 vec3 currentVelocity;
 
+vec3 testLightPosition;
+
 //-----------------------------------------------------------------------------------------------------
 //
 /// \param Pass in interpolation for the frame
@@ -55,8 +57,6 @@ void sys_displayScreen(float interpolation)
 
 			gam_drawFullLevel(currentLevelName, "quad3d", tileTextureID);
 
-
-
 			break;
 
 		default:
@@ -67,8 +67,7 @@ void sys_displayScreen(float interpolation)
 
 	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,
 			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
-	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Velocity [ %3.3f %3.3f %3.3f ] Pos [ %3.3f %3.3f %3.3f ]", currentVelocity.x, currentVelocity.y, currentVelocity.z,
-			quadPosition.x, quadPosition.y,quadPosition.z);
+	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Circle time [ %2.2f ms ]", deltaTime);
 
 	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "PixelX [ %3.3f ] Pixel Y [ %3.3f ]", pixelX, pixelY);
 
@@ -134,8 +133,8 @@ int main (int argc, char *argv[] )
 	pixelX = viewPixelX;
 	pixelY = viewPixelY;
 
-	lightPosition.x = 843;
-	lightPosition.y = 420;
+	testLightPosition.x = 843;
+	testLightPosition.y = 420;
 
 	while ( !quitProgram )
 	{

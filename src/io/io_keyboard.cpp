@@ -168,19 +168,19 @@ void io_readGameSpecialKeys ( SDL_Keycode key, int action )
 				break;
 
 			case SDLK_o:
-				lightPosition.x -= 1.5f;
+				testLightPosition.x -= 1.5f;
 				break;
 
 			case SDLK_i:
-				lightPosition.x += 1.5f;
+				testLightPosition.x += 1.5f;
 				break;
 
 			case SDLK_k:
-				lightPosition.y -= 1.5f;
+				testLightPosition.y -= 1.5f;
 				break;
 
 			case SDLK_m:
-				lightPosition.y += 1.5f;
+				testLightPosition.y += 1.5f;
 				break;
 
 			case SDLK_LEFT:

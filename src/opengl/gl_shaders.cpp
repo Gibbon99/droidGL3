@@ -357,5 +357,11 @@ bool gl_addShaders ()
 	if ( !gl_createShader ("colorDisc", "colorDisc.vert", "colorDisc.frag", ""))
 		return false;
 
+	if ( !gl_createShader ("lightmapRender", "lightmapRender.vert", "lightmapRender.frag", ""))
+		return false;
+
+	if ( !gl_createShader ("colorKey", "colorKey.vert", "colorKey.frag", ""))
+		return false;
+
 	return true;
 }

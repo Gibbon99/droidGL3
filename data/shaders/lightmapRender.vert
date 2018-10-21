@@ -1,7 +1,7 @@
 #version 330
 
 //
-// Draws a texture mapped vertex in 3d space
+// Draw a lightmap in 3d coords
 //
 
 layout (location = 0) in vec3       inPosition;

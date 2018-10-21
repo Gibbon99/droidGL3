@@ -2,10 +2,19 @@
 #include <hdr/libGL/glm/glm.hpp>
 #include <hdr/game/s_levels.h>
 #include <hdr/opengl/gl_openGLWrap.h>
+#include <hdr/opengl/gl_fbo.h>
 #include "s_lightCaster.h"
 #include "hdr/opengl/gl_shaders.h"
+#include "hdr/io/io_textures.h"
 
-typedef struct {
+Uint64      startTime;
+double      deltaTime;
+
+bool         g_debugShowHullCircle;
+bool         g_debugShowHullLines;
+
+typedef struct
+{
 	glm::vec3       start;
 	glm::vec3       end;
 } _lightLineSegment;
@@ -16,23 +25,68 @@ vector<_lightLineSegment>   lightLineSegments;
 set<_lightHullPoint>        lightHull;
 vector<glm::vec3>           circlePoints;
 
-vec3    lightPosition;
+vector<_lightCaster>        lightCasters;
 
-void DrawCircle ( float cx, float cy, float r, int num_segments )
+vector<_lightLineSegment>   copyLineSegments;
+
+//-------------------------------------------------------------------------------
+//
+// Add a new light caster for this level
+//
+// Pass 0 to radius to delete all texture handles and clear vector
+void light_addNewCaster(const glm::vec3 position, const glm::vec3 color, GLuint radius)
+//-------------------------------------------------------------------------------
 {
+	_lightCaster        tempLightCaster;
+
+	if (radius == 0)
+	{
+		if (!lightCasters.empty())
+		{
+			for (const auto &lightCastersItr : lightCasters)
+			{
+				glDeleteTextures(1, &lightCastersItr.textureID);
+			}
+		}
+		lightCasters.clear();       // Reset and clear
+	}
+
+
+	tempLightCaster.position = position;
+	tempLightCaster.color = color;
+	tempLightCaster.radius = radius;
+	tempLightCaster.textureID = gl_createNewTexture(256, 256);
+
+	lightCasters.push_back(tempLightCaster);
+}
+
+//-------------------------------------------------------------------------------
+//
+// Draw a circle to generate the line segments used to test ray intersections
+// so we get a circular shape even if there is no line segment points near.
+//
+// Pass in the center of the circle ( same as the light ) - the radius
+// and how many line segments are generate to make the shape.
+//
+// Line segments and points are added to the lightLineSegment array
+void light_createCircleSegmentsAndUniquePoints ( float cx, float cy, float r, int num_segments )
+//-------------------------------------------------------------------------------
+{
+	_lightLineSegment    tempLineSegment;
+
 	auto theta = static_cast<float>(2 * 3.1415926 / float (num_segments));
-	float c = cosf (theta);//precalculate the sine and cosine
+
+	float c = cosf (theta);     // pre calculate the sine and cosine
 	float s = sinf (theta);
 	float t;
 
 	float x = r; // Start at angle = 0
 	float y = 0;
 
-	for ( int ii = 0; ii < num_segments; ii++ )
+	for ( auto i = 0; i < num_segments; i++ )
 	{
 		circlePoints.push_back(glm::vec3(x + cx, y+cy, 0.0f));
-		lightUniquePoints.push_back (glm::vec3 (x + cx, y + cy, 0.0f));
-
+		//
 		//apply the rotation matrix
 		t = x;
 		x = c * x - s * y;
@@ -40,7 +94,6 @@ void DrawCircle ( float cx, float cy, float r, int num_segments )
 	}
 
 	bool startPoint = true;
-	_lightLineSegment    tempLineSegment;
 
 	for ( const auto &circleItr : circlePoints)
 	{
@@ -67,10 +120,10 @@ void DrawCircle ( float cx, float cy, float r, int num_segments )
 /// \param argc
 /// \param argv
 /// \return
-void light_getUniqueAngles()
+void light_createAnglesFromPoints (vec3 lightPosition)
 //-----------------------------------------------------------------------------------------------------
 {
-	for (auto itr : lightUniquePoints) //levelInfo.at(currentLevelName).lineSegments)
+	for (auto itr : lightUniquePoints)
 	{
 		double angle = atan2(itr.y - lightPosition.y, itr.x - lightPosition.x);
 		lightUniqueAngles.push_back (angle - 0.001f);
@@ -141,33 +194,66 @@ glm::vec3 light_getIntersectPoint(_lightLineSegment ray, _lightLineSegment segme
 //	return {x: r_px + r_dx * T1, y: r_py + r_dy * T1, param: T1};
 }
 
-
 //-----------------------------------------------------------------------------
 //
 // Draw the shadowHull
-void glight_drawShadowHull ( std::set<_lightHullPoint> const &drawShadowHull, glm::vec3 casterPosition, string whichShader )
+void light_createShadowTexture ( std::set<_lightHullPoint> const &drawShadowHull, const glm::vec3 casterPosition,
+                                 const string whichShader )
 //-----------------------------------------------------------------------------
 {
 	static GLuint vao = 0;
 	static GLuint buffers;
 	static bool initDone = false;
 
-	glm::vec4 debugColor{0.8,0.8,0.8,0.5};
+	glm::vec4 debugColor{1.0f, 1.0f, 1.0f, 1.0f};
 
-	vector<glm::vec3>       hullPoints;
+	typedef struct
+	{
+		glm::vec3   position;
+	} _texHullPoints;
+
+	vector<_texHullPoints>       hullPoints;
+
+	static glm::vec3   scaleValue;
+
+	if (0 == io_getTextureID ("lightcaster"))
+	{
+		glm::vec2 fullSize;
+
+		fullSize = io_getTextureSize ("fullLevelTexture");
+		io_storeTextureInfoIntoMap(gl_createNewTexture (256, 256), glm::vec2{256, 256}, "lightcaster", false);
+
+		scaleValue.x = fullSize.x / 256;
+		scaleValue.y = fullSize.y / 256;
+		scaleValue.z = 0.0f;
+
+		printf("Scale x [ %3.3f ] Y [ %3.3f ]\n", scaleValue.x, scaleValue.y);
+	}
+
 
 	//
 	// Create the triangle fan from the already sorted drawShadowHull
 	//
 	hullPoints.clear();
-	hullPoints.push_back (casterPosition);
+
+	_texHullPoints  tempTexHullPoints;
+
+	// Reuse drawShadowHull - just insert at the start and the end??
+
+	tempTexHullPoints.position = casterPosition;
+	hullPoints.push_back (tempTexHullPoints);
+
 	for (auto sourceItr : drawShadowHull)
 	{
-		hullPoints.push_back(sourceItr.position);
+		tempTexHullPoints.position.x = sourceItr.position.x;
+		tempTexHullPoints.position.y = sourceItr.position.y;
+		hullPoints.push_back(tempTexHullPoints);
 	}
 
 	auto sourceItr = drawShadowHull.begin();
-	hullPoints.push_back (sourceItr->position);
+
+	tempTexHullPoints.position = sourceItr->position;
+	hullPoints.push_back(tempTexHullPoints);
 
 	if ( !initDone )
 	{
@@ -182,26 +268,40 @@ void glight_drawShadowHull ( std::set<_lightHullPoint> const &drawShadowHull, gl
 
 		// Vertex coordinates buffer
 		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers));
-		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (glm::vec3) * hullPoints.size(), &hullPoints[0], GL_DYNAMIC_DRAW));
+		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (_texHullPoints) * hullPoints.size(), &hullPoints[0].position, GL_DYNAMIC_DRAW));
 		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
-		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
+		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, sizeof (_texHullPoints), (GLvoid *)offsetof(_texHullPoints, position)));
 
 		initDone = false;
 	}
 
+
+
+
 	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
+
+	if (!gl_renderToFrameBuffer ("lightcaster"))
+	{
+		printf("Unable to use frame buffer.\n");
+	}
+
+//	gl_set2DMode ( 256, 256, scaleValue);
 
 	GL_CHECK (glBindVertexArray (vao));
 	//
 	// Enable attribute to hold vertex information
-	GL_CHECK (glUniform4fv                 (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr (debugColor)));
+//	GL_CHECK (glUniform4fv                 (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr (debugColor)));
 	GL_CHECK (glUniformMatrix4fv           (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
 	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib  (whichShader, "inPosition")));
-
+	//
+	// Create the black and white hull mask texture
+	//
 	GL_CHECK (glDrawArrays (GL_TRIANGLE_FAN, 0, hullPoints.size ()));
 
 	glDeleteBuffers (1, &buffers);
 	glDeleteVertexArrays (1, &vao);
+
+//	gl_renderToScreen ();
 }
 
 
@@ -210,7 +310,7 @@ void glight_drawShadowHull ( std::set<_lightHullPoint> const &drawShadowHull, gl
 /// \param argc
 /// \param argv
 /// \return
-void light_doAngleRays()
+void light_createLightHull (vec3 lightPosition)
 //-----------------------------------------------------------------------------------------------------
 {
 	bool    foundIntersect = false;
@@ -251,33 +351,21 @@ void light_doAngleRays()
 		tempHullPoint.angle = angleItr;
 		tempHullPoint.position = closestIntersect;
 
+//		tempHullPoint.texCoord.x = static_cast<float>(std::cos(angleItr) + 1.0)*0.5;
+//		tempHullPoint.texCoord.y = static_cast<float>(std::sin(angleItr) + 1.0)*0.5;
+
 		lightHull.insert(tempHullPoint);
-	}
-
-	glight_drawShadowHull (lightHull, lightPosition, "colorLine");
-
-	for (auto hullPointItr : lightHull)
-	{
-//		gl_drawLine (lightRay.start, hullPointItr.position, "colorLine", vec4 (1, 0, 0, 0.9));
-//		gam_drawCrossAtPoint (hullPointItr.position);
 	}
 }
 
-
-
-void do_light()
+//-----------------------------------------------------------------------------------------------------
+//
+// Create the line segments used to calculate the light ray intersections
+void light_createLineSegmentsAndUniquePoints ()
+//-----------------------------------------------------------------------------------------------------
 {
 	_lightLineSegment       tempLightLineSegment;
-
-	lightLineSegments.clear();
-	lightUniquePoints.clear();
-	lightUniqueAngles.clear();
-	lightHull.clear();
-	circlePoints.clear();
-
-	vec3    tempPoint;
-
-	DrawCircle ( lightPosition.x, lightPosition.y, 100.0f, 32 );
+	vec3                    tempPoint;
 
 	for (int i = 0; i < levelInfo.at(currentLevelName).lineSegments.size(); i++)
 	{
@@ -301,16 +389,49 @@ void do_light()
 		lightUniquePoints.push_back(tempPoint);
 
 		lightLineSegments.push_back(tempLightLineSegment);
-	}
 
-	/*
-	for (auto itr: lightLineSegments)
+		copyLineSegments = lightLineSegments;
+	}
+}
+
+void light_createLightCaster (vec3 lightPosition)
+{
+	startTime = SDL_GetPerformanceCounter ();
+
+	lightLineSegments.clear();
+	lightUniquePoints.clear();
+	lightUniqueAngles.clear();
+	lightHull.clear();
+	circlePoints.clear();
+	//
+	// Make a copy of the loaded level line segments
+	light_createLineSegmentsAndUniquePoints ();
+	//
+	// Create line segments used to bound the light
+	light_createCircleSegmentsAndUniquePoints (lightPosition.x, lightPosition.y, 70.0f, 36);
+
+	light_createAnglesFromPoints (lightPosition);
+
+	light_createLightHull (lightPosition);
+
+//	light_createShadowTexture (lightHull, lightPosition, "colorLine");
+	light_createShadowTexture (lightHull, lightPosition, "quad3d");
+
+	if (g_debugShowHullCircle)
 	{
-		gl_drawLine (itr.start, itr.end, "colorLine", vec4 (1, 0, 1, 1));
-		printf("segment start [ %f %f ] end [ %f %f ]\n", itr.start.x, itr.start.y, itr.end.x, itr.end.y);
+		for ( auto itr: lightLineSegments )
+		{
+			gl_drawLine (itr.start, itr.end, "colorLine", vec4 (1, 0, 1, 1));
+		}
 	}
-*/
-	light_getUniqueAngles();
 
-	light_doAngleRays();
+	if (g_debugShowHullLines)
+	{
+		for ( auto const &hullPointItr : lightHull )
+		{
+			gl_drawLine (lightPosition, hullPointItr.position, "colorLine", vec4 (1, 0, 0, 0.9));
+		}
+	}
+
+	deltaTime = (SDL_GetPerformanceCounter () - startTime) * 1000 / (double)SDL_GetPerformanceFrequency ();
 }

@@ -3,6 +3,7 @@
 #include "hdr/opengl/gl_openGLWrap.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/game/s_shadows.h"
+#include "hdr/game/s_lightCaster.h"
 
 #ifdef __linux__
 	#include <execinfo.h>
@@ -187,7 +188,7 @@ void print_trace () // TODO Move to better file
 	for ( i = 0; i < size; i++ )
 		printf ("%s\n", strings[i]);
 
-	free (strings);
+//	free (strings);
 #endif
 }
 
@@ -211,7 +212,7 @@ void gl_displayErrors ()
 		con_print (CON_INFO, true, "---------------------------------------------------");
 		con_print (CON_INFO, true, "");
 	}
-	print_trace();
+//	print_trace();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -264,31 +265,35 @@ void gl_registerDebugCallback ()
 //-----------------------------------------------------------------------------
 //
 // Draw a 2D quad - uses ortho matrix to draw - screen pixel coordinates
-void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture, float interpolation)
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture, glm::vec3 colorKey)
 //-----------------------------------------------------------------------------
 {
-	glm::vec2           quadVerts[4];
+	glm::vec3           quadVerts[4];
 	static GLuint       vao = 0;
 	static GLuint       buffers[2];
 	static bool         initDone = false;
 
 	quadVerts[0].x = position.x;
 	quadVerts[0].y = position.y;
+	quadVerts[0].z = 0.0f;
 
 	quadVerts[1].x = position.x;
 	quadVerts[1].y = position.y + quadSize.y;
+	quadVerts[1].z = 0.0f;
 
 	quadVerts[2].x = position.x + quadSize.x;
 	quadVerts[2].y = position.y + quadSize.y;
+	quadVerts[2].z = 0.0f;
 
 	quadVerts[3].x = position.x + quadSize.x;
 	quadVerts[3].y = position.y;
+	quadVerts[3].z = 0.0f;
 
 	GLfloat quadTexCoords[] = {
-			0.0, 0.0,
 			0.0, 1.0,
-			1.0, 1.0,
+			0.0, 0.0,
 			1.0, 0.0,
+			1.0, 1.0,
 	};
 
 	if ( !initDone )
@@ -307,7 +312,7 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[0]));
 		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (quadVerts), quadVerts, GL_DYNAMIC_DRAW));
 		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib(whichShader, "inPosition")));
-		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
+		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
 
 		// Texture coordinates buffer
 		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[1]));
@@ -322,19 +327,28 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	//
 	// Bind texture if it's not already bound as current texture
 	GL_CHECK (glActiveTexture (GL_TEXTURE0));
-
 	GL_CHECK (glBindTexture (GL_TEXTURE_2D, whichTexture));
 
+	GL_CHECK (glActiveTexture (GL_TEXTURE1));
+	GL_CHECK (glBindTexture (GL_TEXTURE_2D, io_getTextureID ("lightcaster")));
+
+
 	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture0"), 0));
+	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture1"), 1));
+
 	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), g_gamma));
 
-	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
+	GL_CHECK (glUniform3fv (gl_getUniform (whichShader, "inColorKey"), 1, glm::value_ptr(colorKey)));
+
+//	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
 
 	GL_CHECK (glBindVertexArray (vao));
 	//
 	// Enable attribute to hold vertex information
-	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib(whichShader, "inPosition")));
-	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib(whichShader, "inTextureCoords")));
+	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib(whichShader, "inPosition")));
+	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib(whichShader, "inTextureCoords")));
+
+	GL_CHECK (glUniformMatrix4fv           (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
 
 	GL_CHECK (glDrawArrays (GL_TRIANGLE_FAN, 0, 4));
 
@@ -441,4 +455,28 @@ void gl_set3DMode ( float interpolate )
 	modelMatrix = glm::mat4 ();
 
 	MVP = projMatrix * viewMatrix * modelMatrix;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Create a new empty texture
+GLuint gl_createNewTexture(GLuint width, GLuint height)
+//-----------------------------------------------------------------------------
+{
+	GLuint  tempTextureID;
+
+	glGenTextures(1, &tempTextureID);
+	glBindTexture(GL_TEXTURE_2D, tempTextureID);
+
+	// Texture is empty
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return tempTextureID;
 }

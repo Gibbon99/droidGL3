@@ -3,8 +3,6 @@
 //
 // Draws a colored line with two points
 //
-//uniform vec2    inScreenSize;
-//in vec3         inPosition;
 layout (location = 0) in vec3       inPosition;
 
 uniform mat4                        MVP_Matrix;
