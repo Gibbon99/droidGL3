@@ -4,6 +4,8 @@
 #include "hdr/system/sys_audio.h"
 #include "hdr/opengl/gl_opengl.h"
 
+cpVect vect1;
+
 _hostScriptFunctions hostVariables[] =
 {
 	{"bool quitProgram",			        &quitProgram},
@@ -20,8 +22,14 @@ _hostScriptFunctions hostVariables[] =
 	{"bool g_debugShowPhysicsLines",        &g_debugShowPhysicsLines},
 	{"bool g_debugShowHullCircle",          &g_debugShowHullCircle},
 	{"bool g_debugShowHullLines",           &g_debugShowHullLines},
+	{"cpVect vect1",                        &vect1},
 	{"",                                    nullptr},
 };
+
+void sys_testPrintValue()
+{
+	printf("vect1 [ %3.3f %3.3f ]\n", vect1.x, vect1.y);
+}
 
 //-----------------------------------------------------------------------------
 //

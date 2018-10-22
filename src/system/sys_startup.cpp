@@ -1,7 +1,7 @@
 #include <hdr/io/io_gameprefs.h>
 #include <hdr/game/s_levels.h>
 #include <hdr/game/s_render.h>
-#include <hdr/opengl/s_renderSprite.h>
+#include <hdr/opengl/gl_renderSprite.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -153,6 +153,7 @@ bool sys_initAll()
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "476.bmp");
 
 		gl_createSprite("hud", glm::vec3{0.0f, 0.0f, 0.0f}, 1, glm::vec2{1.3f, 1.2f});
+		gl_createSprite("splash", glm::vec3{-1.0f, 0.0f, 0.0f}, 1, glm::vec2{1.6f, 1.2f});
 
 		gam_loadAllLevels();
 	}   // end of file system check
@@ -162,7 +163,6 @@ bool sys_initAll()
 
 	gl_getFramebufferLimits();
 	gl_getFramebufferInfo (GL_DRAW_FRAMEBUFFER_BINDING, gl_getFrameBufferTexture ());
-	currentLevelName = "Bridge";
 
 	return true;
 }

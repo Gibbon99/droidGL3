@@ -46,6 +46,11 @@ _scriptInfo     scriptInfo[] =
 	{"",            ""},
 };
 
+void sys_testVect(cpVect *testValue)
+	{
+		printf("[ Script ] Values [ %3.3f %3.3f ]\n",testValue->x, testValue->x);
+	};
+
 //-----------------------------------------------------------------------------
 //
 // Struct to hold host function mapping to script function names
@@ -71,6 +76,7 @@ _hostScriptFunctions hostScriptFunctions[] =
 //	{"bool sdf_initFontSystem()",	                                    (void * ) sdf_initFontSystem},
 	{"void sys_changeMode(int newMode)",                                (void * ) sys_changeMode},
 //	{"void aud_setAudioGain(int newLevel)",                             (void * ) aud_setAudioGain},
+	{"void sys_testVect(cpVect &in)",                           (void *) sys_testVect},
 	{"",							NULL},
 };
 
@@ -212,6 +218,54 @@ const char *con_getScriptError ( int errNo )
 			return ( "Unknown error type." );
 		}
 }
+
+//-----------------------------------------------------------------------------
+//
+// Test setup passing a struct and values
+bool sys_registerObject()
+//-----------------------------------------------------------------------------
+{
+	int returnCode;
+
+//	returnCode = scriptEngine->RegisterObjectType ( "cpVect", sizeof ( cpVect ), asOBJ_VALUE | asOBJ_POD ); //asOBJ_REF | asOBJ_NOCOUNT );
+//	returnCode = scriptEngine->RegisterObjectType("cpVect", sizeof (cpVect), asOBJ_REF );
+
+	returnCode = scriptEngine->RegisterObjectType("cpVect", sizeof( cpVect ), asOBJ_APP_CLASS | asOBJ_VALUE | asOBJ_POD);
+
+	if ( returnCode < 0 )
+	{
+		con_print ( true, true, "Error RegisterObjectType [ %s ]", con_getScriptError ( returnCode ) );
+		return false;
+	}
+
+	returnCode = scriptEngine->RegisterObjectProperty ( "cpVect", "float x", asOFFSET ( cpVect, x ) );
+
+	if ( returnCode < 0 )
+	{
+		con_print ( true, true, "Error RegisterObjectProperty [ %s ]", con_getScriptError ( returnCode ) );
+		return false;
+	}
+
+	returnCode = scriptEngine->RegisterObjectProperty ( "cpVect", "float y", asOFFSET ( cpVect, y ) );
+
+	if ( returnCode < 0 )
+	{
+		con_print ( true, true, "Error RegisterObjectProperty 1 [ %s ]", con_getScriptError ( returnCode ) );
+		return false;
+	}
+
+/*
+	returnCode = scriptEngine->RegisterGlobalProperty ( "cpVect testVect", &testVecPosition );
+
+	if ( returnCode < 0 )
+	{
+		con_print ( true, true, "Error RegisterGlobalProperty [ %s ]", con_getScriptError ( returnCode ) );
+		return false;
+	}
+*/
+	return true;
+}
+
 
 //-----------------------------------------------------------------------------
 //
@@ -613,6 +667,14 @@ bool con_startScriptEngine ()
 	// Look at the implementation for this function for more information
 	// on how to register a custom string type, and other object types.
 	RegisterStdString ( scriptEngine );
+
+//	scriptEngine->RegisterObjectMethod("Vec3", "Vec3& opAssign(const Vec3 &in)", asMETHODPR(glm::vec3, operator=, (const glm::vec3&), glm::vec3&), asCALL_THISCALL);
+
+//	int r = scriptEngine->RegisterObjectType("Vec3", sizeof(glm::vec3), asOBJ_VALUE | asGetTypeTraits<glm::vec3>()); assert( r >= 0 );
+
+//	scriptEngine->RegisterObjectMethod("Vec3", "Vec3& opAssign(const Vec3 &in)", asMETHODPR(glm::vec3, operator=, (const glm::vec3&), glm::vec3&), asCALL_THISCALL);
+
+	sys_registerObject();
 
 	scriptEngineStarted = true;
 

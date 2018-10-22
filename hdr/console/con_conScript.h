@@ -1,8 +1,13 @@
 #pragma once
 
+#include "hdr/system/sys_main.h"
+
 extern bool 		scriptEngineStarted;
 extern unsigned int	numFunctionsInScripts;
 extern unsigned int numHostScriptFunctions;
+
+
+extern cpVect testVecPosition;
 
 bool con_startScriptEngine ();
 bool con_registerVariables ();

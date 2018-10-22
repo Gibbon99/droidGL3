@@ -1,5 +1,5 @@
-#include <hdr/game/s_levels.h>
 #include "hdr/game/s_levels.h"
+#include "hdr/game/s_healing.h"
 
 vector<_levelMemory>  levelMemoryPointers;
 unordered_map <string, _levelStruct> levelInfo;
@@ -18,12 +18,23 @@ vec2            drawOffset;
 string          currentLevelName;
 int             currentAlertLevel = ALERT_GREEN_TILE;
 
-//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------
 //
-// structure to hold information for healing tiles
+// Check if the level name is valid before accessing the map
+inline bool io_isLevelValid(string levelName)
+//-----------------------------------------------------------------------------------------------------
+{
+	return levelInfo.count(levelName) > 0;
+}
+
+//-----------------------------------------------------------------------------------------------------
 //
-//-----------------------------------------------------------------------------
-_basicHealing   *healing; // hold information for animating healing tiles
+// Return the string name of the current level
+string io_getCurrentLevelName()
+//-----------------------------------------------------------------------------------------------------
+{
+	return currentLevelName;
+}
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -101,13 +112,13 @@ void gam_loadLevelFromFile(const string fileName)
 	evt_sendSDLEvent (EVENT_TYPE_DO_LEVEL_LOAD, (int)levelMemoryIndex, 0 );
 }
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 //
 // Load the level into structure
 // Called from main thread on user event
 // Load level from memory pointed to by levelMemoryIndex - loaded in Game Thread
 bool gam_loadLevel ( intptr_t levelMemoryIndex )
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 {
 	int            checkVersion;
 	SDL_RWops      *fp;
@@ -255,6 +266,8 @@ void lvl_addPaddingToLevel( const string levelName)
 	int                 destX, destY;
 	int                 tileIndexPtr;
 
+	CHECK_LEVEL_NAME
+
 //	destX = static_cast<int>(drawOffset.x / 2);
 	destY = static_cast<int>(drawOffset.y / 2);
 
@@ -383,7 +396,7 @@ void gam_handleLevelFileError(const int errorCode, const string fileName)
 
 //-----------------------------------------------------------------------------------------------------
 //
-// Pass in fileName to find
+// Pass in levelName to find
 // Return Index into memory vector or -1 if not loaded
 //
 // Return the iterator for a level name
@@ -391,6 +404,8 @@ unordered_map<string, _levelStruct>::const_iterator gam_getLevelIndex(const stri
 //-----------------------------------------------------------------------------------------------------
 {
 	unordered_map<string, _levelStruct>::const_iterator levelItr;
+
+	CHECK_LEVEL_NAME
 
 	levelItr = levelInfo.find (levelName);
 
@@ -401,7 +416,6 @@ unordered_map<string, _levelStruct>::const_iterator gam_getLevelIndex(const stri
 			con_print(CON_ERROR, true, "Trying to access invalid level name [ %s ]", levelName.c_str());
 			return levelInfo.end ();
 		}
-		printf("Found itr for level [ %s ]", levelName.c_str());
 		return levelItr;
 	}
 	printf("Unable to find levelName [ %s ]\n", levelName.c_str());
@@ -433,4 +447,27 @@ bool gam_checkLoad(string levelName)
 		con_print (CON_ERROR, true, "Level data is invalid or not loaded [ %s ]", levelName.c_str ());
 
 	return false;
+}
+
+//-----------------------------------------------------------------------------------------
+//
+// List all the levels loaded
+void gam_showLevelsLoaded()
+//-----------------------------------------------------------------------------------------
+{
+	for ( const auto &levelItr : levelInfo)
+	{
+		gam_checkLoad (levelItr.second.levelName);
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Change to a new level
+void gam_changeToLevel(const string levelName)
+//-----------------------------------------------------------------------------------------------------
+{
+	currentLevelName = levelName;
+	gam_findHealingTiles ( currentLevelName );
 }

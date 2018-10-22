@@ -84,6 +84,8 @@ int gam_processGameEventQueue ( void *ptr )
 				{
 					allLevelsLoaded = true;
 					con_print(CON_INFO, true, "All levels are loaded. Run physics, droid etc setup here.");
+
+					gam_changeToLevel("Upper cargo");
 					break;
 				}
 

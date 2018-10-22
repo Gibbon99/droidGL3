@@ -361,16 +361,16 @@ void light_createLightHull (vec3 lightPosition)
 //-----------------------------------------------------------------------------------------------------
 //
 // Create the line segments used to calculate the light ray intersections
-void light_createLineSegmentsAndUniquePoints ()
+void light_createLineSegmentsAndUniquePoints (string levelName)
 //-----------------------------------------------------------------------------------------------------
 {
 	_lightLineSegment       tempLightLineSegment;
 	vec3                    tempPoint;
 
-	for (int i = 0; i < levelInfo.at(currentLevelName).lineSegments.size(); i++)
+	for (int i = 0; i < levelInfo.at(levelName).lineSegments.size(); i++)
 	{
-		tempLightLineSegment.start.x = static_cast<float>(levelInfo.at(currentLevelName).lineSegments[i].x);
-		tempLightLineSegment.start.y = static_cast<float>(levelInfo.at(currentLevelName).lineSegments[i].y);
+		tempLightLineSegment.start.x = static_cast<float>(levelInfo.at(levelName).lineSegments[i].x);
+		tempLightLineSegment.start.y = static_cast<float>(levelInfo.at(levelName).lineSegments[i].y);
 		tempLightLineSegment.start.z = 0.0f;
 
 		tempPoint.x = tempLightLineSegment.start.x;
@@ -379,8 +379,8 @@ void light_createLineSegmentsAndUniquePoints ()
 		lightUniquePoints.push_back(tempPoint);
 		i++;
 
-		tempLightLineSegment.end.x = static_cast<float>(levelInfo.at(currentLevelName).lineSegments[i].x);
-		tempLightLineSegment.end.y = static_cast<float>(levelInfo.at(currentLevelName).lineSegments[i].y);
+		tempLightLineSegment.end.x = static_cast<float>(levelInfo.at(levelName).lineSegments[i].x);
+		tempLightLineSegment.end.y = static_cast<float>(levelInfo.at(levelName).lineSegments[i].y);
 		tempLightLineSegment.end.z = 0.0f;
 
 		tempPoint.x = tempLightLineSegment.end.x;
@@ -394,7 +394,7 @@ void light_createLineSegmentsAndUniquePoints ()
 	}
 }
 
-void light_createLightCaster (vec3 lightPosition)
+void light_createLightCaster (string levelName, vec3 lightPosition)
 {
 	startTime = SDL_GetPerformanceCounter ();
 
@@ -405,7 +405,7 @@ void light_createLightCaster (vec3 lightPosition)
 	circlePoints.clear();
 	//
 	// Make a copy of the loaded level line segments
-	light_createLineSegmentsAndUniquePoints ();
+	light_createLineSegmentsAndUniquePoints (levelName);
 	//
 	// Create line segments used to bound the light
 	light_createCircleSegmentsAndUniquePoints (lightPosition.x, lightPosition.y, 70.0f, 36);

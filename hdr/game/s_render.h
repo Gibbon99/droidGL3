@@ -9,7 +9,7 @@ extern float    tilePosY, tilePosX;
 extern float    aspectRatioX, aspectRatioY;
 
 // Copy all the tiles that are visible this screen to the array
-void gam_drawAllTiles(string whichShader, GLuint whichTexture);
+void gam_drawAllTiles ( string whichShader, string levelName, GLuint whichTexture );
 
 void gam_setSingleTileCoords(int posX, int totalWidth);
 

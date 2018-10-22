@@ -11,6 +11,18 @@ const int CON_PARAM = 4;
 void as_setGameVariables()
 //-----------------------------------------------------------------------------
 {
+    cpVect anotherVect;
+
+    anotherVect.x = 444.0;
+    anotherVect.y = 555.0;
+
+    vect1.x = 666.0;
+    vect1.y = 400.0;
+
+//    sys_testVect(vect1.x, vect1.y);
+    sys_testVect(vect1);
+    sys_testVect(anotherVect);
+
     winWidth = 800;
     winHeight = 600;
 

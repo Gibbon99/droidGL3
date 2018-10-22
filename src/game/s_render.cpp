@@ -4,7 +4,7 @@
 #include <hdr/game/s_renderDebug.h>
 #include <hdr/io/io_mouse.h>
 #include <hdr/game/s_lightCaster.h>
-#include <hdr/opengl/s_renderSprite.h>
+#include <hdr/opengl/gl_renderSprite.h>
 #include <hdr/game/s_hud.h>
 #include "hdr/game/s_render.h"
 
@@ -64,7 +64,7 @@ vec2 gam_getTileTexCoords(int whichTile)
 	return returnValue;
 }
 
-void gam_blitFrameBufferToScreen(string whichShader, GLuint whichTexture)
+void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint whichTexture)
 {
 	_tileCoords     tempCoord;
 	float startTexX, startTexY, widthTex, heightTex;
@@ -73,11 +73,11 @@ void gam_blitFrameBufferToScreen(string whichShader, GLuint whichTexture)
 	tileCoordsIndex.clear();
 	indexCounter = 0;
 
-	startTexX = viewPixelX / (levelInfo.at(currentLevelName).levelDimensions.x * TILE_SIZE);
-	startTexY = viewPixelY / (levelInfo.at(currentLevelName).levelDimensions.y * TILE_SIZE);
+	startTexX = viewPixelX / (levelInfo.at(levelName).levelDimensions.x * TILE_SIZE);
+	startTexY = viewPixelY / (levelInfo.at(levelName).levelDimensions.y * TILE_SIZE);
 
-	widthTex = winWidth / (levelInfo.at(currentLevelName).levelDimensions.x * TILE_SIZE);
-	heightTex = winHeight / (levelInfo.at(currentLevelName).levelDimensions.y * TILE_SIZE);
+	widthTex = winWidth / (levelInfo.at(levelName).levelDimensions.x * TILE_SIZE);
+	heightTex = winHeight / (levelInfo.at(levelName).levelDimensions.y * TILE_SIZE);
 
 	//
 	// Corner 0
@@ -285,7 +285,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 //-----------------------------------------------------------------------------
 //
 // Draw the entire level to the texture currently bound to the FBO
-void gam_drawAllTiles ( const string whichShader, GLuint whichTexture )
+void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint whichTexture )
 //-----------------------------------------------------------------------------
 {
 	int         countX, countY, index;
@@ -303,11 +303,11 @@ void gam_drawAllTiles ( const string whichShader, GLuint whichTexture )
 	tileCoordsIndex.clear();
 	indexCounter = 0;
 
-	for (index = 0; index < levelInfo.at(currentLevelName).levelDimensions.x * levelInfo.at(currentLevelName).levelDimensions.y; index++)
+	for (index = 0; index < levelInfo.at(levelName).levelDimensions.x * levelInfo.at(levelName).levelDimensions.y; index++)
 	{
-		tilePtr = static_cast<int>((countY * levelInfo.at(currentLevelName).levelDimensions.x) + countX);
+		tilePtr = static_cast<int>((countY * levelInfo.at(levelName).levelDimensions.x) + countX);
 
-		whichTile = levelInfo.at(currentLevelName).tiles[static_cast<int>(tilePtr)];
+		whichTile = levelInfo.at(levelName).tiles[static_cast<int>(tilePtr)];
 
 		if ((whichTile > 0) && (whichTile < 64))
 		{
@@ -341,7 +341,7 @@ void gam_drawAllTiles ( const string whichShader, GLuint whichTexture )
 				con_print(CON_ERROR, true, "Invalid tile index [ %i ].", whichTile);
 
 		countX++;
-		if (countX == (int)levelInfo.at(currentLevelName).levelDimensions.x )
+		if (countX == (int)levelInfo.at(levelName).levelDimensions.x )
 		{
 			countX = 0;
 			countY++;
@@ -423,8 +423,8 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 
 	if ( !textureCreated )
 	{
-		textureWidth = static_cast<float>(levelInfo.at(currentLevelName).levelDimensions.x);
-		textureHeight = static_cast<float>(levelInfo.at(currentLevelName).levelDimensions.y);
+		textureWidth = static_cast<float>(levelInfo.at(levelName).levelDimensions.x);
+		textureHeight = static_cast<float>(levelInfo.at(levelName).levelDimensions.y);
 
 		textureWidth *= TILE_SIZE;
 		textureHeight *= TILE_SIZE;
@@ -472,8 +472,8 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 
-	auto viewPortX = static_cast<GLsizei>((levelInfo.at(currentLevelName).levelDimensions.x * TILE_SIZE));
-	auto viewPortY = static_cast<GLsizei>(levelInfo.at(currentLevelName).levelDimensions.y * TILE_SIZE);
+	auto viewPortX = static_cast<GLsizei>((levelInfo.at(levelName).levelDimensions.x * TILE_SIZE));
+	auto viewPortY = static_cast<GLsizei>(levelInfo.at(levelName).levelDimensions.y * TILE_SIZE);
 
 	glClearColor (1.0f, 0.0f, 0.0f, 0.0f);
 	glViewport(0,0,viewPortX, viewPortY); // Render on the whole framebuffer
@@ -483,10 +483,10 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 
 	//
 	// Draw tiles to bound texture from 'whichTexture'
-	gam_drawAllTiles ("quad3d", whichTexture);
+	gam_drawAllTiles ("quad3d", levelName, whichTexture);
 
-	gam_showLineSegments();
-	gam_showWayPoints();
+	gam_showLineSegments(levelName);
+	gam_showWayPoints(levelName);
 
 	io_renderMouseCursor();
 
@@ -494,15 +494,14 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 	//glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
 	glViewport(0,0,256, 256); // Render on the whole framebuffer
-	light_createLightCaster (testLightPosition);
+	light_createLightCaster (levelName, testLightPosition);
 
 	glViewport(0,0,viewPortX, viewPortY); // Render on the whole framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fullLevelTexture, 0);
 
-glm::vec2       lightSize;
-
-lightSize = io_getTextureSize ("lightcaster");
+	glm::vec2       lightSize;
+	lightSize = io_getTextureSize ("lightcaster");
 
 	gl_draw2DQuad (glm::vec2{testLightPosition.x, testLightPosition.y}, glm::vec2{256,256}, "lightmapRender", io_getTextureID ("lightmap"), glm::vec3{0,0,0});
 //	gl_draw2DQuad (glm::vec2{testLightPosition.x, testLightPosition.y}, glm::vec2{lightSize.x,lightSize.y}, "lightmapRender", io_getTextureID ("lightmap"), 0.0f);
@@ -523,7 +522,7 @@ lightSize = io_getTextureSize ("lightcaster");
 	gl_set2DMode(viewPortX, viewPortY, glm::vec3(3, 3, 1));
 	//
 	// Copy screen sized quad from backing texture to visible screen
-	gam_blitFrameBufferToScreen("quad3d", fullLevelTexture);
+	gam_blitFrameBufferToScreen("quad3d", levelName, fullLevelTexture);
 
 	gl_renderToScreen ();
 	//

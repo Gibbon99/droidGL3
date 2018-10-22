@@ -34,7 +34,7 @@ struct _lightHullPoint
 	}
 };
 
-void light_createLightCaster (vec3 lightPosition);
+void light_createLightCaster (string levelName, vec3 lightPosition);
 
 // Add a new light caster for this level
 //

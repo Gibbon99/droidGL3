@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <utility>
+#include <hdr/game/s_levels.h>
 
 #include "hdr/console/con_console.h"
 #include "hdr/io/io_logfile.h"
@@ -39,6 +40,7 @@ void con_addConsoleCommands()
 	con_addCommand ("setVar", "Set the value of a variable", (ExternFunc) con_setVariableValue);
 	con_addCommand ( "scShowFunc", 		"Show all script added commands", ( ExternFunc ) showScriptAddedCommands );
 	con_addCommand ( "quit",            "Shutdown the game",            (ExternFunc) conQuit );
+	con_addCommand ( "showLevels",      "Show level info",      (ExternFunc)gam_showLevelsLoaded);
 
 //	conAddCommand("scDo",		"Execute script function",		(ExternFunc)conScriptExecute);
 }

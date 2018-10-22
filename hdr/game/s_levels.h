@@ -6,6 +6,10 @@
 
 #define MAP_VERSION             115
 
+#define CHECK_LEVEL_NAME    	if (!io_isLevelValid(levelName))    \
+								{ con_print(CON_ERROR, true, "No valid level name [ %s ] - [ %s ]", levelName, __func__); \
+								}
+
 #define MAX_NUM_SPRITES         20   // maximum number of sprites per level
 #define MAX_NUM_OF_WAYPOINTS    100
 #define NUM_OF_LEVELS           21
@@ -83,29 +87,11 @@ struct _levelStruct {
 };
 
 extern int                  currentLevel;
-extern string               currentLevelName;
+//extern string               currentLevelName;
 extern unordered_map<string, _levelStruct>::const_iterator currentLevelItr;
 
 extern bool     allLevelsLoaded;
 extern int      currentAlertLevel;
-
-//-----------------------------------------------------------------------------
-//
-// structure to hold information for healing tiles
-//
-//-----------------------------------------------------------------------------
-
-struct _basicHealing {
-	int         numOnLevel; // first record holds number of tiles in level
-	int         pos; // position in array
-	int         numFrames; // how many frames make up the animationdownload
-	int         currentFrame; // which frame are we on
-	float       frameDelay; // speed to animate them at
-	float       nextFrame; // counter for incrementing to next frame
-	cpVect      worldPosition; // Used for aStar finding
-};
-
-extern _basicHealing *healing; // hold information for animating healing tiles
 
 extern unordered_map <string, _levelStruct> levelInfo;
 
@@ -137,3 +123,15 @@ bool gam_checkLoad(string levelName);
 
 // Convert current tile information into padded array
 void lvl_addPaddingToLevel(string levelName);
+
+// List all the levels loaded
+void gam_showLevelsLoaded();
+
+// Change to a new level
+void gam_changeToLevel(string levelName);
+
+// Return the string name of the current level
+string io_getCurrentLevelName();
+
+// Check if the level name is valid before accessing the map
+inline bool io_isLevelValid(string levelName);

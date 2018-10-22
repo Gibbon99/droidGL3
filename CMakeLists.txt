@@ -105,7 +105,7 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_mouse.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_fbo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_shaders.cpp
-        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/s_levels.cpp hdr/game/s_levels.h src/game/s_render.cpp hdr/game/s_render.h src/game/s_movement.cpp hdr/game/s_movement.h src/game/s_renderDebug.cpp hdr/game/s_renderDebug.h src/game/s_lightCaster.cpp hdr/game/s_lightCaster.h src/opengl/s_renderSprite.cpp hdr/opengl/s_renderSprite.h src/game/s_hud.cpp hdr/game/s_hud.h)
+        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/s_levels.cpp hdr/game/s_levels.h src/game/s_render.cpp hdr/game/s_render.h src/game/s_movement.cpp hdr/game/s_movement.h src/game/s_renderDebug.cpp hdr/game/s_renderDebug.h src/game/s_lightCaster.cpp hdr/game/s_lightCaster.h src/opengl/gl_renderSprite.cpp hdr/opengl/gl_renderSprite.h src/game/s_hud.cpp hdr/game/s_hud.h src/game/s_healing.cpp hdr/game/s_healing.h)
 
 # Define the C sources
 set(C_SRCS

@@ -8,7 +8,7 @@ bool         g_debugShowPhysicsLines = true;
 //--------------------------------------------------------------------------
 //
 // Render the collision line segments
-void gam_showLineSegments()
+void gam_showLineSegments(string levelName)
 //--------------------------------------------------------------------------
 {
 	glm::vec3   lineStart;
@@ -21,10 +21,10 @@ void gam_showLineSegments()
 	if (!g_debugShowPhysicsLines)
 		return;
 
-	for ( int i = 0; i != levelInfo.at(currentLevelName).lineSegments.size() / 2; i++ ) // line is from 2 points
+	for ( int i = 0; i != levelInfo.at(levelName).lineSegments.size() / 2; i++ ) // line is from 2 points
 	{
-		cp_lineStart = levelInfo.at(currentLevelName).lineSegments[indexCount++];
-		cp_lineFinish = levelInfo.at(currentLevelName).lineSegments[indexCount++];
+		cp_lineStart = levelInfo.at(levelName).lineSegments[indexCount++];
+		cp_lineFinish = levelInfo.at(levelName).lineSegments[indexCount++];
 
 		lineStart.x = static_cast<float>(cp_lineStart.x);
 		lineStart.y = static_cast<float>(cp_lineStart.y);
@@ -41,7 +41,7 @@ void gam_showLineSegments()
 //--------------------------------------------------------------------------
 //
 // Render the waypoint segments
-void gam_showWayPoints()
+void gam_showWayPoints(string levelName)
 //--------------------------------------------------------------------------
 {
 	int                 indexCount;
@@ -54,15 +54,15 @@ void gam_showWayPoints()
 
 	indexCount = 0;
 
-	for ( auto it: levelInfo.at(currentLevelName).wayPoints)
+	for ( auto it: levelInfo.at(levelName).wayPoints)
 //	for ( auto it = levelInfo.at(currentLevelName).wayPoints.begin(); it != levelInfo.at(currentLevelName).wayPoints.end(); ++it)
 	{
-		tempLine.start = levelInfo.at(currentLevelName).wayPoints[indexCount];
+		tempLine.start = levelInfo.at(levelName).wayPoints[indexCount];
 
-		if (indexCount + 1 < levelInfo.at(currentLevelName).numWaypoints)
-			tempLine.finish = levelInfo.at(currentLevelName).wayPoints[indexCount + 1];
+		if (indexCount + 1 < levelInfo.at(levelName).numWaypoints)
+			tempLine.finish = levelInfo.at(levelName).wayPoints[indexCount + 1];
 		else
-			tempLine.finish = levelInfo.at(currentLevelName).wayPoints[0];
+			tempLine.finish = levelInfo.at(levelName).wayPoints[0];
 
 		lineStart.x = static_cast<float>(tempLine.start.x);
 		lineStart.y = static_cast<float>(tempLine.start.y);

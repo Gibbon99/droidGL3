@@ -183,3 +183,6 @@ void con_setVariableValue ( string whichVar, string newValue );
 
 // Quit the game from the console
 int conQuit ();
+
+
+void sys_testPrintValue();

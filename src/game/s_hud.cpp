@@ -1,4 +1,4 @@
-#include <hdr/opengl/s_renderSprite.h>
+#include <hdr/opengl/gl_renderSprite.h>
 #include "hdr/io/io_textures.h"
 #include "s_hud.h"
 
@@ -8,10 +8,10 @@
 void s_renderHUD()
 //------------------------------------------------------------------------
 {
-	glm::vec2   textureSize;
-	glm::vec2   scaleBy;
-	static auto        haveSize = false;
-	static glm::vec2   renderPosition;
+	glm::vec2           textureSize;
+	glm::vec2           scaleBy;
+	static auto         haveSize = false;
+	static glm::vec2    renderPosition;
 
 	if (!haveSize)
 	{
@@ -26,8 +26,5 @@ void s_renderHUD()
 
 		haveSize = true;
 	}
-
 	gl_renderSprite("hud", renderPosition,  glm::vec3{0,0,0});
-
-	//gl_draw2DQuad ( renderPosition, textureSize, "quad3d", io_getTextureID ("hud"));
 }
