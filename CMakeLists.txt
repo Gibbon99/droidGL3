@@ -28,6 +28,7 @@ include_directories(
         hdr/libGL/soil
         /usr/include/freetype2
         /usr/local/include/SDL2
+        /usr/include/SDL2
 )
 
 # Library path
@@ -196,7 +197,6 @@ target_link_libraries(droidGL ${LINK_OPTIONS})
 target_link_libraries(droidGL
         GL
         GLU
-        glload
         rt
         pthread
         dl
