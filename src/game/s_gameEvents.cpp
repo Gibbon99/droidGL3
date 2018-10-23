@@ -65,27 +65,26 @@ int gam_processGameEventQueue ( void *ptr )
 
 				case USER_EVENT_GAME_LOAD_LEVEL:
 				{
-					gam_loadLevelFromFile(tempEventData.eventString);
+					lvl_loadLevelFromFile (tempEventData.eventString);
 				}
 
 				case USER_EVENT_LEVEL_ERROR:
 				{
-					gam_handleLevelFileError(tempEventData.data1, tempEventData.eventString);
+					lvl_handleLevelFileError (tempEventData.data1, tempEventData.eventString);
 					break;
 				}
 
 				case USER_EVENT_LEVEL_EXTRAS:
 				{
 					lvl_addPaddingToLevel(tempEventData.eventString);
+					levelInfo.at(tempEventData.eventString).lifts.reserve ( levelInfo.at(tempEventData.eventString).numLifts );
 					break;
 				}
 
 				case USER_EVENT_LEVEL_LOAD_DONE:    // Levels all loaded - do lifts, droids etc
 				{
 					allLevelsLoaded = true;
-					con_print(CON_INFO, true, "All levels are loaded. Run physics, droid etc setup here.");
-
-					gam_changeToLevel("Upper cargo");
+					sys_changeMode (MODE_INIT_GAME);
 					break;
 				}
 

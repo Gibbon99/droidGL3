@@ -420,7 +420,9 @@ void gl_set2DMode ( GLsizei viewPortX, GLsizei viewPortY, glm::vec3 scale)
 	aspectRatioX = (float)viewPortX / winWidth;
 	aspectRatioY = (float)viewPortY / winHeight;
 
-	projMatrix = glm::ortho(0.0f, (float)winWidth * aspectRatioX, 0.0f, (float)winHeight * aspectRatioY, 0.0f, 100.0f);
+//	glOrtho(0, screenWidth, 0, screenHeight, 1, -1); // Origin in lower-left corner
+
+	projMatrix = glm::ortho(0.0f, (float)winWidth * aspectRatioX, 0.0f, (float)winHeight * aspectRatioY, 1.0f, -1.0f);
 
 	viewMatrix = glm::mat4();
 

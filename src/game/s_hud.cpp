@@ -2,6 +2,8 @@
 #include "hdr/io/io_textures.h"
 #include "s_hud.h"
 
+bool        drawHUD;
+
 //------------------------------------------------------------------------
 //
 // Render the HUD graphic and text
@@ -12,6 +14,9 @@ void s_renderHUD()
 	glm::vec2           scaleBy;
 	static auto         haveSize = false;
 	static glm::vec2    renderPosition;
+
+	if (!drawHUD)
+		return;
 
 	if (!haveSize)
 	{

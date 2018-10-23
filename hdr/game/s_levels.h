@@ -3,10 +3,11 @@
 #include <unordered_map>
 #include "hdr/system/sys_main.h"
 #include "hdr/io/io_fileSystem.h"
+#include "s_lifts.h"
 
 #define MAP_VERSION             115
 
-#define CHECK_LEVEL_NAME    	if (!io_isLevelValid(levelName))    \
+#define CHECK_LEVEL_NAME    	if (!lvl_isLevelValid(levelName))    \
 								{ con_print(CON_ERROR, true, "No valid level name [ %s ] - [ %s ]", levelName, __func__); \
 								}
 
@@ -53,17 +54,6 @@ typedef struct {
 	cpVect finish;
 } _lineSegment;
 
-//-----------------------------------------------------------------------------
-//
-// information needed for one lift
-//
-//-----------------------------------------------------------------------------
-
-struct _liftBasic {
-	int tunnel;
-	int posX;
-	int posY;
-};
 
 struct _levelStruct {
 	int                     mapVersion;
@@ -102,36 +92,36 @@ extern unordered_map <string, _levelStruct> levelInfo;
 //-----------------------------------------------------------------------------
 
 // Return the iterator for a level name
-unordered_map<string, _levelStruct>::const_iterator gam_getLevelIndex(const string fileName);
+unordered_map<string, _levelStruct>::const_iterator lvl_getLevelIndex ( const string fileName );
 
 
 // Handle a level file error event
-void gam_handleLevelFileError(const int errorCode, const string fileName);
+void lvl_handleLevelFileError ( const int errorCode, const string fileName );
 
 // Add an entry to the levelMemoryPointers list
-long io_addLevelInfo(char *memPointer, int levelLength, string fileName);
+long lvl_addLevelInfo ( char *memPointer, const int levelLength, const string fileName );
 
-void gam_loadLevelFromFile(string fileName);
+void lvl_loadLevelFromFile ( const string fileName );
 
 // Load the level into structure
-bool gam_loadLevel ( intptr_t levelMemoryIndex );
+bool lvl_loadLevel ( intptr_t levelMemoryIndex );
 
 // Load all the levels into memory
-bool gam_loadAllLevels();
+bool lvl_loadAllLevels ();
 
-bool gam_checkLoad(string levelName);
+bool lvl_checkLoad ( string levelName );
 
 // Convert current tile information into padded array
 void lvl_addPaddingToLevel(string levelName);
 
 // List all the levels loaded
-void gam_showLevelsLoaded();
+void lvl_showLevelsLoaded ();
 
 // Change to a new level
-void gam_changeToLevel(string levelName);
+void lvl_changeToLevel ( const string levelName );
 
 // Return the string name of the current level
-string io_getCurrentLevelName();
+string lvl_getCurrentLevelName ();
 
 // Check if the level name is valid before accessing the map
-inline bool io_isLevelValid(string levelName);
+inline bool lvl_isLevelValid ( string levelName );

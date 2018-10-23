@@ -42,8 +42,11 @@ void io_renderMouseCursor()
 	switch (currentMode)
 	{
 		case MODE_GAME:
-			gl_drawLine (vec3 (mousePosition.x - (lineSize * 0.5), mousePosition.y, mousePosition.z), vec3 (mousePosition.x + (lineSize * 0.5), mousePosition.y, mousePosition.z), "colorLine", vec4 (1, 1, 1, 1));
-			gl_drawLine (vec3 (mousePosition.x, mousePosition.y - (lineSize * 0.5), mousePosition.z), vec3 (mousePosition.x, mousePosition.y + (lineSize * 0.5), mousePosition.z), "colorLine", vec4 (1, 1, 1, 1));
+//			gl_drawLine (vec3 (mousePosition.x - (lineSize * 0.5), mousePosition.y, mousePosition.z), vec3 (mousePosition.x + (lineSize * 0.5), mousePosition.y, mousePosition.z), "colorLine", vec4 (1, 1, 1, 1));
+//			gl_drawLine (vec3 (mousePosition.x, mousePosition.y - (lineSize * 0.5), mousePosition.z), vec3 (mousePosition.x, mousePosition.y + (lineSize * 0.5), mousePosition.z), "colorLine", vec4 (1, 1, 1, 1));
+
+			gl_drawLine (vec3(winWidth / 2, 0, 0), vec3(winWidth / 2, winHeight, 0), "colorLine", vec4 (1, 1, 1, 1));
+			gl_drawLine (vec3(0, winHeight / 2, 0), vec3(winWidth, winHeight / 2, 0), "colorLine", vec4 (1,1,1,1));
 			break;
 
 		default:

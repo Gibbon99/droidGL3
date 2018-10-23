@@ -64,7 +64,11 @@ vec2 gam_getTileTexCoords(int whichTile)
 	return returnValue;
 }
 
+//-----------------------------------------------------------------------------
+//
+// Blit a screen sized quad from the backing full level texture to display on the screen
 void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint whichTexture)
+//-----------------------------------------------------------------------------
 {
 	_tileCoords     tempCoord;
 	float startTexX, startTexY, widthTex, heightTex;
@@ -82,8 +86,19 @@ void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint wh
 	//
 	// Corner 0
 	//
-	tempCoord.position.x = 0; //viewPixelX;
-	tempCoord.position.y = 0; //viewPixelY;
+	tempCoord.position.x = 0;
+	tempCoord.position.y = winHeight;
+	tempCoord.position.z = 0.0f;
+
+	tempCoord.textureCoords.x = startTexX;
+	tempCoord.textureCoords.y = startTexY;
+
+	tileCoords.push_back(tempCoord);
+	//
+	// Corner 1
+	//
+	tempCoord.position.x = 0;
+	tempCoord.position.y = 0;
 	tempCoord.position.z = 0.0f;
 
 	tempCoord.textureCoords.x = startTexX;
@@ -91,29 +106,7 @@ void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint wh
 
 	tileCoords.push_back(tempCoord);
 	//
-	// Corner 1
-	//
-	tempCoord.position.x = 0; //viewPixelX;
-	tempCoord.position.y = winHeight; //viewPixelY + winHeight;
-	tempCoord.position.z = 0.0f;
-
-	tempCoord.textureCoords.x = startTexX;
-	tempCoord.textureCoords.y = startTexY;
-
-	tileCoords.push_back(tempCoord);
-	//
 	// Corner 2
-	//
-	tempCoord.position.x = winWidth;
-	tempCoord.position.y = winHeight;
-	tempCoord.position.z = 0.0f;
-
-	tempCoord.textureCoords.x = startTexX + widthTex;
-	tempCoord.textureCoords.y = startTexY;
-
-	tileCoords.push_back(tempCoord);
-	//
-	// Corner 3
 	//
 	tempCoord.position.x = winWidth;
 	tempCoord.position.y = 0;
@@ -121,6 +114,17 @@ void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint wh
 
 	tempCoord.textureCoords.x = startTexX + widthTex;
 	tempCoord.textureCoords.y = startTexY + heightTex;
+
+	tileCoords.push_back(tempCoord);
+	//
+	// Corner 3
+	//
+	tempCoord.position.x = winWidth;
+	tempCoord.position.y = winHeight;
+	tempCoord.position.z = 0.0f;
+
+	tempCoord.textureCoords.x = startTexX + widthTex;
+	tempCoord.textureCoords.y = startTexY;
 
 	tileCoords.push_back(tempCoord);
 
@@ -348,6 +352,8 @@ void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint
 		}
 	}
 
+	gam_drawSingleTile(0.0f, 0.0f, ALERT_GREEN_TILE);
+
 	//
 	// Setup shader and buffer data parameters
 	// TODO: will need to reset on level change
@@ -450,8 +456,7 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 		// Generate the depth buffer and associate to the frameBuffer
 		glGenRenderbuffers(1, &depthTargetBuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthTargetBuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, static_cast<GLsizei>(textureWidth),
-		                      static_cast<GLsizei>(textureHeight));
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, static_cast<GLsizei>(textureWidth), static_cast<GLsizei>(textureHeight));
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTargetBuffer);
 
 		// Set the list of draw buffers.
@@ -487,8 +492,6 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 
 	gam_showLineSegments(levelName);
 	gam_showWayPoints(levelName);
-
-	io_renderMouseCursor();
 
 	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
@@ -529,4 +532,6 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture
 	// Render HUD on top of everything
 	gl_set2DMode(viewPortX, viewPortY, glm::vec3(1, 1, 1));
 	s_renderHUD();
+
+	io_renderMouseCursor();
 }

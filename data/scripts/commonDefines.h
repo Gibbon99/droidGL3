@@ -15,6 +15,7 @@ const int MODE_SHUTDOWN         = 4;
 const int MODE_LOADING          = 5;
 const int MODE_INIT             = 6;
 const int MODE_SPLASH           = 7;
+const int MODE_INIT_GAME        = 8;
 
 enum mySounds
 {

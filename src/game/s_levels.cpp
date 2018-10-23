@@ -1,5 +1,7 @@
+#include <hdr/game/s_render.h>
 #include "hdr/game/s_levels.h"
 #include "hdr/game/s_healing.h"
+#include "hdr/game/s_lifts.h"
 
 vector<_levelMemory>  levelMemoryPointers;
 unordered_map <string, _levelStruct> levelInfo;
@@ -13,7 +15,6 @@ bool                allLevelsLoaded = false;
 //
 //-----------------------------------------------------------------------------
 int             currentLevel = -1;
-_levelStruct    shipLevel[NUM_OF_LEVELS];
 vec2            drawOffset;
 string          currentLevelName;
 int             currentAlertLevel = ALERT_GREEN_TILE;
@@ -21,7 +22,7 @@ int             currentAlertLevel = ALERT_GREEN_TILE;
 //-----------------------------------------------------------------------------------------------------
 //
 // Check if the level name is valid before accessing the map
-inline bool io_isLevelValid(string levelName)
+inline bool lvl_isLevelValid ( string levelName )
 //-----------------------------------------------------------------------------------------------------
 {
 	return levelInfo.count(levelName) > 0;
@@ -30,7 +31,7 @@ inline bool io_isLevelValid(string levelName)
 //-----------------------------------------------------------------------------------------------------
 //
 // Return the string name of the current level
-string io_getCurrentLevelName()
+string lvl_getCurrentLevelName ()
 //-----------------------------------------------------------------------------------------------------
 {
 	return currentLevelName;
@@ -39,7 +40,7 @@ string io_getCurrentLevelName()
 //-----------------------------------------------------------------------------------------------------
 //
 // Add an entry to the levelMemoryPointers list
-long io_addLevelInfo(char *memPointer, const int levelLength, const string fileName)
+long lvl_addLevelInfo ( char *memPointer, const int levelLength, const string fileName )
 //-----------------------------------------------------------------------------------------------------
 {
 	_levelMemory  tempMemory;
@@ -66,7 +67,7 @@ long io_addLevelInfo(char *memPointer, const int levelLength, const string fileN
 //
 // Is called from the GAME thread
 // Puts the level information into a queue of memory pointers
-void gam_loadLevelFromFile(const string fileName)
+void lvl_loadLevelFromFile ( const string fileName )
 //-----------------------------------------------------------------------------------------------------
 {
 	char        *levelBuffer = nullptr;
@@ -103,7 +104,7 @@ void gam_loadLevelFromFile(const string fileName)
 
 //	con_print (CON_INFO, true, "File is loaded into memory [ %i ]", levelBuffer);
 
-	levelMemoryIndex = io_addLevelInfo ( levelBuffer, levelLength, fileName );
+	levelMemoryIndex = lvl_addLevelInfo (levelBuffer, levelLength, fileName);
 
 //	con_print (CON_INFO, true, "Index into array for [ %s ] is [ %i ]", fileName.c_str (), levelMemoryIndex);
 
@@ -117,7 +118,7 @@ void gam_loadLevelFromFile(const string fileName)
 // Load the level into structure
 // Called from main thread on user event
 // Load level from memory pointed to by levelMemoryIndex - loaded in Game Thread
-bool gam_loadLevel ( intptr_t levelMemoryIndex )
+bool lvl_loadLevel ( intptr_t levelMemoryIndex )
 //-----------------------------------------------------------------------------------------
 {
 	int            checkVersion;
@@ -259,7 +260,6 @@ bool gam_loadLevel ( intptr_t levelMemoryIndex )
 void lvl_addPaddingToLevel( const string levelName)
 //---------------------------------------------------------
 {
-
 	std::vector<int>    tempLevel;
 	vec2                tempDimensions;
 	int                 countY, countX, whichTile;
@@ -268,8 +268,10 @@ void lvl_addPaddingToLevel( const string levelName)
 
 	CHECK_LEVEL_NAME
 
-//	destX = static_cast<int>(drawOffset.x / 2);
+	destX = static_cast<int>(drawOffset.x / 2);
 	destY = static_cast<int>(drawOffset.y / 2);
+
+//destY = drawOffset.y;
 
 	tempDimensions.x = static_cast<float>(levelInfo.at(levelName).levelDimensions.x);
 	tempDimensions.y = static_cast<float>(levelInfo.at(levelName).levelDimensions.y);
@@ -313,7 +315,7 @@ void lvl_addPaddingToLevel( const string levelName)
 //---------------------------------------------------------
 //
 // Load all the levels into memory
-bool gam_loadAllLevels()
+bool lvl_loadAllLevels ()
 //---------------------------------------------------------
 {
 	string levelName;
@@ -334,7 +336,6 @@ bool gam_loadAllLevels()
 			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_LOAD_LEVEL, 0, 0, 0, vec2(), vec2(), levelName);
 
 //			gam_initDroidValues ( currentLevel );
-//			shipLevel[currentLevel].lifts.reserve ( shipLevel[currentLevel].numLifts );
 
 //			shipLevel[currentLevel].numEnemiesAlive = shipLevel[currentLevel].numDroids;
 
@@ -353,7 +354,7 @@ bool gam_loadAllLevels()
 //-----------------------------------------------------------------------------------------------------
 //
 // Set the level slot in the map as an error
-void gam_setLevelError ( const string fileName )
+void lvl_setLevelError ( const string fileName )
 //-----------------------------------------------------------------------------------------------------
 {
 	_levelStruct tempSet;
@@ -365,29 +366,29 @@ void gam_setLevelError ( const string fileName )
 //-----------------------------------------------------------------------------------------------------
 //
 // Handle a level file error event
-void gam_handleLevelFileError(const int errorCode, const string fileName)
+void lvl_handleLevelFileError ( const int errorCode, const string fileName )
 //-----------------------------------------------------------------------------------------------------
 {
 	switch (errorCode)
 	{
 		case LEVEL_LOAD_ERROR_NOT_FOUND:
 			con_print(CON_ERROR, true, "Could not find level file [ %s ]",fileName.c_str());
-			gam_setLevelError (fileName);
+			lvl_setLevelError (fileName);
 			break;
 
 		case LEVEL_LOAD_ERROR_FILESYSTEM:
 			con_print(CON_ERROR, true, "Could not load level file from memory [ %s ]", fileName.c_str ());
-			gam_setLevelError (fileName);
+			lvl_setLevelError (fileName);
 			break;
 
 		case LEVEL_LOAD_MEMORY_ERROR:
 			con_print(CON_ERROR, true, "Memory error loading level [ %s ]", fileName.c_str ());
-			gam_setLevelError (fileName);
+			lvl_setLevelError (fileName);
 			break;
 
 		case LEVEL_LOAD_MALLOC_ERROR:
 			con_print (CON_ERROR, true, "MALLOC error loading level [ %s ]", fileName.c_str ());
-			gam_setLevelError (fileName);
+			lvl_setLevelError (fileName);
 			break;
 		default:
 			break;
@@ -400,7 +401,7 @@ void gam_handleLevelFileError(const int errorCode, const string fileName)
 // Return Index into memory vector or -1 if not loaded
 //
 // Return the iterator for a level name
-unordered_map<string, _levelStruct>::const_iterator gam_getLevelIndex(const string levelName)
+unordered_map<string, _levelStruct>::const_iterator lvl_getLevelIndex ( const string levelName )
 //-----------------------------------------------------------------------------------------------------
 {
 	unordered_map<string, _levelStruct>::const_iterator levelItr;
@@ -418,18 +419,18 @@ unordered_map<string, _levelStruct>::const_iterator gam_getLevelIndex(const stri
 		}
 		return levelItr;
 	}
-	printf("Unable to find levelName [ %s ]\n", levelName.c_str());
+	con_print(CON_ERROR, true, "Unable to find levelName [ %s ] - [ %s ]", levelName.c_str(), __func__);
 
 	return levelInfo.end ();   // Not found
 }
 
 //-----------------------------------------------------------------------------------------------------
-bool gam_checkLoad(string levelName)
+bool lvl_checkLoad ( string levelName )
 //-----------------------------------------------------------------------------------------------------
 {
 	unordered_map<string, _levelStruct>::const_iterator levelItr;
 
-	levelItr = gam_getLevelIndex(levelName);
+	levelItr = lvl_getLevelIndex (levelName);
 	if ( levelItr == levelInfo.end ())
 	{
 		con_print (CON_ERROR, true, "Error finding index for [ %s ]", levelName.c_str ());
@@ -452,22 +453,33 @@ bool gam_checkLoad(string levelName)
 //-----------------------------------------------------------------------------------------
 //
 // List all the levels loaded
-void gam_showLevelsLoaded()
+void lvl_showLevelsLoaded ()
 //-----------------------------------------------------------------------------------------
 {
 	for ( const auto &levelItr : levelInfo)
 	{
-		gam_checkLoad (levelItr.second.levelName);
+		lvl_checkLoad (levelItr.second.levelName);
 	}
 }
-
 
 //-----------------------------------------------------------------------------------------------------
 //
 // Change to a new level
-void gam_changeToLevel(const string levelName)
+void lvl_changeToLevel ( const string levelName )
 //-----------------------------------------------------------------------------------------------------
 {
+	cpVect      playerStartPosition;
+
 	currentLevelName = levelName;
-	gam_findHealingTiles ( currentLevelName );
+	gam_findHealingTiles ( levelName );
+	lvl_getLiftPositions ( levelName );
+
+	playerStartPosition = s_getLiftworldPosition (levelName, 1);
+
+	viewPixelX = static_cast<float>(playerStartPosition.x);
+	viewPixelY = static_cast<float>(playerStartPosition.y);
+
+	pixelX = viewPixelX;
+	pixelY = viewPixelY;
+
 }

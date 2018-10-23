@@ -3,6 +3,7 @@
 #include "hdr/console/con_console.h"
 #include "hdr/system/sys_audio.h"
 #include "hdr/opengl/gl_opengl.h"
+#include "hdr/game/s_hud.h"
 
 cpVect vect1;
 
@@ -22,6 +23,7 @@ _hostScriptFunctions hostVariables[] =
 	{"bool g_debugShowPhysicsLines",        &g_debugShowPhysicsLines},
 	{"bool g_debugShowHullCircle",          &g_debugShowHullCircle},
 	{"bool g_debugShowHullLines",           &g_debugShowHullLines},
+	{"bool drawHUD",                        &drawHUD},
 	{"cpVect vect1",                        &vect1},
 	{"",                                    nullptr},
 };

@@ -417,7 +417,7 @@ void evt_handleEvents ()
 						break;
 
 					case EVENT_TYPE_DO_LEVEL_LOAD:
-						gam_loadLevel ((intptr_t)event.user.data1);
+						lvl_loadLevel ((intptr_t) event.user.data1);
 						break;
 
 					default:

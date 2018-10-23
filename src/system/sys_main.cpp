@@ -6,6 +6,7 @@
 #include <hdr/game/s_lightCaster.h>
 #include <hdr/console/con_conScript.h>
 #include <hdr/game/s_healing.h>
+#include <hdr/game/s_game.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
@@ -19,7 +20,7 @@
 #include "hdr/system/sys_timing.h"
 #include "hdr/opengl/gl_opengl.h"
 #include "hdr/opengl/gl_renderSprite.h"
-
+#include "hdr/game/s_player.h"
 #include "hdr/game/s_levels.h"
 
 bool    quitProgram;
@@ -64,7 +65,7 @@ void sys_displayScreen(float interpolation)
 
 			gam_processMovement (interpolation);
 
-			gam_drawFullLevel(io_getCurrentLevelName(), "quad3d", tileTextureID);
+			gam_drawFullLevel(lvl_getCurrentLevelName (), "quad3d", tileTextureID);
 
 			break;
 
@@ -110,9 +111,15 @@ void sys_gameTickRun()
 			sys_changeMode(MODE_CONSOLE);
 			break;
 
+		case MODE_INIT_GAME:
+			gam_startNewGame ();
+			break;
+
 		case MODE_GAME:
 			io_processKeyboard ();
 			gam_animateHealingTiles();
+
+			s_getTileUnderPlayer (lvl_getCurrentLevelName(), pixelX / TILE_SIZE, pixelY / TILE_SIZE);
 			break;
 
 		default:
@@ -136,14 +143,6 @@ int main (int argc, char *argv[] )
 	sys_initAll();
 
 	sys_testPrintValue();
-
-	//
-	// TODO: Locate on tile
-	viewPixelX = 575.0f;
-	viewPixelY = 178.0f;
-
-	pixelX = viewPixelX;
-	pixelY = viewPixelY;
 
 	testLightPosition.x = 843;
 	testLightPosition.y = 420;

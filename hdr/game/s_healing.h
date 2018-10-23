@@ -9,14 +9,11 @@
 //
 //-----------------------------------------------------------------------------
 
-struct _basicHealing {
-	int         numOnLevel;         // first record holds number of tiles in level
+struct _basicHealing
+{
 	int         pos;                // position in array
-	int         numFrames;          // how many frames make up the animation
 	int         currentFrame;       // which frame are we on
-	float       frameDelay;         // speed to animate them at
-	float       nextFrame;          // counter for incrementing to next frame
-	cpVect      worldPosition;      // Used for aStar finding
+	float       frameDelay;         // animation counter
 };
 
 extern vector<_basicHealing>        healing; // hold information for animating healing tiles

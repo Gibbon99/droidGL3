@@ -23,6 +23,8 @@ void as_setGameVariables()
     sys_testVect(vect1);
     sys_testVect(anotherVect);
 
+    drawHUD = false;
+
     winWidth = 800;
     winHeight = 600;
 

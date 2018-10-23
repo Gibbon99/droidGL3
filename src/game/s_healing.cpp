@@ -27,7 +27,7 @@ void gam_animateHealingTiles()
 			if ( healingItr.currentFrame > HEALING_TILE + 3)
 				healingItr.currentFrame = HEALING_TILE;
 
-			levelInfo.at(io_getCurrentLevelName ()).tiles[healingItr.pos] = healingItr.currentFrame;
+			levelInfo.at(lvl_getCurrentLevelName ()).tiles[healingItr.pos] = healingItr.currentFrame;
 			}
 	}
 }
@@ -39,11 +39,7 @@ void gam_animateHealingTiles()
 void gam_findHealingTiles ( string levelName )
 // ----------------------------------------------------------------------------
 {
-	int                 index, tilePtr, whichTile;
-	int                 healCounter = 0;
-	int                 currentTile = 0;
-	int                 countX = 0;
-	int                 countY = 0;
+	int                 index;
 	_basicHealing       tempHealing;
 
 	CHECK_LEVEL_NAME
@@ -55,23 +51,16 @@ void gam_findHealingTiles ( string levelName )
 
 	for (index = 0; index < levelInfo.at(levelName).levelDimensions.x * levelInfo.at(levelName).levelDimensions.y; index++)
 	{
-		whichTile = levelInfo.at(levelName).tiles[index];
-
-		switch ( whichTile )
+		switch ( levelInfo.at(levelName).tiles[index] )
 		{
 			case HEALING_TILE:
 			case HEALING_TILE + 1:
 			case HEALING_TILE + 2:
 			case HEALING_TILE + 3:
 				tempHealing.pos = index;
-				tempHealing.numFrames = 4;
 				tempHealing.currentFrame = HEALING_TILE;
-				tempHealing.frameDelay = 0.3f;
-				tempHealing.nextFrame = 0.0f;
-				tempHealing.worldPosition.x = ( countX * TILE_SIZE ) + ( TILE_SIZE / 2 );
-				tempHealing.worldPosition.y = ( countY * TILE_SIZE ) + ( TILE_SIZE / 2 );
+				tempHealing.frameDelay = 0.0f;
 				healing.push_back(tempHealing);
-				healCounter++;
 				break;
 
 			default:

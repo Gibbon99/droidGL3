@@ -126,9 +126,13 @@ bool lib_openWindow ()
 
 	SDL_GL_GetAttribute (SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, &value);
 	con_print (CON_INFO, true, "SDL_GL_FRAMEBUFFER_SRGB_CAPABLE: %i :", value);
-	printf("SDL_GL_FRAMEBUFFER_SRGB_CAPABLE: %i : \n", value);
 
 	sys_changeMode (MODE_CONSOLE);
 
+	int width, height;
+
+	SDL_GetWindowSize(mainWindow, &width, &height);
+
+	printf("SDL_GetWindowSize size [ %i %i ]\n", width, height);
 	return true;
 }

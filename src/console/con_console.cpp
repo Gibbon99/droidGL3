@@ -40,7 +40,7 @@ void con_addConsoleCommands()
 	con_addCommand ("setVar", "Set the value of a variable", (ExternFunc) con_setVariableValue);
 	con_addCommand ( "scShowFunc", 		"Show all script added commands", ( ExternFunc ) showScriptAddedCommands );
 	con_addCommand ( "quit",            "Shutdown the game",            (ExternFunc) conQuit );
-	con_addCommand ( "showLevels",      "Show level info",      (ExternFunc)gam_showLevelsLoaded);
+	con_addCommand ("showLevels", "Show level info", (ExternFunc) lvl_showLevelsLoaded);
 
 //	conAddCommand("scDo",		"Execute script function",		(ExternFunc)conScriptExecute);
 }
