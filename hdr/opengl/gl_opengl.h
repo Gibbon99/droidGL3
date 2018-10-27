@@ -33,7 +33,7 @@ void gl_drawLine ( glm::vec3 startPoint, glm::vec3 endPoint, std::string whichSh
 
 void gl_drawQuad ();
 
-void gl_set2DMode ( GLsizei viewPortX, GLsizei viewPortY, glm::vec3 scale);
+void gl_set2DMode ( glm::vec2 startPos, glm::vec2 viewSize, glm::vec3 scale );
 
 // Set OpenGL to 2d orthographic mode
 void gl_set3DMode ( float interpolate );

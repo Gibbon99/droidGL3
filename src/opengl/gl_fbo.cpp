@@ -5,6 +5,11 @@ GLuint frameBufferName = 0;
 GLuint targetTexture = 0;
 GLuint depthTargetBuffer = 0;
 
+GLuint gl_getReadBuffer()
+{
+	return frameBufferName;
+
+}
 //-----------------------------------------------------------------------------------------------------
 //
 /// \param argc
@@ -94,46 +99,18 @@ void gl_renderToScreen()
 
 //-----------------------------------------------------------------------------------------------------
 //
-/// \param None
-/// False on Error, True on successful creation and linking of texture, depth and framebuffer
-bool gl_createFBO()
+// Link a texture to a FBO
+bool gl_linkTextureToFBO(GLuint whichTexture, GLuint whichFBO)
 //-----------------------------------------------------------------------------------------------------
 {
-	//
-	// Generate ID for the FrameBuffer. This encompasses a target texture, and a depth buffer
-	glGenFramebuffers(1, &frameBufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferName);
-
-	/*
-	//
-	// Create a window sized texture to associate to the frameBuffer
-	glGenTextures(1, &targetTexture);
-	glBindTexture(GL_TEXTURE_2D, targetTexture);
-	// Texture is empty
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, winWidth, winHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-	//
-	// TODO: Add filtering options
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	 */
-	//
-	// Generate the depth buffer and associate to the frameBuffer
-	glGenRenderbuffers(1, &depthTargetBuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthTargetBuffer);
-	//
-	// TODO: Change dimensions to variable
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 256, 256);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTargetBuffer);
-
-	/*
-
+	glBindFramebuffer (GL_FRAMEBUFFER, whichFBO);
 	//
 	// Set the target texture as the color target for the frameBuffer
-	//glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, targetTexture, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, whichTexture, 0);
 	//
 	// Set the number of associated draw buffers to the frameBuffer
 	GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};     // Renders to the first frameBuffer - bound as layout = 0 outvec4 color in fragment shader
-	glDrawBuffers(1, DrawBuffers);
+	glDrawBuffers (1, DrawBuffers);
 	//
 	// Check the association worked ok
 	GLenum checkStatus = glCheckFramebufferStatus (GL_FRAMEBUFFER);
@@ -160,12 +137,32 @@ bool gl_createFBO()
 		}
 		return false;
 	}
-	 */
-	//
-	// Set default frameBuffer ( Screen )
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 	return true;
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
+// \param None
+// Create a Frame Buffer Object and return it's ID number - create a depth buffer for it as well
+GLuint gl_createFBO(glm::vec2 backingSize)
+//-----------------------------------------------------------------------------------------------------
+{
+	GLuint frameBufferID = 0;
+	GLuint depthTextureID = 0;
+	//
+	// Generate ID for the FrameBuffer. This encompasses a target texture, and a depth buffer
+	glGenFramebuffers(1, &frameBufferID);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+	//
+	// Generate the depth buffer and associate to the frameBuffer
+	glGenRenderbuffers(1, &depthTextureID);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthTextureID);
+	//
+	// Bind depth texture to FBO
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, static_cast<GLsizei>(backingSize.x), static_cast<GLsizei>(backingSize.y));
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTextureID);
+
+	return frameBufferID;
 }
 
 //-----------------------------------------------------------------------------------------------------

@@ -18,10 +18,10 @@ void io_handleTextureFileError ( int errorCode, string fileName );
 void io_uploadTextureIntoGL ( intptr_t textureMemoryIndex );
 
 // Return the textureID for a texture name
-int io_getTextureID ( string fileName );
+GLuint io_getTextureID ( string fileName );
 
 // Return the image size for a texture name
-vec2 io_getTextureSize(const string fileName);
+vec2 io_getTextureSize( string fileName);
 
 // Store the new TextureID and fileName into the lookup map
 void io_storeTextureInfoIntoMap(int textureID, vec2 imageSize, string fileName, bool checkMutex);
@@ -35,4 +35,4 @@ void io_setTextureError ( string fileName );
 // Check if all the textures are loaded or not
 bool io_allTexturesLoaded();
 
-void io_loadTileTextureFile(const string fileName);
+void io_loadTileTextureFile( string fileName);

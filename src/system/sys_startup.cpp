@@ -72,7 +72,7 @@ bool sys_initAll()
 
 #ifdef GLAD_DEBUG
 	// before every opengl call call pre_gl_call
-	glad_set_pre_callback (pre_gl_call);
+//	glad_set_pre_callback (pre_gl_call);
 	// don't use the callback for glClear
 	// (glClear could be replaced with your own function)
 	//glad_debug_glClear = glad_glClear;
@@ -85,7 +85,9 @@ bool sys_initAll()
 		return false;
 	}
 
+#if (DEBUG_LEVEL > 0)
 	gl_registerDebugCallback ();
+#endif
 
 	sys_initTimingVars ();
 
@@ -174,11 +176,8 @@ bool sys_initAll()
 		lvl_loadAllLevels ();
 	}   // end of file system check
 
-	if (!gl_createFBO ())
-		con_print(CON_ERROR, true, "Could not create frameBuffer.");
-
-	gl_getFramebufferLimits();
-	gl_getFramebufferInfo (GL_DRAW_FRAMEBUFFER_BINDING, gl_getFrameBufferTexture ());
+//	gl_getFramebufferLimits();
+//	gl_getFramebufferInfo (GL_DRAW_FRAMEBUFFER_BINDING, gl_getFrameBufferTexture ());
 
 	return true;
 }

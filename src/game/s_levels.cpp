@@ -474,12 +474,15 @@ void lvl_changeToLevel ( const string levelName )
 	gam_findHealingTiles ( levelName );
 	lvl_getLiftPositions ( levelName );
 
-	playerStartPosition = s_getLiftworldPosition (levelName, 1);
+	playerStartPosition = s_getLiftworldPosition (levelName, 0);
 
-	viewPixelX = static_cast<float>(playerStartPosition.x);
-	viewPixelY = static_cast<float>(playerStartPosition.y);
+	worldLocationX = static_cast<float>(playerStartPosition.x) * TILE_SIZE;
+	worldLocationY = static_cast<float>(playerStartPosition.y) * TILE_SIZE;
 
-	pixelX = viewPixelX;
-	pixelY = viewPixelY;
+//	worldLocationY = 1088.0f - worldLocationY;
+//	worldLocationX = abs(worldLocationX - 1888.0f); // + worldLocationX;
+
+	viewWorldLocationX = worldLocationX;
+	viewWorldLocationY = worldLocationY;
 
 }

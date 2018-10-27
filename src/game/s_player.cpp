@@ -22,7 +22,7 @@ void s_getTileUnderPlayer(string levelName, float posX, float posY)
 {
 	int whichTile;
 
-	whichTile = levelInfo.at(levelName).tiles[((int)(posY + 17)* levelInfo.at(levelName).levelDimensions.x) + (int)posX];
+	whichTile = levelInfo.at(levelName).tiles[((int)(posY) * levelInfo.at(levelName).levelDimensions.x) + (int)posX];
 
-	printf("Over tile [ %i ]\n", whichTile);
+	printf("posX [ %i [ PosY [ %i ] Over tile [ %i ]\n", (int)posX, (int)posY, whichTile);
 }

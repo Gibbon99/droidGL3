@@ -224,7 +224,8 @@ void APIENTRY gl_DebugCallback ( GLenum source, GLenum type, GLenum id, GLenum s
 //	if ( false == g_debugOpenGL )
 //		return;
 
-	printf("OpenGL debug call\n");
+	if (( 131185 == id) | (131169 == id))
+		return;
 
 	it = shaderErrorsMap.find (id);
 	if ( it != shaderErrorsMap.end ())
@@ -290,10 +291,10 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	quadVerts[3].z = 0.0f;
 
 	GLfloat quadTexCoords[] = {
-			0.0, 1.0,
 			0.0, 0.0,
-			1.0, 0.0,
+			0.0, 1.0,
 			1.0, 1.0,
+			1.0, 0.0,
 	};
 
 	if ( !initDone )
@@ -414,15 +415,13 @@ void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const s
 /// \param argc
 /// \param argv
 /// \return
-void gl_set2DMode ( GLsizei viewPortX, GLsizei viewPortY, glm::vec3 scale)
+void gl_set2DMode ( glm::vec2 startPos, glm::vec2 viewSize, const glm::vec3 scale)
 //-----------------------------------------------------------------------------------------------------
 {
-	aspectRatioX = (float)viewPortX / winWidth;
-	aspectRatioY = (float)viewPortY / winHeight;
+	aspectRatioX = (float) viewSize.x / winWidth;
+	aspectRatioY = (float) viewSize.y / winHeight;
 
-//	glOrtho(0, screenWidth, 0, screenHeight, 1, -1); // Origin in lower-left corner
-
-	projMatrix = glm::ortho(0.0f, (float)winWidth * aspectRatioX, 0.0f, (float)winHeight * aspectRatioY, 1.0f, -1.0f);
+	projMatrix = glm::ortho (startPos.x, startPos.x + viewSize.x, startPos.y, startPos.y + viewSize.y, 1.0f, -1.0f);
 
 	viewMatrix = glm::mat4();
 

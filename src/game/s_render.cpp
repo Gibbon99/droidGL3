@@ -10,6 +10,8 @@
 
 #define USE_TILE_LOOKUP 1
 
+//#define USE_BLIT 1
+
 //	1--------2
 //	|        |
 //  |        |
@@ -31,9 +33,9 @@ int                     numTileAcrossInTexture, numTilesDownInTexture;
 float                   tileTextureWidth;
 int                     indexCounter = 0;
 
-float                   pixelX = 0, pixelY = 0;
+float                   worldLocationX = 0, worldLocationY = 0;
 float                   tilePosY = 0, tilePosX = 0;
-float                   viewPixelX = 0, viewPixelY = 0;
+float                   viewWorldLocationX = 0, viewWorldLocationY = 0;
 float                   aspectRatioX, aspectRatioY;;
 
 
@@ -67,7 +69,7 @@ vec2 gam_getTileTexCoords(int whichTile)
 //-----------------------------------------------------------------------------
 //
 // Blit a screen sized quad from the backing full level texture to display on the screen
-void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint whichTexture)
+void gam_blitFrameBufferToScreen(string whichShader, const string levelName, GLuint whichTexture, glm::vec2 viewSize)
 //-----------------------------------------------------------------------------
 {
 	_tileCoords     tempCoord;
@@ -77,17 +79,20 @@ void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint wh
 	tileCoordsIndex.clear();
 	indexCounter = 0;
 
-	startTexX = viewPixelX / (levelInfo.at(levelName).levelDimensions.x * TILE_SIZE);
-	startTexY = viewPixelY / (levelInfo.at(levelName).levelDimensions.y * TILE_SIZE);
+	glm::vec2   backingTextureSize;
+	backingTextureSize = io_getTextureSize (levelName);
 
-	widthTex = winWidth / (levelInfo.at(levelName).levelDimensions.x * TILE_SIZE);
-	heightTex = winHeight / (levelInfo.at(levelName).levelDimensions.y * TILE_SIZE);
+	widthTex = viewSize.x / backingTextureSize.x;
+	heightTex = viewSize.y / backingTextureSize.y;
+
+	startTexX = (viewWorldLocationX / backingTextureSize.x) - (widthTex / 2);
+	startTexY = (viewWorldLocationY / backingTextureSize.y) - (heightTex / 2);
 
 	//
 	// Corner 0
 	//
-	tempCoord.position.x = 0;
-	tempCoord.position.y = winHeight;
+	tempCoord.position.x = 0.0f;
+	tempCoord.position.y = viewSize.y;
 	tempCoord.position.z = 0.0f;
 
 	tempCoord.textureCoords.x = startTexX;
@@ -97,8 +102,8 @@ void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint wh
 	//
 	// Corner 1
 	//
-	tempCoord.position.x = 0;
-	tempCoord.position.y = 0;
+	tempCoord.position.x = 0.0f;
+	tempCoord.position.y = 0.0f;
 	tempCoord.position.z = 0.0f;
 
 	tempCoord.textureCoords.x = startTexX;
@@ -108,8 +113,8 @@ void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint wh
 	//
 	// Corner 2
 	//
-	tempCoord.position.x = winWidth;
-	tempCoord.position.y = 0;
+	tempCoord.position.x = viewSize.x;
+	tempCoord.position.y = 0.0f;
 	tempCoord.position.z = 0.0f;
 
 	tempCoord.textureCoords.x = startTexX + widthTex;
@@ -119,8 +124,8 @@ void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint wh
 	//
 	// Corner 3
 	//
-	tempCoord.position.x = winWidth;
-	tempCoord.position.y = winHeight;
+	tempCoord.position.x = viewSize.x;
+	tempCoord.position.y = viewSize.y;
 	tempCoord.position.z = 0.0f;
 
 	tempCoord.textureCoords.x = startTexX + widthTex;
@@ -184,7 +189,6 @@ void gam_blitFrameBufferToScreen(string whichShader, string levelName, GLuint wh
 	//
 	// Enable attribute to hold vertex information
 	GL_CHECK (glUniformMatrix4fv           (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
-//	GL_CHECK (glUniform2fv           (gl_getUniform (whichShader, "screenSize"), 1, glm::value_ptr (glm::vec2(winWidth, winHeight))));
 	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib  (whichShader, "inPosition")));
 	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib  (whichShader, "inTextureCoords")));
 
@@ -414,123 +418,143 @@ void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint
 
 //----------------------------------------------------------------------------------------
 //
+// Create a FBO to hold the backing texture
+
+//----------------------------------------------------------------------------------------
+//
+// Create a texture large enough to hold the current level
+void gam_createBackingTexture(string textureName, glm::vec2 textureSize)
+//----------------------------------------------------------------------------------------
+{
+	 GLuint fullLevelTexture = 0;
+
+	glGenTextures (1, &fullLevelTexture);
+	glBindTexture (GL_TEXTURE_2D, fullLevelTexture);
+	//
+	// Texture is empty
+	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(textureSize.x), static_cast <GLsizei>(textureSize.y), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
+	io_storeTextureInfoIntoMap (fullLevelTexture, glm::vec2{textureSize.x, textureSize.y}, textureName, false);
+}
+
+//----------------------------------------------------------------------------------------
+//
 // Draw the current level
 // 1. Create the texture to hold the entire level
 // 2. Create a FBO and bind depth and texture to it
-void gam_drawFullLevel(string levelName, string whichShader, GLuint whichTexture)
+void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTexture)
 //----------------------------------------------------------------------------------------
 {
-	static bool textureCreated = false;
-	static GLuint fullLevelTexture = 0;
-	static GLuint FramebufferName = 0;
-	static GLuint depthTargetBuffer = 0;
+	static bool backingLevel = false;
 
-	float textureWidth, textureHeight;
+	static GLuint fullLevel_FBO = 0;
 
-	if ( !textureCreated )
+	glm::vec2   backingSize;
+
+	backingSize.x = static_cast<float>(levelInfo.at (levelName).levelDimensions.x * TILE_SIZE);
+	backingSize.y = static_cast<float>(levelInfo.at (levelName).levelDimensions.y * TILE_SIZE);
+
+	if ( !backingLevel )
 	{
-		textureWidth = static_cast<float>(levelInfo.at(levelName).levelDimensions.x);
-		textureHeight = static_cast<float>(levelInfo.at(levelName).levelDimensions.y);
+		fullLevel_FBO = gl_createFBO (backingSize);
+		gam_createBackingTexture (levelName, backingSize);
 
-		textureWidth *= TILE_SIZE;
-		textureHeight *= TILE_SIZE;
-
-		glGenFramebuffers(1, &FramebufferName);
-		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-
-		glGenTextures(1, &fullLevelTexture);
-		glBindTexture(GL_TEXTURE_2D, fullLevelTexture);
-
-		// Texture is empty
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(textureWidth), static_cast<GLsizei>(textureHeight), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-		// Set "fullLevelTexture" as our colour attachment #0
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fullLevelTexture, 0);
-
-		//
-		// Generate the depth buffer and associate to the frameBuffer
-		glGenRenderbuffers(1, &depthTargetBuffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, depthTargetBuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, static_cast<GLsizei>(textureWidth), static_cast<GLsizei>(textureHeight));
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthTargetBuffer);
-
-		// Set the list of draw buffers.
-		GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-		glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
-
-		// Always check that our framebuffer is ok
-		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			con_print(CON_ERROR, true, "Error creating frameBuffer for tileLevel.");
-			return;
-		}
-
-		io_storeTextureInfoIntoMap(fullLevelTexture, glm::vec2{textureWidth,textureHeight}, "fullLevelTexture", false);
-
-		textureCreated = true;  // Reset on level change
+		// TODO: Destroy texture on level change and relink it
+		gl_linkTextureToFBO (io_getTextureID (levelName), fullLevel_FBO);
+		backingLevel = true;  // Reset on level change
 	}
-
-	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-
-	auto viewPortX = static_cast<GLsizei>((levelInfo.at(levelName).levelDimensions.x * TILE_SIZE));
-	auto viewPortY = static_cast<GLsizei>(levelInfo.at(levelName).levelDimensions.y * TILE_SIZE);
-
-	glClearColor (1.0f, 0.0f, 0.0f, 0.0f);
-	glViewport(0,0,viewPortX, viewPortY); // Render on the whole framebuffer
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	gl_set2DMode(viewPortX, viewPortY, glm::vec3(1, 1, 1));
-
 	//
-	// Draw tiles to bound texture from 'whichTexture'
-	gam_drawAllTiles ("quad3d", levelName, whichTexture);
+	// Check it all worked ok
+	if (0 == fullLevel_FBO)
+	{
+		con_print(CON_ERROR, true, "Unable to create backing FBO. Critical error.");
+		return;
+	}
+	//
+	// Start drawing to backing texture
+	glBindFramebuffer(GL_FRAMEBUFFER, fullLevel_FBO);
+
+	glm::vec2   backingViewPosition;
+
+	backingViewPosition = glm::vec2();
+
+	glViewport (0, 0, static_cast<GLsizei>(backingSize.x), static_cast<GLsizei>(backingSize.y)); // Render on the whole backing FBO
+
+	gl_set2DMode(backingViewPosition, backingSize, glm::vec3(1, 1, 1));
+	//
+	// Draw tiles to bound texture from 'sourceTexture'
+	gam_drawAllTiles (whichShader, levelName, sourceTexture);
 
 	gam_showLineSegments(levelName);
 	gam_showWayPoints(levelName);
 
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-
-	glViewport(0,0,256, 256); // Render on the whole framebuffer
-	light_createLightCaster (levelName, testLightPosition);
-
-	glViewport(0,0,viewPortX, viewPortY); // Render on the whole framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fullLevelTexture, 0);
-
-	glm::vec2       lightSize;
-	lightSize = io_getTextureSize ("lightcaster");
-
-	gl_draw2DQuad (glm::vec2{testLightPosition.x, testLightPosition.y}, glm::vec2{256,256}, "lightmapRender", io_getTextureID ("lightmap"), glm::vec3{0,0,0});
-//	gl_draw2DQuad (glm::vec2{testLightPosition.x, testLightPosition.y}, glm::vec2{lightSize.x,lightSize.y}, "lightmapRender", io_getTextureID ("lightmap"), 0.0f);
-
-//	light_createLightCaster (vec3(750.0, 400.0, 0.0));
-	//
-	// Switch back to rendering to default frame buffer
-	gl_renderToScreen ();
-
+#ifdef USE_BLIT
 	viewPortX = static_cast<GLsizei>(winWidth * aspectRatioX);
 	viewPortY = static_cast<GLsizei>(winHeight * aspectRatioY);
 
 	glViewport(0, 0, viewPortX, viewPortY);
-	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//
-	// TODO: Make scale values variable
-	gl_set2DMode(viewPortX, viewPortY, glm::vec3(3, 3, 1));
+
+	int startPosX, startPosY;
+
+	startPosX = static_cast<int>(viewWorldLocationX);
+	startPosY = static_cast<int>(viewWorldLocationY);
 	//
 	// Copy screen sized quad from backing texture to visible screen
-	gam_blitFrameBufferToScreen("quad3d", levelName, fullLevelTexture);
+	glBindFramebuffer (GL_READ_FRAMEBUFFER, fullLevel_FBO);   // Read from large full level texture
+	glBindFramebuffer (GL_DRAW_FRAMEBUFFER, 0);                 // Write to default buffer ( screen )
+
+	startPosX = startPosX - (TILE_SIZE * ((winWidth / TILE_SIZE) / 2));                   // Center viewable screen
+	startPosY = startPosY - (TILE_SIZE * ((winHeight / TILE_SIZE) / 2));
+
+	GL_CHECK ( glBlitFramebuffer (startPosX, startPosY, startPosX + winWidth, startPosY + winHeight, 0, 0, winWidth, winHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST ) );
+
+#else
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+
+//	glViewport(0,0,256, 256); // Render on the whole framebuffer
+
+//	light_createLightCaster (levelName, testLightPosition);
+
+//	glm::vec2       lightSize;
+//	lightSize = io_getTextureSize ("lightcaster");
+
+//	gl_draw2DQuad (glm::vec2{testLightPosition.x, testLightPosition.y}, glm::vec2{256,256}, "lightmapRender", io_getTextureID ("lightmap"), glm::vec3{0,0,0});
+
+//	light_createLightCaster (vec3(750.0, 400.0, 0.0));
+
+	//
+	// Switch back to rendering to default frame buffer
+	gl_renderToScreen ();
+
+	glm::vec2 viewSize;
+	glm::vec2 viewPortPosition;
+
+	viewSize.x = 256;
+	viewSize.y = 256;
+
+	viewPortPosition.x = (winWidth - viewSize.x) / 2;
+	viewPortPosition.y = (winHeight - viewSize.y) / 2;
+
+	glViewport(viewPortPosition.x, viewPortPosition.y, viewSize.x, viewSize.y);
+	//
+	// TODO: Make scale values variable
+	gl_set2DMode(viewPortPosition, viewSize, glm::vec3(1, 1, 1));
+	//
+	// Copy screen sized quad from backing texture to visible screen
+	gam_blitFrameBufferToScreen("quad3d", levelName, io_getTextureID (levelName), glm::vec2{winWidth,winHeight});
+
+#endif
 
 	gl_renderToScreen ();
 	//
 	// Render HUD on top of everything
-	gl_set2DMode(viewPortX, viewPortY, glm::vec3(1, 1, 1));
+	gl_set2DMode(glm::vec2{0,0}, glm::vec2{winWidth,winHeight}, glm::vec3(1, 1, 1));
 	s_renderHUD();
 
 	io_renderMouseCursor();

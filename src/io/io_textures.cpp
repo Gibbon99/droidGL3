@@ -235,7 +235,7 @@ vec2 io_getTextureSize(const string fileName)
 //
 // Return the textureID for a texture name
 // Comparision is CASE SENSITIVE
-int io_getTextureID(const string fileName)
+GLuint io_getTextureID(const string fileName)
 //-----------------------------------------------------------------------------------------------------
 {
 	unordered_map<string, _textureSet>::const_iterator textureItr;
@@ -385,6 +385,8 @@ void io_loadTileTextureFile(const string fileName)
 	amask = 0xff000000;
 #endif
 
+
+
 	allTiles = SDL_CreateRGBSurface(0, 34*64, TILE_SIZE, NUM_BITS, rmask, gmask, bmask, amask);
 	if (nullptr == allTiles)
 	{
@@ -490,6 +492,9 @@ void io_loadTileTextureFile(const string fileName)
 	//
 	SDL_LockSurface (allTiles);
 
+//	tileTextureID = SOIL_load_OGL_texture_from_memory ((const unsigned char *)allTiles->pixels, allTiles->h * allTiles->pitch, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y | SOIL_FLAG_MIPMAPS); //SOIL_FLAG_TEXTURE_REPEATS);
+
+
 	glGenTextures( 1, &tileTextureID );
 	glBindTexture( GL_TEXTURE_2D, tileTextureID );
 
@@ -499,22 +504,27 @@ void io_loadTileTextureFile(const string fileName)
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	int Mode = GL_RGBA;
+	GLenum Mode = GL_RGBA;
 
 	glTexImage2D(GL_TEXTURE_2D, 0, Mode, allTiles->w, allTiles->h, 0, Mode, GL_UNSIGNED_BYTE, allTiles->pixels);
 
 	SDL_UnlockSurface (allTiles);
 
+	SDL_SaveBMP(allTiles, "tilesTest.bmp");
+
 	if (0 == tileTextureID)
 	{
 		con_print(CON_ERROR, true, "Soil load error [ %s ]", SOIL_last_result ());
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_SOIL, 0, 0, vec2 (), vec2 (), fileName);
+		free(imageBuffer);
 		return;
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-//	SDL_SaveBMP(allTiles, "tilesTest.bmp");
+	SDL_SaveBMP(allTiles, "tilesTest.bmp");
+
+	SDL_FreeSurface (spriteSheetSurface);
 
 	free(imageBuffer);
 }

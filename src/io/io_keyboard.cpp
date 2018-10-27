@@ -112,12 +112,10 @@ void io_processKeyboard()
 	if (currentVelocity.y > 5.0f)
 		currentVelocity.y = 5.0f;
 
-//	quadPosition.x += currentVelocity.x;
-//	quadPosition.y += currentVelocity.y;
 	quadPosition.z += currentVelocity.z;
 
-	pixelX += currentVelocity.x;
-	pixelY += currentVelocity.y;
+	worldLocationX += currentVelocity.x;
+	worldLocationY += currentVelocity.y;
 }
 
 //-----------------------------------------------------------------------------

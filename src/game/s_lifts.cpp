@@ -12,11 +12,8 @@ cpVect s_getLiftworldPosition(string levelName, int whichLift)
 	liftPosition.x = levelInfo.at(levelName).lifts[whichLift].posX;
 	liftPosition.y = levelInfo.at(levelName).lifts[whichLift].posY;
 
-	liftPosition.x -= TILE_SIZE * 4;
-	liftPosition.y -= TILE_SIZE * 15;
-
-	liftPosition.x += 11;
-	liftPosition.y -= 4;
+//	liftPosition.x += (winWidth / TILE_SIZE) / 2;
+//	liftPosition.y += (winHeight / TILE_SIZE) / 2;
 
 	return liftPosition;
 }
@@ -45,11 +42,11 @@ void lvl_getLiftPositions ( string levelName )
 
 		if ( LIFT_TILE == currentTile )
 		{
-			levelInfo.at(levelName).lifts[countLift].posX = countX * TILE_SIZE;
-			levelInfo.at(levelName).lifts[countLift].posY = countY * TILE_SIZE;
+			levelInfo.at(levelName).lifts[countLift].posX = countX;
+			levelInfo.at(levelName).lifts[countLift].posY = countY;
 			countLift++;
 
-			printf("Lift [ %i ] Pos [ %i %i ]\n", countLift, countX * TILE_SIZE, countY * TILE_SIZE);
+			printf("Lift [ %i ] Pos [ %i %i ]\n", countLift, countX, countY);
 		}
 
 		countX++;

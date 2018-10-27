@@ -77,6 +77,11 @@ bool lib_openWindow ()
 
 	SDL_GL_SetAttribute (SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
 
+#if (DEBUG_LEVEL > 0)
+	SDL_GL_SetAttribute (SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
+
+
 	// Turn on double buffering with a 24bit Z buffer.
 	// May need to change this to 16 or 32
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);

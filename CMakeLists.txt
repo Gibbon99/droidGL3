@@ -11,6 +11,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CL_OUTPUT_DIRECTORY})
 
 set(CONFIGURATION_NAME "Debug")
 
+if (DEBUG_LEVEL)
+    add_definitions(-DDEBUG_LEVEL=${DEBUG_LEVEL})
+endif ()
+
 include_directories(
         .
         hdr

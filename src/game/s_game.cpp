@@ -7,7 +7,7 @@
 void gam_startNewGame ()
 //------------------------------------------------------------------------------
 {
-	lvl_changeToLevel ("Upper cargo");
+	lvl_changeToLevel ("Mid cargo");
 
 	sys_changeMode (MODE_GAME);
 }

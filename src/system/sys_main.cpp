@@ -50,7 +50,7 @@ void sys_displayScreen(float interpolation)
 	switch (currentMode)
 	{
 		case MODE_SPLASH:
-			gl_set2DMode (winWidth, winHeight, glm::vec3{1,1,1,});
+			gl_set2DMode (glm::vec2{0,0}, glm::vec2{winWidth, winHeight}, glm::vec3{1,1,1,});
 			gl_renderSprite("splash", glm::vec2{0, 0}, glm::vec3{0,0,0});
 			break;
 
@@ -79,7 +79,7 @@ void sys_displayScreen(float interpolation)
 			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
 	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Circle time [ %2.2f ms ]", deltaTime);
 
-	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "PixelX [ %3.3f ] Pixel Y [ %3.3f ]", pixelX, pixelY);
+	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "PixelX [ %3.3f ] Pixel Y [ %3.3f ]", worldLocationX, worldLocationY);
 
 	if ( g_memLeakLastRun)
 		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
@@ -119,7 +119,7 @@ void sys_gameTickRun()
 			io_processKeyboard ();
 			gam_animateHealingTiles();
 
-			s_getTileUnderPlayer (lvl_getCurrentLevelName(), pixelX / TILE_SIZE, pixelY / TILE_SIZE);
+			s_getTileUnderPlayer (lvl_getCurrentLevelName(), worldLocationX / TILE_SIZE, worldLocationY / TILE_SIZE);
 			break;
 
 		default:
