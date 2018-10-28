@@ -38,23 +38,13 @@ void io_processKeyboard()
 
 	if (!keyForwardDown)
 	{
-		if (currentVelocity.z > 0.0f)
-		{
-			currentVelocity.z -= moveSpeed;
-			if (currentVelocity.z < 0.0f)
-				currentVelocity.z = 0.0f;
-		}
+		g_scaleViewBy += 0.1f;
 	}
 
 
 	if (!keyBackwardDown)
 	{
-		if (currentVelocity.z < 0.0f)
-		{
-			currentVelocity.z += moveSpeed;
-			if (currentVelocity.z > 0.0f)
-				currentVelocity.z = 0.0f;
-		}
+		g_scaleViewBy -= 0.1f;
 	}
 
 	if ( !keyLeftDown )

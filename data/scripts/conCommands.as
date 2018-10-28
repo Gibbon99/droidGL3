@@ -34,6 +34,8 @@ void as_setGameVariables()
 
     g_gamma = 1.0;
 
+    g_scaleViewBy = 3.1;
+
     g_debugShowWaypoints = false;
     g_debugShowPhysicsLines = false;
 

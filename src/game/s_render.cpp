@@ -34,10 +34,9 @@ float                   tileTextureWidth;
 int                     indexCounter = 0;
 
 float                   worldLocationX = 0, worldLocationY = 0;
-float                   tilePosY = 0, tilePosX = 0;
 float                   viewWorldLocationX = 0, viewWorldLocationY = 0;
 float                   aspectRatioX, aspectRatioY;;
-
+float                   g_scaleViewBy = 1.4f;
 
 //-----------------------------------------------------------------------------
 //
@@ -478,6 +477,7 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 	//
 	// Start drawing to backing texture
 	glBindFramebuffer(GL_FRAMEBUFFER, fullLevel_FBO);
+	gl_linkTextureToFBO (io_getTextureID (levelName), fullLevel_FBO);
 
 	glm::vec2   backingViewPosition;
 
@@ -528,6 +528,46 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 
 //	light_createLightCaster (vec3(750.0, 400.0, 0.0));
 
+
+	static bool viewTextureCreated = false;
+	glm::vec2 viewTextureSize;
+
+	viewTextureSize = glm::vec2{256, 256};
+
+	if (!viewTextureCreated)
+	{
+		gam_createBackingTexture ("viewTexture", viewTextureSize);
+
+		// TODO: Destroy texture on level change and relink it
+		gl_linkTextureToFBO (io_getTextureID ("viewTexture"), fullLevel_FBO);
+
+		viewTextureCreated = true;
+	}
+	//
+	// Start drawing to backing texture
+	glBindFramebuffer (GL_FRAMEBUFFER, fullLevel_FBO);
+	gl_linkTextureToFBO (io_getTextureID ("viewTexture"), fullLevel_FBO);
+
+	glm::vec2 viewTexturePosition;
+
+	viewTexturePosition.x = (winWidth - viewTextureSize.x) / 2;
+	viewTexturePosition.y = (winHeight - viewTextureSize.y) / 2;
+
+	glClearColor (0.0f, 1.0f, 0.0f, 0.0f);
+	glViewport (0, 0, viewTextureSize.x, viewTextureSize.y);
+	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//
+	// TODO: Make scale values variable
+	gl_set2DMode (viewTexturePosition, viewTextureSize, glm::vec3 (1, 1, 1));
+	//
+	// Copy screen sized quad from backing texture to visible screen
+	gam_blitFrameBufferToScreen ("quad3d", levelName, io_getTextureID (levelName), glm::vec2{winWidth, winHeight});
+
+
+
+
+
+
 	//
 	// Switch back to rendering to default frame buffer
 	gl_renderToScreen ();
@@ -535,26 +575,31 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 	glm::vec2 viewSize;
 	glm::vec2 viewPortPosition;
 
-	viewSize.x = 256;
-	viewSize.y = 256;
+	float scaleView = g_scaleViewBy;
+	float screenRatio = winWidth / winHeight;
+
+	viewSize = glm::vec2{256, 256};
+
+	viewSize.x *= scaleView;
+	viewSize.y *= scaleView;
 
 	viewPortPosition.x = (winWidth - viewSize.x) / 2;
 	viewPortPosition.y = (winHeight - viewSize.y) / 2;
 
-	glViewport(viewPortPosition.x, viewPortPosition.y, viewSize.x, viewSize.y);
 	//
 	// TODO: Make scale values variable
-	gl_set2DMode(viewPortPosition, viewSize, glm::vec3(1, 1, 1));
-	//
-	// Copy screen sized quad from backing texture to visible screen
-	gam_blitFrameBufferToScreen("quad3d", levelName, io_getTextureID (levelName), glm::vec2{winWidth,winHeight});
-
-#endif
+	viewSize.x *= screenRatio;
 
 	gl_renderToScreen ();
+	glViewport (0, 0, winWidth, winHeight);
+	gl_set2DMode(glm::vec2{0,0}, glm::vec2{winWidth,winHeight}, glm::vec3(1, 1, 1));
+
+	gl_draw2DQuad (viewPortPosition, viewSize, "quad3d", io_getTextureID ("viewTexture"), glm::vec3{0, 0, 0});
+
+#endif
 	//
 	// Render HUD on top of everything
-	gl_set2DMode(glm::vec2{0,0}, glm::vec2{winWidth,winHeight}, glm::vec3(1, 1, 1));
+
 	s_renderHUD();
 
 	io_renderMouseCursor();

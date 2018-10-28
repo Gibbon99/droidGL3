@@ -1,4 +1,5 @@
 #include <hdr/game/s_lightCaster.h>
+#include <hdr/game/s_render.h>
 #include "hdr/game/s_renderDebug.h"
 #include "hdr/console/con_console.h"
 #include "hdr/system/sys_audio.h"
@@ -24,6 +25,7 @@ _hostScriptFunctions hostVariables[] =
 	{"bool g_debugShowHullCircle",          &g_debugShowHullCircle},
 	{"bool g_debugShowHullLines",           &g_debugShowHullLines},
 	{"bool drawHUD",                        &drawHUD},
+	{"float g_scaleViewBy",                 &g_scaleViewBy},
 	{"cpVect vect1",                        &vect1},
 	{"",                                    nullptr},
 };

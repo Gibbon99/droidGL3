@@ -77,7 +77,7 @@ void sys_displayScreen(float interpolation)
 
 	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,
 			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
-	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Circle time [ %2.2f ms ]", deltaTime);
+	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Circle time [ %2.2f ms ] g_scaleViewBy [ %3.3f ]", deltaTime, g_scaleViewBy);
 
 	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "PixelX [ %3.3f ] Pixel Y [ %3.3f ]", worldLocationX, worldLocationY);
 

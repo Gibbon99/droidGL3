@@ -418,10 +418,7 @@ void gl_drawLine ( const glm::vec3 startPoint, const glm::vec3 endPoint, const s
 void gl_set2DMode ( glm::vec2 startPos, glm::vec2 viewSize, const glm::vec3 scale)
 //-----------------------------------------------------------------------------------------------------
 {
-	aspectRatioX = (float) viewSize.x / winWidth;
-	aspectRatioY = (float) viewSize.y / winHeight;
-
-	projMatrix = glm::ortho (startPos.x, startPos.x + viewSize.x, startPos.y, startPos.y + viewSize.y, 1.0f, -1.0f);
+	projMatrix = glm::ortho (startPos.x, (startPos.x + viewSize.x) * scale.x, startPos.y, (startPos.y + viewSize.y) * scale.y, 1.0f, -1.0f);
 
 	viewMatrix = glm::mat4();
 
