@@ -473,6 +473,7 @@ void lvl_changeToLevel ( const string levelName )
 	currentLevelName = levelName;
 	gam_findHealingTiles ( levelName );
 	lvl_getLiftPositions ( levelName );
+	drd_setupLevel ( levelName );
 
 	playerStartPosition = s_getLiftworldPosition (levelName, 0);
 

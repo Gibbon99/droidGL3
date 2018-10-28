@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <src/game/s_droids.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/io/io_fileSystem.h"
 #include "s_lifts.h"
@@ -73,7 +74,7 @@ struct _levelStruct {
 	//
 	int                     numEnemiesAlive;
 	vector<_liftBasic>      lifts;
-//	vector<_droid>          droid;
+	vector<_droid>          droid;
 };
 
 extern int                  currentLevel;

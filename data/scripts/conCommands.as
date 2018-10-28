@@ -35,6 +35,7 @@ void as_setGameVariables()
     g_gamma = 1.0;
 
     g_scaleViewBy = 3.1;
+    g_playFieldSize = 256;  // Tiles across / down in multiples of 32
 
     g_debugShowWaypoints = false;
     g_debugShowPhysicsLines = false;

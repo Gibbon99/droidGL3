@@ -24,37 +24,38 @@ typedef struct
 	glm::vec2 textureCoords;
 } _tileCoords;
 
-vector<_tileCoords>     tileCoords;
-vector<unsigned int>    tileCoordsIndex;
+vector<_tileCoords> tileCoords;
+vector<unsigned int> tileCoordsIndex;
 
-vector<float>           singleTileTexCoords;
+vector<float> singleTileTexCoords;
 
-int                     numTileAcrossInTexture, numTilesDownInTexture;
-float                   tileTextureWidth;
-int                     indexCounter = 0;
+int numTileAcrossInTexture, numTilesDownInTexture;
+float tileTextureWidth;
+int indexCounter = 0;
 
-float                   worldLocationX = 0, worldLocationY = 0;
-float                   viewWorldLocationX = 0, viewWorldLocationY = 0;
-float                   aspectRatioX, aspectRatioY;;
-float                   g_scaleViewBy = 1.4f;
+float worldLocationX = 0, worldLocationY = 0;
+float viewWorldLocationX = 0, viewWorldLocationY = 0;
+float aspectRatioX, aspectRatioY;;
+float g_scaleViewBy = 1.4f;
+int g_playFieldSize = 256;
 
 //-----------------------------------------------------------------------------
 //
 // Set the X Position for each tile in the master texture
-void gam_setSingleTileCoords(int posX, int totalWidth)
+void gam_setSingleTileCoords ( int posX, int totalWidth )
 //-----------------------------------------------------------------------------
 {
 	float glPosX = 0.0f;
 
-	glPosX = (float)posX / (float)totalWidth;
+	glPosX = (float) posX / (float) totalWidth;
 
-	singleTileTexCoords.push_back(glPosX);
+	singleTileTexCoords.push_back (glPosX);
 }
 
 //-----------------------------------------------------------------------------
 //
 // Return texture coords for passed in tile
-vec2 gam_getTileTexCoords(int whichTile)
+vec2 gam_getTileTexCoords ( int whichTile )
 //-----------------------------------------------------------------------------
 {
 	vec2 returnValue;
@@ -68,17 +69,17 @@ vec2 gam_getTileTexCoords(int whichTile)
 //-----------------------------------------------------------------------------
 //
 // Blit a screen sized quad from the backing full level texture to display on the screen
-void gam_blitFrameBufferToScreen(string whichShader, const string levelName, GLuint whichTexture, glm::vec2 viewSize)
+void gam_blitFrameBufferToScreen ( string whichShader, const string levelName, GLuint whichTexture, glm::vec2 viewSize )
 //-----------------------------------------------------------------------------
 {
-	_tileCoords     tempCoord;
+	_tileCoords tempCoord;
 	float startTexX, startTexY, widthTex, heightTex;
 
-	tileCoords.clear();
-	tileCoordsIndex.clear();
+	tileCoords.clear ();
+	tileCoordsIndex.clear ();
 	indexCounter = 0;
 
-	glm::vec2   backingTextureSize;
+	glm::vec2 backingTextureSize;
 	backingTextureSize = io_getTextureSize (levelName);
 
 	widthTex = viewSize.x / backingTextureSize.x;
@@ -97,7 +98,7 @@ void gam_blitFrameBufferToScreen(string whichShader, const string levelName, GLu
 	tempCoord.textureCoords.x = startTexX;
 	tempCoord.textureCoords.y = startTexY;
 
-	tileCoords.push_back(tempCoord);
+	tileCoords.push_back (tempCoord);
 	//
 	// Corner 1
 	//
@@ -108,7 +109,7 @@ void gam_blitFrameBufferToScreen(string whichShader, const string levelName, GLu
 	tempCoord.textureCoords.x = startTexX;
 	tempCoord.textureCoords.y = startTexY + heightTex;
 
-	tileCoords.push_back(tempCoord);
+	tileCoords.push_back (tempCoord);
 	//
 	// Corner 2
 	//
@@ -119,7 +120,7 @@ void gam_blitFrameBufferToScreen(string whichShader, const string levelName, GLu
 	tempCoord.textureCoords.x = startTexX + widthTex;
 	tempCoord.textureCoords.y = startTexY + heightTex;
 
-	tileCoords.push_back(tempCoord);
+	tileCoords.push_back (tempCoord);
 	//
 	// Corner 3
 	//
@@ -130,46 +131,46 @@ void gam_blitFrameBufferToScreen(string whichShader, const string levelName, GLu
 	tempCoord.textureCoords.x = startTexX + widthTex;
 	tempCoord.textureCoords.y = startTexY;
 
-	tileCoords.push_back(tempCoord);
+	tileCoords.push_back (tempCoord);
 
 	//
 	// Indexes into the vertex array
-	tileCoordsIndex.push_back(0 + indexCounter);
-	tileCoordsIndex.push_back(1 + indexCounter);
-	tileCoordsIndex.push_back(2 + indexCounter);
-	tileCoordsIndex.push_back(2 + indexCounter);
-	tileCoordsIndex.push_back(3 + indexCounter);
-	tileCoordsIndex.push_back(0 + indexCounter);
+	tileCoordsIndex.push_back (0 + indexCounter);
+	tileCoordsIndex.push_back (1 + indexCounter);
+	tileCoordsIndex.push_back (2 + indexCounter);
+	tileCoordsIndex.push_back (2 + indexCounter);
+	tileCoordsIndex.push_back (3 + indexCounter);
+	tileCoordsIndex.push_back (0 + indexCounter);
 
-	indexCounter+= 4;
+	indexCounter += 4;
 
 
-	static GLuint       vao = 0;
-	static GLuint       vbo = 0;
-	static GLuint       elementbuffer = 0;
+	static GLuint vao = 0;
+	static GLuint vbo = 0;
+	static GLuint elementbuffer = 0;
 
 	// create the VAO
 	GL_ASSERT (glGenVertexArrays (1, &vao));
 	GL_CHECK (glBindVertexArray (vao));
 
 
-	glGenBuffers(1, &elementbuffer);
-	GL_CHECK (glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer));
-	GL_CHECK (glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * tileCoordsIndex.size(), &tileCoordsIndex[0], GL_DYNAMIC_DRAW));
+	glGenBuffers (1, &elementbuffer);
+	GL_CHECK (glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, elementbuffer));
+	GL_CHECK (glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (unsigned int) * tileCoordsIndex.size (), &tileCoordsIndex[0], GL_DYNAMIC_DRAW));
 
 	// Create buffers for the vertex data
 	vbo = wrapglGenBuffers (1, __func__);
 
-	GL_CHECK (glUseProgram (gl_getShaderID(whichShader)));
+	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
 	glBindBuffer (GL_ARRAY_BUFFER, vbo);
-	glBufferData (GL_ARRAY_BUFFER, sizeof(_tileCoords) * tileCoords.size(), &tileCoords[0].position, GL_DYNAMIC_DRAW);
+	glBufferData (GL_ARRAY_BUFFER, sizeof (_tileCoords) * tileCoords.size (), &tileCoords[0].position, GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition"));
-	glVertexAttribPointer     (gl_getAttrib (whichShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(_tileCoords), (GLvoid *)offsetof(_tileCoords, position) );
+	glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, sizeof (_tileCoords), (GLvoid *) offsetof(_tileCoords, position));
 
 	glEnableVertexAttribArray (gl_getAttrib (whichShader, "inTextureCoords"));
-	glVertexAttribPointer     (gl_getAttrib (whichShader, "inTextureCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(_tileCoords), (GLvoid *)offsetof(_tileCoords, textureCoords));
+	glVertexAttribPointer (gl_getAttrib (whichShader, "inTextureCoords"), 2, GL_FLOAT, GL_FALSE, sizeof (_tileCoords), (GLvoid *) offsetof(_tileCoords, textureCoords));
 
 	glUseProgram (0);
 	glBindVertexArray (0);
@@ -187,14 +188,14 @@ void gam_blitFrameBufferToScreen(string whichShader, const string levelName, GLu
 	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), g_gamma));
 	//
 	// Enable attribute to hold vertex information
-	GL_CHECK (glUniformMatrix4fv           (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
-	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib  (whichShader, "inPosition")));
-	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib  (whichShader, "inTextureCoords")));
+	GL_CHECK (glUniformMatrix4fv (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
+	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
+	GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inTextureCoords")));
 
 	// Index buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+	glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
-	GL_CHECK (glDrawElements(GL_TRIANGLES, (GLsizei)tileCoordsIndex.size(), GL_UNSIGNED_INT, (void*)0 ));
+	GL_CHECK (glDrawElements (GL_TRIANGLES, (GLsizei) tileCoordsIndex.size (), GL_UNSIGNED_INT, (void *) 0));
 
 	glUseProgram (0);
 	glBindVertexArray (0);
@@ -208,20 +209,20 @@ void gam_blitFrameBufferToScreen(string whichShader, const string levelName, GLu
 //-----------------------------------------------------------------------------
 //
 // Draw a single tile from the tile sheet
-void inline gam_drawSingleTile(float destX, float destY, int whichTile)
+void inline gam_drawSingleTile ( float destX, float destY, int whichTile )
 //-----------------------------------------------------------------------------
 {
-	static float    previousTile = -1;
-	static vec2     textureCoords;
+	static float previousTile = -1;
+	static vec2 textureCoords;
 
-	_tileCoords     tempCoord;
+	_tileCoords tempCoord;
 
-	if (previousTile != whichTile)
+	if ( previousTile != whichTile )
 	{
 #ifdef USE_TILE_LOOKUP
-		textureCoords = gam_getTileTexCoords(whichTile);
+		textureCoords = gam_getTileTexCoords (whichTile);
 #else
-//		textureCoords.x = (float) (whichTile % numTileAcrossInTexture) * (1.0f / numTileAcrossInTexture);
+		//		textureCoords.x = (float) (whichTile % numTileAcrossInTexture) * (1.0f / numTileAcrossInTexture);
 //		textureCoords.y = (float) (whichTile / numTilesDownInTexture) * (1.0f / numTilesDownInTexture);
 
 		textureCoords.x = (float) (whichTile % 64) * (1.0f / 64);
@@ -242,7 +243,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	tempCoord.textureCoords.x = textureCoords.x;
 	tempCoord.textureCoords.y = textureCoords.y;
 
-	tileCoords.push_back(tempCoord);
+	tileCoords.push_back (tempCoord);
 	//
 	// Corner 1
 	//
@@ -253,7 +254,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	tempCoord.textureCoords.x = textureCoords.x;
 	tempCoord.textureCoords.y = (textureCoords.y + 1.0f);
 
-	tileCoords.push_back(tempCoord);
+	tileCoords.push_back (tempCoord);
 	//
 	// Corner 2
 	//
@@ -264,7 +265,7 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	tempCoord.textureCoords.x = (textureCoords.x + tileTextureWidth);
 	tempCoord.textureCoords.y = (textureCoords.y + 1.0f);
 
-	tileCoords.push_back(tempCoord);
+	tileCoords.push_back (tempCoord);
 
 	//
 	// Corner 3
@@ -276,17 +277,17 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 	tempCoord.textureCoords.x = (textureCoords.x + tileTextureWidth);
 	tempCoord.textureCoords.y = textureCoords.y;
 
-	tileCoords.push_back(tempCoord);
+	tileCoords.push_back (tempCoord);
 	//
 	// Indexes into the vertex array
-	tileCoordsIndex.push_back(0 + indexCounter);
-	tileCoordsIndex.push_back(1 + indexCounter);
-	tileCoordsIndex.push_back(2 + indexCounter);
-	tileCoordsIndex.push_back(2 + indexCounter);
-	tileCoordsIndex.push_back(3 + indexCounter);
-	tileCoordsIndex.push_back(0 + indexCounter);
+	tileCoordsIndex.push_back (0 + indexCounter);
+	tileCoordsIndex.push_back (1 + indexCounter);
+	tileCoordsIndex.push_back (2 + indexCounter);
+	tileCoordsIndex.push_back (2 + indexCounter);
+	tileCoordsIndex.push_back (3 + indexCounter);
+	tileCoordsIndex.push_back (0 + indexCounter);
 
-	indexCounter+= 4;
+	indexCounter += 4;
 }
 
 //-----------------------------------------------------------------------------
@@ -295,35 +296,35 @@ void inline gam_drawSingleTile(float destX, float destY, int whichTile)
 void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint whichTexture )
 //-----------------------------------------------------------------------------
 {
-	int         countX, countY, index;
-	int         whichTile = 0;
-	cpFloat     tilePtr = 0;
-	GLuint      vao = 0;
-	GLuint      vbo = 0;
-	GLuint      elementbuffer = 0;
+	int countX, countY, index;
+	int whichTile = 0;
+	cpFloat tilePtr = 0;
+	GLuint vao = 0;
+	GLuint vbo = 0;
+	GLuint elementbuffer = 0;
 	static bool initDone = false;
 
 	countY = 0;
 	countX = 0;
 
-	tileCoords.clear();
-	tileCoordsIndex.clear();
+	tileCoords.clear ();
+	tileCoordsIndex.clear ();
 	indexCounter = 0;
 
-	for (index = 0; index < levelInfo.at(levelName).levelDimensions.x * levelInfo.at(levelName).levelDimensions.y; index++)
+	for ( index = 0; index < levelInfo.at (levelName).levelDimensions.x * levelInfo.at (levelName).levelDimensions.y; index++ )
 	{
-		tilePtr = static_cast<int>((countY * levelInfo.at(levelName).levelDimensions.x) + countX);
+		tilePtr = static_cast<int>((countY * levelInfo.at (levelName).levelDimensions.x) + countX);
 
-		whichTile = levelInfo.at(levelName).tiles[static_cast<int>(tilePtr)];
+		whichTile = levelInfo.at (levelName).tiles[static_cast<int>(tilePtr)];
 
 		if ((whichTile > 0) && (whichTile < 64))
 		{
-			switch (whichTile)
+			switch ( whichTile )
 			{
 				case ALERT_GREEN_TILE:
 				case ALERT_YELLOW_TILE:
 				case ALERT_RED_TILE:
-					switch (currentAlertLevel)
+					switch ( currentAlertLevel )
 					{
 						case ALERT_GREEN_TILE:
 							whichTile = ALERT_GREEN_TILE;
@@ -343,48 +344,43 @@ void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint
 			}
 			gam_drawSingleTile ((countX * TILE_SIZE), (countY * TILE_SIZE), whichTile);
 		}
-		else
-			if (whichTile != 0)
-				con_print(CON_ERROR, true, "Invalid tile index [ %i ].", whichTile);
+		else if ( whichTile != 0 )
+			con_print (CON_ERROR, true, "Invalid tile index [ %i ].", whichTile);
 
 		countX++;
-		if (countX == (int)levelInfo.at(levelName).levelDimensions.x )
+		if ( countX == (int) levelInfo.at (levelName).levelDimensions.x )
 		{
 			countX = 0;
 			countY++;
 		}
 	}
-
-	gam_drawSingleTile(0.0f, 0.0f, ALERT_GREEN_TILE);
-
 	//
 	// Setup shader and buffer data parameters
 	// TODO: will need to reset on level change
 	//
-	if (!initDone)
+	if ( !initDone )
 	{
 		// create the VAO
 		GL_ASSERT (glGenVertexArrays (1, &vao));
-//		GL_ASSERT (glGenBuffers(1, &elementbuffer));
 		elementbuffer = wrapglGenBuffers (1, __func__);
 		// Create buffers for the vertex data
 		vbo = wrapglGenBuffers (1, __func__);
 
 		GL_CHECK (glBindVertexArray (vao));
 
-		GL_CHECK (glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer));
-		GL_CHECK (glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * tileCoordsIndex.size(), &tileCoordsIndex[0], GL_DYNAMIC_DRAW));
+		GL_CHECK (glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, elementbuffer));
+		GL_CHECK (glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (unsigned int) * tileCoordsIndex.size (), &tileCoordsIndex[0], GL_DYNAMIC_DRAW));
 
 		GL_CHECK (glBindBuffer (GL_ARRAY_BUFFER, vbo));
-		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof(_tileCoords) * tileCoords.size(), &tileCoords[0].position, GL_DYNAMIC_DRAW));
+		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (_tileCoords) * tileCoords.size (), &tileCoords[0].position, GL_DYNAMIC_DRAW));
 
-		GL_CHECK (glUseProgram (gl_getShaderID(whichShader)));
+		GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
 		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inPosition")));
-		GL_CHECK (glVertexAttribPointer     (gl_getAttrib (whichShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(_tileCoords), (GLvoid *)offsetof(_tileCoords, position) ));
+		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inPosition"), 3, GL_FLOAT, GL_FALSE, sizeof (_tileCoords), (GLvoid *) offsetof (_tileCoords, position)));
 
 		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib (whichShader, "inTextureCoords")));
-		GL_CHECK (glVertexAttribPointer     (gl_getAttrib (whichShader, "inTextureCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(_tileCoords), (GLvoid *)offsetof(_tileCoords, textureCoords)));
+		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inTextureCoords"), 2, GL_FLOAT, GL_FALSE, sizeof (_tileCoords), (GLvoid *) offsetof (_tileCoords, textureCoords)));
 
 		GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture0"), 0));
 		GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), g_gamma));
@@ -407,25 +403,24 @@ void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint
 	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), g_gamma));
 	//
 	// Enable attribute to hold vertex information
-	GL_CHECK (glUniformMatrix4fv           (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
+	GL_CHECK (glUniformMatrix4fv (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
 
-	GL_CHECK (glDrawElements(GL_TRIANGLES, (GLsizei)tileCoordsIndex.size(), GL_UNSIGNED_INT, (void*)0 ));
+	GL_CHECK (glDrawElements (GL_TRIANGLES, (GLsizei) tileCoordsIndex.size (), GL_UNSIGNED_INT, (void *) 0));
 
 	glUseProgram (0);
 	glBindVertexArray (0);
 }
 
-//----------------------------------------------------------------------------------------
-//
-// Create a FBO to hold the backing texture
+// TODO: Need a destroy texture - remove from MAP and free ID
 
 //----------------------------------------------------------------------------------------
 //
-// Create a texture large enough to hold the current level
-void gam_createBackingTexture(string textureName, glm::vec2 textureSize)
+// Create a texture of passed in size and name.
+// Store it in the texture Map array
+void gam_createBackingTexture ( string textureName, glm::vec2 textureSize )
 //----------------------------------------------------------------------------------------
 {
-	 GLuint fullLevelTexture = 0;
+	GLuint fullLevelTexture = 0;
 
 	glGenTextures (1, &fullLevelTexture);
 	glBindTexture (GL_TEXTURE_2D, fullLevelTexture);
@@ -446,14 +441,17 @@ void gam_createBackingTexture(string textureName, glm::vec2 textureSize)
 // Draw the current level
 // 1. Create the texture to hold the entire level
 // 2. Create a FBO and bind depth and texture to it
-void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTexture)
+// 3. Render the entire level to the backing texture
+// 4. Render viewable playfield texture to another texture
+// 5.
+void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceTexture )
 //----------------------------------------------------------------------------------------
 {
 	static bool backingLevel = false;
 
 	static GLuint fullLevel_FBO = 0;
 
-	glm::vec2   backingSize;
+	glm::vec2 backingSize;
 
 	backingSize.x = static_cast<float>(levelInfo.at (levelName).levelDimensions.x * TILE_SIZE);
 	backingSize.y = static_cast<float>(levelInfo.at (levelName).levelDimensions.y * TILE_SIZE);
@@ -469,29 +467,31 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 	}
 	//
 	// Check it all worked ok
-	if (0 == fullLevel_FBO)
+	if ( 0 == fullLevel_FBO )
 	{
-		con_print(CON_ERROR, true, "Unable to create backing FBO. Critical error.");
+		con_print (CON_ERROR, true, "Unable to create backing FBO. Critical error.");
 		return;
 	}
 	//
 	// Start drawing to backing texture
-	glBindFramebuffer(GL_FRAMEBUFFER, fullLevel_FBO);
+	glBindFramebuffer (GL_FRAMEBUFFER, fullLevel_FBO);
 	gl_linkTextureToFBO (io_getTextureID (levelName), fullLevel_FBO);
 
-	glm::vec2   backingViewPosition;
+	glm::vec2 backingViewPosition;
 
-	backingViewPosition = glm::vec2();
+	backingViewPosition = glm::vec2 ();
 
 	glViewport (0, 0, static_cast<GLsizei>(backingSize.x), static_cast<GLsizei>(backingSize.y)); // Render on the whole backing FBO
 
-	gl_set2DMode(backingViewPosition, backingSize, glm::vec3(1, 1, 1));
+	gl_set2DMode (backingViewPosition, backingSize, glm::vec3 (1, 1, 1));
 	//
 	// Draw tiles to bound texture from 'sourceTexture'
 	gam_drawAllTiles (whichShader, levelName, sourceTexture);
 
-	gam_showLineSegments(levelName);
-	gam_showWayPoints(levelName);
+	gam_showLineSegments (levelName);
+	gam_showWayPoints (levelName);
+
+	drd_renderThisLevel ( levelName );
 
 #ifdef USE_BLIT
 	viewPortX = static_cast<GLsizei>(winWidth * aspectRatioX);
@@ -528,13 +528,17 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 
 //	light_createLightCaster (vec3(750.0, 400.0, 0.0));
 
-
+//----------------------------------------------------------------------------
+//
+// Now copy the view size texture to another texture of the same size
+//
+//----------------------------------------------------------------------------
 	static bool viewTextureCreated = false;
 	glm::vec2 viewTextureSize;
 
-	viewTextureSize = glm::vec2{256, 256};
+	viewTextureSize = glm::vec2{g_playFieldSize, g_playFieldSize};
 
-	if (!viewTextureCreated)
+	if ( !viewTextureCreated )
 	{
 		gam_createBackingTexture ("viewTexture", viewTextureSize);
 
@@ -553,7 +557,7 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 	viewTexturePosition.x = (winWidth - viewTextureSize.x) / 2;
 	viewTexturePosition.y = (winHeight - viewTextureSize.y) / 2;
 
-	glClearColor (0.0f, 1.0f, 0.0f, 0.0f);
+	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
 	glViewport (0, 0, viewTextureSize.x, viewTextureSize.y);
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//
@@ -563,10 +567,11 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 	// Copy screen sized quad from backing texture to visible screen
 	gam_blitFrameBufferToScreen ("quad3d", levelName, io_getTextureID (levelName), glm::vec2{winWidth, winHeight});
 
-
-
-
-
+//----------------------------------------------------------------------------
+//
+// Take that texture and draw a quad to the default frame buffer ( screen )
+//
+//----------------------------------------------------------------------------
 
 	//
 	// Switch back to rendering to default frame buffer
@@ -576,9 +581,9 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 	glm::vec2 viewPortPosition;
 
 	float scaleView = g_scaleViewBy;
-	float screenRatio = winWidth / winHeight;
+//	float screenRatio = static_cast<float>(winWidth) / static_cast<float>(winHeight);
 
-	viewSize = glm::vec2{256, 256};
+	viewSize = glm::vec2{g_playFieldSize, g_playFieldSize};
 
 	viewSize.x *= scaleView;
 	viewSize.y *= scaleView;
@@ -586,11 +591,6 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 	viewPortPosition.x = (winWidth - viewSize.x) / 2;
 	viewPortPosition.y = (winHeight - viewSize.y) / 2;
 
-	//
-	// TODO: Make scale values variable
-	viewSize.x *= screenRatio;
-
-	gl_renderToScreen ();
 	glViewport (0, 0, winWidth, winHeight);
 	gl_set2DMode(glm::vec2{0,0}, glm::vec2{winWidth,winHeight}, glm::vec3(1, 1, 1));
 
@@ -599,8 +599,7 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 #endif
 	//
 	// Render HUD on top of everything
+	s_renderHUD ();
 
-	s_renderHUD();
-
-	io_renderMouseCursor();
+	io_renderMouseCursor ();
 }

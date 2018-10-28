@@ -26,6 +26,7 @@ _hostScriptFunctions hostVariables[] =
 	{"bool g_debugShowHullLines",           &g_debugShowHullLines},
 	{"bool drawHUD",                        &drawHUD},
 	{"float g_scaleViewBy",                 &g_scaleViewBy},
+	{"int g_playFieldSize",                 &g_playFieldSize},
 	{"cpVect vect1",                        &vect1},
 	{"",                                    nullptr},
 };

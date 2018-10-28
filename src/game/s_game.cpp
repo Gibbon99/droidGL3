@@ -1,4 +1,5 @@
 #include <hdr/game/s_levels.h>
+#include <hdr/opengl/gl_renderSprite.h>
 #include "s_game.h"
 
 //------------------------------------------------------------------------------
@@ -7,6 +8,8 @@
 void gam_startNewGame ()
 //------------------------------------------------------------------------------
 {
+	gl_createAllSprites ();
+
 	lvl_changeToLevel ("Mid cargo");
 
 	sys_changeMode (MODE_GAME);

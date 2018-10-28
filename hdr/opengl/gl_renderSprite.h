@@ -6,14 +6,24 @@
 typedef struct
 {
 	string      textureName;
-	int         currentFrame;
 	int         numberOfFrames;
+	float       frameWidth;
+	float       frameHeight;
 	bool        useKeyColor;
 	glm::vec3   keyColor;
 	glm::vec2   scaleBy;
 } _sprite;
 
 extern unordered_map<string, _sprite>      sprites;
+
+// Create the lookup table between droid type and sprite name
+void gl_setupDroidToSpriteLookup ();
+
+// Create the sprite objects once textures have finished loading
+void gl_createAllSprites ();
+
+// Return the sprite name for a droidType
+string gl_getSpriteName ( int droidType );
 
 // Render a image file
 //

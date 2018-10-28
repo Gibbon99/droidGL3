@@ -7,6 +7,7 @@
 extern float    worldLocationX, worldLocationY, viewWorldLocationX, viewWorldLocationY;
 extern float    aspectRatioX, aspectRatioY;
 extern float    g_scaleViewBy;      // From script
+extern int      g_playFieldSize;    // From script
 
 // Copy all the tiles that are visible this screen to the array
 void gam_drawAllTiles ( string whichShader, string levelName, GLuint whichTexture );
