@@ -4,6 +4,25 @@
 
 //------------------------------------------------------------------------------
 //
+// Animate the droid
+void drd_animateThisLevel(const string levelName)
+//------------------------------------------------------------------------------
+{
+	for (int index = 0; index != levelInfo.at(levelName).numDroids; index++)
+	{
+		levelInfo.at(levelName).droid[index].frameDelay += 1.0f / 3.0f;
+
+		if ( levelInfo.at (levelName).droid[index].frameDelay > 1.0f)
+		{
+			levelInfo.at (levelName).droid[index].frameDelay = 0.0f;
+			levelInfo.at (levelName).droid[index].currentFrame++;
+			if ( levelInfo.at (levelName).droid[index].currentFrame > 8)
+				levelInfo.at (levelName).droid[index].currentFrame = 0;
+		}
+	}
+}
+//------------------------------------------------------------------------------
+//
 // Render the droids for this level
 void drd_renderThisLevel( const string levelName)
 //------------------------------------------------------------------------------
@@ -16,6 +35,7 @@ void drd_renderThisLevel( const string levelName)
 		gl_renderSprite(
 				levelInfo.at(levelName).droid[index].spriteName,
 				glm::vec2{levelInfo.at(levelName).droid[index].worldPos.x, levelInfo.at(levelName).droid[index].worldPos.y},
+				levelInfo.at(levelName).droid[index].currentFrame,
 				glm::vec3{1,1,1});
 	}
 }
@@ -42,6 +62,8 @@ void drd_setupLevel(string levelName)
 		tempDroid.worldPos = levelInfo.at(levelName).wayPoints[i];
 
 		tempDroid.spriteName = gl_getSpriteName(tempDroid.droidType);
+		tempDroid.currentFrame = 0;
+		tempDroid.frameDelay = 0.0f;
 
 		levelInfo.at(levelName).droid.push_back(tempDroid);
 	}

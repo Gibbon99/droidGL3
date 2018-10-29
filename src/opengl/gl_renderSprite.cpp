@@ -12,9 +12,9 @@ vector<string>      droidToSpriteLookup;
 void gl_createAllSprites()
 //------------------------------------------------------------------------
 {
-	for ( const auto &indexItr : droidToSpriteLookup )    // &indexItr ?
+	for ( const auto &indexItr : droidToSpriteLookup )
 	{
-		gl_createSprite (indexItr, glm::vec3{0.0f, 0.0f, 0.0f}, 9, glm::vec2{1.0f, 1.0f});
+		gl_createSprite (indexItr, glm::vec3{0.0f, 0.0f, 0.0f}, 16, glm::vec2{1.0f, 1.0f});
 	}
 
 	gl_createSprite ("hud", glm::vec3{0.0f, 0.0f, 0.0f}, 1, glm::vec2{1.3f, 1.2f});
@@ -102,14 +102,14 @@ void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames,
 		if (errorCount == 0)
 		{
 			errorCount++;
-			con_print (CON_ERROR, true, "Attemping to access textureSize for missing texture [ %s ]", textureName.c_str ());
+			con_print (CON_ERROR, true, "Attempting to access textureSize for missing texture [ %s ]", textureName.c_str ());
 		}
 		else
 			errorCount++;
 
 		return;
 	}
-	tempSprite.frameWidth = textureSize.x / tempSprite.numberOfFrames;
+	tempSprite.frameWidth = (textureSize.x / tempSprite.numberOfFrames ) / textureSize.x;
 	tempSprite.frameHeight = textureSize.y;
 
 	sprites.insert (std::pair<string, _sprite> (textureName, tempSprite));
@@ -147,14 +147,16 @@ glm::vec2 gl_getScaleby(string whichSprite)
 // Render a image file
 //
 // Position is the center of the sprite
-void gl_renderSprite(string whichSprite, glm::vec2 position,  glm::vec3 tintColor)
+void gl_renderSprite(string whichSprite, glm::vec2 position, int frameNumber, glm::vec3 tintColor)
 //---------------------------------------------------------------------
 {
-	static int errorCount = 0;
-
-	glm::vec2   textureSize;
-
+	static int          errorCount = 0;
+	glm::vec2           textureSize;
 	unordered_map<string, _sprite>::const_iterator spriteItr;
+	float               texCoords[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0};
+	float               frameWidth;
+	glm::vec2           framePosition;
+	glm::vec2           renderPosition;
 
 	spriteItr = sprites.find (whichSprite);
 
@@ -163,21 +165,40 @@ void gl_renderSprite(string whichSprite, glm::vec2 position,  glm::vec3 tintColo
 		textureSize = io_getTextureSize(whichSprite);
 		textureSize.x *= spriteItr->second.scaleBy.x;
 		textureSize.y *= spriteItr->second.scaleBy.y;
-//
-// Work out size based on numFrames and textureWidth
-//
-// Get frameNumber from map that is done in think
+
+		textureSize.x = textureSize.x / spriteItr->second.numberOfFrames;
+
+		frameWidth = spriteItr->second.frameWidth;
+		framePosition.x = frameWidth * frameNumber;
+		framePosition.y = 0.0f;
+
+		texCoords[0] = framePosition.x;
+		texCoords[1] = 1.0f;
+
+		texCoords[2] = framePosition.x;
+		texCoords[3] = framePosition.y;
+
+		texCoords[4] = framePosition.x + frameWidth;
+		texCoords[5] = framePosition.y;
+
+		texCoords[6] = framePosition.x + frameWidth;
+		texCoords[7] = 1.0f;
+
+		renderPosition = position;
+
+		renderPosition.x -= (textureSize.x / spriteItr->second.numberOfFrames) * 0.5f;
+		renderPosition.y -= textureSize.y * 0.5f;
 
 		if (spriteItr->second.useKeyColor)  // Needs key color shader
 		{
-			gl_draw2DQuad ( position, textureSize, "colorKey", io_getTextureID (whichSprite), spriteItr->second.keyColor);
+			gl_draw2DQuad ( renderPosition, textureSize, "colorKey", io_getTextureID (whichSprite), spriteItr->second.keyColor, texCoords);
 		}
 		else
 		{
-			gl_draw2DQuad ( position, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0,0,0});
+			gl_draw2DQuad ( position, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0,0,0}, texCoords);
 		}
 	}
-	else
+	else    // Sprite name could not be found
 	{
 		if (errorCount == 0)
 		{

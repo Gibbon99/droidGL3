@@ -1,6 +1,7 @@
 #pragma once
 
-#include <hdr/game/s_shadows.h>
+#include "hdr/game/s_shadows.h"
+#include "hdr/io/io_textures.h"
 #include "hdr/system/sys_main.h"
 
 extern glm::mat4            MVP;
@@ -26,7 +27,7 @@ typedef struct
 void gl_getAllGLErrors ( int errorNum, const char *calledFrom, int line );
 
 // Draw a 2D quad
-void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichShader, GLuint whichTexture, glm::vec3 colorKey);
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichShader, GLuint whichTexture, glm::vec3 colorKey, float textureCoords[] );
 
 // Draw a debug line
 void gl_drawLine ( glm::vec3 startPoint, glm::vec3 endPoint, std::string whichShader, glm::vec4 lineColor );

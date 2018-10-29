@@ -36,6 +36,8 @@ vec3 currentVelocity;
 
 vec3 testLightPosition;
 
+// TODO: AntiAliasing shader for final view render of texture
+
 //-----------------------------------------------------------------------------------------------------
 //
 /// \param Pass in interpolation for the frame
@@ -51,7 +53,7 @@ void sys_displayScreen(float interpolation)
 	{
 		case MODE_SPLASH:
 			gl_set2DMode (glm::vec2{0,0}, glm::vec2{winWidth, winHeight}, glm::vec3{1,1,1,});
-			gl_renderSprite("splash", glm::vec2{0, 0}, glm::vec3{0,0,0});
+			gl_renderSprite("splash", glm::vec2{0, 0}, 1, glm::vec3{0,0,0});
 			break;
 
 		case MODE_CONSOLE:
@@ -118,6 +120,7 @@ void sys_gameTickRun()
 		case MODE_GAME:
 			io_processKeyboard ();
 			gam_animateHealingTiles();
+			drd_animateThisLevel (lvl_getCurrentLevelName ());
 
 			s_getTileUnderPlayer (lvl_getCurrentLevelName(), worldLocationX / TILE_SIZE, worldLocationY / TILE_SIZE);
 			break;

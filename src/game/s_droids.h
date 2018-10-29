@@ -10,6 +10,8 @@ struct _droid
 	int wayPointIndex;
 	int wayPointDirection;
 	string spriteName;
+	int currentFrame;
+	float frameDelay;
 
 	float currentSpeed;
 	cpVect worldPos;
@@ -92,4 +94,7 @@ struct _droid
 void drd_setupLevel ( string levelName );
 
 // Render the droids for this level
-void drd_renderThisLevel ( const string levelName );
+void drd_renderThisLevel ( string levelName );
+
+// Animate the droid
+void drd_animateThisLevel ( string levelName );

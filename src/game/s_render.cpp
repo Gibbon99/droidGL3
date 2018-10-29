@@ -428,8 +428,8 @@ void gam_createBackingTexture ( string textureName, glm::vec2 textureSize )
 	// Texture is empty
 	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(textureSize.x), static_cast <GLsizei>(textureSize.y), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);     // TODO: or GL_LINEAR - makes it blurry
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 
@@ -579,6 +579,7 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 
 	glm::vec2 viewSize;
 	glm::vec2 viewPortPosition;
+	float texCoords[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0};
 
 	float scaleView = g_scaleViewBy;
 //	float screenRatio = static_cast<float>(winWidth) / static_cast<float>(winHeight);
@@ -594,7 +595,7 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	glViewport (0, 0, winWidth, winHeight);
 	gl_set2DMode(glm::vec2{0,0}, glm::vec2{winWidth,winHeight}, glm::vec3(1, 1, 1));
 
-	gl_draw2DQuad (viewPortPosition, viewSize, "quad3d", io_getTextureID ("viewTexture"), glm::vec3{0, 0, 0});
+	gl_draw2DQuad (viewPortPosition, viewSize, "quad3d", io_getTextureID ("viewTexture"), glm::vec3{0, 0, 0}, texCoords);
 
 #endif
 	//

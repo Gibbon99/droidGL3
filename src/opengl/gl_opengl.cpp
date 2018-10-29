@@ -4,15 +4,16 @@
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/game/s_shadows.h"
 #include "hdr/game/s_lightCaster.h"
+#include <hdr/io/io_textures.h>
+#include <hdr/game/s_levels.h>
+#include <hdr/game/s_render.h>
+#include <map>
 
 #ifdef __linux__
 	#include <execinfo.h>
 #endif
 
-#include <map>
-#include <hdr/io/io_textures.h>
-#include <hdr/game/s_levels.h>
-#include <hdr/game/s_render.h>
+
 
 typedef struct
 {
@@ -266,7 +267,7 @@ void gl_registerDebugCallback ()
 //-----------------------------------------------------------------------------
 //
 // Draw a 2D quad - uses ortho matrix to draw - screen pixel coordinates
-void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture, glm::vec3 colorKey)
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture, glm::vec3 colorKey, float textureCoords[])
 //-----------------------------------------------------------------------------
 {
 	glm::vec3           quadVerts[4];
@@ -290,13 +291,6 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	quadVerts[3].y = position.y;
 	quadVerts[3].z = 0.0f;
 
-	GLfloat quadTexCoords[] = {
-			0.0, 0.0,
-			0.0, 1.0,
-			1.0, 1.0,
-			1.0, 0.0,
-	};
-
 	if ( !initDone )
 	{
 		// create the VAO
@@ -317,7 +311,7 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 
 		// Texture coordinates buffer
 		GL_ASSERT (glBindBuffer (GL_ARRAY_BUFFER, buffers[1]));
-		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (quadTexCoords), quadTexCoords, GL_DYNAMIC_DRAW));
+		GL_CHECK (glBufferData (GL_ARRAY_BUFFER, sizeof (float) * 8, textureCoords, GL_DYNAMIC_DRAW));
 		GL_CHECK (glEnableVertexAttribArray (gl_getAttrib(whichShader, "inTextureCoords")));
 		GL_CHECK (glVertexAttribPointer (gl_getAttrib (whichShader, "inTextureCoords"), 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET (0)));
 

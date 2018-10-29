@@ -25,14 +25,9 @@ void as_setGameVariables()
 
     drawHUD = false;
 
-    winWidth = 800;
-    winHeight = 600;
-
     nearPlane = 0.0;
     farPlane = 400.0;
     cameraDistance = 350.0;
-
-    g_gamma = 1.0;
 
     g_scaleViewBy = 3.1;
     g_playFieldSize = 256;  // Tiles across / down in multiples of 32
