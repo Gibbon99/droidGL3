@@ -12,8 +12,8 @@ cpVect s_getLiftworldPosition(string levelName, int whichLift)
 	liftPosition.x = levelInfo.at(levelName).lifts[whichLift].posX;
 	liftPosition.y = levelInfo.at(levelName).lifts[whichLift].posY;
 
-//	liftPosition.x += (winWidth / TILE_SIZE) / 2;
-//	liftPosition.y += (winHeight / TILE_SIZE) / 2;
+//	liftPosition.x += TILE_SIZE * 0.5f;
+//	liftPosition.y += TILE_SIZE * 0.5f;
 
 	return liftPosition;
 }

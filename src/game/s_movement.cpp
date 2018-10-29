@@ -7,6 +7,6 @@
 void gam_processMovement ( float interpolate )
 //---------------------------------------------------------------------------
 {
-	viewWorldLocationX = worldLocationX + (currentVelocity.x * interpolate);
-	viewWorldLocationY = worldLocationY + (currentVelocity.y * interpolate);
+	viewWorldLocationX = worldLocationX; // + (currentVelocity.x * interpolate);
+	viewWorldLocationY = worldLocationY; // + (currentVelocity.y * interpolate);
 };

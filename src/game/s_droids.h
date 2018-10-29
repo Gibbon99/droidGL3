@@ -12,6 +12,7 @@ struct _droid
 	string spriteName;
 	int currentFrame;
 	float frameDelay;
+	glm::vec2   renderOffset;
 
 	float currentSpeed;
 	cpVect worldPos;

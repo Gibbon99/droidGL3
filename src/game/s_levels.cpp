@@ -479,11 +479,11 @@ void lvl_changeToLevel ( const string levelName )
 
 	worldLocationX = static_cast<float>(playerStartPosition.x) * TILE_SIZE;
 	worldLocationY = static_cast<float>(playerStartPosition.y) * TILE_SIZE;
-
-//	worldLocationY = 1088.0f - worldLocationY;
-//	worldLocationX = abs(worldLocationX - 1888.0f); // + worldLocationX;
+	//
+	// Center on the lift tile
+	worldLocationX += TILE_SIZE * 0.5f;
+	worldLocationY += TILE_SIZE * 0.5f;
 
 	viewWorldLocationX = worldLocationX;
 	viewWorldLocationY = worldLocationY;
-
 }

@@ -6,6 +6,7 @@
 #include <hdr/game/s_lightCaster.h>
 #include <hdr/opengl/gl_renderSprite.h>
 #include <hdr/game/s_hud.h>
+#include <hdr/game/s_player.h>
 #include "hdr/game/s_render.h"
 
 #define USE_TILE_LOOKUP 1
@@ -87,6 +88,9 @@ void gam_blitFrameBufferToScreen ( string whichShader, const string levelName, G
 
 	startTexX = (viewWorldLocationX / backingTextureSize.x) - (widthTex / 2);
 	startTexY = (viewWorldLocationY / backingTextureSize.y) - (heightTex / 2);
+
+	startTexX = (worldLocationX / backingTextureSize.x) - (widthTex / 2);
+	startTexY = (worldLocationY / backingTextureSize.y) - (heightTex / 2);
 
 	//
 	// Corner 0
@@ -428,8 +432,8 @@ void gam_createBackingTexture ( string textureName, glm::vec2 textureSize )
 	// Texture is empty
 	glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(textureSize.x), static_cast <GLsizei>(textureSize.y), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);     // TODO: or GL_LINEAR - makes it blurry
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);     // TODO: or GL_LINEAR - makes it blurry
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 
@@ -492,6 +496,7 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	gam_showWayPoints (levelName);
 
 	drd_renderThisLevel ( levelName );
+	s_renderPlayerSprite ();
 
 #ifdef USE_BLIT
 	viewPortX = static_cast<GLsizei>(winWidth * aspectRatioX);
@@ -576,6 +581,7 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	//
 	// Switch back to rendering to default frame buffer
 	gl_renderToScreen ();
+	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glm::vec2 viewSize;
 	glm::vec2 viewPortPosition;
@@ -595,7 +601,7 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	glViewport (0, 0, winWidth, winHeight);
 	gl_set2DMode(glm::vec2{0,0}, glm::vec2{winWidth,winHeight}, glm::vec3(1, 1, 1));
 
-	gl_draw2DQuad (viewPortPosition, viewSize, "quad3d", io_getTextureID ("viewTexture"), glm::vec3{0, 0, 0}, texCoords);
+	gl_draw2DQuad (viewPortPosition, viewSize, "quad3d", io_getTextureID ("viewTexture"), glm::vec3{0, 0, 0}, glm::vec3{-1.0, 0.0, 0.0}, texCoords);
 
 #endif
 	//

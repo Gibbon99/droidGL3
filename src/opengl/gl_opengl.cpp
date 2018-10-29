@@ -267,7 +267,7 @@ void gl_registerDebugCallback ()
 //-----------------------------------------------------------------------------
 //
 // Draw a 2D quad - uses ortho matrix to draw - screen pixel coordinates
-void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture, glm::vec3 colorKey, float textureCoords[])
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture, glm::vec3 colorKey, glm::vec3 tintColor, float textureCoords[])
 //-----------------------------------------------------------------------------
 {
 	glm::vec3           quadVerts[4];
@@ -334,8 +334,8 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), g_gamma));
 
 	GL_CHECK (glUniform3fv (gl_getUniform (whichShader, "inColorKey"), 1, glm::value_ptr(colorKey)));
+	GL_CHECK (glUniform3fv (gl_getUniform (whichShader, "inTintColor"), 1, glm::value_ptr (tintColor)));
 
-//	GL_CHECK (glUniform2f (gl_getUniform (whichShader, "inScreenSize"), (float) winWidth / 2, (float) winHeight / 2));
 
 	GL_CHECK (glBindVertexArray (vao));
 	//

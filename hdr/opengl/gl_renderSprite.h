@@ -11,7 +11,10 @@ typedef struct
 	float       frameHeight;
 	bool        useKeyColor;
 	glm::vec3   keyColor;
+	glm::vec3   tintColor;      // Overwrite pixels with this color
 	glm::vec2   scaleBy;
+	glm::vec2   renderOffset;
+	glm::vec2   textureSize;
 } _sprite;
 
 extern unordered_map<string, _sprite>      sprites;
@@ -31,7 +34,7 @@ string gl_getSpriteName ( int droidType );
 void gl_renderSprite ( string whichSprite, glm::vec2 position, int frameNumber, glm::vec3 tintColor );
 
 // Create a sprite object
-void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames, glm::vec2 scaleBy);
+void gl_createSprite ( string textureName, glm::vec3 keyColor, int numberOfFrames, glm::vec2 scaleBy, glm::vec3 tintColor );
 
 // Return the scaling values for a sprite
 glm::vec2 gl_getScaleby(string whichSprite);

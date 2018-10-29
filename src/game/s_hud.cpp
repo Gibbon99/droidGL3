@@ -33,5 +33,5 @@ void s_renderHUD()
 		haveSize = true;
 	}
 //	gl_renderSprite("hud", renderPosition, 1, glm::vec3{0,0,0});
-	gl_draw2DQuad (renderPosition, textureSize, "quad3d", io_getTextureID ("hud"), glm::vec3{0, 0, 0}, texCoords);
+	gl_draw2DQuad (renderPosition, textureSize, "quad3d", io_getTextureID ("hud"), glm::vec3{0, 0, 0}, glm::vec3{-1.0, 0.0, 0.0}, texCoords);
 }

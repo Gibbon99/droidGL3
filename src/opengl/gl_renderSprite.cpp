@@ -14,11 +14,15 @@ void gl_createAllSprites()
 {
 	for ( const auto &indexItr : droidToSpriteLookup )
 	{
-		gl_createSprite (indexItr, glm::vec3{0.0f, 0.0f, 0.0f}, 16, glm::vec2{1.0f, 1.0f});
+		gl_createSprite (indexItr, glm::vec3{1.0f, 0.0f, 1.0f}, 16, glm::vec2{1.0f, 1.0f}, glm::vec3{0.0, 0.0, 0.0f});
 	}
 
-	gl_createSprite ("hud", glm::vec3{0.0f, 0.0f, 0.0f}, 1, glm::vec2{1.3f, 1.2f});
-	gl_createSprite ("splash", glm::vec3{-1.0f, 0.0f, 0.0f}, 1, glm::vec2{1.6f, 1.2f});
+	sprites.at("001").keyColor = glm::vec3{0, 0, 0};
+	sprites.at("001").tintColor = glm::vec3{1.0, 1.0, 1.0};        // Keep 001 white to start with
+//	sprites.at("001").scaleBy = glm::vec2{2.0, 2.0};
+
+	gl_createSprite ("hud", glm::vec3{0.0f, 0.0f, 0.0f}, 1, glm::vec2{1.3f, 1.2f}, glm::vec3{-1.0, 0.0, 0.0});
+	gl_createSprite ("splash", glm::vec3{-1.0f, 0.0f, 0.0f}, 1, glm::vec2{1.6f, 1.2f}, glm::vec3{-1.0, 0.0, 0.0});
 }
 
 //------------------------------------------------------------------------
@@ -55,9 +59,8 @@ void gl_setupDroidToSpriteLookup()
 	droidToSpriteLookup.emplace_back ("999");
 
 	//
-	// Now create a sprite from each named texture
-	// Load each texture as well
-	for ( const auto &indexItr : droidToSpriteLookup)    // &indexItr ?
+	// Load each texture
+	for ( const auto &indexItr : droidToSpriteLookup)
 	{
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2 (), vec2 (), indexItr + ".bmp");
 	}
@@ -78,16 +81,16 @@ string gl_getSpriteName(int droidType)
 //------------------------------------------------------------------------
 //
 // Create a sprite object
-void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames, glm::vec2 scaleBy)
+void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames, glm::vec2 scaleBy, glm::vec3 tintColor)
 //------------------------------------------------------------------------
 {
 	static int  errorCount = 0;
 	_sprite     tempSprite;
-	glm::vec2   textureSize;
 
 	tempSprite.textureName = textureName;
 	tempSprite.numberOfFrames = numberOfFrames;
 	tempSprite.scaleBy = scaleBy;
+	tempSprite.tintColor = tintColor;
 	if (keyColor.r != -1)
 	{
 		tempSprite.useKeyColor = true;
@@ -96,8 +99,8 @@ void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames,
 	else
 		tempSprite.useKeyColor = false;
 
-	textureSize = io_getTextureSize (textureName);
-	if (textureSize.x < 0)
+	tempSprite.textureSize = io_getTextureSize (textureName);
+	if ( tempSprite.textureSize.x < 0)
 	{
 		if (errorCount == 0)
 		{
@@ -109,8 +112,11 @@ void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames,
 
 		return;
 	}
-	tempSprite.frameWidth = (textureSize.x / tempSprite.numberOfFrames ) / textureSize.x;
-	tempSprite.frameHeight = textureSize.y;
+	tempSprite.frameWidth = (tempSprite.textureSize.x / tempSprite.numberOfFrames ) / tempSprite.textureSize.x;
+	tempSprite.frameHeight = tempSprite.textureSize.y;
+
+	tempSprite.renderOffset.x = (tempSprite.textureSize.x / tempSprite.numberOfFrames) * 0.5f;
+	tempSprite.renderOffset.y = tempSprite.textureSize.y * 0.5f;
 
 	sprites.insert (std::pair<string, _sprite> (textureName, tempSprite));
 }
@@ -162,11 +168,14 @@ void gl_renderSprite(string whichSprite, glm::vec2 position, int frameNumber, gl
 
 	if ( spriteItr != sprites.end ())    // Found
 	{
-		textureSize = io_getTextureSize(whichSprite);
+		textureSize = spriteItr->second.textureSize;
+
+		textureSize.x = spriteItr->second.textureSize.x / spriteItr->second.numberOfFrames;
+
 		textureSize.x *= spriteItr->second.scaleBy.x;
 		textureSize.y *= spriteItr->second.scaleBy.y;
 
-		textureSize.x = textureSize.x / spriteItr->second.numberOfFrames;
+
 
 		frameWidth = spriteItr->second.frameWidth;
 		framePosition.x = frameWidth * frameNumber;
@@ -186,16 +195,16 @@ void gl_renderSprite(string whichSprite, glm::vec2 position, int frameNumber, gl
 
 		renderPosition = position;
 
-		renderPosition.x -= (textureSize.x / spriteItr->second.numberOfFrames) * 0.5f;
-		renderPosition.y -= textureSize.y * 0.5f;
+		renderPosition.x -= spriteItr->second.renderOffset.x;
+		renderPosition.y -= spriteItr->second.renderOffset.y;
 
 		if (spriteItr->second.useKeyColor)  // Needs key color shader
 		{
-			gl_draw2DQuad ( renderPosition, textureSize, "colorKey", io_getTextureID (whichSprite), spriteItr->second.keyColor, texCoords);
+			gl_draw2DQuad ( renderPosition, textureSize, "colorKey", io_getTextureID (whichSprite), spriteItr->second.keyColor, spriteItr->second.tintColor, texCoords);
 		}
 		else
 		{
-			gl_draw2DQuad ( position, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0,0,0}, texCoords);
+			gl_draw2DQuad ( position, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0,0,0}, spriteItr->second.tintColor, texCoords);
 		}
 	}
 	else    // Sprite name could not be found
