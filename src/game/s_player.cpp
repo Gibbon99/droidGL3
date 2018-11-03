@@ -4,6 +4,16 @@
 #include "hdr/game/s_player.h"
 
 cpVect      playerWorldPosition;
+_droid      playerDroid;
+
+//------------------------------------------------------------------------------
+//
+// Process the player world position and movement
+void s_processPlayerMovement()
+//------------------------------------------------------------------------------
+{
+
+}
 
 //------------------------------------------------------------------------------
 //
@@ -11,7 +21,9 @@ cpVect      playerWorldPosition;
 void s_renderPlayerSprite()
 //------------------------------------------------------------------------------
 {
-	gl_renderSprite ("001", glm::vec2{worldLocationX, worldLocationY}, 0, glm::vec3{1.0, 1.0, 1.0} );
+//	gl_renderSprite ("001", glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, 0, glm::vec3{1.0, 1.0, 1.0} );
+
+    gl_renderSprite ("001", glm::vec2{winWidth / 2, winHeight / 2}, 0, glm::vec3{1.0, 1.0, 1.0} );
 }
 
 //------------------------------------------------------------------------------

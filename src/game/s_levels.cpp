@@ -1,4 +1,5 @@
 #include <hdr/game/s_render.h>
+#include <hdr/game/s_player.h>
 #include "hdr/game/s_levels.h"
 #include "hdr/game/s_healing.h"
 #include "hdr/game/s_lifts.h"
@@ -468,22 +469,17 @@ void lvl_showLevelsLoaded ()
 void lvl_changeToLevel ( const string levelName )
 //-----------------------------------------------------------------------------------------------------
 {
-	cpVect      playerStartPosition;
-
 	currentLevelName = levelName;
 	gam_findHealingTiles ( levelName );
 	lvl_getLiftPositions ( levelName );
 	drd_setupLevel ( levelName );
 
-	playerStartPosition = s_getLiftworldPosition (levelName, 0);
+	playerDroid.worldPos = s_getLiftworldPosition (levelName, 0);
 
-	worldLocationX = static_cast<float>(playerStartPosition.x) * TILE_SIZE;
-	worldLocationY = static_cast<float>(playerStartPosition.y) * TILE_SIZE;
+    playerDroid.worldPos.x = static_cast<float>(playerDroid.worldPos.x) * TILE_SIZE;
+    playerDroid.worldPos.y = static_cast<float>(playerDroid.worldPos.y) * TILE_SIZE;
 	//
 	// Center on the lift tile
-	worldLocationX += TILE_SIZE * 0.5f;
-	worldLocationY += TILE_SIZE * 0.5f;
-
-	viewWorldLocationX = worldLocationX;
-	viewWorldLocationY = worldLocationY;
+	playerDroid.worldPos.x += TILE_SIZE * 0.5f;
+	playerDroid.worldPos.y += TILE_SIZE * 0.5f;
 }

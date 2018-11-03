@@ -34,8 +34,8 @@ int numTileAcrossInTexture, numTilesDownInTexture;
 float tileTextureWidth;
 int indexCounter = 0;
 
-float worldLocationX = 0, worldLocationY = 0;
-float viewWorldLocationX = 0, viewWorldLocationY = 0;
+//float worldLocationX = 0, worldLocationY = 0;
+//float viewWorldLocationX = 0, viewWorldLocationY = 0;
 float aspectRatioX, aspectRatioY;;
 float g_scaleViewBy = 1.4f;
 int g_playFieldSize = 256;
@@ -86,11 +86,11 @@ void gam_blitFrameBufferToScreen ( string whichShader, const string levelName, G
 	widthTex = viewSize.x / backingTextureSize.x;
 	heightTex = viewSize.y / backingTextureSize.y;
 
-	startTexX = (viewWorldLocationX / backingTextureSize.x) - (widthTex / 2);
-	startTexY = (viewWorldLocationY / backingTextureSize.y) - (heightTex / 2);
+//	startTexX = (viewWorldLocationX / backingTextureSize.x) - (widthTex / 2);
+//	startTexY = (viewWorldLocationY / backingTextureSize.y) - (heightTex / 2);
 
-	startTexX = (worldLocationX / backingTextureSize.x) - (widthTex / 2);
-	startTexY = (worldLocationY / backingTextureSize.y) - (heightTex / 2);
+	startTexX = (playerDroid.worldPos.x / backingTextureSize.x) - (widthTex / 2);
+	startTexY = (playerDroid.worldPos.y / backingTextureSize.y) - (heightTex / 2);
 
 	//
 	// Corner 0
@@ -457,7 +457,10 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 
 	glm::vec2 backingSize;
 
-	backingSize.x = static_cast<float>(levelInfo.at (levelName).levelDimensions.x * TILE_SIZE);
+//    viewWorldLocationX = playerDroid.worldPos.x; // + (currentVelocity.x * interpolate);
+//    viewWorldLocationY = playerDroid.worldPos.y; // + (currentVelocity.y * interpolate);
+
+    backingSize.x = static_cast<float>(levelInfo.at (levelName).levelDimensions.x * TILE_SIZE);
 	backingSize.y = static_cast<float>(levelInfo.at (levelName).levelDimensions.y * TILE_SIZE);
 
 	if ( !backingLevel )
@@ -494,9 +497,6 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 
 	gam_showLineSegments (levelName);
 	gam_showWayPoints (levelName);
-
-	drd_renderThisLevel ( levelName );
-	s_renderPlayerSprite ();
 
 #ifdef USE_BLIT
 	viewPortX = static_cast<GLsizei>(winWidth * aspectRatioX);
@@ -572,6 +572,9 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	// Copy screen sized quad from backing texture to visible screen
 	gam_blitFrameBufferToScreen ("quad3d", levelName, io_getTextureID (levelName), glm::vec2{winWidth, winHeight});
 
+	drd_renderThisLevel ( levelName );
+
+    s_renderPlayerSprite ();
 //----------------------------------------------------------------------------
 //
 // Take that texture and draw a quad to the default frame buffer ( screen )
@@ -607,6 +610,9 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	//
 	// Render HUD on top of everything
 	s_renderHUD ();
+
+//    s_renderPlayerSprite ();
+
 
 	io_renderMouseCursor ();
 }

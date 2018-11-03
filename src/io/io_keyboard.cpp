@@ -1,5 +1,6 @@
 #include <hdr/game/s_render.h>
 #include <hdr/game/s_lightCaster.h>
+#include <hdr/game/s_player.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/system/sys_events.h"
 
@@ -104,8 +105,8 @@ void io_processKeyboard()
 
 	quadPosition.z += currentVelocity.z;
 
-	worldLocationX += currentVelocity.x;
-	worldLocationY += currentVelocity.y;
+	playerDroid.worldPos.x += currentVelocity.x;
+	playerDroid.worldPos.y += currentVelocity.y;
 }
 
 //-----------------------------------------------------------------------------

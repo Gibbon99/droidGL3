@@ -1,3 +1,4 @@
+#include <hdr/game/s_player.h>
 #include "hdr/game/s_render.h"
 #include "hdr/game/s_movement.h"
 
@@ -7,6 +8,4 @@
 void gam_processMovement ( float interpolate )
 //---------------------------------------------------------------------------
 {
-	viewWorldLocationX = worldLocationX; // + (currentVelocity.x * interpolate);
-	viewWorldLocationY = worldLocationY; // + (currentVelocity.y * interpolate);
 };

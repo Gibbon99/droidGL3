@@ -19,7 +19,7 @@ void gl_createAllSprites()
 
 	sprites.at("001").keyColor = glm::vec3{0, 0, 0};
 	sprites.at("001").tintColor = glm::vec3{1.0, 1.0, 1.0};        // Keep 001 white to start with
-//	sprites.at("001").scaleBy = glm::vec2{2.0, 2.0};
+	sprites.at("001").scaleBy = glm::vec2{1.0f, 1.0f};
 
 	gl_createSprite ("hud", glm::vec3{0.0f, 0.0f, 0.0f}, 1, glm::vec2{1.3f, 1.2f}, glm::vec3{-1.0, 0.0, 0.0});
 	gl_createSprite ("splash", glm::vec3{-1.0f, 0.0f, 0.0f}, 1, glm::vec2{1.6f, 1.2f}, glm::vec3{-1.0, 0.0, 0.0});
@@ -158,11 +158,11 @@ void gl_renderSprite(string whichSprite, glm::vec2 position, int frameNumber, gl
 {
 	static int          errorCount = 0;
 	glm::vec2           textureSize;
-	unordered_map<string, _sprite>::const_iterator spriteItr;
 	float               texCoords[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0};
 	float               frameWidth;
 	glm::vec2           framePosition;
 	glm::vec2           renderPosition;
+    unordered_map<string, _sprite>::const_iterator spriteItr;
 
 	spriteItr = sprites.find (whichSprite);
 

@@ -10,7 +10,7 @@ void gam_startNewGame ()
 {
 	gl_createAllSprites ();
 
-	lvl_changeToLevel ("Bridge");
+	lvl_changeToLevel ("Upper cargo");
 
 	sys_changeMode (MODE_GAME);
 }

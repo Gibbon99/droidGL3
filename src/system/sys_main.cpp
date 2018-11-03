@@ -65,7 +65,7 @@ void sys_displayScreen(float interpolation)
 
 		case MODE_GAME:
 
-			gam_processMovement (interpolation);
+//			gam_processMovement (interpolation);
 
 			gam_drawFullLevel(lvl_getCurrentLevelName (), "quad3d", tileTextureID);
 
@@ -81,7 +81,7 @@ void sys_displayScreen(float interpolation)
 			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
 	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Circle time [ %2.2f ms ] g_scaleViewBy [ %3.3f ]", deltaTime, g_scaleViewBy);
 
-	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "PixelX [ %3.3f ] Pixel Y [ %3.3f ]", worldLocationX, worldLocationY);
+//	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "playerLocation [ %3.3f %3.3f ] viewworldlocation [ %3.3f %3.3f ]", playerDroid.worldPos.x, playerDroid.worldPos.y, viewWorldLocationX, viewWorldLocationY);
 
 	if ( g_memLeakLastRun)
 		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
@@ -122,7 +122,9 @@ void sys_gameTickRun()
 			gam_animateHealingTiles();
 			drd_animateThisLevel (lvl_getCurrentLevelName ());
 
-			s_getTileUnderPlayer (lvl_getCurrentLevelName(), worldLocationX / TILE_SIZE, worldLocationY / TILE_SIZE);
+			s_getTileUnderPlayer (lvl_getCurrentLevelName(), playerDroid.worldPos.x / TILE_SIZE, playerDroid.worldPos.y / TILE_SIZE);
+
+            gam_processMovement (interpolation);
 			break;
 
 		default:

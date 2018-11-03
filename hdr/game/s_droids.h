@@ -4,18 +4,18 @@
 
 struct _droid
 {
-	bool isAlive;
-	int droidType;
-	int currentHealth;
-	int wayPointIndex;
-	int wayPointDirection;
-	string spriteName;
-	int currentFrame;
-	float frameDelay;
-	glm::vec2   renderOffset;
+	bool 			isAlive;
+	int 			droidType;
+	int 			currentHealth;
+	int 			wayPointIndex;
+	int 			wayPointDirection;
+	string 			spriteName;
+	int 			currentFrame;
+	float 			frameDelay;
+	glm::vec2   	renderOffset;
 
-	float currentSpeed;
-	cpVect worldPos;
+	float 			currentSpeed;
+	cpVect 			worldPos;
 
 	/*
 	cpVect acceleration;
