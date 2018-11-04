@@ -7,6 +7,7 @@
 #include <hdr/console/con_conScript.h>
 #include <hdr/game/s_healing.h>
 #include <hdr/game/s_game.h>
+#include <hdr/game/s_droidAIPatrol.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
@@ -67,7 +68,7 @@ void sys_displayScreen(float interpolation)
 
 //			gam_processMovement (interpolation);
 
-			gam_drawFullLevel(lvl_getCurrentLevelName (), "quad3d", tileTextureID);
+			gam_drawFullLevel(lvl_getCurrentLevelName (), "quad3d", tileTextureID, interpolation);
 
 			break;
 
@@ -125,6 +126,8 @@ void sys_gameTickRun()
 			s_getTileUnderPlayer (lvl_getCurrentLevelName(), playerDroid.worldPos.x / TILE_SIZE, playerDroid.worldPos.y / TILE_SIZE);
 
             gam_processMovement (interpolation);
+
+			ai_processDroidMovement (lvl_getCurrentLevelName () );
 			break;
 
 		default:

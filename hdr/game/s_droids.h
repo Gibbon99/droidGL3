@@ -16,14 +16,19 @@ struct _droid
 
 	float 			currentSpeed;
 	cpVect 			worldPos;
+	cpVect          viewWorldPos;
+
+	cpVect destinationCoords;        // This is the line segment end point
+	cpVect destDirection;            // Which way is the droid heading
+	cpVect velocity;
 
 	/*
 	cpVect acceleration;
-	cpVect velocity;
+
 	cpVect screenPos;
 	cpVect previousWaypoints;        // This is the line segment start point
-	cpVect destinationCoords;        // This is the line segment end point
-	cpVect destDirection;            // Which way is the droid heading
+
+
 	float mass;                     // Used for collision response
 //
 // Weapon
@@ -95,7 +100,7 @@ struct _droid
 void drd_setupLevel ( string levelName );
 
 // Render the droids for this level
-void drd_renderThisLevel ( string levelName );
+void drd_renderThisLevel ( string levelName, float interpolate );
 
 // Animate the droid
 void drd_animateThisLevel ( string levelName );

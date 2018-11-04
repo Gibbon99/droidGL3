@@ -4,7 +4,6 @@
 #include "hdr/game/s_levels.h"
 #include "hdr/io/io_textures.h"
 
-extern float    worldLocationX, worldLocationY, viewWorldLocationX, viewWorldLocationY;
 extern float    aspectRatioX, aspectRatioY;
 extern float    g_scaleViewBy;      // From script
 extern int      g_playFieldSize;    // From script
@@ -14,4 +13,4 @@ void gam_drawAllTiles ( string whichShader, string levelName, GLuint whichTextur
 
 void gam_setSingleTileCoords(int posX, int totalWidth);
 
-void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTexture);
+void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTexture, float interpolation);

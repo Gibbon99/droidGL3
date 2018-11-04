@@ -34,8 +34,6 @@ int numTileAcrossInTexture, numTilesDownInTexture;
 float tileTextureWidth;
 int indexCounter = 0;
 
-//float worldLocationX = 0, worldLocationY = 0;
-//float viewWorldLocationX = 0, viewWorldLocationY = 0;
 float aspectRatioX, aspectRatioY;;
 float g_scaleViewBy = 1.4f;
 int g_playFieldSize = 256;
@@ -70,7 +68,7 @@ vec2 gam_getTileTexCoords ( int whichTile )
 //-----------------------------------------------------------------------------
 //
 // Blit a screen sized quad from the backing full level texture to display on the screen
-void gam_blitFrameBufferToScreen ( string whichShader, const string levelName, GLuint whichTexture, glm::vec2 viewSize )
+void gam_blitFrameBufferToScreen ( const string &whichShader, const string levelName, GLuint whichTexture, glm::vec2 viewSize, float interpolate )
 //-----------------------------------------------------------------------------
 {
 	_tileCoords tempCoord;
@@ -86,11 +84,16 @@ void gam_blitFrameBufferToScreen ( string whichShader, const string levelName, G
 	widthTex = viewSize.x / backingTextureSize.x;
 	heightTex = viewSize.y / backingTextureSize.y;
 
-//	startTexX = (viewWorldLocationX / backingTextureSize.x) - (widthTex / 2);
-//	startTexY = (viewWorldLocationY / backingTextureSize.y) - (heightTex / 2);
+//	startTexX = (playerDroid.worldPos.x / backingTextureSize.x) - (widthTex / 2);
+//	startTexY = (playerDroid.worldPos.y / backingTextureSize.y) - (heightTex / 2);
+// TODO: Velocity for player
 
-	startTexX = (playerDroid.worldPos.x / backingTextureSize.x) - (widthTex / 2);
-	startTexY = (playerDroid.worldPos.y / backingTextureSize.y) - (heightTex / 2);
+	playerDroid.viewWorldPos.x = playerDroid.worldPos.x + (currentVelocity.x * interpolate);
+	playerDroid.viewWorldPos.y = playerDroid.worldPos.y + (currentVelocity.y * interpolate);
+
+	startTexX = (playerDroid.viewWorldPos.x / backingTextureSize.x) - (widthTex / 2);
+	startTexY = (playerDroid.viewWorldPos.y / backingTextureSize.y) - (heightTex / 2);
+
 
 	//
 	// Corner 0
@@ -448,7 +451,7 @@ void gam_createBackingTexture ( string textureName, glm::vec2 textureSize )
 // 3. Render the entire level to the backing texture
 // 4. Render viewable playfield texture to another texture
 // 5.
-void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceTexture )
+void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceTexture, float interpolate )
 //----------------------------------------------------------------------------------------
 {
 	static bool backingLevel = false;
@@ -497,6 +500,8 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 
 	gam_showLineSegments (levelName);
 	gam_showWayPoints (levelName);
+
+	drd_renderThisLevel (levelName, interpolate);
 
 #ifdef USE_BLIT
 	viewPortX = static_cast<GLsizei>(winWidth * aspectRatioX);
@@ -570,9 +575,9 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	gl_set2DMode (viewTexturePosition, viewTextureSize, glm::vec3 (1, 1, 1));
 	//
 	// Copy screen sized quad from backing texture to visible screen
-	gam_blitFrameBufferToScreen ("quad3d", levelName, io_getTextureID (levelName), glm::vec2{winWidth, winHeight});
+	gam_blitFrameBufferToScreen ("quad3d", levelName, io_getTextureID (levelName), glm::vec2{winWidth, winHeight}, interpolate);
 
-	drd_renderThisLevel ( levelName );
+
 
     s_renderPlayerSprite ();
 //----------------------------------------------------------------------------

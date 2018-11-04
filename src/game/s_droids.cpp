@@ -1,6 +1,7 @@
 #include <hdr/game/s_levels.h>
 #include <hdr/game/s_player.h>
 #include <hdr/system/sys_utils.h>
+#include <hdr/game/s_droidAIPatrol.h>
 #include "hdr/opengl/gl_renderSprite.h"
 #include "s_droids.h"
 
@@ -26,7 +27,7 @@ void drd_animateThisLevel(const string levelName)
 //------------------------------------------------------------------------------
 //
 // Render the droids for this level
-void drd_renderThisLevel( const string levelName)
+void drd_renderThisLevel( const string levelName, float interpolate)
 //------------------------------------------------------------------------------
 {
     float       drawPositionX;
@@ -41,8 +42,8 @@ void drd_renderThisLevel( const string levelName)
 //	    if (sys_visibleOnScreen(levelInfo.at(levelName).droid[index].worldPos, 32))
 	    {
 
-            drawPositionX = levelInfo.at(levelName).droid[index].worldPos.x - playerDroid.worldPos.x;
-            drawPositionY = levelInfo.at(levelName).droid[index].worldPos.y - playerDroid.worldPos.y;
+            drawPositionX = levelInfo.at(levelName).droid[index].worldPos.x + (levelInfo.at (levelName).droid[index].velocity.x * interpolate); // - playerDroid.worldPos.x;
+            drawPositionY = levelInfo.at(levelName).droid[index].worldPos.y + (levelInfo.at (levelName).droid[index].velocity.y * interpolate); // + playerDroid.worldPos.y;
 
             // 280 is the left visible edge - WIDTH 240
             // 520 is the right visible edge
@@ -50,10 +51,10 @@ void drd_renderThisLevel( const string levelName)
             // 200 is the bottom visible edge - HEIGHT 200
             // 400 is the top visible edge
 
-            drawPositionX += 240;
-            drawPositionY += 200;
+//            drawPositionX += 240;
+//            drawPositionY -= 400;
 //            drawPositionY = levelInfo.at(levelName).levelDimensions.y - drawPositionY;
-//drawPosition.y = -drawPosition.y;
+//			levelInfo.at (levelName).droid[index].worldPos.y -= 0.1f;
 
             if (0 == index)
             {
@@ -100,6 +101,9 @@ void drd_setupLevel(string levelName)
 		tempDroid.spriteName = gl_getSpriteName(tempDroid.droidType);
 		tempDroid.currentFrame = 0;
 		tempDroid.frameDelay = 0.0f;
+		tempDroid.wayPointDirection = WAYPOINT_UP;
+		tempDroid.destinationCoords = levelInfo.at(levelName).wayPoints[tempDroid.wayPointIndex];
+		tempDroid.currentSpeed = 1.2f;
 
 		levelInfo.at(levelName).droid.push_back(tempDroid);
 	}
