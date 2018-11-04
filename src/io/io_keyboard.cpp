@@ -31,12 +31,6 @@ void io_processKeyboard()
 	if (keyDownDown)
 		currentVelocity.y += moveSpeed;
 
-	if (keyForwardDown)
-		currentVelocity.z += moveSpeed;
-
-	if (keyBackwardDown)
-		currentVelocity.z -= moveSpeed;
-
 	if (!keyForwardDown)
 	{
 		g_scaleViewBy += 0.1f;
@@ -102,8 +96,6 @@ void io_processKeyboard()
 
 	if (currentVelocity.y > 5.0f)
 		currentVelocity.y = 5.0f;
-
-	quadPosition.z += currentVelocity.z;
 
 	playerDroid.worldPos.x += currentVelocity.x;
 	playerDroid.worldPos.y += currentVelocity.y;

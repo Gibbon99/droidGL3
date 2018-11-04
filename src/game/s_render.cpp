@@ -72,7 +72,8 @@ void gam_blitFrameBufferToScreen ( const string &whichShader, const string level
 //-----------------------------------------------------------------------------
 {
 	_tileCoords tempCoord;
-	float startTexX, startTexY, widthTex, heightTex;
+	float startTexX, widthTex, heightTex;
+	cpFloat startTexY;
 
 	tileCoords.clear ();
 	tileCoordsIndex.clear ();
@@ -84,16 +85,12 @@ void gam_blitFrameBufferToScreen ( const string &whichShader, const string level
 	widthTex = viewSize.x / backingTextureSize.x;
 	heightTex = viewSize.y / backingTextureSize.y;
 
-//	startTexX = (playerDroid.worldPos.x / backingTextureSize.x) - (widthTex / 2);
-//	startTexY = (playerDroid.worldPos.y / backingTextureSize.y) - (heightTex / 2);
 // TODO: Velocity for player
 
-	playerDroid.viewWorldPos.x = playerDroid.worldPos.x + (currentVelocity.x * interpolate);
-	playerDroid.viewWorldPos.y = playerDroid.worldPos.y + (currentVelocity.y * interpolate);
+	playerDroid.viewWorldPos = cpvadd(playerDroid.worldPos, cpvmult (currentVelocity, interpolate));
 
-	startTexX = (playerDroid.viewWorldPos.x / backingTextureSize.x) - (widthTex / 2);
-	startTexY = (playerDroid.viewWorldPos.y / backingTextureSize.y) - (heightTex / 2);
-
+	startTexX = static_cast<float>((playerDroid.viewWorldPos.x / backingTextureSize.x) - (widthTex / 2));
+	startTexY = static_cast<float>((playerDroid.viewWorldPos.y / backingTextureSize.y) - (heightTex / 2));
 
 	//
 	// Corner 0

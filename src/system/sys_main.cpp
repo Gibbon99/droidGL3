@@ -33,7 +33,7 @@ Uint32 frameStart;
 Uint32 frameTime;
 
 vec3 quadPosition{640.0f,380.0f,-560.0f};
-vec3 currentVelocity;
+cpVect currentVelocity;
 
 vec3 testLightPosition;
 

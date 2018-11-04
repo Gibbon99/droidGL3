@@ -62,5 +62,11 @@ bool io_getGamePrefs(const string fileName)
 	pszValue = iniFile.GetValue ("mainSection", "gamma", "0.5");
 	g_gamma = (float)atof(pszValue);
 
+	pszValue = iniFile.GetValue ("mainSection", "fullScreen", "0");
+	fullScreen = (bool)atoi(pszValue);
+
+	pszValue = iniFile.GetValue ("mainSection", "vsyncType", "1");
+	vsyncType = atoi(pszValue);
+
 	return true;
 }

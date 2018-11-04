@@ -11,8 +11,8 @@ cpVect vect1;
 _hostScriptFunctions hostVariables[] =
 {
 	{"bool quitProgram",			        &quitProgram},
-	{"int winWidth",                        &winWidth},
-	{"int winHeight",                       &winHeight},
+//	{"int winWidth",                        &winWidth},
+//	{"int winHeight",                       &winHeight},
 	{"int currentMode",                     &currentMode},
 	{"int as_audioVolume",                  &as_audioVolume},
 	{"int as_numAudioSamples",              &as_numAudioSamples},

@@ -30,8 +30,8 @@ void drd_animateThisLevel(const string levelName)
 void drd_renderThisLevel( const string levelName, float interpolate)
 //------------------------------------------------------------------------------
 {
-    float       drawPositionX;
-    float       drawPositionY;
+    cpVect       drawPosition;
+//    float       drawPositionY;
 
 	if (levelInfo.at(levelName).droid.empty ())
 		return;     // Nothing to render
@@ -42,25 +42,15 @@ void drd_renderThisLevel( const string levelName, float interpolate)
 //	    if (sys_visibleOnScreen(levelInfo.at(levelName).droid[index].worldPos, 32))
 	    {
 
-            drawPositionX = levelInfo.at(levelName).droid[index].worldPos.x + (levelInfo.at (levelName).droid[index].velocity.x * interpolate); // - playerDroid.worldPos.x;
-            drawPositionY = levelInfo.at(levelName).droid[index].worldPos.y + (levelInfo.at (levelName).droid[index].velocity.y * interpolate); // + playerDroid.worldPos.y;
+			drawPosition = cpvadd(levelInfo.at (levelName).droid[index].worldPos, cpvmult(levelInfo.at (levelName).droid[index].velocity, interpolate));
 
-            // 280 is the left visible edge - WIDTH 240
-            // 520 is the right visible edge
-
-            // 200 is the bottom visible edge - HEIGHT 200
-            // 400 is the top visible edge
-
-//            drawPositionX += 240;
-//            drawPositionY -= 400;
-//            drawPositionY = levelInfo.at(levelName).levelDimensions.y - drawPositionY;
-//			levelInfo.at (levelName).droid[index].worldPos.y -= 0.1f;
+			drawPosition.y = (int)drawPosition.y;   // Remove the fraction portion to stop blurring in Y direction
 
             if (0 == index)
             {
                 printf("Droid [ %i ] Player [ %3.3f %3.3f ] draw [ %3.3f %3.3f ] world [ %3.3f %3.3f ]\n", index,
                     playerDroid.worldPos.x, playerDroid.worldPos.y,
-                    drawPositionX, drawPositionY,
+                    drawPosition.x, drawPosition.y,
                        levelInfo.at(levelName).droid[index].worldPos.x,
                        levelInfo.at(levelName).droid[index].worldPos.y);
             }
@@ -68,11 +58,9 @@ void drd_renderThisLevel( const string levelName, float interpolate)
 
             gl_renderSprite(
                     levelInfo.at(levelName).droid[index].spriteName,
-                    glm::vec2{drawPositionX, drawPositionY},
+                    glm::vec2{drawPosition.x, drawPosition.y},
                     levelInfo.at(levelName).droid[index].currentFrame,
                     glm::vec3{1, 1, 0});
-
-//		levelInfo.at(levelName).droid[index].worldPos.y -= 0.1f;
         }
 	}
 }

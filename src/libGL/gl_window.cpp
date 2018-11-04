@@ -6,6 +6,8 @@ SDL_Window      *mainWindow;
 SDL_GLContext   mainContext;    // The OpenGL context handle
 
 int             winWidth, winHeight;    // Screen size
+bool            fullScreen;
+int             vsyncType;      // -1 is adaptive vsync; 0 = off
 
 //-----------------------------------------------------------------------------
 //
@@ -56,6 +58,39 @@ void lib_resizeWindow ( int newWidth, int newHeight )
 	winHeight = newHeight;
 }
 
+int lib_getWindowInfo()
+{
+	static int display_in_use = 0; /* Only using first display */
+
+	int i, display_mode_count;
+	SDL_DisplayMode mode;
+	Uint32 f;
+
+	con_print (CON_INFO, true, "SDL_GetNumVideoDisplays(): %i", SDL_GetNumVideoDisplays ());
+
+	display_mode_count = SDL_GetNumDisplayModes (display_in_use);
+	if ( display_mode_count < 1 )
+	{
+		con_print (CON_INFO, true, "SDL_GetNumDisplayModes failed : [ %s ]", SDL_GetError ());
+		return 1;
+	}
+
+	SDL_Log ("SDL_GetNumDisplayModes: %i", display_mode_count);
+
+	for ( i = 0; i < display_mode_count; ++i )
+	{
+		if ( SDL_GetDisplayMode (display_in_use, i, &mode) != 0 )
+		{
+			SDL_Log ("SDL_GetDisplayMode failed: %s", SDL_GetError ());
+			return 1;
+		}
+
+		f = mode.format;
+
+		SDL_Log ("Mode %i\tbpp %i\t%s\t%i x %i Refresh [ %i ]", i, SDL_BITSPERPIXEL(f), SDL_GetPixelFormatName (f), mode.w, mode.h, mode.refresh_rate);
+	}
+}
+
 //-----------------------------------------------------------------------------
 //
 // Start the GL Helper library and open the window
@@ -86,7 +121,11 @@ bool lib_openWindow ()
 	// May need to change this to 16 or 32
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
 
-	SDL_GL_SetSwapInterval (1);  // Make VSYNC set from script 1 = on
+	if (-1 == SDL_GL_SetSwapInterval (vsyncType))
+	{
+		con_print(CON_ERROR, true, "Unable to use selected vsync method : [ %s ]", SDL_GetError ());
+		SDL_GL_SetSwapInterval (1);
+	}
 
 	numVideoDrivers = SDL_GetNumVideoDrivers ();
 
@@ -98,13 +137,37 @@ bool lib_openWindow ()
 	con_print (CON_INFO, true, "Num video displays [ %i ]", SDL_GetNumVideoDisplays ());
 
 	// Create the window centered at resolution
-	mainWindow = SDL_CreateWindow ("droidGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (int)winWidth, (int)winHeight, SDL_WINDOW_OPENGL); // | SDL_WINDOW_FULLSCREEN_DESKTOP);
+	Uint32 windowFlags;
+
+	windowFlags = SDL_WINDOW_OPENGL;
+	if (fullScreen)
+		windowFlags |= SDL_WINDOW_FULLSCREEN;
+
+	mainWindow = SDL_CreateWindow ("droidGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, windowFlags);
 
 	// Was the window created ok
 	if ( !mainWindow )
 	{
 		con_print (CON_ERROR, true, "Unable to create window : [ %s ]", SDL_GetError ());
 		return false;
+	}
+
+	// TODO: Parse the modes and get the refresh rate
+	if ( fullScreen )
+	{
+		SDL_DisplayMode setDisplayMode;
+
+		setDisplayMode.refresh_rate = 75;
+		setDisplayMode.w = winWidth;
+		setDisplayMode.h = winHeight;
+		setDisplayMode.format = SDL_PIXELFORMAT_RGB888;
+
+		if ( SDL_SetWindowDisplayMode (mainWindow, &setDisplayMode) != 0 )
+		{
+			con_print (CON_ERROR, true, "Unable to set displaymode [ %s ]", SDL_GetError ());
+			printf ("Display error [ %s ]\n", SDL_GetError ());
+			sys_shutdownToSystem ();
+		}
 	}
 
 	// Create the opengl context and attach it to the window
@@ -139,5 +202,7 @@ bool lib_openWindow ()
 	SDL_GetWindowSize(mainWindow, &width, &height);
 
 	printf("SDL_GetWindowSize size [ %i %i ]\n", width, height);
+
+//	lib_getWindowInfo ();
 	return true;
 }
