@@ -2,6 +2,7 @@
 #include <hdr/game/s_levels.h>
 #include <hdr/game/s_render.h>
 #include <hdr/opengl/gl_renderSprite.h>
+#include <hdr/game/s_healing.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -146,6 +147,10 @@ bool sys_initAll()
 		gl_setupDroidToSpriteLookup ();
 
 		lvl_loadAllLevels ();
+
+		gam_setHealingState (false);
+		gam_initHealingAnimateTimer (healingAnimateInterval);
+
 	}   // end of file system check
 
 //	gl_getFramebufferLimits();

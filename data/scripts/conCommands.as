@@ -46,6 +46,9 @@ void as_setGameVariables()
     //
     // Number of samples to play at once
     as_numAudioSamples = 16;
+    //
+    // Speed to animate healing tiles in milliseconds
+    healingAnimateInterval = 150;
 }
 
 //-----------------------------------------------------------------------------

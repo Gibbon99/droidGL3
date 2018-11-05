@@ -61,7 +61,6 @@ void sys_displayScreen(float interpolation)
 		case MODE_LOADING:
 		case MODE_INIT:
 			con_showConsole ();
-
 			break;
 
 		case MODE_GAME:
@@ -120,7 +119,7 @@ void sys_gameTickRun()
 
 		case MODE_GAME:
 			io_processKeyboard ();
-			gam_animateHealingTiles();
+
 			drd_animateThisLevel (lvl_getCurrentLevelName ());
 
 			s_getTileUnderPlayer (lvl_getCurrentLevelName(), playerDroid.worldPos.x / TILE_SIZE, playerDroid.worldPos.y / TILE_SIZE);

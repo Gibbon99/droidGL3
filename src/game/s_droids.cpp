@@ -46,16 +46,6 @@ void drd_renderThisLevel( const string levelName, float interpolate)
 
 			drawPosition.y = (int)drawPosition.y;   // Remove the fraction portion to stop blurring in Y direction
 
-            if (0 == index)
-            {
-                printf("Droid [ %i ] Player [ %3.3f %3.3f ] draw [ %3.3f %3.3f ] world [ %3.3f %3.3f ]\n", index,
-                    playerDroid.worldPos.x, playerDroid.worldPos.y,
-                    drawPosition.x, drawPosition.y,
-                       levelInfo.at(levelName).droid[index].worldPos.x,
-                       levelInfo.at(levelName).droid[index].worldPos.y);
-            }
-
-
             gl_renderSprite(
                     levelInfo.at(levelName).droid[index].spriteName,
                     glm::vec2{drawPosition.x, drawPosition.y},

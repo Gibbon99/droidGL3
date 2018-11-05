@@ -6,30 +6,52 @@
 //
 //-----------------------------------------------------------------------------
 vector<_basicHealing>        healing;
+bool                        doHealingAnimate = true;
+SDL_TimerID                 timerHealingAnimate;
+Uint32                      healingAnimateInterval;      // From script
 
 // ----------------------------------------------------------------------------
 //
-// Animate the healing tiles
-void gam_animateHealingTiles()
+// Animate healing tiles called from timer callback
+Uint32 gam_healingAnimateTimerCallback ( Uint32 interval, void *param )
 // ----------------------------------------------------------------------------
 {
-	if (healing.empty())
-		return;
+	if (!doHealingAnimate)
+		return interval;
 
-	for ( auto &healingItr : healing )
+	if ( healing.empty ())
+		return interval;
+
+	for (auto &healingItr: healing )
 	{
-		healingItr.frameDelay += 1.0f / 3.0f;      // 10fps ( 30 / 3.0 )
+		healingItr.currentFrame++;
+		if ( healingItr.currentFrame > HEALING_TILE + 3)
+			healingItr.currentFrame = HEALING_TILE;
 
-		if ( healingItr.frameDelay > 1.0f)
-			{
-				healingItr.frameDelay = 0.0f;
-				healingItr.currentFrame++;
-			if ( healingItr.currentFrame > HEALING_TILE + 3)
-				healingItr.currentFrame = HEALING_TILE;
-
-			levelInfo.at(lvl_getCurrentLevelName ()).tiles[healingItr.pos] = healingItr.currentFrame;
-			}
+		levelInfo.at (lvl_getCurrentLevelName ()).tiles[healingItr.pos] = healingItr.currentFrame;
 	}
+
+	return healingAnimateInterval;
+}
+
+// ----------------------------------------------------------------------------
+//
+// Set the state of the healing tile timer
+void gam_setHealingState(bool newState)
+// ----------------------------------------------------------------------------
+{
+	doHealingAnimate = newState;
+}
+
+// ----------------------------------------------------------------------------
+//
+// Initiate the timer to animate the healing tiles
+//
+// Pass in time in milliseconds
+void gam_initHealingAnimateTimer(Uint32 interval)
+// ----------------------------------------------------------------------------
+{
+	timerHealingAnimate = SDL_AddTimer (interval, gam_healingAnimateTimerCallback, nullptr);   // Time in milliseconds
 }
 
 // ----------------------------------------------------------------------------
