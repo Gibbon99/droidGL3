@@ -3,6 +3,7 @@
 #include <hdr/game/s_render.h>
 #include <hdr/opengl/gl_renderSprite.h>
 #include <hdr/game/s_healing.h>
+#include <hdr/game/s_player.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -150,6 +151,9 @@ bool sys_initAll()
 
 		gam_setHealingState (false);
 		gam_initHealingAnimateTimer (healingAnimateInterval);
+
+		gam_setPlayerAnimateState ( false );
+		gam_initPlayerAnimateTimer (150 );
 
 	}   // end of file system check
 

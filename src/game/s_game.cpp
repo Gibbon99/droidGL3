@@ -1,6 +1,7 @@
 #include <hdr/game/s_levels.h>
 #include <hdr/opengl/gl_renderSprite.h>
 #include <hdr/game/s_healing.h>
+#include <hdr/game/s_player.h>
 #include "s_game.h"
 
 //------------------------------------------------------------------------------
@@ -16,6 +17,7 @@ void gam_startNewGame ()
 	lvl_changeToLevel ("Upper cargo");
 
 	gam_setHealingState (true);
+	gam_setPlayerAnimateState(true);
 
 	sys_changeMode (MODE_GAME);
 }

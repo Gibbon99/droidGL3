@@ -52,6 +52,10 @@ void gam_initHealingAnimateTimer(Uint32 interval)
 // ----------------------------------------------------------------------------
 {
 	timerHealingAnimate = SDL_AddTimer (interval, gam_healingAnimateTimerCallback, nullptr);   // Time in milliseconds
+	if (0 == timerHealingAnimate)
+	{
+		con_print(CON_ERROR, true, "Could not add healing tile animate timer : [ %s ]", SDL_GetError ());
+	}
 }
 
 // ----------------------------------------------------------------------------

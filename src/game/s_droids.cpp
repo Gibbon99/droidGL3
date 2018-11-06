@@ -19,7 +19,7 @@ void drd_animateThisLevel(const string levelName)
 		{
 			levelInfo.at (levelName).droid[index].frameDelay = 0.0f;
 			levelInfo.at (levelName).droid[index].currentFrame++;
-			if ( levelInfo.at (levelName).droid[index].currentFrame > 8)
+			if ( levelInfo.at (levelName).droid[index].currentFrame == sprites.at(levelInfo.at (levelName).droid[index].spriteName).numberOfFrames)
 				levelInfo.at (levelName).droid[index].currentFrame = 0;
 		}
 	}

@@ -14,7 +14,7 @@ void gl_createAllSprites()
 {
 	for ( const auto &indexItr : droidToSpriteLookup )
 	{
-		gl_createSprite (indexItr, glm::vec3{1.0f, 0.0f, 1.0f}, 16, glm::vec2{1.0f, 1.0f}, glm::vec3{0.0, 0.0, 0.0f});
+		gl_createSprite (indexItr, glm::vec3{1.0f, 0.0f, 1.0f}, 9, glm::vec2{1.0f, 1.0f}, glm::vec3{0.0, 0.0, 0.0f});
 	}
 
 	sprites.at("001").keyColor = glm::vec3{0, 0, 0};
