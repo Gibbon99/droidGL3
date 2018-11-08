@@ -136,12 +136,12 @@ void io_readPauseModeKey ( SDL_Keycode key, int action )
 //-----------------------------------------------------------------------------
 //
 // Read and process keys for main game
-void io_readGameSpecialKeys ( SDL_Keycode key, int action )
+void io_processGameKeysEvents ( _myEventData eventData )
 //-----------------------------------------------------------------------------
 {
-	if ( SDL_KEYDOWN == action )
+	if ( SDL_KEYDOWN == eventData.data1 )
 	{
-		switch ( key )
+		switch ( eventData.data2 )
 		{
 			case SDLK_BACKQUOTE:
 				sys_changeMode (MODE_CONSOLE);
@@ -202,10 +202,11 @@ void io_readGameSpecialKeys ( SDL_Keycode key, int action )
 		}
 	}
 
-	if ( SDL_KEYUP == action )
+	if ( SDL_KEYUP == eventData.data1 )
 	{
-		switch ( key )
+		switch ( eventData.data2 )
 		{
+
 			case SDLK_LEFT:
 				keyLeftDown = false;
 				break;
@@ -321,7 +322,11 @@ void io_handleKeyboardEvent ( SDL_Event event )
 			break;
 
 		case MODE_GAME:
-			io_readGameSpecialKeys (event.key.keysym.sym, event.type);
+			//
+			// Put the key event onto the Game Queue
+			//
+			// Also send to the server
+			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_KEY_EVENT, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y},"");
 			break;
 
 		case MODE_PAUSE:

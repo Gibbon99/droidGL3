@@ -18,6 +18,15 @@ void s_processPlayerMovement()
 
 }
 
+//------------------------------------------------------------------------------
+//
+// Setup initial values for player
+void s_initialPlayerSetup ()
+//------------------------------------------------------------------------------
+{
+
+}
+
 // ----------------------------------------------------------------------------
 //
 // Return the current animation player speed based on current health
@@ -75,18 +84,7 @@ void gam_initPlayerAnimateTimer ( Uint32 interval )
 void s_renderPlayerSprite()
 //------------------------------------------------------------------------------
 {
-//	gl_renderSprite ("001", glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, 0, glm::vec3{1.0, 1.0, 1.0} );
-
     gl_renderSprite ("001", glm::vec2{winWidth / 2, winHeight / 2}, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 1.0} );
-}
-
-//------------------------------------------------------------------------------
-//
-// Setup initial values for player
-void s_initialPlayerSetup()
-//------------------------------------------------------------------------------
-{
-
 }
 
 //------------------------------------------------------------------------------
@@ -98,6 +96,4 @@ void s_getTileUnderPlayer(string levelName, float posX, float posY)
 	int whichTile;
 
 	whichTile = levelInfo.at(levelName).tiles[((int)(posY) * levelInfo.at(levelName).levelDimensions.x) + (int)posX];
-
-	printf("posX [ %i [ PosY [ %i ] Over tile [ %i ]\n", (int)posX, (int)posY, whichTile);
 }

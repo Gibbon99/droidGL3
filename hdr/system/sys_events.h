@@ -36,6 +36,8 @@ using namespace std;
 #define USER_EVENT_LEVEL_EXTRAS         0x26
 #define USER_EVENT_LEVEL_LOAD_DONE      0x27
 
+#define USER_EVENT_KEY_EVENT            0x28
+
 typedef struct
 {
 	unsigned int            eventType;

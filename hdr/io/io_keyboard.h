@@ -17,3 +17,5 @@ void io_readChar ( int character );
 
 // Process keyboard presses
 void io_processKeyboard ();
+
+void io_processGameKeysEvents ( _myEventData eventData );

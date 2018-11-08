@@ -1,6 +1,7 @@
 #include <hdr/io/io_textures.h>
 #include <hdr/game/s_levels.h>
 #include <hdr/system/sys_events.h>
+#include <hdr/io/io_keyboard.h>
 #include "hdr/game/s_gameEvents.h"
 #include "hdr/system/sys_events.h"
 
@@ -85,6 +86,13 @@ int gam_processGameEventQueue ( void *ptr )
 				{
 					allLevelsLoaded = true;
 					sys_changeMode (MODE_INIT_GAME);
+					break;
+				}
+
+				case USER_EVENT_KEY_EVENT:
+				{
+					// Handle key press
+					io_processGameKeysEvents (tempEventData);
 					break;
 				}
 
