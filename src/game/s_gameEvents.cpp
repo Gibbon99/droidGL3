@@ -91,7 +91,7 @@ int gam_processGameEventQueue ( void *ptr )
 
 				case USER_EVENT_KEY_EVENT:
 				{
-					// Handle key press
+					// Handle key press events
 					io_processGameKeysEvents (tempEventData);
 					break;
 				}

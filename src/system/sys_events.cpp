@@ -22,11 +22,15 @@ SDL_mutex *loggingMutex;
 SDL_mutex *gameMutex;
 SDL_mutex *levelMutex;
 SDL_mutex *textureSetMutex;
+SDL_mutex *networkServerMutex;
+SDL_mutex *networkClientMutex;
 
 queue <_myEventData> consoleEventQueue;
 queue <_myEventData> audioEventQueue;
 queue <_myEventData> loggingEventQueue;
 queue <_myEventData> gameEventQueue;
+queue <_myEventData> networkServerQueue;
+queue <_myEventData> networkClientQueue;
 
 bool runThreads = true;     // Master flag to control state of detached threads
 
@@ -123,7 +127,7 @@ bool evt_registerUserEventSetup ()
 	userEventGameThread = SDL_CreateThread (gam_processGameEventQueue, "userEventGameThread", (void *) nullptr);
 	if ( nullptr == userEventGameThread )
 	{
-		printf ("SDL_CreateThread = userEventGameThread = failed: %s\n", SDL_GetError ());
+		printf ("SDL_CreateThread - userEventGameThread - failed: %s\n", SDL_GetError ());
 		return false;
 	}
 
@@ -173,6 +177,7 @@ bool evt_registerUserEventSetup ()
 	SDL_DetachThread (userEventAudioThread);
 	SDL_DetachThread (userEventLoggingThread);
 	SDL_DetachThread (userEventGameThread);
+
 
 	return true;
 }
@@ -259,6 +264,25 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			{
 				gameEventQueue.push (eventData);
 				SDL_UnlockMutex (gameMutex);
+			}
+			break;
+
+		case USER_EVENT_NETWORK_SERVER:
+
+			printf("Put a server packet onto the queue\n");
+
+			if ( SDL_LockMutex (networkServerMutex) == 0 )
+			{
+				networkServerQueue.push (eventData);
+				SDL_UnlockMutex (networkServerMutex);
+			}
+			break;
+
+		case USER_EVENT_NETWORK_CLIENT:
+			if ( SDL_LockMutex (networkClientMutex) == 0 )
+			{
+				networkClientQueue.push (eventData);
+				SDL_UnlockMutex (networkClientMutex);
 			}
 			break;
 

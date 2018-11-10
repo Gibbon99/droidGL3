@@ -23,6 +23,9 @@ void as_setGameVariables()
     sys_testVect(vect1);
     sys_testVect(anotherVect);
 
+    serverPort = 9991;
+    maxNumClients = 8;
+
     drawHUD = false;
 
     nearPlane = 0.0;

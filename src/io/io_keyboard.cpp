@@ -327,6 +327,7 @@ void io_handleKeyboardEvent ( SDL_Event event )
 			//
 			// Also send to the server
 			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_KEY_EVENT, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y},"");
+			evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y}, "");
 			break;
 
 		case MODE_PAUSE:

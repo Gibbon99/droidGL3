@@ -31,7 +31,6 @@ include_directories(
         hdr/libGL/chipmunk
         hdr/libGL/soil
         /usr/include/freetype2
-        /usr/local/include/SDL2
         /usr/include/SDL2
 )
 
@@ -110,7 +109,7 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_mouse.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_fbo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_shaders.cpp
-        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/s_levels.cpp hdr/game/s_levels.h src/game/s_render.cpp hdr/game/s_render.h src/game/s_movement.cpp hdr/game/s_movement.h src/game/s_renderDebug.cpp hdr/game/s_renderDebug.h src/game/s_lightCaster.cpp hdr/game/s_lightCaster.h src/opengl/gl_renderSprite.cpp hdr/opengl/gl_renderSprite.h src/game/s_hud.cpp hdr/game/s_hud.h src/game/s_healing.cpp hdr/game/s_healing.h src/game/s_player.cpp hdr/game/s_player.h src/game/s_game.cpp hdr/game/s_game.h src/game/s_lifts.cpp hdr/game/s_lifts.h src/game/s_droids.cpp hdr/game/s_droids.h src/system/sys_utils.cpp hdr/system/sys_utils.h src/game/s_droidAIPatrol.cpp hdr/game/s_droidAIPatrol.h src/system/sys_maths.cpp hdr/system/sys_maths.h)
+        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/s_levels.cpp hdr/game/s_levels.h src/game/s_render.cpp hdr/game/s_render.h src/game/s_movement.cpp hdr/game/s_movement.h src/game/s_renderDebug.cpp hdr/game/s_renderDebug.h src/game/s_lightCaster.cpp hdr/game/s_lightCaster.h src/opengl/gl_renderSprite.cpp hdr/opengl/gl_renderSprite.h src/game/s_hud.cpp hdr/game/s_hud.h src/game/s_healing.cpp hdr/game/s_healing.h src/game/s_player.cpp hdr/game/s_player.h src/game/s_game.cpp hdr/game/s_game.h src/game/s_lifts.cpp hdr/game/s_lifts.h src/game/s_droids.cpp hdr/game/s_droids.h src/system/sys_utils.cpp hdr/system/sys_utils.h src/game/s_droidAIPatrol.cpp hdr/game/s_droidAIPatrol.h src/system/sys_maths.cpp hdr/system/sys_maths.h src/network/net_server.cpp hdr/network/net_server.h src/network/net_client.cpp hdr/network/net_client.h)
 
 # Define the C sources
 set(C_SRCS
@@ -184,7 +183,13 @@ set(C_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/image_helper.c
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/soil.c
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/stb_image_aug.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/io/simpleIni/io_convertUTF.c )
+        ${CMAKE_CURRENT_LIST_DIR}/src/io/simpleIni/io_convertUTF.c
+
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/netcode.c
+
+        ${CMAKE_CURRENT_LIST_DIR}/src/io/minilzo/minilzo.c
+
+        )
 
 set_source_files_properties(
         ${CXX_SRCS} PROPERTIES COMPILE_FLAGS
@@ -207,4 +212,5 @@ target_link_libraries(droidGL
         SDL2
         SDL2_mixer
         freetype
+        sodium
         )

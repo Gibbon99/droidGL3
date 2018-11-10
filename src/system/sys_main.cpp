@@ -8,6 +8,7 @@
 #include <hdr/game/s_healing.h>
 #include <hdr/game/s_game.h>
 #include <hdr/game/s_droidAIPatrol.h>
+#include <hdr/network/net_client.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
@@ -31,6 +32,7 @@ int     currentMode;
 
 Uint32 frameStart;
 Uint32 frameTime;
+float frameCount = 0;
 
 vec3 quadPosition{640.0f,380.0f,-560.0f};
 cpVect currentVelocity;
@@ -81,8 +83,7 @@ void sys_displayScreen(float interpolation)
 			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
 	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Circle time [ %2.2f ms ] g_scaleViewBy [ %3.3f ]", deltaTime, g_scaleViewBy);
 
-//	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "playerLocation [ %3.3f %3.3f ] viewworldlocation [ %3.3f %3.3f ]", playerDroid.worldPos.x, playerDroid.worldPos.y, viewWorldLocationX, viewWorldLocationY);
-
+	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "playerLocation [ %3.3f %3.3f ] velocity [ %3.3f %3.3f ]", playerDroid.worldPos.x, playerDroid.worldPos.y, playerDroid.velocity.x, playerDroid.velocity.y);
 	if ( g_memLeakLastRun)
 		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
 
@@ -96,6 +97,8 @@ void sys_displayScreen(float interpolation)
 void sys_gameTickRun()
 //-----------------------------------------------------------------------------------------------------
 {
+	frameCount += 1.0f / TICKS_PER_SECOND;
+
 	switch (currentMode)
 	{
 		case MODE_SHUTDOWN:
@@ -118,6 +121,11 @@ void sys_gameTickRun()
 			break;
 
 		case MODE_GAME:
+
+			net_updateNetworkClient (frameCount);
+			if (runAsServer)
+				net_updateNetworkServer (frameCount);
+
 			io_processKeyboard ();
 
 			drd_animateThisLevel (lvl_getCurrentLevelName ());
@@ -170,6 +178,8 @@ int main (int argc, char *argv[] )
 		}
 
 		interpolation = float( SDL_GetTicks() + SKIP_TICKS - next_game_tick ) / float( SKIP_TICKS );
+		if (interpolation > 1.0f)
+			interpolation = 1.0f;
 
 		sys_displayScreen ( interpolation );
 

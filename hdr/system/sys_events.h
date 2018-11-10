@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hdr/system/sys_main.h"
+#include "hdr/network/net_server.h"
 
 using namespace glm;
 using namespace std;
@@ -38,9 +39,14 @@ using namespace std;
 
 #define USER_EVENT_KEY_EVENT            0x28
 
+#define USER_EVENT_NETWORK_SERVER       0x29
+#define NETWORK_RECEIVE                 0x30
+#define USER_EVENT_NETWORK_CLIENT       0x31
+#define NETWORK_SEND                    0x32
+
 typedef struct
 {
-	unsigned int            eventType;
+	unsigned int    eventType;
 	int             eventAction;
 	int             data1;
 	int             data2;
@@ -54,6 +60,8 @@ extern std::queue<_myEventData> consoleEventQueue;
 extern std::queue<_myEventData> audioEventQueue;
 extern std::queue<_myEventData> loggingEventQueue;
 extern std::queue<_myEventData> gameEventQueue;
+extern std::queue<_myEventData> networkServerQueue;
+extern std::queue<_myEventData> networkClientQueue;
 
 extern SDL_mutex *consoleMutex;
 extern SDL_mutex *audioMutex;
@@ -61,6 +69,8 @@ extern SDL_mutex *loggingMutex;
 extern SDL_mutex *gameMutex;
 extern SDL_mutex *levelMutex;
 extern SDL_mutex *textureSetMutex;
+extern SDL_mutex *networkServerMutex;
+extern SDL_mutex *networkClientMutex;
 
 extern bool runThreads;
 

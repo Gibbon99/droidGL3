@@ -8,6 +8,7 @@
       <file path="$PROJECT_DIR$/hdr/game" />
       <file path="$PROJECT_DIR$/hdr/io" />
       <file path="$PROJECT_DIR$/hdr/libGL" />
+      <file path="$PROJECT_DIR$/hdr/network" />
       <file path="$PROJECT_DIR$/hdr/opengl" />
       <file path="$PROJECT_DIR$/hdr/physfs" />
       <file path="$PROJECT_DIR$/hdr/script" />
@@ -16,6 +17,7 @@
       <file path="$PROJECT_DIR$/src/game" />
       <file path="$PROJECT_DIR$/src/io" />
       <file path="$PROJECT_DIR$/src/libGL" />
+      <file path="$PROJECT_DIR$/src/network" />
       <file path="$PROJECT_DIR$/src/opengl" />
       <file path="$PROJECT_DIR$/src/physfs" />
       <file path="$PROJECT_DIR$/src/script" />

@@ -6,6 +6,7 @@
 #include "hdr/system/sys_audio.h"
 #include "hdr/opengl/gl_opengl.h"
 #include "hdr/game/s_hud.h"
+#include "hdr/network/net_server.h"
 
 cpVect vect1;
 
@@ -30,6 +31,8 @@ _hostScriptFunctions hostVariables[] =
 	{"int g_playFieldSize",                 &g_playFieldSize},
 	{"cpVect vect1",                        &vect1},
 	{"int healingAnimateInterval",          &healingAnimateInterval},
+	{"int serverPort",                      &serverPort},
+	{"int maxNumClients",                   &maxNumClients},
 	{"",                                    nullptr},
 };
 

@@ -57,6 +57,8 @@ int con_processConsoleUserEvent ( void *ptr )
 	{
 		SDL_Delay(THREAD_DELAY_MS);
 
+//		printf("Inside console thread\n");
+
 		if ( !consoleEventQueue.empty ())   // stuff in the queue to process
 		{
 			if ( SDL_LockMutex (consoleMutex) == 0 )

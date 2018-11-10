@@ -42,6 +42,7 @@ const int MAX_FRAMESKIP = 5;
 
 extern Uint32 frameStart;
 extern Uint32 frameTime;
+extern float frameCount;
 
 extern bool quitProgram;
 extern int  fps, thinkFPS;

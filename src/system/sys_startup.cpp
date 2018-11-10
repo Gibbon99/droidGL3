@@ -4,6 +4,9 @@
 #include <hdr/opengl/gl_renderSprite.h>
 #include <hdr/game/s_healing.h>
 #include <hdr/game/s_player.h>
+#include <hdr/network/net_server.h>
+#include <hdr/network/net_client.h>
+#include <hdr/io/minilzo/lzoconf.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -128,6 +131,20 @@ bool sys_initAll()
 			// Crashes with an exception around the strings on Windows
 //	con_executeScriptFunction ("scr_addAllScriptCommands", "");
 		}
+
+		if (lzo_init() != LZO_E_OK)
+		{
+			con_print(CON_ERROR, true, "Can not start compression library. Internal error.");
+			return false;
+		}
+		if (runAsServer)
+		{
+			if ( !net_createServer (frameCount))
+				return false;
+		}
+
+		if (!net_createNetworkClient (frameCount ))
+			return false;
 
 		sys_setupPhysicsEngine();
 
