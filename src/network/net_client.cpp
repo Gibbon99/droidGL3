@@ -233,6 +233,10 @@ bool net_createNetworkClient(float time)
 {
 	netcode_client_config_t client_config;
 
+	char *clientAddress;
+
+	clientAddress = (char *)serverAddress.c_str();
+
 	netcode_default_client_config (&client_config);
 	networkClient = netcode_client_create ("::", &client_config, time);
 
@@ -246,7 +250,7 @@ bool net_createNetworkClient(float time)
 
 	con_print(CON_INFO, true, "Network client id is %.16" PRIx64 "", networkClientID);
 
-	if ( netcode_generate_connect_token (1, (NETCODE_CONST char **) &serverAddress, (NETCODE_CONST char **) &serverAddress, CONNECT_TOKEN_EXPIRY, CONNECT_TOKEN_TIMEOUT, networkClientID, PROTOCOL_ID,
+	if ( netcode_generate_connect_token (1, (NETCODE_CONST char **) &clientAddress, (NETCODE_CONST char **) &clientAddress, CONNECT_TOKEN_EXPIRY, CONNECT_TOKEN_TIMEOUT, networkClientID, PROTOCOL_ID,
 	                                     private_key, connect_token) != NETCODE_OK )
 	{
 		con_print(CON_ERROR, true, "Failed to generate client connect token.");

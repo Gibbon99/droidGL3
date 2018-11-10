@@ -19,5 +19,3 @@ int net_processNetworkServerQueue ( void *ptr );
 
 // Update the network server
 void net_updateNetworkServer ( float time );
-
-void net_setServerDetails ( std::string serverAddressIn, int serverPort );

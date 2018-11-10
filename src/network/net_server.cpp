@@ -15,7 +15,8 @@ SDL_Thread              *userEventNetworkServerThread;
 int                     maxNumClients;  // From script
 int                     serverPort;     // From script
 
-char *                  serverAddress; // = "[::1]:9991";
+//char *                  serverAddress; // = "[::1]:9991";
+string                  serverAddress;
 
 //-----------------------------------------------------------------------------
 //
@@ -202,7 +203,11 @@ bool net_createServer ( float time )
 {
 	struct netcode_server_config_t server_config{};
 
-	serverAddress = "[::1]:9991";
+//	serverAddress = "[::1]:9991";
+
+	serverAddress = net_setNetworkAddress (9991,"[::1]" );
+
+	printf("server [ %s ]\n", serverAddress.c_str());
 
 	if ( netcode_init () != NETCODE_OK )
 	{
@@ -218,7 +223,7 @@ bool net_createServer ( float time )
 	server_config.protocol_id = PROTOCOL_ID;
 	memcpy (&server_config.private_key, private_key, NETCODE_KEY_BYTES);
 
-	networkServer = netcode_server_create (serverAddress, &server_config, time);
+	networkServer = netcode_server_create (serverAddress.c_str(), &server_config, time);
 
 	if ( !networkServer )
 	{
