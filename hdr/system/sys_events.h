@@ -42,7 +42,7 @@ using namespace std;
 #define USER_EVENT_NETWORK_SERVER       0x29
 #define NETWORK_RECEIVE                 0x30
 #define USER_EVENT_NETWORK_CLIENT       0x31
-#define NETWORK_SEND                    0x32
+#define NETWORK_SEND_DATA               0x32
 
 typedef struct
 {

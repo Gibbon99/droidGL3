@@ -120,6 +120,13 @@ void sys_gameTickRun()
 			gam_startNewGame ();
 			break;
 
+		case MODE_CONSOLE:
+			net_updateNetworkClient (frameCount);
+			if ( runAsServer )
+				net_updateNetworkServer (frameCount);
+
+			break;
+
 		case MODE_GAME:
 
 			net_updateNetworkClient (frameCount);

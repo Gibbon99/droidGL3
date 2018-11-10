@@ -15,7 +15,7 @@ SDL_Thread              *userEventNetworkServerThread;
 int                     maxNumClients;  // From script
 int                     serverPort;     // From script
 
-char *            serverAddress; // = "[::1]:9991";
+char *                  serverAddress; // = "[::1]:9991";
 
 //-----------------------------------------------------------------------------
 //
@@ -42,7 +42,11 @@ int net_processNetworkServerQueue (void *ptr)
 			switch ( tempEventData.eventAction )
 			{
 				case NETWORK_RECEIVE:
-					printf("Got a data packet - client says [ %s ]\n", tempEventData.eventString.c_str());
+					printf("Got a DATA packet - client says Position [ %3.3f %3.3f ] Text [ %s ]\n", tempEventData.vec2_1.x, tempEventData.vec2_1.y,  tempEventData.eventString.c_str());
+					break;
+
+				case NET_SYSTEM_PACKET:
+					printf("Got a SYSTEM packet from the client.\n");
 					break;
 
 				default:
@@ -85,17 +89,32 @@ int net_getNetworkServerPackets ( void *ptr )
 			if (result != LZO_E_OK)
 			{
 				con_print(CON_ERROR, true, "Internal error - server network packet decompression failed [ %i ]. Packet dropped.", result);
+				netcode_server_free_packet (networkServer, packet);
 				return -1;      // Ignore the packet
 			}
 
 			serverPacket = (_networkPacket *)&inPacketPtr;
 
-			printf("Player world position [ %3.2f %3.2f ]\n", serverPacket->vec2_1.x, serverPacket->vec2_1.y);
-			printf("Client says [ %s ]\n", serverPacket->text.c_str());
+			switch (serverPacket->packetType)
+			{
+				case NET_DATA_PACKET:
+					if (serverPacket->sequence != networkServerPacketCount)     // What happens with dropped packets??
+					{
+						netcode_server_free_packet (networkServer, packet);
+						return -1; // bad packet ?
+					}
 
-			networkServerPacketCount++;
-			evt_sendEvent (USER_EVENT_NETWORK_SERVER, NETWORK_RECEIVE, serverPacket->data1, serverPacket->data2, serverPacket->data3, serverPacket->vec2_1, serverPacket->vec2_2, serverPacket->text);
+					networkServerPacketCount++;
+					evt_sendEvent (USER_EVENT_NETWORK_SERVER, NETWORK_RECEIVE, serverPacket->data1, serverPacket->data2, serverPacket->data3, serverPacket->vec2_1, serverPacket->vec2_2, serverPacket->text);
+					break;
 
+				case NET_SYSTEM_PACKET:
+					evt_sendEvent (USER_EVENT_NETWORK_SERVER, NET_SYSTEM_PACKET, serverPacket->data1, serverPacket->data2, serverPacket->data3, serverPacket->vec2_1, serverPacket->vec2_2, serverPacket->text);
+					break;
+
+				default:
+					break;  // Unknown packet type
+			}
 			netcode_server_free_packet (networkServer, packet);
 		}
 	}

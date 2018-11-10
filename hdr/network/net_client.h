@@ -4,6 +4,8 @@
 #include "hdr/network/netcode.h"
 #include "hdr/network/net_common.h"
 
+extern  netcode_client_t        *networkClient;
+
 // Create the network client
 bool net_createNetworkClient ( float time );
 

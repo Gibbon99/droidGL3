@@ -2,28 +2,21 @@
 #include "hdr/io/minilzo/minilzo.h"
 #include "hdr/network/net_client.h"
 
-uint64_t                client_id = 0;
+uint64_t                networkClientID = 0;
 netcode_client_t        *networkClient;
-_networkPacket          clientPacket;
 
 SDL_Thread              *networkClientThread;
 SDL_Thread              *userEventNetworClientThread;
+
+SDL_TimerID             networkClientKeepaliveCheck;
 
 int                     networkClientPacketCount = 0;
 
 bool                    runNetworkClientThread = false;
 
+bool                    haveSeenTraffic = false;
+
 uint8_t                 connect_token[NETCODE_CONNECT_TOKEN_BYTES];
-
-/* Work-memory needed for compression. Allocate memory in units
- * of 'lzo_align_t' (instead of 'char') to make sure it is properly aligned.
- */
-
-#define HEAP_ALLOC( var, size ) \
-    lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
-
-static HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
-
 
 bool net_compressPacket ( _networkPacket inPacket, unsigned char *outPacket, lzo_uint inSize, lzo_uint *outSize )
 {
@@ -43,11 +36,62 @@ bool net_compressPacket ( _networkPacket inPacket, unsigned char *outPacket, lzo
 
 //-----------------------------------------------------------------------------
 //
+// Run a timer to see if we have not sent any traffic in a while
+// if not, send a keepalive packet to the server
+// Client send function will set this to true each time, if it's false, then
+// no packets have been send to the server in 'interval' period
+Uint32 net_networkClientKeepaliveCallback( Uint32 interval, void *param )
+//-----------------------------------------------------------------------------
+{
+	if (haveSeenTraffic)        // Have seen traffic go from client
+		haveSeenTraffic = !haveSeenTraffic; // Set to false for next check
+	else
+	{
+		haveSeenTraffic = false;
+		evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_SYSTEM, NET_SYS_KEEPALIVE, networkClientID, 0, glm::vec2(), glm::vec2(), "");
+	}
+
+	return interval;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Send the passed in packet to the server
+void net_sendClientPacket(_networkPacket clientPacket)
+//-----------------------------------------------------------------------------
+{
+	lzo_uint        inLength;
+	lzo_uint        outLength;
+	void            *packetPtr;
+	char            outPacketPtr[sizeof (clientPacket)];
+	int             result;
+
+	packetPtr = &clientPacket;
+
+	inLength = sizeof (clientPacket);
+
+//						net_compressPacket (clientPacket, (unsigned char*)&outPacketPtr, inLength, &outLength );
+
+	result = lzo1x_1_compress ((unsigned char *) packetPtr, inLength, (unsigned char *) &outPacketPtr, &outLength, wrkmem);
+
+	if ( result != LZO_E_OK )
+	{
+		con_print (CON_ERROR, true, "Error compressing network packet . %lu bytes into %lu bytes", (unsigned long) inLength, (unsigned long) outLength);
+		return; // Don't send the packet
+	}
+
+	if ( netcode_client_state (networkClient) == NETCODE_CLIENT_STATE_CONNECTED )
+		netcode_client_send_packet (networkClient, (unsigned char *) outPacketPtr, (int) (outLength));
+}
+
+//-----------------------------------------------------------------------------
+//
 // Thread function to process the network client packets
 int net_processNetworkClientQueue ( void *ptr )
 //-----------------------------------------------------------------------------
 {
-	_myEventData tempEventData;
+	_myEventData    tempEventData;
+	_networkPacket  clientPacket;
 
 	while ( runThreads )
 	{
@@ -69,43 +113,24 @@ int net_processNetworkClientQueue ( void *ptr )
 					printf ("Got a data packet from the server.\n");
 					break;
 
-				case NETWORK_SEND:
+				case NETWORK_SEND_DATA:
+					clientPacket.packetType = NET_DATA_PACKET;
+					clientPacket.data1 = tempEventData.data1;
+					clientPacket.data2 = tempEventData.data2;
+					clientPacket.data3 = tempEventData.data3;
+					clientPacket.vec2_1 = tempEventData.vec2_1;
+					clientPacket.vec2_2 = tempEventData.vec2_2;
+					clientPacket.timeStamp = static_cast<long>(frameCount);
+					clientPacket.sequence = networkClientPacketCount++;
+					snprintf(clientPacket.text, NET_TEXT_SIZE, "%s", tempEventData.eventString.c_str());    // Don't overflow char array
+					haveSeenTraffic = true;
+					net_sendClientPacket (clientPacket);
+					break;
 
-					if ( netcode_client_state (networkClient) == NETCODE_CLIENT_STATE_CONNECTED )
-					{
-						lzo_uint        inLength;
-						lzo_uint        outLength;
-
-						_networkPacket  outPacket;
-
-						clientPacket.data1 = tempEventData.data1;
-						clientPacket.data2 = tempEventData.data2;
-						clientPacket.data3 = tempEventData.data3;
-						clientPacket.vec2_1 = tempEventData.vec2_1;
-						clientPacket.vec2_2 = tempEventData.vec2_2;
-						clientPacket.timeStamp = static_cast<long>(frameCount);
-						clientPacket.sequence = networkClientPacketCount++;
-						clientPacket.text = "This is from the client";
-
-						void *packetPtr;
-						char outPacketPtr[sizeof(clientPacket)];
-
-						packetPtr = &clientPacket;
-
-						inLength = sizeof(clientPacket);
-
-//						net_compressPacket (clientPacket, (unsigned char*)&outPacketPtr, inLength, &outLength );
-
-						int result = lzo1x_1_compress((unsigned char*)packetPtr, inLength, (unsigned char *)&outPacketPtr, &outLength, wrkmem);
-						if (result != LZO_E_OK)
-						{
-							con_print(CON_ERROR, true, "Error compressing network packet . %lu bytes into %lu bytes", (unsigned long)inLength, (unsigned long)outLength);
-							return -1; // Don't send the packet
-						}
-
-						netcode_client_send_packet (networkClient, (unsigned char *)outPacketPtr, (int)(outLength));
-					}
-
+				case NETWORK_SEND_SYSTEM:
+					clientPacket.packetType = NET_SYSTEM_PACKET;
+					clientPacket.data1 = tempEventData.data1;
+					net_sendClientPacket (clientPacket);
 					break;
 
 				default:
@@ -133,11 +158,11 @@ int net_getNetworkClientPackets ( void *ptr )
 
 	assert(packet_bytes == sizeof (_networkPacket));
 
-	assert(memcmp (packet, &clientPacket, sizeof (_networkPacket)) == 0);
+//	assert(memcmp (packet, &clientPacket, sizeof (_networkPacket)) == 0);
 	networkClientPacketCount++;
 	netcode_client_free_packet (networkClient, packet);
 
-	evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_RECEIVE, clientPacket.data1, clientPacket.data2, clientPacket.data3, clientPacket.vec2_1, clientPacket.vec2_2, "");
+//	evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_RECEIVE, clientPacket.data1, clientPacket.data2, clientPacket.data3, clientPacket.vec2_1, clientPacket.vec2_2, "");
 
 	return 0;
 }
@@ -217,11 +242,11 @@ bool net_createNetworkClient(float time)
 		return false;
 	}
 
-	netcode_random_bytes ((uint8_t *) &client_id, 8);
+	netcode_random_bytes ((uint8_t *) &networkClientID, 8);
 
-	con_print(CON_INFO, true, "Network client id is %.16" PRIx64 "\n", client_id);
+	con_print(CON_INFO, true, "Network client id is %.16" PRIx64 "", networkClientID);
 
-	if ( netcode_generate_connect_token (1, (NETCODE_CONST char **) &serverAddress, (NETCODE_CONST char **) &serverAddress, CONNECT_TOKEN_EXPIRY, CONNECT_TOKEN_TIMEOUT, client_id, PROTOCOL_ID,
+	if ( netcode_generate_connect_token (1, (NETCODE_CONST char **) &serverAddress, (NETCODE_CONST char **) &serverAddress, CONNECT_TOKEN_EXPIRY, CONNECT_TOKEN_TIMEOUT, networkClientID, PROTOCOL_ID,
 	                                     private_key, connect_token) != NETCODE_OK )
 	{
 		con_print(CON_ERROR, true, "Failed to generate client connect token.");
@@ -231,6 +256,8 @@ bool net_createNetworkClient(float time)
 	netcode_client_connect (networkClient, connect_token);
 
 	net_startNetworkClientThread ();
+
+//	networkClientKeepaliveCheck = SDL_AddTimer (1000, net_networkClientKeepaliveCallback, nullptr);   // Time in milliseconds
 
 	return true;
 }

@@ -1,23 +1,41 @@
 #pragma once
 #include "hdr/system/sys_main.h"
+#include "hdr/io/minilzo/minilzo.h"
 #include "hdr/network/netcode.h"
 
+/* Work-memory needed for compression. Allocate memory in units
+ * of 'lzo_align_t' (instead of 'char') to make sure it is properly aligned.
+ */
+
+#define HEAP_ALLOC( var, size ) \
+    lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
+
+static HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
+
+#define NET_TEXT_SIZE        32
 #define CONNECT_TOKEN_EXPIRY 30     // Make variable from script TODO:
 #define CONNECT_TOKEN_TIMEOUT 5
 
+#define NET_TO_SERVER           0x500
+#define NET_SYS_KEEPALIVE       0x501
+#define NET_DATA_PACKET         0x502
+#define NETWORK_SEND_SYSTEM     0x503
+#define NET_SYSTEM_PACKET       0x504
+
 typedef struct networkPacket
 {
-	long timeStamp;
-	long sequence;
-	int data1;
-	int data2;
-	int data3;
-	glm::vec2 vec2_1;
-	glm::vec2 vec2_2;
-	std::string text;
+	long            timeStamp;
+	long            sequence;
+	int             packetType;
+	int             data1;
+	int             data2;
+	int             data3;
+	glm::vec2       vec2_1;
+	glm::vec2       vec2_2;
+	char            text[NET_TEXT_SIZE];
 } _networkPacket;
 
-extern char * serverAddress; // = "[::1]:9991";
+extern char * serverAddress;
 
 #define PROTOCOL_ID     0x1122334455667788
 

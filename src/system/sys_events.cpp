@@ -268,9 +268,6 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			break;
 
 		case USER_EVENT_NETWORK_SERVER:
-
-			printf("Put a server packet onto the queue\n");
-
 			if ( SDL_LockMutex (networkServerMutex) == 0 )
 			{
 				networkServerQueue.push (eventData);
