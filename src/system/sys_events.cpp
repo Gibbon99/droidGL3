@@ -29,8 +29,9 @@ queue <_myEventData> consoleEventQueue;
 queue <_myEventData> audioEventQueue;
 queue <_myEventData> loggingEventQueue;
 queue <_myEventData> gameEventQueue;
-queue <_myEventData> networkServerQueue;
 queue <_myEventData> networkClientQueue;
+
+queue<_networkPacket> networkServerQueue;
 
 bool runThreads = true;     // Master flag to control state of detached threads
 
@@ -267,6 +268,7 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			}
 			break;
 
+			/*
 		case USER_EVENT_NETWORK_SERVER:
 			if ( SDL_LockMutex (networkServerMutex) == 0 )
 			{
@@ -274,7 +276,7 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 				SDL_UnlockMutex (networkServerMutex);
 			}
 			break;
-
+*/
 		case USER_EVENT_NETWORK_CLIENT:
 			if ( SDL_LockMutex (networkClientMutex) == 0 )
 			{

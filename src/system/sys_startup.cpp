@@ -137,13 +137,16 @@ bool sys_initAll()
 			con_print(CON_ERROR, true, "Can not start compression library. Internal error.");
 			return false;
 		}
+
 		if (runAsServer)
 		{
-			if ( !net_createServer (frameCount))
+			networkServerIsRunning = net_createServer (frameCount);
+			if ( !networkServerIsRunning)
 				return false;
 		}
 
-		if (!net_createNetworkClient (frameCount ))
+		networkClientIsRunning = net_createNetworkClient (frameCount);
+		if (!networkClientIsRunning)
 			return false;
 
 		sys_setupPhysicsEngine();

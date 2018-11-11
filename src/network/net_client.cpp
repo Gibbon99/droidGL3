@@ -4,11 +4,15 @@
 
 uint64_t                networkClientID = 0;
 netcode_client_t        *networkClient;
+int                     networkClientIndexOnServer;
+int                     networkClientCurrentState = -100;
+bool                    networkClientIsRunning = false;
 
 SDL_Thread              *networkClientThread;
 SDL_Thread              *userEventNetworClientThread;
 
 SDL_TimerID             networkClientKeepaliveCheck;
+SDL_TimerID             networkClientStatusCheck;
 
 int                     networkClientPacketCount = 0;
 
@@ -17,22 +21,6 @@ bool                    runNetworkClientThread = false;
 bool                    haveSeenTraffic = false;
 
 uint8_t                 connect_token[NETCODE_CONNECT_TOKEN_BYTES];
-
-bool net_compressPacket ( _networkPacket inPacket, unsigned char *outPacket, lzo_uint inSize, lzo_uint *outSize )
-{
-	lzo_uint outLength;
-	void *inPacketPtr;
-	int result;
-
-	inPacketPtr = &inPacket;
-
-	result = lzo1x_1_compress ((unsigned char *) inPacketPtr, inSize, outPacket, &outLength, wrkmem);
-
-	con_print (CON_INFO, true, "Compressed %lu bytes into %lu bytes", (unsigned long) inSize, (unsigned long) outLength);
-
-	*outSize = outLength;
-	return result == LZO_E_OK;
-}
 
 //-----------------------------------------------------------------------------
 //
@@ -70,8 +58,6 @@ void net_sendClientPacket(_networkPacket clientPacket)
 
 	inLength = sizeof (clientPacket);
 
-//						net_compressPacket (clientPacket, (unsigned char*)&outPacketPtr, inLength, &outLength );
-
 	result = lzo1x_1_compress ((unsigned char *) packetPtr, inLength, (unsigned char *) &outPacketPtr, &outLength, wrkmem);
 
 	if ( result != LZO_E_OK )
@@ -80,7 +66,8 @@ void net_sendClientPacket(_networkPacket clientPacket)
 		return; // Don't send the packet
 	}
 
-	if ( netcode_client_state (networkClient) == NETCODE_CLIENT_STATE_CONNECTED )
+//	if ( netcode_client_state (networkClient) == NETCODE_CLIENT_STATE_CONNECTED )
+		if (networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED)
 		netcode_client_send_packet (networkClient, (unsigned char *) outPacketPtr, (int) (outLength));
 }
 
@@ -103,12 +90,15 @@ int net_processNetworkClientQueue ( void *ptr )
 			{
 				tempEventData = networkClientQueue.front ();
 				networkClientQueue.pop ();
-
 				SDL_UnlockMutex (networkClientMutex);
 			}
 
 			switch ( tempEventData.eventAction )
 			{
+				case NET_STATUS:    // Client network state has changed
+					net_networkClientGetState (tempEventData.data1 );
+					break;
+
 				case NETWORK_RECEIVE:
 					printf ("Got a data packet from the server.\n");
 					break;
@@ -169,7 +159,7 @@ int net_getNetworkClientPackets ( void *ptr )
 
 //----------------------------------------------------------------
 //
-// Create the thread to run the network server function.
+// Create the thread to run the network client function.
 bool net_createNetworkClientThread ()
 //----------------------------------------------------------------
 {
@@ -217,12 +207,82 @@ bool net_startNetworkClientThread ()
 		if ( net_createNetworkClientThread ())
 		{
 			runNetworkClientThread = true;
-			SDL_Delay(500);
 			SDL_DetachThread (networkClientThread);
 		}
 	}
 
 	return true;
+}
+
+//----------------------------------------------------------------
+//
+// Get the state of the client
+void net_networkClientGetState ( int clientState )
+//----------------------------------------------------------------
+{
+	switch ( clientState )
+	{
+		case NETCODE_CLIENT_STATE_CONNECT_TOKEN_EXPIRED:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_CONNECT_TOKEN_EXPIRED");
+			break;
+
+		case NETCODE_CLIENT_STATE_INVALID_CONNECT_TOKEN:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_INVALID_CONNECT_TOKEN");
+			break;
+
+		case NETCODE_CLIENT_STATE_CONNECTION_TIMED_OUT:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_CONNECTION_TIMED_OUT");
+			break;
+
+		case NETCODE_CLIENT_STATE_CONNECTION_RESPONSE_TIMED_OUT:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_CONNECTION_RESPONSE_TIMED_OUT");
+			break;
+
+		case NETCODE_CLIENT_STATE_CONNECTION_REQUEST_TIMED_OUT:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_CONNECTION_REQUEST_TIMED_OUT");
+			break;
+
+		case NETCODE_CLIENT_STATE_CONNECTION_DENIED:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_CONNECTION_DENIED");
+			break;
+
+		case NETCODE_CLIENT_STATE_DISCONNECTED:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_DISCONNECTED");
+			break;
+
+		case NETCODE_CLIENT_STATE_SENDING_CONNECTION_REQUEST:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_SENDING_CONNECTION_REQUEST");
+			break;
+
+		case NETCODE_CLIENT_STATE_SENDING_CONNECTION_RESPONSE:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_SENDING_CONNECTION_RESPONSE");
+			break;
+
+		case NETCODE_CLIENT_STATE_CONNECTED:
+			con_print (CON_INFO, true, "Client state [ %s ]", "NETCODE_CLIENT_STATE_CONNECTED");
+			break;
+
+		default:
+			break;  // Unknown state
+	}
+}
+
+//--------------------------------------------------------------------------------
+//
+// Called from SDL Timer - check the client status and push any changes as an event
+Uint32 net_clientCheckStatus( Uint32 interval, void *paramm)
+//--------------------------------------------------------------------------------
+{
+	int newStatus;
+
+	newStatus = netcode_client_state (networkClient);
+
+	if ( networkClientCurrentState != newStatus)
+	{
+		networkClientCurrentState = newStatus;
+		evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NET_STATUS, newStatus, networkClientID, 0, glm::vec2 (), glm::vec2 (), "");
+	}
+	return interval;
 }
 
 //--------------------------------------------------------------------------------
@@ -262,6 +322,12 @@ bool net_createNetworkClient(float time)
 	net_startNetworkClientThread ();
 
 //	networkClientKeepaliveCheck = SDL_AddTimer (1000, net_networkClientKeepaliveCallback, nullptr);   // Time in milliseconds
+
+	networkClientStatusCheck = SDL_AddTimer (1000, net_clientCheckStatus, nullptr);
+
+	networkClientIndexOnServer = netcode_client_index(networkClient);
+
+	con_print(CON_INFO, true, "Client index [ %i ]", netcode_client_index (networkClient ));
 
 	return true;
 }

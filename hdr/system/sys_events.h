@@ -2,6 +2,7 @@
 
 #include "hdr/system/sys_main.h"
 #include "hdr/network/net_server.h"
+#include "hdr/network/net_common.h"
 
 using namespace glm;
 using namespace std;
@@ -39,7 +40,7 @@ using namespace std;
 
 #define USER_EVENT_KEY_EVENT            0x28
 
-#define USER_EVENT_NETWORK_SERVER       0x29
+//#define USER_EVENT_NETWORK_SERVER       0x29
 #define NETWORK_RECEIVE                 0x30
 #define USER_EVENT_NETWORK_CLIENT       0x31
 #define NETWORK_SEND_DATA               0x32
@@ -56,12 +57,28 @@ typedef struct
 	string          eventString;
 } _myEventData;
 
+
+typedef struct
+{
+	long timeStamp;
+	long sequence;
+	int packetOwner;
+	int packetType;
+	int data1;
+	int data2;
+	int data3;
+	glm::vec2 vec2_1;
+	glm::vec2 vec2_2;
+	char text[32];
+} _networkPacket;
+
 extern std::queue<_myEventData> consoleEventQueue;
 extern std::queue<_myEventData> audioEventQueue;
 extern std::queue<_myEventData> loggingEventQueue;
 extern std::queue<_myEventData> gameEventQueue;
-extern std::queue<_myEventData> networkServerQueue;
 extern std::queue<_myEventData> networkClientQueue;
+
+extern std::queue<_networkPacket> networkServerQueue;
 
 extern SDL_mutex *consoleMutex;
 extern SDL_mutex *audioMutex;

@@ -2,12 +2,19 @@
 #include <hdr/io/minilzo/minilzo.h>
 #include "hdr/network/net_server.h"
 
+typedef struct
+{
+	int             packetSequenceCount = 0;
+	string          clientName;
+} _clientInfo;
+
+vector<_clientInfo>     clientInfo;
+
 netcode_server_t        *networkServer;
-_networkPacket          serverPacket;
 
 bool                    runNetworkServerThread = true;
 bool                    runAsServer = true;
-long                    networkServerPacketCount = 0;
+bool                    networkServerIsRunning = false;
 
 SDL_Thread              *networkServerThread;
 SDL_Thread              *userEventNetworkServerThread;
@@ -15,8 +22,38 @@ SDL_Thread              *userEventNetworkServerThread;
 int                     maxNumClients;  // From script
 int                     serverPort;     // From script
 
-//char *                  serverAddress; // = "[::1]:9991";
 string                  serverAddress;
+
+/*
+//-----------------------------------------------------------------------------
+//
+// Send the passed in packet to the server
+void net_sendPacketToClient ( _networkPacket clientPacket )
+//-----------------------------------------------------------------------------
+{
+	lzo_uint inLength;
+	lzo_uint outLength;
+	void *packetPtr;
+	char outPacketPtr[sizeof (clientPacket)];
+	int result;
+
+	packetPtr = &clientPacket;
+
+	inLength = sizeof (clientPacket);
+
+	result = lzo1x_1_compress ((unsigned char *) packetPtr, inLength, (unsigned char *) &outPacketPtr, &outLength, wrkmem);
+
+	if ( result != LZO_E_OK )
+	{
+		con_print (CON_ERROR, true, "Error compressing network packet . %lu bytes into %lu bytes", (unsigned long) inLength, (unsigned long) outLength);
+		return; // Don't send the packet
+	}
+
+//	if ( netcode_client_state (networkClient) == NETCODE_CLIENT_STATE_CONNECTED )
+	if ( networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED )
+		netcode_client_send_packet (networkClient, (unsigned char *) outPacketPtr, (int) (outLength));
+}
+*/
 
 //-----------------------------------------------------------------------------
 //
@@ -24,7 +61,7 @@ string                  serverAddress;
 int net_processNetworkServerQueue (void *ptr)
 //-----------------------------------------------------------------------------
 {
-	_myEventData tempEventData;
+	_networkPacket tempNetworkPacket;
 
 	while ( runThreads )
 	{
@@ -34,32 +71,47 @@ int net_processNetworkServerQueue (void *ptr)
 		{
 			if ( SDL_LockMutex (networkServerMutex) == 0 )
 			{
-				tempEventData = networkServerQueue.front ();
+				tempNetworkPacket = networkServerQueue.front ();
 				networkServerQueue.pop ();
 
 				SDL_UnlockMutex (networkServerMutex);
 			}
 
-			switch ( tempEventData.eventAction )
+			switch ( tempNetworkPacket.packetType)
 			{
-				case NETWORK_RECEIVE:
-					printf("Got a DATA packet - client says Position [ %3.3f %3.3f ] Text [ %s ]\n", tempEventData.vec2_1.x, tempEventData.vec2_1.y,  tempEventData.eventString.c_str());
+				case NET_DATA_PACKET:   // It's a data packet from a client
+
+				clientInfo[tempNetworkPacket.packetOwner].packetSequenceCount++;
+				printf("Data packet from CLIENT [ %i ] - Says [ %s ]\n", tempNetworkPacket.packetOwner, tempNetworkPacket.text);
+				/*
+					if ( tempNetworkPacket->sequence != networkServerPacketCount )     // What happens with dropped packets??
+					{
+						return -1; // bad packet ?
+					}
+
+					networkServerPacketCount++; // need this for each client?
+					evt_sendEvent (USER_EVENT_NETWORK_SERVER, NETWORK_RECEIVE, tempNetworkPacket->data1, tempNetworkPacket->data2, tempNetworkPacket->data3, tempNetworkPacket->vec2_1, tempNetworkPacket->vec2_2,
+					               tempNetworkPacket->text);
+					               */
 					break;
 
-				case NET_SYSTEM_PACKET:
-					printf("Got a SYSTEM packet from the client.\n");
+				case NET_SYSTEM_PACKET:     // It's a system packet from a client
+
+				printf("SYSTEM packet from client [ %i ]\n", tempNetworkPacket.packetOwner);
+				/*
+					evt_sendEvent (USER_EVENT_NETWORK_SERVER, NET_SYSTEM_PACKET, tempNetworkPacket->data1, tempNetworkPacket->data2, tempNetworkPacket->data3, tempNetworkPacket->vec2_1, tempNetworkPacket->vec2_2,
+					               tempNetworkPacket->text);
+					               */
 					break;
 
 				default:
-					break;
+					break;  // Unknown packet type
 			}
 		}
 	}
 	printf ("SERVER thread stopped.\n");
 	return 0;
 }
-
-
 
 //----------------------------------------------------------
 //
@@ -70,53 +122,43 @@ int net_getNetworkServerPackets ( void *ptr )
 //----------------------------------------------------------
 {
 	int             packet_bytes;
+	int             clientIndex = 0;
 	uint64_t        packet_sequence;
 	uint8_t         *packet;
 	_networkPacket  *serverPacket;
-
-	printf ("Server - checking for a packet. runNetworkServerThread is [ %i ]\n", runNetworkServerThread);
+	lzo_uint        newLength;
+	char            inPacketPtr[sizeof (_networkPacket) * 2];    // Make sure there is enough space to hold decompressed packet
+	int             result;
 
 	while ( runNetworkServerThread )
 	{
 		SDL_Delay (THREAD_DELAY_MS);
 
-		packet = netcode_server_receive_packet (networkServer, 0, &packet_bytes, &packet_sequence);
-		if ( packet != nullptr)
+		for (clientIndex = 0; clientIndex < maxNumClients; ++maxNumClients)
 		{
-			char            inPacketPtr[sizeof(_networkPacket) * 2];    // Make sure there is enough space to hold decompressed packet
-			lzo_uint        newLength;
-
-			int result = lzo1x_decompress(packet, static_cast<lzo_uint>(packet_bytes), (unsigned char *)&inPacketPtr, &newLength, nullptr);
-			if (result != LZO_E_OK)
+			packet = netcode_server_receive_packet (networkServer, clientIndex, &packet_bytes, &packet_sequence);
+			if ( packet != nullptr)
 			{
-				con_print(CON_ERROR, true, "Internal error - server network packet decompression failed [ %i ]. Packet dropped.", result);
-				netcode_server_free_packet (networkServer, packet);
-				return -1;      // Ignore the packet
-			}
-
-			serverPacket = (_networkPacket *)&inPacketPtr;
-
-			switch (serverPacket->packetType)
-			{
-				case NET_DATA_PACKET:
-					if (serverPacket->sequence != networkServerPacketCount)     // What happens with dropped packets??
+				// Got a legitimate packet - now decompress it
+				// TODO: Work out compression amount - percentage compressed??
+				 result = lzo1x_decompress (packet, static_cast<lzo_uint>(packet_bytes), (unsigned char *) &inPacketPtr, &newLength, nullptr);
+				 if ( result != LZO_E_OK )
 					{
+						con_print (CON_ERROR, true, "Internal error - server network packet decompression failed [ %i ]. Packet dropped.", result);
 						netcode_server_free_packet (networkServer, packet);
-						return -1; // bad packet ?
+						return -1;      // Ignore the packet
 					}
+				// Cast to our packet structure
+				serverPacket = (_networkPacket *) &inPacketPtr;
+				serverPacket->packetOwner = clientIndex;
 
-					networkServerPacketCount++;
-					evt_sendEvent (USER_EVENT_NETWORK_SERVER, NETWORK_RECEIVE, serverPacket->data1, serverPacket->data2, serverPacket->data3, serverPacket->vec2_1, serverPacket->vec2_2, serverPacket->text);
-					break;
-
-				case NET_SYSTEM_PACKET:
-					evt_sendEvent (USER_EVENT_NETWORK_SERVER, NET_SYSTEM_PACKET, serverPacket->data1, serverPacket->data2, serverPacket->data3, serverPacket->vec2_1, serverPacket->vec2_2, serverPacket->text);
-					break;
-
-				default:
-					break;  // Unknown packet type
+				if ( SDL_LockMutex (networkServerMutex) == 0 )
+				{
+					networkServerQueue.push (*serverPacket);
+					SDL_UnlockMutex (networkServerMutex);
+				}
+				netcode_server_free_packet (networkServer, packet);
 			}
-			netcode_server_free_packet (networkServer, packet);
 		}
 	}
 	return 0;
@@ -185,10 +227,7 @@ bool net_startNetworkServerThread ()
 		if ( net_createNetworkServerThread ())
 		{
 			runNetworkServerThread = true;
-			SDL_Delay (500);
 			SDL_DetachThread (networkServerThread);
-
-			printf ("Thread [ %s ] has been started\n", "net_getNetworkServerPackets");
 		}
 	}
 
@@ -203,9 +242,7 @@ bool net_createServer ( float time )
 {
 	struct netcode_server_config_t server_config{};
 
-//	serverAddress = "[::1]:9991";
-
-	serverAddress = net_setNetworkAddress (9991,"[::1]" );
+	serverAddress = net_setNetworkAddress (serverPort,"[::1]" );
 
 	printf("server [ %s ]\n", serverAddress.c_str());
 
@@ -215,9 +252,12 @@ bool net_createServer ( float time )
 		return false;
 	}
 
-//	netcode_set_printf_function((const char *)input, con_print);
+//	static int (*printf_function) ( NETCODE_CONST char *, ... ) = (int (*) ( NETCODE_CONST char *, ... )) printf;
+//	netcode_set_printf_function (int (*function) ( 	NETCODE_CONST char *, ... ))
 
-	netcode_log_level (NETCODE_LOG_LEVEL_INFO);
+//	netcode_set_printf_function(testPrint, (NETCODE_CONST char *) (int (*) ( NETCODE_CONST char *, ... )) printf);
+
+	netcode_log_level (NETCODE_LOG_LEVEL_INFO);// NETCODE_LOG_LEVEL_DEBUG
 
 	netcode_default_server_config (&server_config);
 	server_config.protocol_id = PROTOCOL_ID;
@@ -232,6 +272,11 @@ bool net_createServer ( float time )
 	}
 
 	netcode_server_start (networkServer, maxNumClients);
+
+	// TODO: Init clientInfo information
+	// Reserve vectors etc
+
+	clientInfo.reserve (maxNumClients);
 
 	net_startNetworkServerThread ();
 

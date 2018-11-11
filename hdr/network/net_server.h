@@ -4,6 +4,7 @@
 #include "hdr/network/net_common.h"
 
 extern bool             runAsServer;
+extern bool             networkServerIsRunning;
 
 extern int              serverPort;     // From script
 extern int              maxNumClients;  // From script

@@ -5,6 +5,7 @@
 #include "hdr/network/net_common.h"
 
 extern  netcode_client_t        *networkClient;
+extern  bool                    networkClientIsRunning;
 
 // Create the network client
 bool net_createNetworkClient ( float time );
@@ -14,3 +15,6 @@ void net_updateNetworkClient ( float time );
 
 // Shutdown the client instance and terminate netcode
 void net_shutdownClient ();
+
+// Get the state of the client
+void net_networkClientGetState ( int clientState );

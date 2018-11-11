@@ -16,26 +16,12 @@ static HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
 #define CONNECT_TOKEN_EXPIRY 30     // Make variable from script TODO:
 #define CONNECT_TOKEN_TIMEOUT 5
 
-#define NET_TO_SERVER           0x500
 #define NET_SYS_KEEPALIVE       0x501
 #define NET_DATA_PACKET         0x502
 #define NETWORK_SEND_SYSTEM     0x503
 #define NET_SYSTEM_PACKET       0x504
+#define NET_STATUS              0x505
 
-typedef struct networkPacket
-{
-	long            timeStamp;
-	long            sequence;
-	int             packetType;
-	int             data1;
-	int             data2;
-	int             data3;
-	glm::vec2       vec2_1;
-	glm::vec2       vec2_2;
-	char            text[NET_TEXT_SIZE];
-} _networkPacket;
-
-//extern char * serverAddress;
 extern std::string serverAddress;
 
 #define PROTOCOL_ID     0x1122334455667788
