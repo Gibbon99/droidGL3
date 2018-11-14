@@ -14,13 +14,14 @@ static HEAP_ALLOC(wrkmem, LZO1X_1_MEM_COMPRESS);
 
 #define NET_TEXT_SIZE        32
 #define CONNECT_TOKEN_EXPIRY 30     // Make variable from script TODO:
-#define CONNECT_TOKEN_TIMEOUT 5
+#define CONNECT_TOKEN_TIMEOUT 15
 
-#define NET_SYS_KEEPALIVE       0x501
-#define NET_DATA_PACKET         0x502
-#define NETWORK_SEND_SYSTEM     0x503
-#define NET_SYSTEM_PACKET       0x504
-#define NET_STATUS              0x505
+#define NET_SYS_KEEPALIVE         0x501
+#define NET_DATA_PACKET           0x502
+#define NETWORK_SEND_SYSTEM       0x503
+#define NET_SYSTEM_PACKET         0x504
+#define NET_STATUS                0x505
+#define NET_CLIENT_CURRENT_LEVEL  0x506
 
 extern std::string serverAddress;
 
@@ -34,3 +35,4 @@ static uint8_t private_key[NETCODE_KEY_BYTES] = {0x60, 0x6a, 0xbe, 0x6e, 0xc9, 0
 
 // Set the server port and address string
 std::string net_setNetworkAddress ( int port, std::string networkAddress );
+

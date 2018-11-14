@@ -1,5 +1,6 @@
 #include <hdr/game/s_render.h>
 #include <hdr/game/s_player.h>
+#include <hdr/network/net_client.h>
 #include "hdr/game/s_levels.h"
 #include "hdr/game/s_healing.h"
 #include "hdr/game/s_lifts.h"
@@ -482,4 +483,6 @@ void lvl_changeToLevel ( const string levelName )
 	// Center on the lift tile
 	playerDroid.worldPos.x += TILE_SIZE * 0.5f;
 	playerDroid.worldPos.y += TILE_SIZE * 0.5f;
+
+    net_sendCurrentLevel(levelName);
 }

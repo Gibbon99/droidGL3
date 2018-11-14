@@ -2,6 +2,9 @@
 #include "hdr/io/minilzo/minilzo.h"
 #include "hdr/network/net_client.h"
 
+
+#include <string.h>
+
 uint64_t                networkClientID = 0;
 netcode_client_t        *networkClient;
 int                     networkClientIndexOnServer;
@@ -21,6 +24,7 @@ bool                    runNetworkClientThread = false;
 bool                    haveSeenTraffic = false;
 
 uint8_t                 connect_token[NETCODE_CONNECT_TOKEN_BYTES];
+
 
 //-----------------------------------------------------------------------------
 //
@@ -54,6 +58,7 @@ void net_sendClientPacket(_networkPacket clientPacket)
 	char            outPacketPtr[sizeof (clientPacket)];
 	int             result;
 
+	clientPacket.packetOwner = networkClientIndexOnServer;
 	packetPtr = &clientPacket;
 
 	inLength = sizeof (clientPacket);
@@ -66,9 +71,10 @@ void net_sendClientPacket(_networkPacket clientPacket)
 		return; // Don't send the packet
 	}
 
-//	if ( netcode_client_state (networkClient) == NETCODE_CLIENT_STATE_CONNECTED )
 		if (networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED)
-		netcode_client_send_packet (networkClient, (unsigned char *) outPacketPtr, (int) (outLength));
+		  netcode_client_send_packet (networkClient, (unsigned char *) outPacketPtr, (int) (outLength));
+        else
+          printf("Unable to send client packet - client is NOT connected.\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -114,13 +120,19 @@ int net_processNetworkClientQueue ( void *ptr )
 					clientPacket.sequence = networkClientPacketCount++;
 					snprintf(clientPacket.text, NET_TEXT_SIZE, "%s", tempEventData.eventString.c_str());    // Don't overflow char array
 					haveSeenTraffic = true;
-					net_sendClientPacket (clientPacket);
+                    if (networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED)
+					  net_sendClientPacket (clientPacket);
+                    else
+                      evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, tempEventData.data1, tempEventData.data2, tempEventData.data3, tempEventData.vec2_1, tempEventData.vec2_2, tempEventData.eventString);
 					break;
 
 				case NETWORK_SEND_SYSTEM:
 					clientPacket.packetType = NET_SYSTEM_PACKET;
 					clientPacket.data1 = tempEventData.data1;
-					net_sendClientPacket (clientPacket);
+                    if (networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED)
+					  net_sendClientPacket (clientPacket);
+                    else
+                      evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, tempEventData.data1, tempEventData.data2, tempEventData.data3, tempEventData.vec2_1, tempEventData.vec2_2, tempEventData.eventString);
 					break;
 
 				default:
@@ -280,7 +292,7 @@ Uint32 net_clientCheckStatus( Uint32 interval, void *paramm)
 	if ( networkClientCurrentState != newStatus)
 	{
 		networkClientCurrentState = newStatus;
-		evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NET_STATUS, newStatus, networkClientID, 0, glm::vec2 (), glm::vec2 (), "");
+		evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NET_STATUS, newStatus, static_cast<int>(networkClientID), 0, glm::vec2 (), glm::vec2 (), "");
 	}
 	return interval;
 }
@@ -291,7 +303,7 @@ Uint32 net_clientCheckStatus( Uint32 interval, void *paramm)
 bool net_createNetworkClient(float time)
 //--------------------------------------------------------------------------------
 {
-	netcode_client_config_t client_config;
+	netcode_client_config_t client_config{};
 
 	char *clientAddress;
 
@@ -321,9 +333,9 @@ bool net_createNetworkClient(float time)
 
 	net_startNetworkClientThread ();
 
-//	networkClientKeepaliveCheck = SDL_AddTimer (1000, net_networkClientKeepaliveCallback, nullptr);   // Time in milliseconds
+	networkClientKeepaliveCheck = SDL_AddTimer (1000, net_networkClientKeepaliveCallback, nullptr);   // Time in milliseconds
 
-	networkClientStatusCheck = SDL_AddTimer (1000, net_clientCheckStatus, nullptr);
+	networkClientStatusCheck = SDL_AddTimer (500, net_clientCheckStatus, nullptr);
 
 	networkClientIndexOnServer = netcode_client_index(networkClient);
 
@@ -363,5 +375,12 @@ void net_updateNetworkClient(float time)
 	netcode_client_update (networkClient, time);
 }
 
-
+//--------------------------------------------------------------------------------
+//
+// Send the current level to the server for this client
+void net_sendCurrentLevel(string whichLevel)
+//--------------------------------------------------------------------------------
+{
+  evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, NET_CLIENT_CURRENT_LEVEL, 0, 0, glm::vec2(), glm::vec2(), whichLevel);
+}
 

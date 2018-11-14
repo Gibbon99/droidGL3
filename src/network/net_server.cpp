@@ -1,12 +1,7 @@
 #include <hdr/network/net_common.h>
 #include <hdr/io/minilzo/minilzo.h>
 #include "hdr/network/net_server.h"
-
-typedef struct
-{
-	int             packetSequenceCount = 0;
-	string          clientName;
-} _clientInfo;
+#include "hdr/network/net_serverData.h"
 
 vector<_clientInfo>     clientInfo;
 
@@ -73,13 +68,12 @@ int net_processNetworkServerQueue (void *ptr)
 			{
 				tempNetworkPacket = networkServerQueue.front ();
 				networkServerQueue.pop ();
-
 				SDL_UnlockMutex (networkServerMutex);
 			}
 
 			switch ( tempNetworkPacket.packetType)
 			{
-				case NET_DATA_PACKET:   // It's a data packet from a client
+			  case NET_DATA_PACKET:   // It's a data packet from a client
 
 				clientInfo[tempNetworkPacket.packetOwner].packetSequenceCount++;
 				printf("Data packet from CLIENT [ %i ] - Says [ %s ]\n", tempNetworkPacket.packetOwner, tempNetworkPacket.text);
@@ -93,6 +87,8 @@ int net_processNetworkServerQueue (void *ptr)
 					evt_sendEvent (USER_EVENT_NETWORK_SERVER, NETWORK_RECEIVE, tempNetworkPacket->data1, tempNetworkPacket->data2, tempNetworkPacket->data3, tempNetworkPacket->vec2_1, tempNetworkPacket->vec2_2,
 					               tempNetworkPacket->text);
 					               */
+
+//                net_handleClientDataPacket(tempNetworkPacket);
 					break;
 
 				case NET_SYSTEM_PACKET:     // It's a system packet from a client
@@ -122,19 +118,18 @@ int net_getNetworkServerPackets ( void *ptr )
 //----------------------------------------------------------
 {
 	int             packet_bytes;
-	int             clientIndex = 0;
 	uint64_t        packet_sequence;
 	uint8_t         *packet;
 	_networkPacket  *serverPacket;
 	lzo_uint        newLength;
-	char            inPacketPtr[sizeof (_networkPacket) * 2];    // Make sure there is enough space to hold decompressed packet
 	int             result;
+	char            inPacketPtr[sizeof (_networkPacket) * 2]; // Make sure there is enough space to hold decompressed packet
 
 	while ( runNetworkServerThread )
 	{
 		SDL_Delay (THREAD_DELAY_MS);
 
-		for (clientIndex = 0; clientIndex < maxNumClients; ++maxNumClients)
+		for (int clientIndex = 0; clientIndex < maxNumClients; ++maxNumClients)
 		{
 			packet = netcode_server_receive_packet (networkServer, clientIndex, &packet_bytes, &packet_sequence);
 			if ( packet != nullptr)
@@ -148,17 +143,24 @@ int net_getNetworkServerPackets ( void *ptr )
 						netcode_server_free_packet (networkServer, packet);
 						return -1;      // Ignore the packet
 					}
+
 				// Cast to our packet structure
 				serverPacket = (_networkPacket *) &inPacketPtr;
 				serverPacket->packetOwner = clientIndex;
 
+                printf("Client [ %i ] packetCount [ %i ]\n", clientIndex, clientInfo[clientIndex].packetSequenceCount);
+
 				if ( SDL_LockMutex (networkServerMutex) == 0 )
 				{
 					networkServerQueue.push (*serverPacket);
+
 					SDL_UnlockMutex (networkServerMutex);
 				}
 				netcode_server_free_packet (networkServer, packet);
 			}
+            else
+              {
+              }
 		}
 	}
 	return 0;
@@ -273,10 +275,17 @@ bool net_createServer ( float time )
 
 	netcode_server_start (networkServer, maxNumClients);
 
-	// TODO: Init clientInfo information
-	// Reserve vectors etc
-
 	clientInfo.reserve (maxNumClients);
+	_clientInfo tempClient;
+
+	for (int index = 0; index < maxNumClients; index++)
+      {
+        tempClient.packetSequenceCount = 0;
+        tempClient.clientName = "Player";
+        strcpy(tempClient.currentDeck, "");
+
+        clientInfo.push_back(tempClient);
+      }
 
 	net_startNetworkServerThread ();
 

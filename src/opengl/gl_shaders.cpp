@@ -239,7 +239,7 @@ GLint gl_getUniform ( string whichShader, string keyName )
 	shaderItr = shaderUniformValues.find (u_keyName);
 	if ( shaderItr == shaderUniformValues.end ())   // Key doesn't exist
 	{
-		con_print (CON_INFO, true, "Key [ %s ] doesn't exist in map.", u_keyName.c_str ());
+//		con_print (CON_INFO, true, "Key [ %s ] doesn't exist in map.", u_keyName.c_str ());
 
 		keyLocation = glGetUniformLocation (gl_getShaderID (whichShader), keyName.c_str ());
 

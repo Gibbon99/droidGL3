@@ -18,3 +18,6 @@ void net_shutdownClient ();
 
 // Get the state of the client
 void net_networkClientGetState ( int clientState );
+
+// Send the current level to the server for this client
+void net_sendCurrentLevel(std::string whichLevel);

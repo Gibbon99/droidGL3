@@ -3,6 +3,15 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/network/net_common.h"
 
+typedef struct
+{
+  int                     packetSequenceCount = 0;
+  std::string             clientName;
+  char 			          currentDeck[32];
+} _clientInfo;
+
+extern std::vector<_clientInfo>     clientInfo;
+
 extern bool             runAsServer;
 extern bool             networkServerIsRunning;
 

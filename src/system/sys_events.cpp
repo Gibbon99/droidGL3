@@ -278,7 +278,19 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			break;
 */
 		case USER_EVENT_NETWORK_CLIENT:
-			if ( SDL_LockMutex (networkClientMutex) == 0 )
+
+		  /*
+		  if (networkClientQueue.size() > 100)
+            {
+              //
+              // TODO: Remove oldest one and replace with new one for a certain time
+              // See if the connection returns
+              con_print(CON_INFO, true, "Client network packet queue is full. Dropping packets.");
+              return;
+            }
+
+
+*/			if ( SDL_LockMutex (networkClientMutex) == 0 )
 			{
 				networkClientQueue.push (eventData);
 				SDL_UnlockMutex (networkClientMutex);
@@ -289,6 +301,8 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			break;
 
 	}
+
+	eventData.eventString = "";
 }
 
 //------------------------------------------------------------------------

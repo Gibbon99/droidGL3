@@ -1,6 +1,7 @@
 #include <hdr/game/s_render.h>
 #include <hdr/game/s_lightCaster.h>
 #include <hdr/game/s_player.h>
+#include <hdr/network/net_client.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/system/sys_events.h"
 
@@ -327,7 +328,11 @@ void io_handleKeyboardEvent ( SDL_Event event )
 			//
 			// Also send to the server
 			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_KEY_EVENT, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y},"");
-			evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y}, "Keyboard event");
+//			evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y}, "Keyboard event");
+
+      if (event.type == SDL_KEYDOWN)
+        net_sendCurrentLevel(lvl_getCurrentLevelName ());
+
 			break;
 
 		case MODE_PAUSE:

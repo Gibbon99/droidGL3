@@ -77,7 +77,6 @@ extern std::queue<_myEventData> audioEventQueue;
 extern std::queue<_myEventData> loggingEventQueue;
 extern std::queue<_myEventData> gameEventQueue;
 extern std::queue<_myEventData> networkClientQueue;
-
 extern std::queue<_networkPacket> networkServerQueue;
 
 extern SDL_mutex *consoleMutex;
