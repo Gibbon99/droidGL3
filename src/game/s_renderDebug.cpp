@@ -3,7 +3,7 @@
 
 
 bool        g_debugShowWaypoints = true;
-bool         g_debugShowPhysicsLines = true;
+bool        g_debugShowPhysicsLines = true;
 
 //--------------------------------------------------------------------------
 //

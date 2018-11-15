@@ -2,6 +2,7 @@
 #include <hdr/game/s_lightCaster.h>
 #include <hdr/game/s_player.h>
 #include <hdr/network/net_client.h>
+#include <hdr/game/s_gameEvents.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/system/sys_events.h"
 
@@ -15,7 +16,7 @@ bool keyDownDown = false;
 //-----------------------------------------------------------------------------
 //
 // Process keyboard presses
-void io_processKeyboard()
+void io_processInputActions ()
 //-----------------------------------------------------------------------------
 {
 	float moveSpeed = 1.0f / 20.0f;
@@ -137,55 +138,39 @@ void io_readPauseModeKey ( SDL_Keycode key, int action )
 //-----------------------------------------------------------------------------
 //
 // Read and process keys for main game
-void io_processGameKeysEvents ( _myEventData eventData )
+void io_processGameInputEvents (_myEventData eventData)
 //-----------------------------------------------------------------------------
 {
-	if ( SDL_KEYDOWN == eventData.data1 )
+	if ( MY_INPUT_ACTION_PRESS == eventData.data1 )
 	{
 		switch ( eventData.data2 )
 		{
-			case SDLK_BACKQUOTE:
+			case MY_INPUT_CONSOLE:
 				sys_changeMode (MODE_CONSOLE);
 				conCurrentCharCount = 0;
 				break;
 
-			case SDLK_o:
-				testLightPosition.x -= 1.5f;
-				break;
-
-			case SDLK_i:
-				testLightPosition.x += 1.5f;
-				break;
-
-			case SDLK_k:
-				testLightPosition.y -= 1.5f;
-				break;
-
-			case SDLK_m:
-				testLightPosition.y += 1.5f;
-				break;
-
-			case SDLK_LEFT:
+			case MY_INPUT_LEFT:
 				keyLeftDown = true;
 				break;
 
-			case SDLK_RIGHT:
+			case MY_INPUT_RIGHT:
 				keyRightDown = true;
 				break;
 
-			case SDLK_UP:
+			case MY_INPUT_UP:
 				keyUpDown = true;
 				break;
 
-			case SDLK_DOWN:
+			case MY_INPUT_DOWN:
 				keyDownDown = true;
 				break;
 
-			case SDLK_w:
+			case MY_INPUT_FORWARD:
 				keyForwardDown = true;
 				break;
 
-			case SDLK_s:
+			case MY_INPUT_BACKWARD:
 				keyBackwardDown = true;
 				break;
 
@@ -193,7 +178,7 @@ void io_processGameKeysEvents ( _myEventData eventData )
 //				io_saveScreenToFile ();
 				break;
 
-			case SDLK_p:
+			case MY_INPUT_PAUSE:
 				con_print (CON_INFO, true, "Pressed the P key - action is DOWN");
 				evt_sendEvent (USER_EVENT_MODE_PAUSE, 0, 0, 0, 0, glm::vec2(), glm::vec2(), "");
 				break;
@@ -203,32 +188,32 @@ void io_processGameKeysEvents ( _myEventData eventData )
 		}
 	}
 
-	if ( SDL_KEYUP == eventData.data1 )
+	if ( MY_INPUT_ACTION_RELEASE == eventData.data1 )
 	{
 		switch ( eventData.data2 )
 		{
 
-			case SDLK_LEFT:
+			case MY_INPUT_LEFT:
 				keyLeftDown = false;
 				break;
 
-			case SDLK_RIGHT:
+			case MY_INPUT_RIGHT:
 				keyRightDown = false;
 				break;
 
-			case SDLK_UP:
+			case MY_INPUT_UP:
 				keyUpDown = false;
 				break;
 
-			case SDLK_DOWN:
+			case MY_INPUT_DOWN:
 				keyDownDown = false;
 				break;
 
-			case SDLK_w:
+			case MY_INPUT_FORWARD:
 				keyForwardDown = false;
 				break;
 
-			case SDLK_s:
+			case MY_INPUT_BACKWARD:
 				keyBackwardDown = false;
 				break;
 
@@ -304,6 +289,74 @@ void io_readConsoleSpecialKeys ( SDL_Keycode key, int action )
 	}
 }
 
+//--------------------------------------------------------------------------
+//
+// Translate a keyboard action into our Game Event value
+int io_returnStandardInputActionKeyboard (Uint32 eventType)
+//--------------------------------------------------------------------------
+{
+  switch (eventType)
+    {
+      case SDL_KEYDOWN:
+        return MY_INPUT_ACTION_PRESS;
+        break;
+
+      case SDL_KEYUP:
+        return MY_INPUT_ACTION_RELEASE;
+        break;
+
+      default:
+        break;
+    }
+}
+
+//--------------------------------------------------------------------------
+//
+// Translate keycode values into our Game Event value
+int io_returnStandardInputValueKeyboard (SDL_Keycode keyValue)
+//--------------------------------------------------------------------------
+{
+  switch (keyValue)
+    {
+      case SDLK_BACKQUOTE:
+        return MY_INPUT_CONSOLE;
+      break;
+
+      case SDLK_LEFT:
+       return MY_INPUT_LEFT;
+      break;
+
+      case SDLK_RIGHT:
+        return MY_INPUT_RIGHT;
+      break;
+
+      case SDLK_UP:
+        return MY_INPUT_UP;
+      break;
+
+      case SDLK_DOWN:
+        return MY_INPUT_DOWN;
+      break;
+
+      case SDLK_w:
+        return MY_INPUT_FORWARD;
+      break;
+
+      case SDLK_s:
+        return MY_INPUT_BACKWARD;
+      break;
+
+      case SDLK_F12:
+//				io_saveScreenToFile ();
+        break;
+
+      case SDLK_p:
+        return MY_INPUT_PAUSE;
+      break;
+
+    }
+}
+
 //-----------------------------------------------------------------------------
 //
 // Handle a keyboard event
@@ -324,10 +377,11 @@ void io_handleKeyboardEvent ( SDL_Event event )
 
 		case MODE_GAME:
 			//
-			// Put the key event onto the Game Queue
+			// Put the key event onto the Game Queue as in INPUT event
 			//
 			// Also send to the server
-			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_KEY_EVENT, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y},"");
+			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_KEY_EVENT,
+                           io_returnStandardInputActionKeyboard (event.type), io_returnStandardInputValueKeyboard (event.key.keysym.sym) , 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y},"");
 //			evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y}, "Keyboard event");
 
       if (event.type == SDL_KEYDOWN)

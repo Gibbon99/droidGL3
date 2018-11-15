@@ -77,7 +77,7 @@ struct _levelStruct {
 	vector<_droid>          droid;
 };
 
-extern int                  currentLevel;
+//extern int                  currentLevel;
 //extern string               currentLevelName;
 extern unordered_map<string, _levelStruct>::const_iterator currentLevelItr;
 

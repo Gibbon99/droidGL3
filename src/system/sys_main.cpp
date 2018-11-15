@@ -9,6 +9,7 @@
 #include <hdr/game/s_game.h>
 #include <hdr/game/s_droidAIPatrol.h>
 #include <hdr/network/net_client.h>
+#include <hdr/game/s_doors.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
@@ -81,7 +82,7 @@ void sys_displayScreen(float interpolation)
 
 	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,
 			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
-	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "Circle time [ %2.2f ms ] g_scaleViewBy [ %3.3f ]", deltaTime, g_scaleViewBy);
+	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "numDoors [ %i ] g_scaleViewBy [ %3.3f ]", numDoorsOnLevel, g_scaleViewBy);
 
 	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "playerLocation [ %3.3f %3.3f ] velocity [ %3.3f %3.3f ]", playerDroid.worldPos.x, playerDroid.worldPos.y, playerDroid.velocity.x, playerDroid.velocity.y);
 	if ( g_memLeakLastRun)
@@ -132,7 +133,7 @@ void sys_gameTickRun()
 			if (runAsServer)
 				net_updateNetworkServer (frameCount);
 
-			io_processKeyboard ();
+            io_processInputActions ();
 
 			drd_animateThisLevel (lvl_getCurrentLevelName ());
 
@@ -141,6 +142,8 @@ void sys_gameTickRun()
             gam_processMovement (interpolation);
 
 			ai_processDroidMovement (lvl_getCurrentLevelName () );
+
+            gam_doorCheckTriggerAreas(lvl_getCurrentLevelName ());
 			break;
 
 		default:

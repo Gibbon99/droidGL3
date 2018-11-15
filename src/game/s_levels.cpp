@@ -1,6 +1,7 @@
 #include <hdr/game/s_render.h>
 #include <hdr/game/s_player.h>
 #include <hdr/network/net_client.h>
+#include <hdr/game/s_doors.h>
 #include "hdr/game/s_levels.h"
 #include "hdr/game/s_healing.h"
 #include "hdr/game/s_lifts.h"
@@ -484,5 +485,10 @@ void lvl_changeToLevel ( const string levelName )
 	playerDroid.worldPos.x += TILE_SIZE * 0.5f;
 	playerDroid.worldPos.y += TILE_SIZE * 0.5f;
 
-    net_sendCurrentLevel(levelName);
+    // Turn on timers for animations
+    gam_setHealingState (true);
+    gam_setPlayerAnimateState(true);
+    gam_setDoorAnimateState (true);
+
+  net_sendCurrentLevel(levelName);
 }

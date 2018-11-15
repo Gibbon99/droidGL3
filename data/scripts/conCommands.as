@@ -41,6 +41,8 @@ void as_setGameVariables()
     g_debugShowHullLines = false;
     g_debugShowHullCircle = false;
 
+    g_showDoorTriggers = false;
+
 //    sdf_addFontInfo(0, "Digital.ttf", 24);
   //  sdf_addFontInfo(1, "oldDigital.ttf", 28);
 //    sdf_addFontInfo(2, "President.ttf", 38);
@@ -52,6 +54,9 @@ void as_setGameVariables()
     //
     // Speed to animate healing tiles in milliseconds
     healingAnimateInterval = 150;
+    //
+    // Speed to animate the moving doors in milliseconds
+    doorAnimateInterval = 100;
 }
 
 //-----------------------------------------------------------------------------

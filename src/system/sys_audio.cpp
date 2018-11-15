@@ -279,6 +279,7 @@ int aud_processAudioEventQueue ( void *ptr )
 					aud_releaseSound ();
 					break;
 
+
 				case AUDIO_PLAY_SAMPLE:
 					aud_playSound (tempEventData.data1, (float)tempEventData.data2, tempEventData.data3);
 					break;

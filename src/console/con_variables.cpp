@@ -1,6 +1,7 @@
 #include <hdr/game/s_lightCaster.h>
 #include <hdr/game/s_render.h>
 #include <hdr/game/s_healing.h>
+#include <hdr/game/s_doors.h>
 #include "hdr/game/s_renderDebug.h"
 #include "hdr/console/con_console.h"
 #include "hdr/system/sys_audio.h"
@@ -26,11 +27,13 @@ _hostScriptFunctions hostVariables[] =
 	{"bool g_debugShowPhysicsLines",        &g_debugShowPhysicsLines},
 	{"bool g_debugShowHullCircle",          &g_debugShowHullCircle},
 	{"bool g_debugShowHullLines",           &g_debugShowHullLines},
+    {"bool g_showDoorTriggers",             &g_showDoorTriggers},
 	{"bool drawHUD",                        &drawHUD},
 	{"float g_scaleViewBy",                 &g_scaleViewBy},
 	{"int g_playFieldSize",                 &g_playFieldSize},
 	{"cpVect vect1",                        &vect1},
 	{"int healingAnimateInterval",          &healingAnimateInterval},
+    {"int doorAnimateInterval",             &doorAnimateInterval},
 	{"int serverPort",                      &serverPort},
 	{"int maxNumClients",                   &maxNumClients},
 	{"",                                    nullptr},

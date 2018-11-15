@@ -122,6 +122,8 @@ extern int __gl_error_code;
 
 #define INVALID_UNIFORM_LOCATION 0xffffffff
 
+#define SPRITE_SIZE   24
+
 #if defined _WIN32_
 	#define uint unsigned int
 #endif

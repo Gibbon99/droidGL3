@@ -522,7 +522,7 @@ void io_loadTileTextureFile(const string fileName)
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	SDL_SaveBMP(allTiles, "tilesTest.bmp");
+//	SDL_SaveBMP(allTiles, "tilesTest.bmp");
 
 	SDL_FreeSurface (spriteSheetSurface);
 

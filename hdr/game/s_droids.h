@@ -17,6 +17,7 @@ struct _droid
 	float 			currentSpeed;
 	cpVect 			worldPos;
 	cpVect          viewWorldPos;
+	cpVect          middlePosition;   // TODO set middle position for droids
 
 	cpVect destinationCoords;        // This is the line segment end point
 	cpVect destDirection;            // Which way is the droid heading

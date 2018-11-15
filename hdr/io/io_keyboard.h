@@ -16,6 +16,6 @@ void io_handleKeyboardEvent ( SDL_Event event );
 void io_readChar ( int character );
 
 // Process keyboard presses
-void io_processKeyboard ();
+void io_processInputActions ();
 
-void io_processGameKeysEvents ( _myEventData eventData );
+void io_processGameInputEvents (_myEventData eventData);

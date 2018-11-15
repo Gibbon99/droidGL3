@@ -7,6 +7,7 @@
 #include <hdr/opengl/gl_renderSprite.h>
 #include <hdr/game/s_hud.h>
 #include <hdr/game/s_player.h>
+#include <hdr/game/s_doors.h>
 #include "hdr/game/s_render.h"
 
 #define USE_TILE_LOOKUP 1
@@ -497,6 +498,8 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 
 	gam_showLineSegments (levelName);
 	gam_showWayPoints (levelName);
+
+    gam_debugDoorTriggers();
 
 	drd_renderThisLevel (levelName, interpolate);
 

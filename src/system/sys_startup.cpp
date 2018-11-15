@@ -7,6 +7,7 @@
 #include <hdr/network/net_server.h>
 #include <hdr/network/net_client.h>
 #include <hdr/io/minilzo/lzoconf.h>
+#include <hdr/game/s_doors.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -164,6 +165,8 @@ bool sys_initAll()
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "splash.png");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "lightmap.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "hud.tga");
+        evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "whiteSquare.bmp");
+        evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "redSquare.bmp");
 
 		gl_setupDroidToSpriteLookup ();
 
@@ -171,6 +174,9 @@ bool sys_initAll()
 
 		gam_setHealingState (false);
 		gam_initHealingAnimateTimer (healingAnimateInterval);
+
+		gam_setDoorAnimateState (false);
+        gam_initDoorAnimateTimer (doorAnimateInterval);
 
 		gam_setPlayerAnimateState ( false );
 		gam_initPlayerAnimateTimer (150 );
