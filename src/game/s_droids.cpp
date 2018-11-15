@@ -62,6 +62,7 @@ void drd_setupLevel(string levelName)
 //------------------------------------------------------------------------------
 {
 	_droid      tempDroid;
+    int wayPointCount = 1;
 
 	if (!levelInfo.at(levelName).droid.empty())
 		return;
@@ -72,17 +73,25 @@ void drd_setupLevel(string levelName)
 	{
 		tempDroid.isAlive = true;
 		tempDroid.droidType = levelInfo.at(levelName).droidTypes[i];
-		tempDroid.wayPointIndex = rand() % (levelInfo.at(levelName).numWaypoints - 1);
+		tempDroid.wayPointIndex = wayPointCount++; //rand() % (levelInfo.at(levelName).numWaypoints - 1);
 
 		tempDroid.worldPos = levelInfo.at(levelName).wayPoints[i];
 
 		tempDroid.spriteName = gl_getSpriteName(tempDroid.droidType);
 		tempDroid.currentFrame = 0;
 		tempDroid.frameDelay = 0.0f;
-		tempDroid.wayPointDirection = WAYPOINT_UP;
-		tempDroid.destinationCoords = levelInfo.at(levelName).wayPoints[tempDroid.wayPointIndex];
+		tempDroid.wayPointDirection = WAYPOINT_DOWN;
+		tempDroid.destinationCoords = tempDroid.worldPos; //levelInfo.at(levelName).wayPoints[tempDroid.wayPointIndex];
+
 		tempDroid.currentSpeed = 1.2f;
 
 		levelInfo.at(levelName).droid.push_back(tempDroid);
+
+        if (0 == i)
+          {
+            printf("Droid world [ %3.3f %3.3f ] Dest [ %3.3f %3.3f ]\n",
+                levelInfo.at(levelName).droid[0].worldPos.x, levelInfo.at(levelName).droid[0].worldPos.y,
+                   levelInfo.at(levelName).droid[0].destinationCoords.x, levelInfo.at(levelName).droid[0].destinationCoords.y);
+          }
 	}
 }

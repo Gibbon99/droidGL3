@@ -85,7 +85,7 @@ void ai_processDroidMovement(const string &levelName)
 //-----------------------------------------------------------------------------------------------------
 {
 	if ( levelInfo.at (levelName).droid.empty ())
-		return;     // Nothing to render
+		return;     // Nothing to process
 
 	for ( int index = 0; index != levelInfo.at (levelName).numDroids; index++ )
 	{
