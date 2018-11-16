@@ -129,7 +129,7 @@ int net_getNetworkServerPackets ( void *ptr )
 	{
 		SDL_Delay (THREAD_DELAY_MS);
 
-		for (int clientIndex = 0; clientIndex < maxNumClients; ++maxNumClients)
+		for (int clientIndex = 0; clientIndex < maxNumClients; ++clientIndex)
 		{
 			packet = netcode_server_receive_packet (networkServer, clientIndex, &packet_bytes, &packet_sequence);
 			if ( packet != nullptr)

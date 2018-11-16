@@ -41,6 +41,8 @@ Uint32 net_networkClientKeepaliveCallback( Uint32 interval, void *param )
 	{
 		haveSeenTraffic = false;
 		evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_SYSTEM, NET_SYS_KEEPALIVE, networkClientID, 0, glm::vec2(), glm::vec2(), "");
+
+		printf("Client sent KEEP ALIVE packet.\n");
 	}
 
 	return interval;
