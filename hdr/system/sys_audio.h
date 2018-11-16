@@ -3,6 +3,10 @@
 #include "SDL_mixer.h"
 #include "hdr/system/sys_events.h"
 
+#define AUDIO_PAN_LEFT      0x00
+#define AUDIO_PAN_CENTER    0x01
+#define AUDIO_PAN_RIGHT     0x02
+
 #define AUDIO_INIT_ENGINE   0x00
 #define AUDIO_PLAY_SAMPLE   0x02
 #define AUDIO_STOP_SAMPLE   0x03
@@ -20,10 +24,10 @@ extern int as_numAudioSamples;
 
 struct _sounds
 {
-	Mix_Chunk   *sample;
-	const char  *fileName;
-	bool        loadedOk;
-	int         channel;
+	Mix_Chunk *sample;
+	const char *fileName;
+	bool loadedOk;
+	int channel;
 };
 
 extern _sounds sound[];
@@ -32,7 +36,7 @@ extern _sounds sound[];
 int aud_processAudioEventQueue ( void *ptr );
 
 // Play a sample
-bool aud_playSound ( int whichSound, float pan, int loops );
+bool aud_playSound ( int whichSound, float distance, int loops, float angle );
 
 // Set the global volume to a new level
 void aud_setAudioGain ( int newLevel );

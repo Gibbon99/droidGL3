@@ -18,7 +18,11 @@ Uint32                      doorAnimateInterval;      // From script
 void gam_playDoorSound(int whichDoor)
 // ----------------------------------------------------------------------------
 {
-  evt_sendEvent (USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DOOR, 0, false, glm::vec2(), glm::vec2(), "");
+  float angle;
+
+  angle = static_cast<float>(atan2 (doorTrigger[whichDoor].topLeft.y - playerDroid.worldPos.y, doorTrigger[whichDoor].topLeft.x - playerDroid.worldPos.x) * 180 / 3.1415);
+
+  evt_sendEvent (USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DOOR, static_cast<int>(abs(playerDroid.worldPos.x - doorTrigger[whichDoor].topLeft.x)), false, glm::vec2{angle,0}, glm::vec2(), "");
 }
 
 // ----------------------------------------------------------------------------

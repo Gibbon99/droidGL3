@@ -62,7 +62,7 @@ void aud_loadSoundSamples ()
 	{
 		soundfileSize = io_getFileSize (sound[i].fileName);
 
-		soundfileMemory = (int *)malloc (sizeof (int) * soundfileSize);
+		soundfileMemory = (int *) malloc (sizeof (int) * soundfileSize);
 		if ( soundfileMemory == nullptr )
 		{
 			con_print (CON_ERROR, true, "Audio error: Could not get memory to load sound file [ %s [", sound[i].fileName);
@@ -70,7 +70,7 @@ void aud_loadSoundSamples ()
 		}
 		io_getFileIntoMemory (sound[i].fileName, (void *) soundfileMemory);
 
-		filePtr = SDL_RWFromMem ((void *)soundfileMemory, soundfileSize);
+		filePtr = SDL_RWFromMem ((void *) soundfileMemory, soundfileSize);
 
 		sound[i].sample = Mix_LoadWAV_RW (filePtr, 0);
 
@@ -169,7 +169,9 @@ void aud_releaseSound ()
 //-------------------------------------------------------------------------
 //
 // Play a sample
-bool aud_playSound ( int whichSound, float pan, int loops )
+// Pass in Distance to attenuate the sound
+// Loops to repeat or single play
+bool aud_playSound ( int whichSound, float distance, int loops, float angle )
 //-------------------------------------------------------------------------
 {
 	if ((!audioAvailable) || (pauseSound) || (!as_useSound))
@@ -185,12 +187,7 @@ bool aud_playSound ( int whichSound, float pan, int loops )
 		return false;
 	}
 
-	// pan channel 1 halfway to the left
-	if ( !Mix_SetPanning (sound[whichSound].channel, 255, 127))
-	{
-		printf ("Mix_SetPanning: %s\n", Mix_GetError ());
-		// no panning, is it ok?
-	}
+	Mix_SetPosition (sound[whichSound].channel, static_cast<Sint16>(angle), static_cast<Uint8>(distance));
 
 	return true;
 }
@@ -271,7 +268,7 @@ int aud_processAudioEventQueue ( void *ptr )
 			{
 				case AUDIO_INIT_ENGINE:
 					aud_setupAudioEngine ();
-					evt_sendEvent (USER_EVENT_AUDIO, AUDIO_LOAD_ALL, 0, 0, 0, vec2(), vec2(), "");
+					evt_sendEvent (USER_EVENT_AUDIO, AUDIO_LOAD_ALL, 0, 0, 0, vec2 (), vec2 (), "");
 					evt_sendEvent (USER_EVENT_AUDIO, AUDIO_SET_GAIN, SND_LASER, MIX_MAX_VOLUME, 0, glm::vec2 (), glm::vec2 (), "");
 					break;
 
@@ -281,7 +278,7 @@ int aud_processAudioEventQueue ( void *ptr )
 
 
 				case AUDIO_PLAY_SAMPLE:
-					aud_playSound (tempEventData.data1, (float)tempEventData.data2, tempEventData.data3);
+					aud_playSound (tempEventData.data1, (float) tempEventData.data2, tempEventData.data3, tempEventData.vec2_1.x);
 					break;
 
 				case AUDIO_LOAD_ALL:
