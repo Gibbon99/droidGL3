@@ -1,9 +1,9 @@
-#include <hdr/game/s_levels.h>
-#include <hdr/game/s_player.h>
-#include <hdr/system/sys_utils.h>
-#include <hdr/game/s_droidAIPatrol.h>
+#include "hdr/game/gam_levels.h"
+#include "hdr/game/gam_player.h"
+#include "hdr/system/sys_utils.h"
+#include "hdr/game/gam_droidAIPatrol.h"
 #include "hdr/opengl/gl_renderSprite.h"
-#include "s_droids.h"
+#include "hdr/game/gam_droids.h"
 
 //------------------------------------------------------------------------------
 //
@@ -24,6 +24,7 @@ void drd_animateThisLevel(const string levelName)
 		}
 	}
 }
+
 //------------------------------------------------------------------------------
 //
 // Render the droids for this level
@@ -31,7 +32,6 @@ void drd_renderThisLevel( const string levelName, float interpolate)
 //------------------------------------------------------------------------------
 {
     cpVect       drawPosition;
-//    float       drawPositionY;
 
 	if (levelInfo.at(levelName).droid.empty ())
 		return;     // Nothing to render
@@ -42,7 +42,9 @@ void drd_renderThisLevel( const string levelName, float interpolate)
 //	    if (sys_visibleOnScreen(levelInfo.at(levelName).droid[index].worldPos, 32))
 	    {
 
-			drawPosition = cpvadd(levelInfo.at (levelName).droid[index].worldPos, cpvmult(levelInfo.at (levelName).droid[index].velocity, interpolate));
+//			drawPosition = cpvadd(levelInfo.at (levelName).droid[index].worldPos, cpvmult(levelInfo.at (levelName).droid[index].velocity, interpolate));
+
+			drawPosition = levelInfo.at (levelName).droid[index].serverWorldPos;
 
 			drawPosition.y = (int)drawPosition.y;   // Remove the fraction portion to stop blurring in Y direction
 

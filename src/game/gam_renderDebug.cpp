@@ -1,5 +1,5 @@
-#include <hdr/game/s_levels.h>
-#include "hdr/game/s_renderDebug.h"
+#include <hdr/game/gam_levels.h>
+#include "hdr/game/gam_renderDebug.h"
 
 
 bool        g_debugShowWaypoints = true;

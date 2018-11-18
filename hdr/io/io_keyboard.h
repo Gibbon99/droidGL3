@@ -2,12 +2,12 @@
 
 #include "hdr/system/sys_main.h"
 
-extern bool keyForwardDown;
-extern bool keyBackwardDown;
-extern bool keyLeftDown;
-extern bool keyRightDown;
-extern bool keyUpDown;
-extern bool keyDownDown;
+extern bool eventMoveForward;
+extern bool eventMoveBackward;
+extern bool eventMoveLeft;
+extern bool eventMoveRight;
+extern bool eventMoveUp;
+extern bool eventMoveDown;
 
 // Handle a keyboard event
 void io_handleKeyboardEvent ( SDL_Event event );

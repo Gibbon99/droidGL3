@@ -1,18 +1,20 @@
 #include <hdr/io/io_gameprefs.h>
-#include <hdr/game/s_levels.h>
-#include <hdr/game/s_render.h>
+#include <hdr/game/gam_levels.h>
+#include <hdr/game/gam_render.h>
 #include <hdr/opengl/gl_renderSprite.h>
-#include <hdr/game/s_healing.h>
-#include <hdr/game/s_player.h>
+#include <hdr/game/gam_healing.h>
+#include <hdr/game/gam_player.h>
 #include <hdr/network/net_server.h>
 #include <hdr/network/net_client.h>
 #include <hdr/io/minilzo/lzoconf.h>
-#include <hdr/game/s_doors.h>
+#include <hdr/game/gam_doors.h>
+#include <hdr/game/gam_physicsCollisions.h>
+#include <hdr/game/gam_physicsPlayer.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/console/con_conScript.h"
-#include "hdr/game/s_gamePhysics.h"
+#include "hdr/game/gam_physics.h"
 #include "hdr/system/sys_main.h"
 #include "hdr/libGL/gl_window.h"
 #include "hdr/system/sys_timing.h"
@@ -150,7 +152,9 @@ bool sys_initAll()
 		if (!networkClientIsRunning)
 			return false;
 
-		sys_setupPhysicsEngine();
+		sys_setupPhysicsEngine ();
+		sys_setupPlayerPhysics ();
+		sys_setupCollisionHandlers ();
 
 		if (!gl_addShaders())
 		{

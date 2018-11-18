@@ -1,10 +1,12 @@
-#include <hdr/game/s_render.h>
-#include <hdr/game/s_player.h>
+#include <hdr/game/gam_render.h>
+#include <hdr/game/gam_player.h>
 #include <hdr/network/net_client.h>
-#include <hdr/game/s_doors.h>
-#include "hdr/game/s_levels.h"
-#include "hdr/game/s_healing.h"
-#include "hdr/game/s_lifts.h"
+#include <hdr/game/gam_doors.h>
+#include <hdr/game/gam_physics.h>
+#include <hdr/game/gam_physicsPlayer.h>
+#include "hdr/game/gam_levels.h"
+#include "hdr/game/gam_healing.h"
+#include "hdr/game/gam_lifts.h"
 
 vector<_levelMemory>  levelMemoryPointers;
 unordered_map <string, _levelStruct> levelInfo;
@@ -484,11 +486,14 @@ void lvl_changeToLevel ( const string levelName )
 	// Center on the lift tile
 	playerDroid.worldPos.x += TILE_SIZE * 0.5f;
 	playerDroid.worldPos.y += TILE_SIZE * 0.5f;
+	sys_setPlayerPhysicsPosition (playerDroid.worldPos);
 
     // Turn on timers for animations
     gam_setHealingState (true);
     gam_setPlayerAnimateState(true);
     gam_setDoorAnimateState (true);
 
-  net_sendCurrentLevel(levelName);
+	sys_createSolidWalls(levelName );
+
+	net_sendCurrentLevel(levelName);
 }

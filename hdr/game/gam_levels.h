@@ -1,10 +1,10 @@
 #pragma once
 
 #include <unordered_map>
-#include <hdr/game/s_droids.h>
+#include <hdr/game/gam_droids.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/io/io_fileSystem.h"
-#include "s_lifts.h"
+#include "hdr/game/gam_lifts.h"
 
 #define MAP_VERSION             115
 
@@ -18,6 +18,7 @@
 #define MAX_NUM_OF_LIFTS        3
 
 #define TILE_SIZE               32
+#define DROID_SIZE              24
 
 #define NO_PASS_TILE            40
 #define LIFT_TILE               (NO_PASS_TILE + 1)

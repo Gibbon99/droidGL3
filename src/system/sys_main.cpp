@@ -1,15 +1,14 @@
 #include <unordered_map>
 #include <string>
-#include <hdr/game/s_render.h>
-#include <hdr/game/s_movement.h>
-#include <hdr/game/s_renderDebug.h>
-#include <hdr/game/s_lightCaster.h>
+#include <hdr/game/gam_render.h>
+#include <hdr/game/gam_renderDebug.h>
+#include <hdr/game/gam_lightCaster.h>
 #include <hdr/console/con_conScript.h>
-#include <hdr/game/s_healing.h>
-#include <hdr/game/s_game.h>
-#include <hdr/game/s_droidAIPatrol.h>
+#include <hdr/game/gam_healing.h>
+#include <hdr/game/gam_game.h>
+#include <hdr/game/gam_droidAIPatrol.h>
 #include <hdr/network/net_client.h>
-#include <hdr/game/s_doors.h>
+#include <hdr/game/gam_doors.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
@@ -23,8 +22,11 @@
 #include "hdr/system/sys_timing.h"
 #include "hdr/opengl/gl_opengl.h"
 #include "hdr/opengl/gl_renderSprite.h"
-#include "hdr/game/s_player.h"
-#include "hdr/game/s_levels.h"
+#include "hdr/game/gam_player.h"
+#include "hdr/game/gam_levels.h"
+#include "hdr/game/gam_physics.h"
+#include "hdr/game/gam_player.h"
+#include "hdr/game/gam_droids.h"
 
 bool    quitProgram;
 int     loops;
@@ -36,7 +38,6 @@ Uint32 frameTime;
 float frameCount = 0;
 
 vec3 quadPosition{640.0f,380.0f,-560.0f};
-cpVect currentVelocity;
 
 vec3 testLightPosition;
 
@@ -137,13 +138,15 @@ void sys_gameTickRun()
 
 			drd_animateThisLevel (lvl_getCurrentLevelName ());
 
-			s_getTileUnderPlayer (lvl_getCurrentLevelName(), playerDroid.worldPos.x / TILE_SIZE, playerDroid.worldPos.y / TILE_SIZE);
+			gam_getTileUnderPlayer (lvl_getCurrentLevelName (), playerDroid.worldPos.x / TILE_SIZE, playerDroid.worldPos.y / TILE_SIZE);
 
-            gam_processMovement (interpolation);
+			gam_processPlayerMovement ();
 
 			ai_processDroidMovement (lvl_getCurrentLevelName () );
 
             gam_doorCheckTriggerAreas(lvl_getCurrentLevelName ());
+
+			cpSpaceStep (space, SKIP_TICKS);
 			break;
 
 		default:

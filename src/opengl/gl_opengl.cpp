@@ -3,14 +3,16 @@
 #include "hdr/opengl/gl_openGLWrap.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/game/s_shadows.h"
-#include "hdr/game/s_lightCaster.h"
+#include "hdr/game/gam_lightCaster.h"
 #include <hdr/io/io_textures.h>
-#include <hdr/game/s_levels.h>
-#include <hdr/game/s_render.h>
+#include <hdr/game/gam_levels.h>
+#include <hdr/game/gam_render.h>
 #include <map>
 
 #ifdef __linux__
 	#include <execinfo.h>
+#include <hdr/game/gam_player.h>
+
 #endif
 
 
@@ -434,12 +436,12 @@ void gl_set3DMode ( float interpolate )
 	projMatrix = glm::perspective (90.0f, (float) winWidth / ((float) winHeight * aspectRatio), nearPlane, farPlane);
 //	projMatrix = glm::perspective (60.0f, (float)(16.0/9.0*(float) winWidth / (float) winHeight), nearPlane, farPlane);
 
-	camPosition.x = quadPosition.x + (currentVelocity.x * interpolate);
-	camPosition.y = quadPosition.y + (currentVelocity.y * interpolate);
+	camPosition.x = quadPosition.x + (playerDroid.velocity.x * interpolate);
+	camPosition.y = quadPosition.y + (playerDroid.velocity.y * interpolate);
 	camPosition.z = quadPosition.z + cameraDistance;       // Distance camera is away from the viewpoint
 
-	camTarget.x = quadPosition.x + (currentVelocity.x * interpolate);
-	camTarget.y = quadPosition.y + (currentVelocity.y * interpolate);
+	camTarget.x = quadPosition.x + (playerDroid.velocity.x * interpolate);
+	camTarget.y = quadPosition.y + (playerDroid.velocity.y * interpolate);
 	camTarget.z = 0.0f;
 
 	viewMatrix = glm::lookAt (camPosition, camTarget, upVector );

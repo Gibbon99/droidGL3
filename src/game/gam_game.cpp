@@ -1,9 +1,9 @@
-#include <hdr/game/s_levels.h>
+#include <hdr/game/gam_levels.h>
 #include <hdr/opengl/gl_renderSprite.h>
-#include <hdr/game/s_healing.h>
-#include <hdr/game/s_player.h>
-#include <hdr/game/s_doors.h>
-#include "s_game.h"
+#include <hdr/game/gam_healing.h>
+#include <hdr/game/gam_player.h>
+#include <hdr/game/gam_doors.h>
+#include "gam_game.h"
 
 //------------------------------------------------------------------------------
 //
@@ -18,6 +18,8 @@ void gam_startNewGame ()
 	gam_setDoorAnimateState (false);
 
 	gl_createAllSprites ();
+
+	gam_initialPlayerSetup ();
 
 	lvl_changeToLevel ("Upper cargo");
 

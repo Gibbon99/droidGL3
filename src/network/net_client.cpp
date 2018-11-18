@@ -19,7 +19,7 @@ SDL_TimerID             networkClientStatusCheck;
 
 int                     networkClientPacketCount = 0;
 
-bool                    runNetworkClientThread = false;
+bool                    runNetworkClientThread = true;
 
 bool                    haveSeenTraffic = false;
 
@@ -40,48 +40,18 @@ Uint32 net_networkClientKeepaliveCallback( Uint32 interval, void *param )
 	else
 	{
 		haveSeenTraffic = false;
-		evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_SYSTEM, NET_SYS_KEEPALIVE, networkClientID, 0, glm::vec2(), glm::vec2(), "");
+		evt_sendEvent (USER_EVENT_NETWORK_FROM_CLIENT, NETWORK_SEND_SYSTEM, NET_SYS_KEEPALIVE, networkClientID, 0, glm::vec2(), glm::vec2(), "");
 
 		printf("Client sent KEEP ALIVE packet.\n");
 	}
-
 	return interval;
 }
 
 //-----------------------------------------------------------------------------
 //
-// Send the passed in packet to the server
-void net_sendClientPacket(_networkPacket clientPacket)
-//-----------------------------------------------------------------------------
-{
-	lzo_uint        inLength;
-	lzo_uint        outLength;
-	void            *packetPtr;
-	char            outPacketPtr[sizeof (clientPacket)];
-	int             result;
-
-	clientPacket.packetOwner = networkClientIndexOnServer;
-	packetPtr = &clientPacket;
-
-	inLength = sizeof (clientPacket);
-
-	result = lzo1x_1_compress ((unsigned char *) packetPtr, inLength, (unsigned char *) &outPacketPtr, &outLength, wrkmem);
-
-	if ( result != LZO_E_OK )
-	{
-		con_print (CON_ERROR, true, "Error compressing network packet . %lu bytes into %lu bytes", (unsigned long) inLength, (unsigned long) outLength);
-		return; // Don't send the packet
-	}
-
-		if (networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED)
-		  netcode_client_send_packet (networkClient, (unsigned char *) outPacketPtr, (int) (outLength));
-        else
-          printf("Unable to send client packet - client is NOT connected.\n");
-}
-
-//-----------------------------------------------------------------------------
-//
 // Thread function to process the network client packets
+//
+// This function sends packets OUT to server
 int net_processNetworkClientQueue ( void *ptr )
 //-----------------------------------------------------------------------------
 {
@@ -92,13 +62,13 @@ int net_processNetworkClientQueue ( void *ptr )
 	{
 		SDL_Delay (THREAD_DELAY_MS);
 
-		if ( !networkClientQueue.empty ())   // stuff in the queue to process
+		if ( !networkClientOutQueue.empty ())   // stuff in the queue to process
 		{
-			if ( SDL_LockMutex (networkClientMutex) == 0 )
+			if ( SDL_LockMutex (networkClientOutMutex) == 0 )
 			{
-				tempEventData = networkClientQueue.front ();
-				networkClientQueue.pop ();
-				SDL_UnlockMutex (networkClientMutex);
+				tempEventData = networkClientOutQueue.front ();
+				networkClientOutQueue.pop ();
+				SDL_UnlockMutex (networkClientOutMutex);
 			}
 
 			switch ( tempEventData.eventAction )
@@ -107,12 +77,8 @@ int net_processNetworkClientQueue ( void *ptr )
 					net_networkClientGetState (tempEventData.data1 );
 					break;
 
-				case NETWORK_RECEIVE:
-					printf ("Got a data packet from the server.\n");
-					break;
-
 				case NETWORK_SEND_DATA:
-					clientPacket.packetType = NET_DATA_PACKET;
+					clientPacket.packetType = NET_CLIENT_DATA_PACKET;
 					clientPacket.data1 = tempEventData.data1;
 					clientPacket.data2 = tempEventData.data2;
 					clientPacket.data3 = tempEventData.data3;
@@ -120,23 +86,26 @@ int net_processNetworkClientQueue ( void *ptr )
 					clientPacket.vec2_2 = tempEventData.vec2_2;
 					clientPacket.timeStamp = static_cast<long>(frameCount);
 					clientPacket.sequence = networkClientPacketCount++;
+					clientPacket.packetOwner = networkClientIndexOnServer;
 					snprintf(clientPacket.text, NET_TEXT_SIZE, "%s", tempEventData.eventString.c_str());    // Don't overflow char array
-					haveSeenTraffic = true;
-                    if (networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED)
-					  net_sendClientPacket (clientPacket);
-                    else
-                      evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, tempEventData.data1, tempEventData.data2, tempEventData.data3, tempEventData.vec2_1, tempEventData.vec2_2, tempEventData.eventString);
-					break;
 
+					haveSeenTraffic = true;
+
+                    if (networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED)
+	                    net_sendPacket (clientPacket, USER_EVENT_NETWORK_FROM_CLIENT, networkClientIndexOnServer );
+                    else
+						evt_sendEvent (USER_EVENT_NETWORK_FROM_CLIENT, NETWORK_SEND_DATA, tempEventData.data1, tempEventData.data2, tempEventData.data3, tempEventData.vec2_1, tempEventData.vec2_2, tempEventData.eventString);
+					break;
+/*
 				case NETWORK_SEND_SYSTEM:
 					clientPacket.packetType = NET_SYSTEM_PACKET;
 					clientPacket.data1 = tempEventData.data1;
                     if (networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED)
 					  net_sendClientPacket (clientPacket);
                     else
-                      evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, tempEventData.data1, tempEventData.data2, tempEventData.data3, tempEventData.vec2_1, tempEventData.vec2_2, tempEventData.eventString);
+                      evt_sendEvent (USER_EVENT_NETWORK_FROM_CLIENT, NETWORK_SEND_DATA, tempEventData.data1, tempEventData.data2, tempEventData.data3, tempEventData.vec2_1, tempEventData.vec2_2, tempEventData.eventString);
 					break;
-
+*/
 				default:
 					break;
 			}
@@ -150,24 +119,51 @@ int net_processNetworkClientQueue ( void *ptr )
 //----------------------------------------------------------
 //
 // Thread to get the network client packets
+//
+// This function gets packets IN from server and puts them onto the
+// client event queue
 int net_getNetworkClientPackets ( void *ptr )
 //----------------------------------------------------------
 {
-	int packet_bytes;
-	uint64_t packet_sequence;
+	int             packet_bytes;
+	uint64_t        packet_sequence;
+	uint8_t         *packet;
+	_networkPacket  *clientPacket;
+	lzo_uint        newLength;
+	int             result;
+	char            inPacketPtr[sizeof (_networkPacket) * 2]; // Make sure there is enough space to hold decompressed packet
 
-	void *packet = netcode_client_receive_packet (networkClient, &packet_bytes, &packet_sequence);
-	if ( !packet )
-		return 0;
+	while (runNetworkClientThread )
+	{
+		packet = netcode_client_receive_packet (networkClient, &packet_bytes, &packet_sequence);
 
-	assert(packet_bytes == sizeof (_networkPacket));
+		if ( packet != nullptr )
+		{
+			// Got a legitimate packet - now decompress it
+			// TODO: Work out compression amount - percentage compressed??
+			result = lzo1x_decompress (packet, static_cast<lzo_uint>(packet_bytes), (unsigned char *) &inPacketPtr, &newLength, nullptr);
+			if ( result != LZO_E_OK )
+			{
+				con_print (CON_ERROR, true, "Internal error - server network packet decompression failed [ %i ]. Packet dropped.", result);
+				netcode_client_free_packet (networkClient, packet);
+			}
+			else
+			{
+				// Cast to our packet structure
+				clientPacket = (_networkPacket *) &inPacketPtr;
+				clientPacket->packetOwner = -1;     // From Server
 
-//	assert(memcmp (packet, &clientPacket, sizeof (_networkPacket)) == 0);
-	networkClientPacketCount++;
-	netcode_client_free_packet (networkClient, packet);
+				evt_sendEvent (USER_EVENT_CLIENT_EVENT, clientPacket->packetType, clientPacket->data1, clientPacket->data2, clientPacket->data3, clientPacket->vec2_1, clientPacket->vec2_2,
+				               clientPacket->text);
 
-//	evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_RECEIVE, clientPacket.data1, clientPacket.data2, clientPacket.data3, clientPacket.vec2_1, clientPacket.vec2_2, "");
+				//assert(packet_bytes == sizeof (_networkPacket));
 
+				networkClientPacketCount++;
+				netcode_client_free_packet (networkClient, packet);
+			}
+		}
+	}
+	printf ("CLIENT NETWORK packet thread finished.\n");
 	return 0;
 }
 
@@ -177,12 +173,13 @@ int net_getNetworkClientPackets ( void *ptr )
 bool net_createNetworkClientThread ()
 //----------------------------------------------------------------
 {
+	/*
 	if ( runNetworkClientThread )
 	{
 		con_print (CON_INFO, true, "Network client thread is already running.");
 		return true;
 	}
-
+*/
 	networkClientThread = SDL_CreateThread (net_getNetworkClientPackets, "net_getNetworkClientPackets", (void *) nullptr);
 
 	if ( nullptr == networkClientThread )
@@ -207,16 +204,16 @@ bool net_startNetworkClientThread ()
 		return false;
 	}
 
-	networkClientMutex = SDL_CreateMutex ();
-	if ( !networkClientMutex )
+	networkClientOutMutex = SDL_CreateMutex ();
+	if ( !networkClientOutMutex )
 	{
-		printf ("Couldn't create mutex - networkClientMutex");
+		printf ("Couldn't create mutex - networkClientOutMutex");
 		return false;
 	}
 
 	SDL_DetachThread (userEventNetworClientThread);
 
-	if ( !runNetworkClientThread )     // Not currently running
+//	if ( !runNetworkClientThread )     // Not currently running
 	{
 		if ( net_createNetworkClientThread ())
 		{
@@ -294,7 +291,7 @@ Uint32 net_clientCheckStatus( Uint32 interval, void *paramm)
 	if ( networkClientCurrentState != newStatus)
 	{
 		networkClientCurrentState = newStatus;
-		evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NET_STATUS, newStatus, static_cast<int>(networkClientID), 0, glm::vec2 (), glm::vec2 (), "");
+		evt_sendEvent (USER_EVENT_NETWORK_FROM_CLIENT, NET_STATUS, newStatus, static_cast<int>(networkClientID), 0, glm::vec2 (), glm::vec2 (), "");
 	}
 	return interval;
 }
@@ -312,7 +309,7 @@ bool net_createNetworkClient(float time)
 	clientAddress = (char *)serverAddress.c_str();
 
 	netcode_default_client_config (&client_config);
-	networkClient = netcode_client_create ("::", &client_config, time);
+	networkClient = netcode_client_create ("127.0.0.1", &client_config, time);
 
 	if ( !networkClient )
 	{
@@ -383,6 +380,5 @@ void net_updateNetworkClient(float time)
 void net_sendCurrentLevel(string whichLevel)
 //--------------------------------------------------------------------------------
 {
-  evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, NET_CLIENT_CURRENT_LEVEL, 0, 0, glm::vec2(), glm::vec2(), whichLevel);
+	evt_sendEvent (USER_EVENT_NETWORK_FROM_CLIENT, NETWORK_SEND_DATA, NET_CLIENT_CURRENT_LEVEL, networkClientIndexOnServer, 0, glm::vec2(), glm::vec2(), whichLevel);
 }
-

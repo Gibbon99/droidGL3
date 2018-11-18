@@ -40,10 +40,13 @@ using namespace std;
 
 #define USER_EVENT_KEY_EVENT            0x28
 
-//#define USER_EVENT_NETWORK_SERVER       0x29
-#define NETWORK_RECEIVE                 0x30
-#define USER_EVENT_NETWORK_CLIENT       0x31
+#define USER_EVENT_NETWORK_FROM_SERVER       0x29
+#define NETWORK_RECEIVE_DATA                 0x30
+#define USER_EVENT_NETWORK_FROM_CLIENT       0x31
 #define NETWORK_SEND_DATA               0x32
+
+#define USER_EVENT_CLIENT_EVENT         0x33
+#define USER_EVENT_SERVER_EVENT         0x34
 
 typedef struct
 {
@@ -57,27 +60,16 @@ typedef struct
 	string          eventString;
 } _myEventData;
 
-
-typedef struct
-{
-	long timeStamp;
-	long sequence;
-	int packetOwner;
-	int packetType;
-	int data1;
-	int data2;
-	int data3;
-	glm::vec2 vec2_1;
-	glm::vec2 vec2_2;
-	char text[32];
-} _networkPacket;
-
 extern std::queue<_myEventData> consoleEventQueue;
 extern std::queue<_myEventData> audioEventQueue;
 extern std::queue<_myEventData> loggingEventQueue;
 extern std::queue<_myEventData> gameEventQueue;
-extern std::queue<_myEventData> networkClientQueue;
-extern std::queue<_networkPacket> networkServerQueue;
+
+extern std::queue<_myEventData> clientEventInQueue;
+extern std::queue<_myEventData> networkClientOutQueue;
+
+extern std::queue<_myEventData> serverEventInQueue;
+extern std::queue<_myEventData> networkServerOutQueue;
 
 extern SDL_mutex *consoleMutex;
 extern SDL_mutex *audioMutex;
@@ -85,8 +77,12 @@ extern SDL_mutex *loggingMutex;
 extern SDL_mutex *gameMutex;
 extern SDL_mutex *levelMutex;
 extern SDL_mutex *textureSetMutex;
-extern SDL_mutex *networkServerMutex;
-extern SDL_mutex *networkClientMutex;
+
+extern SDL_mutex *networkServerOutMutex;
+extern SDL_mutex *networkClientOutMutex;
+
+extern SDL_mutex *serverEventInMutex;
+extern SDL_mutex *clientEventInMutex;
 
 extern bool runThreads;
 

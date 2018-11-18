@@ -1,8 +1,8 @@
 #include <hdr/io/io_textures.h>
-#include <hdr/game/s_levels.h>
+#include <hdr/game/gam_levels.h>
 #include <hdr/system/sys_events.h>
 #include <hdr/io/io_keyboard.h>
-#include "hdr/game/s_gameEvents.h"
+#include "hdr/game/gam_events.h"
 #include "hdr/system/sys_events.h"
 
 //----------------------------------------------------------------

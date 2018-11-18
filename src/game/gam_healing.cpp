@@ -1,4 +1,4 @@
-#include "hdr/game/s_healing.h"
+#include "hdr/game/gam_healing.h"
 
 //-----------------------------------------------------------------------------
 //

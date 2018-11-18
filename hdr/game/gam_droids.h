@@ -2,26 +2,29 @@
 
 #include "hdr/system/sys_main.h"
 
-struct _droid
+typedef struct
 {
 	bool 			isAlive;
 	int 			droidType;
 	int 			currentHealth;
 	int 			wayPointIndex;
 	int 			wayPointDirection;
-	string 			spriteName;
+	std::string 	spriteName;
 	int 			currentFrame;
 	float 			frameDelay;
 	glm::vec2   	renderOffset;
 
 	float 			currentSpeed;
+	float           acceleration;
+
 	cpVect 			worldPos;
+	cpVect          serverWorldPos;     // Where the server thinks we are
 	cpVect          viewWorldPos;
 	cpVect          middlePosition;   // TODO set middle position for droids
 
-	cpVect destinationCoords;        // This is the line segment end point
-	cpVect destDirection;            // Which way is the droid heading
-	cpVect velocity;
+	cpVect          destinationCoords;          // This is the line segment end point
+	cpVect          destDirection;              // Which way is the droid heading
+	cpVect          velocity;                   // Current speed
 
 	/*
 	cpVect acceleration;
@@ -95,13 +98,13 @@ struct _droid
 	cpBody *body;                // Used for physics and collisions
 	cpShape *shape;
 	*/
-};
+} _droid;
 
 // Setup droid information for this level
-void drd_setupLevel ( string levelName );
+void drd_setupLevel ( std::string levelName );
 
 // Render the droids for this level
-void drd_renderThisLevel ( string levelName, float interpolate );
+void drd_renderThisLevel ( std::string levelName, float interpolate );
 
 // Animate the droid
-void drd_animateThisLevel ( string levelName );
+void drd_animateThisLevel ( std::string levelName );

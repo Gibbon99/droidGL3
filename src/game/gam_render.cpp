@@ -1,14 +1,14 @@
 #include <hdr/opengl/gl_openGLWrap.h>
 #include <hdr/opengl/gl_shaders.h>
 #include <hdr/opengl/gl_fbo.h>
-#include <hdr/game/s_renderDebug.h>
+#include <hdr/game/gam_renderDebug.h>
 #include <hdr/io/io_mouse.h>
-#include <hdr/game/s_lightCaster.h>
+#include <hdr/game/gam_lightCaster.h>
 #include <hdr/opengl/gl_renderSprite.h>
-#include <hdr/game/s_hud.h>
-#include <hdr/game/s_player.h>
-#include <hdr/game/s_doors.h>
-#include "hdr/game/s_render.h"
+#include <hdr/game/gam_hud.h>
+#include <hdr/game/gam_player.h>
+#include <hdr/game/gam_doors.h>
+#include "hdr/game/gam_render.h"
 
 #define USE_TILE_LOOKUP 1
 
@@ -88,7 +88,7 @@ void gam_blitFrameBufferToScreen ( const string &whichShader, const string level
 
 // TODO: Velocity for player
 
-	playerDroid.viewWorldPos = cpvadd(playerDroid.worldPos, cpvmult (currentVelocity, interpolate));
+	playerDroid.viewWorldPos = cpvadd(playerDroid.worldPos, cpvmult (playerDroid.velocity, interpolate));
 
 	startTexX = static_cast<float>((playerDroid.viewWorldPos.x / backingTextureSize.x) - (widthTex / 2));
 	startTexY = static_cast<float>((playerDroid.viewWorldPos.y / backingTextureSize.y) - (heightTex / 2));
@@ -458,8 +458,8 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 
 	glm::vec2 backingSize;
 
-//    viewWorldLocationX = playerDroid.worldPos.x; // + (currentVelocity.x * interpolate);
-//    viewWorldLocationY = playerDroid.worldPos.y; // + (currentVelocity.y * interpolate);
+//    viewWorldLocationX = playerDroid.worldPos.x; // + (playerVelocity.x * interpolate);
+//    viewWorldLocationY = playerDroid.worldPos.y; // + (playerVelocity.y * interpolate);
 
     backingSize.x = static_cast<float>(levelInfo.at (levelName).levelDimensions.x * TILE_SIZE);
 	backingSize.y = static_cast<float>(levelInfo.at (levelName).levelDimensions.y * TILE_SIZE);
@@ -578,8 +578,7 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	gam_blitFrameBufferToScreen ("quad3d", levelName, io_getTextureID (levelName), glm::vec2{winWidth, winHeight}, interpolate);
 
 
-
-    s_renderPlayerSprite ();
+	gam_renderPlayerSprite ();
 //----------------------------------------------------------------------------
 //
 // Take that texture and draw a quad to the default frame buffer ( screen )
@@ -616,7 +615,7 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	// Render HUD on top of everything
 	s_renderHUD ();
 
-//    s_renderPlayerSprite ();
+//    gam_renderPlayerSprite ();
 
 
 	io_renderMouseCursor ();

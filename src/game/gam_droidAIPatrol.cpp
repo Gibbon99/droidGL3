@@ -1,6 +1,6 @@
-#include <hdr/game/s_levels.h>
+#include <hdr/game/gam_levels.h>
 #include <hdr/system/sys_maths.h>
-#include "hdr/game/s_droidAIPatrol.h"
+#include "hdr/game/gam_droidAIPatrol.h"
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -44,11 +44,7 @@ void ai_getNextWaypoint ( const string &levelName, int whichDroid )
 void ai_processWaypointMove(const string &levelName, int whichDroid)
 //-----------------------------------------------------------------------------------------------------
 {
-cpFloat wayPointDestinationSize = 2.0f;
-
-	cpFloat wayPointDistance;
-
-	wayPointDistance = cpvdist (levelInfo.at(levelName).droid[whichDroid].destinationCoords, levelInfo.at (levelName).droid[whichDroid].worldPos);
+	cpFloat wayPointDestinationSize = 2.0f;
 
 	levelInfo.at (levelName).droid[whichDroid].destDirection = sys_getDirection (levelInfo.at (levelName).droid[whichDroid].destinationCoords, levelInfo.at (levelName).droid[whichDroid].worldPos);
 	levelInfo.at (levelName).droid[whichDroid].velocity = cpvnormalize (levelInfo.at (levelName).droid[whichDroid].destDirection);
@@ -56,14 +52,12 @@ cpFloat wayPointDestinationSize = 2.0f;
 
 	levelInfo.at (levelName).droid[whichDroid].worldPos = cpvadd (levelInfo.at (levelName).droid[whichDroid].worldPos, levelInfo.at (levelName).droid[whichDroid].velocity);
 
+//	if ((whichDroid > 0) && (whichDroid < 3))
+		evt_sendEvent (USER_EVENT_NETWORK_FROM_SERVER, NETWORK_SEND_DATA, NET_DROID_WORLDPOS, 0, whichDroid, glm::vec2{levelInfo.at (levelName).droid[whichDroid].worldPos.x, levelInfo.at (levelName).droid[whichDroid].worldPos.y}, glm::vec2 (), "");
+
 	//
 	// See if the droid has reached it's destination
-	//
-	//
-	// How far between current and destination position
-	//
-	// If it's less then we have reached the waypoint destination
-	if ( wayPointDistance < wayPointDestinationSize )
+	if (cpvnear (levelInfo.at (levelName).droid[whichDroid].destinationCoords, levelInfo.at (levelName).droid[whichDroid].worldPos, wayPointDestinationSize))
 	{
 	//	levelInfo.at (levelName).droid[whichDroid].velocity = cpvzero;
 	//	cpBodySetVelocity (levelInfo.at (levelName).droid[whichDroid].body, levelInfo.at (levelName).droid[whichDroid].velocity);

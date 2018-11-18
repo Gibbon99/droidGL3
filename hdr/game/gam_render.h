@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hdr/system/sys_main.h"
-#include "hdr/game/s_levels.h"
+#include "hdr/game/gam_levels.h"
 #include "hdr/io/io_textures.h"
 
 extern float    aspectRatioX, aspectRatioY;

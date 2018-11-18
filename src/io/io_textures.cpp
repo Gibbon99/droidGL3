@@ -3,7 +3,7 @@
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/io/io_textures.h"
 #include <unordered_map>
-#include <hdr/game/s_render.h>
+#include <hdr/game/gam_render.h>
 
 typedef struct
 {

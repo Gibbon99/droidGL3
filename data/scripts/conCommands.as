@@ -57,6 +57,20 @@ void as_setGameVariables()
     //
     // Speed to animate the moving doors in milliseconds
     doorAnimateInterval = 100;
+    //
+    // Variables for physics engine
+    shipDamping = 0.2;
+    collisionSlop = 0.9;
+    wallFriction = 0.8;
+    wallRadius = 2.0;
+
+    playerMass = 0.6;
+    playerRadius = 12.0;
+    playerFriction = 0.5;
+    playerElastic = 0.8;
+    //
+    // Slowdown factor
+    gravity = 0.0002;
 }
 
 //-----------------------------------------------------------------------------

@@ -1,7 +1,5 @@
-#include <hdr/network/net_common.h>
-#include <hdr/io/minilzo/minilzo.h>
-#include "hdr/network/net_server.h"
-#include "hdr/network/net_serverData.h"
+#include "hdr/network/net_common.h"
+#include "hdr/game/gam_player.h"
 
 vector<_clientInfo>     clientInfo;
 
@@ -19,85 +17,46 @@ int                     serverPort;     // From script
 
 string                  serverAddress;
 
-/*
-//-----------------------------------------------------------------------------
-//
-// Send the passed in packet to the server
-void net_sendPacketToClient ( _networkPacket clientPacket )
-//-----------------------------------------------------------------------------
-{
-	lzo_uint inLength;
-	lzo_uint outLength;
-	void *packetPtr;
-	char outPacketPtr[sizeof (clientPacket)];
-	int result;
-
-	packetPtr = &clientPacket;
-
-	inLength = sizeof (clientPacket);
-
-	result = lzo1x_1_compress ((unsigned char *) packetPtr, inLength, (unsigned char *) &outPacketPtr, &outLength, wrkmem);
-
-	if ( result != LZO_E_OK )
-	{
-		con_print (CON_ERROR, true, "Error compressing network packet . %lu bytes into %lu bytes", (unsigned long) inLength, (unsigned long) outLength);
-		return; // Don't send the packet
-	}
-
-//	if ( netcode_client_state (networkClient) == NETCODE_CLIENT_STATE_CONNECTED )
-	if ( networkClientCurrentState == NETCODE_CLIENT_STATE_CONNECTED )
-		netcode_client_send_packet (networkClient, (unsigned char *) outPacketPtr, (int) (outLength));
-}
-*/
-
 //-----------------------------------------------------------------------------
 //
 // Thread function to process the network server packets
+//
+// This function sends packets OUT to clients
 int net_processNetworkServerQueue (void *ptr)
 //-----------------------------------------------------------------------------
 {
-	_networkPacket tempNetworkPacket;
+	_networkPacket clientPacket;
+	_myEventData    tempEventData;
 
 	while ( runThreads )
 	{
 		SDL_Delay (THREAD_DELAY_MS);
 
-		if ( !networkServerQueue.empty ())   // stuff in the queue to process
+		if ( !networkServerOutQueue.empty ())   // stuff in the queue to process
 		{
-			if ( SDL_LockMutex (networkServerMutex) == 0 )
+			if ( SDL_LockMutex (networkServerOutMutex) == 0 )
 			{
-				tempNetworkPacket = networkServerQueue.front ();
-				networkServerQueue.pop ();
-				SDL_UnlockMutex (networkServerMutex);
+				tempEventData = networkServerOutQueue.front ();
+				networkServerOutQueue.pop ();
+				SDL_UnlockMutex (networkServerOutMutex);
 			}
 
-			switch ( tempNetworkPacket.packetType)
+			switch ( tempEventData.eventAction)
 			{
-			  case NET_DATA_PACKET:   // It's a data packet from a client
+				case NETWORK_SEND_DATA:
+					clientInfo[tempEventData.data2].packetSequenceCount++;      // Client Index
+					clientPacket.packetType = NET_CLIENT_DATA_PACKET;
+					clientPacket.data1 = tempEventData.data1;
+					clientPacket.data2 = tempEventData.data2;
+					clientPacket.data3 = tempEventData.data3;
+					clientPacket.vec2_1 = tempEventData.vec2_1;
+					clientPacket.vec2_2 = tempEventData.vec2_2;
+					clientPacket.timeStamp = static_cast<long>(frameCount);
+					clientPacket.packetOwner = tempEventData.data2;
+					snprintf (clientPacket.text, NET_TEXT_SIZE, "%s", tempEventData.eventString.c_str ());    // Don't overflow char array
 
-				clientInfo[tempNetworkPacket.packetOwner].packetSequenceCount++;
-				printf("Data packet from CLIENT [ %i ] - Says [ %s ]\n", tempNetworkPacket.packetOwner, tempNetworkPacket.text);
-				/*
-					if ( tempNetworkPacket->sequence != networkServerPacketCount )     // What happens with dropped packets??
-					{
-						return -1; // bad packet ?
-					}
+					net_sendPacket (clientPacket, USER_EVENT_NETWORK_FROM_SERVER, tempEventData.data2);
 
-					networkServerPacketCount++; // need this for each client?
-					evt_sendEvent (USER_EVENT_NETWORK_SERVER, NETWORK_RECEIVE, tempNetworkPacket->data1, tempNetworkPacket->data2, tempNetworkPacket->data3, tempNetworkPacket->vec2_1, tempNetworkPacket->vec2_2,
-					               tempNetworkPacket->text);
-					               */
-
-//                net_handleClientDataPacket(tempNetworkPacket);
-					break;
-
-				case NET_SYSTEM_PACKET:     // It's a system packet from a client
-
-				printf("SYSTEM packet from client [ %i ]\n", tempNetworkPacket.packetOwner);
-				/*
-					evt_sendEvent (USER_EVENT_NETWORK_SERVER, NET_SYSTEM_PACKET, tempNetworkPacket->data1, tempNetworkPacket->data2, tempNetworkPacket->data3, tempNetworkPacket->vec2_1, tempNetworkPacket->vec2_2,
-					               tempNetworkPacket->text);
-					               */
 					break;
 
 				default:
@@ -113,7 +72,7 @@ int net_processNetworkServerQueue (void *ptr)
 //
 // Thread to get the network server packets
 //
-// Decompresses the packet and puts it onto the processing queue
+// Decompresses the INCOMING packet and puts it onto the Server event queue
 int net_getNetworkServerPackets ( void *ptr )
 //----------------------------------------------------------
 {
@@ -141,28 +100,23 @@ int net_getNetworkServerPackets ( void *ptr )
 					{
 						con_print (CON_ERROR, true, "Internal error - server network packet decompression failed [ %i ]. Packet dropped.", result);
 						netcode_server_free_packet (networkServer, packet);
-						return -1;      // Ignore the packet
 					}
+				 else
+				 {
+					 // Cast to our packet structure
+					 serverPacket = (_networkPacket *) &inPacketPtr;
+					 serverPacket->packetOwner = clientIndex;
 
-				// Cast to our packet structure
-				serverPacket = (_networkPacket *) &inPacketPtr;
-				serverPacket->packetOwner = clientIndex;
+					 evt_sendEvent (USER_EVENT_SERVER_EVENT, serverPacket->packetType, serverPacket->data1, serverPacket->data2, serverPacket->data3, serverPacket->vec2_1, serverPacket->vec2_2,
+					                serverPacket->text);
 
-                printf("Client [ %i ] packetCount [ %i ]\n", clientIndex, clientInfo[clientIndex].packetSequenceCount);
-
-				if ( SDL_LockMutex (networkServerMutex) == 0 )
-				{
-					networkServerQueue.push (*serverPacket);
-
-					SDL_UnlockMutex (networkServerMutex);
-				}
-				netcode_server_free_packet (networkServer, packet);
+					 netcode_server_free_packet (networkServer, packet);
+				 }
 			}
-            else
-              {
-              }
 		}
 	}
+
+	printf ("SERVER NETWORK packet thread finished.\n");
 	return 0;
 }
 
@@ -213,10 +167,10 @@ bool net_startNetworkServerThread ()
 		return false;
 	}
 
-	networkServerMutex = SDL_CreateMutex ();
-	if ( !networkServerMutex )
+	networkServerOutMutex = SDL_CreateMutex ();
+	if ( !networkServerOutMutex )
 	{
-		printf ("Couldn't create mutex - networkServerMutex.\n");
+		printf ("Couldn't create mutex - networkServerOutMutex.\n");
 		return false;
 	}
 	SDL_DetachThread (userEventNetworkServerThread);
@@ -244,7 +198,7 @@ bool net_createServer ( float time )
 {
 	struct netcode_server_config_t server_config{};
 
-	serverAddress = net_setNetworkAddress (serverPort,"[::1]" );
+	serverAddress = net_setNetworkAddress (serverPort,"127.0.0.1" );
 
 	printf("server [ %s ]\n", serverAddress.c_str());
 
@@ -310,4 +264,13 @@ void net_updateNetworkServer ( float time )
 //--------------------------------------------------------------------------------
 {
 	netcode_server_update (networkServer, time);
+}
+
+//--------------------------------------------------------------------------------
+//
+// Send the client world position according to the server
+void net_sendPositionUpdate ( int whichClient )
+//--------------------------------------------------------------------------------
+{
+//	evt_sendEvent (USER_EVENT_NETWORK_FROM_SERVER, NETWORK_SEND_DATA, NET_CLIENT_WORLDPOS, whichClient, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y} , glm::vec2 (), "");
 }

@@ -48,8 +48,8 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_audio.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_openGLWrap.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_opengl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/game/s_gameEvents.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/game/s_gamePhysics.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/game/gam_events.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/game/gam_physics.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/gl_window.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/glad/glad.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_keyboard.cpp
@@ -109,7 +109,7 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_mouse.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_fbo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_shaders.cpp
-        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/s_levels.cpp hdr/game/s_levels.h src/game/s_render.cpp hdr/game/s_render.h src/game/s_movement.cpp hdr/game/s_movement.h src/game/s_renderDebug.cpp hdr/game/s_renderDebug.h src/game/s_lightCaster.cpp hdr/game/s_lightCaster.h src/opengl/gl_renderSprite.cpp hdr/opengl/gl_renderSprite.h src/game/s_hud.cpp hdr/game/s_hud.h src/game/s_healing.cpp hdr/game/s_healing.h src/game/s_player.cpp hdr/game/s_player.h src/game/s_game.cpp hdr/game/s_game.h src/game/s_lifts.cpp hdr/game/s_lifts.h src/game/s_droids.cpp hdr/game/s_droids.h src/system/sys_utils.cpp hdr/system/sys_utils.h src/game/s_droidAIPatrol.cpp hdr/game/s_droidAIPatrol.h src/system/sys_maths.cpp hdr/system/sys_maths.h src/network/net_server.cpp hdr/network/net_server.h src/network/net_client.cpp hdr/network/net_client.h src/network/net_common.cpp src/game/s_droidNetwork.cpp src/game/s_droidNetwork.h src/network/net_serverData.cpp hdr/network/net_serverData.h src/game/s_doors.cpp hdr/game/s_doors.h)
+        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/gam_levels.cpp hdr/game/gam_levels.h src/game/gam_render.cpp hdr/game/gam_render.h src/game/gam_renderDebug.cpp hdr/game/gam_renderDebug.h src/game/gam_lightCaster.cpp hdr/game/gam_lightCaster.h src/opengl/gl_renderSprite.cpp hdr/opengl/gl_renderSprite.h src/game/gam_hud.cpp hdr/game/gam_hud.h src/game/gam_healing.cpp hdr/game/gam_healing.h src/game/gam_player.cpp hdr/game/gam_player.h src/game/gam_game.cpp hdr/game/gam_game.h src/game/gam_lifts.cpp hdr/game/gam_lifts.h src/game/gam_droids.cpp hdr/game/gam_droids.h src/system/sys_utils.cpp hdr/system/sys_utils.h src/game/gam_droidAIPatrol.cpp hdr/game/gam_droidAIPatrol.h src/system/sys_maths.cpp hdr/system/sys_maths.h src/network/net_server.cpp hdr/network/net_server.h src/network/net_client.cpp hdr/network/net_client.h src/network/net_common.cpp src/game/gam_droidNetwork.cpp hdr/game/gam_droidNetwork.h src/game/gam_doors.cpp hdr/game/gam_doors.h src/game/gam_physicsCollisions.cpp hdr/game/gam_physicsCollisions.h src/game/gam_physicsPlayer.cpp hdr/game/gam_physicsPlayer.h src/game/gam_eventsServer.cpp hdr/game/gam_eventsServer.h src/game/gam_eventsClient.cpp hdr/game/gam_eventsClient.h)
 
 # Define the C sources
 set(C_SRCS

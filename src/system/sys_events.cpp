@@ -1,13 +1,15 @@
-#include <hdr/game/s_levels.h>
+#include <hdr/game/gam_levels.h>
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_events.h"
 #include "hdr/io/io_logfile.h"
 #include "hdr/system/sys_audio.h"
-#include "hdr/game/s_gameEvents.h"
+#include "hdr/game/gam_events.h"
 #include "hdr/io/io_keyboard.h"
 #include "hdr/io/io_mouse.h"
+#include "hdr/game/gam_eventsServer.h"
+#include "hdr/game/gam_eventsClient.h"
 
-SDL_TimerID testLevelLoad;
+SDL_TimerID testLevelLoad;      // Used to test that all the levels are loaded
 
 SDL_TimerID timerCursorFlash;
 
@@ -15,6 +17,8 @@ SDL_Thread *userEventConsoleThread;
 SDL_Thread *userEventAudioThread;
 SDL_Thread *userEventLoggingThread;
 SDL_Thread *userEventGameThread;
+SDL_Thread *userEventServerThread;
+SDL_Thread *userEventClientThread;
 
 SDL_mutex *consoleMutex;
 SDL_mutex *audioMutex;
@@ -22,16 +26,23 @@ SDL_mutex *loggingMutex;
 SDL_mutex *gameMutex;
 SDL_mutex *levelMutex;
 SDL_mutex *textureSetMutex;
-SDL_mutex *networkServerMutex;
-SDL_mutex *networkClientMutex;
+
+SDL_mutex *networkServerOutMutex;
+SDL_mutex *networkClientOutMutex;
+
+SDL_mutex *serverEventInMutex;
+SDL_mutex *clientEventInMutex;
 
 queue <_myEventData> consoleEventQueue;
 queue <_myEventData> audioEventQueue;
 queue <_myEventData> loggingEventQueue;
 queue <_myEventData> gameEventQueue;
-queue <_myEventData> networkClientQueue;
 
-queue<_networkPacket> networkServerQueue;
+queue<_myEventData> clientEventInQueue;
+queue<_myEventData> networkClientOutQueue;
+
+queue<_myEventData> serverEventInQueue;
+queue<_myEventData> networkServerOutQueue;
 
 bool runThreads = true;     // Master flag to control state of detached threads
 
@@ -132,6 +143,20 @@ bool evt_registerUserEventSetup ()
 		return false;
 	}
 
+	userEventServerThread = SDL_CreateThread (gam_processServerEventQueue, "userEventServerThread", (void *) nullptr);
+	if ( nullptr == userEventServerThread )
+	{
+		printf ("SDL_CreateThread - userEventServerThread - failed: %s\n", SDL_GetError ());
+		return false;
+	}
+
+	userEventClientThread = SDL_CreateThread (gam_processClientEventQueue, "userEventClientThread", (void *) nullptr);
+	if ( nullptr == userEventClientThread )
+	{
+		printf ("SDL_CreateThread - userEventClientThread - failed: %s\n", SDL_GetError ());
+		return false;
+	}
+
 	consoleMutex = SDL_CreateMutex ();
 	if ( !consoleMutex )
 	{
@@ -174,10 +199,25 @@ bool evt_registerUserEventSetup ()
 		return false;
 	}
 
+	serverEventInMutex = SDL_CreateMutex ();
+	if ( !serverEventInMutex )
+	{
+		printf ("Couldn't create mutex - serverEventInMutex");
+		return false;
+	}
+
+	clientEventInMutex = SDL_CreateMutex ();
+	if ( !clientEventInMutex )
+	{
+		printf ("Couldn't create mutex - clientEventInMutex");
+		return false;
+	}
+
 	SDL_DetachThread (userEventConsoleThread);
 	SDL_DetachThread (userEventAudioThread);
 	SDL_DetachThread (userEventLoggingThread);
 	SDL_DetachThread (userEventGameThread);
+	SDL_DetachThread (userEventServerThread);
 
 
 	return true;
@@ -268,38 +308,40 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			}
 			break;
 
-			/*
-		case USER_EVENT_NETWORK_SERVER:
-			if ( SDL_LockMutex (networkServerMutex) == 0 )
+		case USER_EVENT_NETWORK_FROM_SERVER:    // Send a packet OUT to clients
+			if ( SDL_LockMutex (networkServerOutMutex) == 0 )
 			{
-				networkServerQueue.push (eventData);
-				SDL_UnlockMutex (networkServerMutex);
+				networkServerOutQueue.push (eventData);
+				SDL_UnlockMutex (networkServerOutMutex);
 			}
 			break;
-*/
-		case USER_EVENT_NETWORK_CLIENT:
 
-		  /*
-		  if (networkClientQueue.size() > 100)
-            {
-              //
-              // TODO: Remove oldest one and replace with new one for a certain time
-              // See if the connection returns
-              con_print(CON_INFO, true, "Client network packet queue is full. Dropping packets.");
-              return;
-            }
-
-
-*/			if ( SDL_LockMutex (networkClientMutex) == 0 )
+		case USER_EVENT_SERVER_EVENT:       // Take some action from a packet IN from the clients
+			if ( SDL_LockMutex (serverEventInMutex) == 0 )
 			{
-				networkClientQueue.push (eventData);
-				SDL_UnlockMutex (networkClientMutex);
+				serverEventInQueue.push(eventData);
+				SDL_UnlockMutex (serverEventInMutex);
+			}
+			break;
+
+		case USER_EVENT_NETWORK_FROM_CLIENT:    // Send packet OUT to the server
+			if ( SDL_LockMutex (networkClientOutMutex) == 0 )
+			{
+				networkClientOutQueue.push (eventData);
+				SDL_UnlockMutex (networkClientOutMutex);
+			}
+			break;
+
+		case USER_EVENT_CLIENT_EVENT:     // Take some action from a packet IN from the server
+			if ( SDL_LockMutex (clientEventInMutex) == 0 )
+			{
+				clientEventInQueue.push (eventData);
+				SDL_UnlockMutex (clientEventInMutex);
 			}
 			break;
 
 		default:
 			break;
-
 	}
 
 	eventData.eventString = "";

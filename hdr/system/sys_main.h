@@ -52,7 +52,6 @@ extern bool fullScreen;
 extern int  vsyncType;
 
 extern vec3 quadPosition;
-extern cpVect currentVelocity;
 
 // Change game mode
 void sys_changeMode ( int newMode );

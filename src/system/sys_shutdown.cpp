@@ -1,7 +1,8 @@
 #include <hdr/network/net_server.h>
 #include <hdr/network/net_client.h>
+#include <hdr/game/gam_physicsPlayer.h>
 #include "hdr/system/sys_main.h"
-#include "hdr/game/s_gamePhysics.h"
+#include "hdr/game/gam_physics.h"
 #include "hdr/libGL/gl_window.h"
 #include "hdr/system/sys_shutdown.h"
 #include "hdr/io/io_logfile.h"
@@ -16,6 +17,7 @@
 void sys_shutdownToSystem ()
 //-----------------------------------------------------------------------------------------------------
 {
+	sys_destroyPlayerPhysics ();
 	sys_freePhysicsEngine ();
 	gl_displayErrors ();
 	lib_destroyWindow();

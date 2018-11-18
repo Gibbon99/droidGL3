@@ -1,13 +1,15 @@
-#include <hdr/game/s_lightCaster.h>
-#include <hdr/game/s_render.h>
-#include <hdr/game/s_healing.h>
-#include <hdr/game/s_doors.h>
-#include "hdr/game/s_renderDebug.h"
+#include <hdr/game/gam_lightCaster.h>
+#include <hdr/game/gam_render.h>
+#include <hdr/game/gam_healing.h>
+#include <hdr/game/gam_doors.h>
+#include <hdr/game/gam_physics.h>
+#include "hdr/game/gam_renderDebug.h"
 #include "hdr/console/con_console.h"
 #include "hdr/system/sys_audio.h"
 #include "hdr/opengl/gl_opengl.h"
-#include "hdr/game/s_hud.h"
+#include "hdr/game/gam_hud.h"
 #include "hdr/network/net_server.h"
+#include "hdr/game/gam_physicsPlayer.h"
 
 cpVect vect1;
 
@@ -36,6 +38,15 @@ _hostScriptFunctions hostVariables[] =
     {"int doorAnimateInterval",             &doorAnimateInterval},
 	{"int serverPort",                      &serverPort},
 	{"int maxNumClients",                   &maxNumClients},
+	{"float shipDamping",                   &shipDamping},
+	{"float collisionSlop",                 &collisionSlop},
+	{"float wallFriction",                  &wallFriction},
+	{"float wallRadius",                    &wallRadius},
+	{"float playerMass",                    &playerMass},
+	{"float playerRadius",                  &playerRadius},
+	{"float playerFriction",                &playerFriction},
+	{"float playerElastic",                 &playerElastic},
+	{"float gravity",                       &gravity},
 	{"",                                    nullptr},
 };
 

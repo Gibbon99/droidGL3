@@ -1,7 +1,7 @@
-#include <hdr/game/s_levels.h>
-#include <hdr/game/s_player.h>
+#include <hdr/game/gam_levels.h>
+#include <hdr/game/gam_player.h>
 #include <hdr/system/sys_audio.h>
-#include "hdr/game/s_doors.h"
+#include "hdr/game/gam_doors.h"
 
 _doorTrigger		doorTrigger[MAX_NUM_OF_DOORS];		// pointer to memory to hold door trigger information
 int				    numDoorsOnLevel;					// how many doors are on this level

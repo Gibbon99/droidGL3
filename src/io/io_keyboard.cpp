@@ -1,17 +1,18 @@
-#include <hdr/game/s_render.h>
-#include <hdr/game/s_lightCaster.h>
-#include <hdr/game/s_player.h>
+#include <hdr/game/gam_render.h>
+#include <hdr/game/gam_lightCaster.h>
+#include <hdr/game/gam_player.h>
 #include <hdr/network/net_client.h>
-#include <hdr/game/s_gameEvents.h>
+#include <hdr/game/gam_events.h>
+#include <hdr/game/gam_physics.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/system/sys_events.h"
 
-bool keyForwardDown = false;
-bool keyBackwardDown = false;
-bool keyLeftDown = false;
-bool keyRightDown = false;
-bool keyUpDown = false;
-bool keyDownDown = false;
+bool eventMoveForward = false;
+bool eventMoveBackward = false;
+bool eventMoveLeft = false;
+bool eventMoveRight = false;
+bool eventMoveUp = false;
+bool eventMoveDown = false;
 
 //-----------------------------------------------------------------------------
 //
@@ -19,88 +20,15 @@ bool keyDownDown = false;
 void io_processInputActions ()
 //-----------------------------------------------------------------------------
 {
-	float moveSpeed = 1.0f / 20.0f;
-
-	if (keyLeftDown)
-		currentVelocity.x -= moveSpeed;
-
-	if (keyRightDown)
-		currentVelocity.x += moveSpeed;
-
-	if (keyUpDown)
-		currentVelocity.y -= moveSpeed;
-
-	if (keyDownDown)
-		currentVelocity.y += moveSpeed;
-
-	if (!keyForwardDown)
+	if ( !eventMoveForward )
 	{
 		g_scaleViewBy += 0.1f;
 	}
 
-
-	if (!keyBackwardDown)
+	if ( !eventMoveBackward )
 	{
 		g_scaleViewBy -= 0.1f;
 	}
-
-	if ( !keyLeftDown )
-	{
-		if ( currentVelocity.x < 0.0f )
-		{
-			currentVelocity.x += moveSpeed;
-			if ( currentVelocity.x > 0.0f )
-				currentVelocity.x = 0.0f;
-		}
-	}
-
-	if ( !keyRightDown )
-	{
-		if (currentVelocity.x > 0.0f)
-		{
-			currentVelocity.x -= moveSpeed;
-			if (currentVelocity.x < 0.0f)
-				currentVelocity.x = 0.0f;
-		}
-	}
-
-	if ( !keyDownDown )
-	{
-		if (currentVelocity.y > 0.0f)
-		{
-			currentVelocity.y -= moveSpeed;
-			if (currentVelocity.y < 0.0f)
-				currentVelocity.y = 0.0f;
-		}
-	}
-
-
-	if ( !keyUpDown )
-	{
-		if (currentVelocity.y < 0.0f)
-		{
-			currentVelocity.y += moveSpeed;
-			if ( currentVelocity.y > 0.0f )
-				currentVelocity.y = 0.0f;
-		}
-	}
-
-
-	// Check bounds
-	if (currentVelocity.x < -5.0f)
-		currentVelocity.x = -5.0f;
-
-	if (currentVelocity.x > 5.0f)
-		currentVelocity.x = 5.0f;
-
-	if (currentVelocity.y < -5.0f)
-		currentVelocity.y = -5.0f;
-
-	if (currentVelocity.y > 5.0f)
-		currentVelocity.y = 5.0f;
-
-	playerDroid.worldPos.x += currentVelocity.x;
-	playerDroid.worldPos.y += currentVelocity.y;
 }
 
 //-----------------------------------------------------------------------------
@@ -151,27 +79,27 @@ void io_processGameInputEvents (_myEventData eventData)
 				break;
 
 			case MY_INPUT_LEFT:
-				keyLeftDown = true;
+				eventMoveLeft = true;
 				break;
 
 			case MY_INPUT_RIGHT:
-				keyRightDown = true;
+				eventMoveRight = true;
 				break;
 
 			case MY_INPUT_UP:
-				keyUpDown = true;
+				eventMoveUp = true;
 				break;
 
 			case MY_INPUT_DOWN:
-				keyDownDown = true;
+				eventMoveDown = true;
 				break;
 
 			case MY_INPUT_FORWARD:
-				keyForwardDown = true;
+				eventMoveForward = true;
 				break;
 
 			case MY_INPUT_BACKWARD:
-				keyBackwardDown = true;
+				eventMoveBackward = true;
 				break;
 
 			case SDLK_F12:
@@ -194,27 +122,27 @@ void io_processGameInputEvents (_myEventData eventData)
 		{
 
 			case MY_INPUT_LEFT:
-				keyLeftDown = false;
+				eventMoveLeft = false;
 				break;
 
 			case MY_INPUT_RIGHT:
-				keyRightDown = false;
+				eventMoveRight = false;
 				break;
 
 			case MY_INPUT_UP:
-				keyUpDown = false;
+				eventMoveUp = false;
 				break;
 
 			case MY_INPUT_DOWN:
-				keyDownDown = false;
+				eventMoveDown = false;
 				break;
 
 			case MY_INPUT_FORWARD:
-				keyForwardDown = false;
+				eventMoveForward = false;
 				break;
 
 			case MY_INPUT_BACKWARD:
-				keyBackwardDown = false;
+				eventMoveBackward = false;
 				break;
 
 			default:
@@ -382,10 +310,10 @@ void io_handleKeyboardEvent ( SDL_Event event )
 			// Also send to the server
 			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_KEY_EVENT,
                            io_returnStandardInputActionKeyboard (event.type), io_returnStandardInputValueKeyboard (event.key.keysym.sym) , 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y},"");
-//			evt_sendEvent (USER_EVENT_NETWORK_CLIENT, NETWORK_SEND_DATA, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y}, "Keyboard event");
+//			evt_sendEvent (USER_EVENT_NETWORK_FROM_CLIENT, NETWORK_SEND_DATA, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y}, "Keyboard event");
 
-      if (event.type == SDL_KEYDOWN)
-        net_sendCurrentLevel(lvl_getCurrentLevelName ());
+            if (event.type == SDL_KEYDOWN)
+                net_sendCurrentLevel(lvl_getCurrentLevelName ());
 
 			break;
 
