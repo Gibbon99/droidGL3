@@ -17,7 +17,7 @@ void gam_handleClientEvent ( _myEventData thisEvent )
 
 		case NET_DROID_WORLDPOS:
 
-//			printf("Got droid [ %i ] new position.\n", thisEvent.data3);
+			printf("Got droid [ %i ] new position.\n", thisEvent.data3);
 
 			levelInfo.at (lvl_getCurrentLevelName ()).droid[thisEvent.data3].serverWorldPos.x = thisEvent.vec2_1.x;
 			levelInfo.at (lvl_getCurrentLevelName ()).droid[thisEvent.data3].serverWorldPos.y = thisEvent.vec2_1.y;
@@ -48,6 +48,8 @@ int gam_processClientEventQueue ( void *ptr )
 				clientEventInQueue.pop ();
 				SDL_UnlockMutex (clientEventInMutex);
 			}
+
+			printf ("CLIENT - process event IN queue\n");
 
 			switch ( tempEventData.eventAction )
 			{

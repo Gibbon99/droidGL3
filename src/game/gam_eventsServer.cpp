@@ -10,7 +10,11 @@ void gam_handleServerEvent(_myEventData thisEvent)
 	switch (thisEvent.data1)
 	{
 		case NET_CLIENT_CURRENT_LEVEL:
-			//printf ("SERVER Says - client [ %i ] is on level [ %s ]\n", thisEvent.data2, thisEvent.eventString.c_str());
+			printf ("SERVER Says - client [ %i ] is on level [ %s ]\n", thisEvent.data2, thisEvent.eventString.c_str());
+			break;
+
+		case NET_CURRENT_TICK:
+//			printf("Client tickCount [ %i ] Server tickCount [ %i ]\n", thisEvent.data2, (int)frameCount);
 			break;
 
 		default:
@@ -48,6 +52,8 @@ int gam_processServerEventQueue ( void *ptr )
 				case NET_CLIENT_SYSTEM_PACKET:
 					break;
 
+				default:
+					break;
 			}
 		}
 	}

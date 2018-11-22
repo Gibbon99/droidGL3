@@ -53,7 +53,7 @@ void ai_processWaypointMove(const string &levelName, int whichDroid)
 	levelInfo.at (levelName).droid[whichDroid].worldPos = cpvadd (levelInfo.at (levelName).droid[whichDroid].worldPos, levelInfo.at (levelName).droid[whichDroid].velocity);
 
 //	if ((whichDroid > 0) && (whichDroid < 3))
-		evt_sendEvent (USER_EVENT_NETWORK_FROM_SERVER, NETWORK_SEND_DATA, NET_DROID_WORLDPOS, 0, whichDroid, glm::vec2{levelInfo.at (levelName).droid[whichDroid].worldPos.x, levelInfo.at (levelName).droid[whichDroid].worldPos.y}, glm::vec2 (), "");
+//	evt_sendEvent (USER_EVENT_NETWORK_FROM_SERVER, NETWORK_SEND_DATA, NET_DROID_WORLDPOS, 0, whichDroid, glm::vec2{levelInfo.at (levelName).droid[whichDroid].worldPos.x, levelInfo.at (levelName).droid[whichDroid].worldPos.y}, glm::vec2 (), "");
 
 	//
 	// See if the droid has reached it's destination

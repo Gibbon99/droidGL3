@@ -106,7 +106,6 @@ bool sys_initAll()
 	// Console running now
 	//
 	//----------------------------------------------------------------------------------------
-
 	if (!io_startFileSystem ())
 	{
 		con_print(CON_ERROR, true, "Could not start filesystem.");
@@ -121,6 +120,7 @@ bool sys_initAll()
 		if (!con_startScriptEngine ())
 		{
 			con_print(CON_ERROR, true, "Error: Unable to start scripting engine.");
+			return false;
 		}
 		else
 		{
@@ -135,21 +135,19 @@ bool sys_initAll()
 //	con_executeScriptFunction ("scr_addAllScriptCommands", "");
 		}
 
-		if (lzo_init() != LZO_E_OK)
-		{
-			con_print(CON_ERROR, true, "Can not start compression library. Internal error.");
+
+		//
+		// Start networking system
+		if ( !enet_initLibrary ())
 			return false;
-		}
 
-		if (runAsServer)
-		{
-			networkServerIsRunning = net_createServer (frameCount);
-			if ( !networkServerIsRunning)
-				return false;
-		}
+		if ( !enet_startServer ("127.0.0.1", 9999, static_cast<size_t>(maxNumClients), 2))
+			return false;
 
-		networkClientIsRunning = net_createNetworkClient (frameCount);
-		if (!networkClientIsRunning)
+		if ( !enet_startClient (2))
+			return false;
+
+		if ( !enet_clientConnectTo ("127.0.0.1", 9999, 2, 5000))
 			return false;
 
 		sys_setupPhysicsEngine ();

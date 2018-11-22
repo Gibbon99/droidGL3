@@ -83,13 +83,15 @@ void sys_displayScreen(float interpolation)
 
 	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,
 			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
-	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "numDoors [ %i ] g_scaleViewBy [ %3.3f ]", numDoorsOnLevel, g_scaleViewBy);
+	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "PacketCount Client [ %i ] Server [ %i ]]", networkPacketCountSentClient, networkPacketCountSentServer);
 
 	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "playerLocation [ %3.3f %3.3f ] velocity [ %3.3f %3.3f ]", playerDroid.worldPos.x, playerDroid.worldPos.y, playerDroid.velocity.x, playerDroid.velocity.y);
 	if ( g_memLeakLastRun)
 		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
 
 	lib_swapBuffers ();
+
+//	printf("PacketCount Client[ %i ] Server[ %i ]\n", networkPacketCountSentClient, networkPacketCountSentServer);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -99,8 +101,6 @@ void sys_displayScreen(float interpolation)
 void sys_gameTickRun()
 //-----------------------------------------------------------------------------------------------------
 {
-	frameCount += 1.0f / TICKS_PER_SECOND;
-
 	switch (currentMode)
 	{
 		case MODE_SHUTDOWN:
@@ -123,16 +123,9 @@ void sys_gameTickRun()
 			break;
 
 		case MODE_CONSOLE:
-			net_updateNetworkClient (frameCount);
-			if ( runAsServer )
-				net_updateNetworkServer (frameCount);
 			break;
 
 		case MODE_GAME:
-
-			net_updateNetworkClient (frameCount);
-			if (runAsServer)
-				net_updateNetworkServer (frameCount);
 
             io_processInputActions ();
 
@@ -152,8 +145,8 @@ void sys_gameTickRun()
 		default:
 			break;
 	}
-
 	evt_handleEvents ();
+	frameCount++;
 }
 
 //-----------------------------------------------------------------------------------------------------

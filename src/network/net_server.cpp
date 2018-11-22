@@ -1,21 +1,88 @@
+#include "hdr/network/net_server.h"
 #include "hdr/network/net_common.h"
 #include "hdr/game/gam_player.h"
 
-vector<_clientInfo>     clientInfo;
-
-netcode_server_t        *networkServer;
-
-bool                    runNetworkServerThread = true;
 bool                    runAsServer = true;
 bool                    networkServerIsRunning = false;
 
-SDL_Thread              *networkServerThread;
+ENetAddress             enetServerAddress;
+ENetHost                *enetServer = nullptr;
+
 SDL_Thread              *userEventNetworkServerThread;
+SDL_Thread              *enetServerThread;
 
 int                     maxNumClients;  // From script
 int                     serverPort;     // From script
 
-string                  serverAddress;
+//-----------------------------------------------------------------------------------------------------
+//
+/// \param argc
+/// \param argv
+/// \return
+int enet_pollServerEvents ( void *ptr )
+//-----------------------------------------------------------------------------------------------------
+{
+	ENetEvent           event;
+	string              clientIP;
+	_networkPacket      inPacketPtr;
+	_enetClientInfo     tempClientInfo;
+
+	while ( runThreads )
+	{
+		SDL_Delay (THREAD_DELAY_MS);
+
+//		printf("Server is polling events.\n");
+
+		if ( enet_host_service (enetServer, &event, 0) > 0 )
+		{
+			switch ( event.type )
+			{
+				case ENET_EVENT_TYPE_CONNECT:
+					enet_address_get_host_ip (&event.peer->address, (char *) clientIP.c_str (), 16);
+
+					con_print (CON_INFO, true, "Connect ID [ %i ] incomingPeerID [ %i ]", event.peer->connectID, event.peer->incomingPeerID);
+					con_print (CON_INFO, true, "A new client [ %s ] connected from %x:%u.\n", clientIP.c_str (), event.peer->address.host, event.peer->address.port);
+
+					memcpy(&tempClientInfo.peer, event.peer, sizeof(_ENetPeer));
+					tempClientInfo.packetSequenceCount = 0;
+					tempClientInfo.name = "Test Name";
+
+					enetClientInfo.push_back(tempClientInfo);
+
+					con_print (CON_INFO, true, "Number of clients [ %i ]\n", enetClientInfo.size());
+					break;
+
+				case ENET_EVENT_TYPE_RECEIVE:
+
+					memcpy ((void *)&inPacketPtr, event.packet->data, sizeof (_networkPacket));
+
+					evt_sendEvent (USER_EVENT_SERVER_EVENT, inPacketPtr.packetType, inPacketPtr.data1, inPacketPtr.data2, inPacketPtr.data3, inPacketPtr.vec2_1, inPacketPtr.vec2_2,
+					               inPacketPtr.text);
+
+
+
+					// Clean up the packet now that we're done using it.
+					enet_packet_destroy (event.packet);
+					break;
+
+				case ENET_EVENT_TYPE_DISCONNECT:
+					printf ("%s disconnected.\n", event.peer->data);
+					/* Reset the peer's client information. */
+					event.peer->data = nullptr;
+					break;
+
+				case ENET_EVENT_TYPE_NONE:
+					break;
+
+				default:
+					printf ("Unknown event received\n");
+					break;
+			}
+		}
+	}
+	printf ("ENET SERVER thread finished.\n");
+	return 0;
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -25,7 +92,7 @@ string                  serverAddress;
 int net_processNetworkServerQueue (void *ptr)
 //-----------------------------------------------------------------------------
 {
-	_networkPacket clientPacket;
+	_networkPacket  clientPacket;
 	_myEventData    tempEventData;
 
 	while ( runThreads )
@@ -44,7 +111,10 @@ int net_processNetworkServerQueue (void *ptr)
 			switch ( tempEventData.eventAction)
 			{
 				case NETWORK_SEND_DATA:
-					clientInfo[tempEventData.data2].packetSequenceCount++;      // Client Index
+
+					//printf ("SERVER is sending out packets - queue [ %i ].\n", networkServerOutQueue.size());
+
+					enetClientInfo[tempEventData.data2].packetSequenceCount++;      // Client Index
 					clientPacket.packetType = NET_CLIENT_DATA_PACKET;
 					clientPacket.data1 = tempEventData.data1;
 					clientPacket.data2 = tempEventData.data2;
@@ -55,7 +125,7 @@ int net_processNetworkServerQueue (void *ptr)
 					clientPacket.packetOwner = tempEventData.data2;
 					snprintf (clientPacket.text, NET_TEXT_SIZE, "%s", tempEventData.eventString.c_str ());    // Don't overflow char array
 
-					net_sendPacket (clientPacket, USER_EVENT_NETWORK_FROM_SERVER, tempEventData.data2);
+					enet_sendPacket (clientPacket, USER_EVENT_NETWORK_FROM_SERVER, tempEventData.data2);
 
 					break;
 
@@ -68,98 +138,59 @@ int net_processNetworkServerQueue (void *ptr)
 	return 0;
 }
 
-//----------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------
 //
-// Thread to get the network server packets
-//
-// Decompresses the INCOMING packet and puts it onto the Server event queue
-int net_getNetworkServerPackets ( void *ptr )
-//----------------------------------------------------------
+/// \param argc
+/// \param argv
+/// \return
+bool enet_startServer ( const string &hostAddress, enet_uint16 hostPort, size_t enetMaxNumClients, size_t enetNumChannels )
+//-----------------------------------------------------------------------------------------------------
 {
-	int             packet_bytes;
-	uint64_t        packet_sequence;
-	uint8_t         *packet;
-	_networkPacket  *serverPacket;
-	lzo_uint        newLength;
-	int             result;
-	char            inPacketPtr[sizeof (_networkPacket) * 2]; // Make sure there is enough space to hold decompressed packet
+	string ip;
+	int returnValue;
 
-	while ( runNetworkServerThread )
+	if ( !enetInitDone )
+		if ( !enet_initLibrary ())
+			return false;
+
+//	enetClientInfo.reserve (enetMaxNumClients);
+
+	enetServerAddress.host = ENET_HOST_ANY;
+	enetServerAddress.port = hostPort;
+
+	returnValue = enet_address_set_host (&enetServerAddress, hostAddress.c_str ());
+	if ( returnValue < 0 )
 	{
-		SDL_Delay (THREAD_DELAY_MS);
-
-		for (int clientIndex = 0; clientIndex < maxNumClients; ++clientIndex)
-		{
-			packet = netcode_server_receive_packet (networkServer, clientIndex, &packet_bytes, &packet_sequence);
-			if ( packet != nullptr)
-			{
-				// Got a legitimate packet - now decompress it
-				// TODO: Work out compression amount - percentage compressed??
-				 result = lzo1x_decompress (packet, static_cast<lzo_uint>(packet_bytes), (unsigned char *) &inPacketPtr, &newLength, nullptr);
-				 if ( result != LZO_E_OK )
-					{
-						con_print (CON_ERROR, true, "Internal error - server network packet decompression failed [ %i ]. Packet dropped.", result);
-						netcode_server_free_packet (networkServer, packet);
-					}
-				 else
-				 {
-					 // Cast to our packet structure
-					 serverPacket = (_networkPacket *) &inPacketPtr;
-					 serverPacket->packetOwner = clientIndex;
-
-					 evt_sendEvent (USER_EVENT_SERVER_EVENT, serverPacket->packetType, serverPacket->data1, serverPacket->data2, serverPacket->data3, serverPacket->vec2_1, serverPacket->vec2_2,
-					                serverPacket->text);
-
-					 netcode_server_free_packet (networkServer, packet);
-				 }
-			}
-		}
-	}
-
-	printf ("SERVER NETWORK packet thread finished.\n");
-	return 0;
-}
-
-//----------------------------------------------------------------
-//
-// Stop the network server thread running
-void net_stopNetworkServerThread ()
-//----------------------------------------------------------------
-{
-	runNetworkServerThread = false;
-}
-
-//----------------------------------------------------------------
-//
-// Create the thread to run the network server function.
-bool net_createNetworkServerThread ()
-//----------------------------------------------------------------
-{
-	/*
-	if ( runNetworkServerThread )
-	{
-		con_print (CON_INFO, true, "Network server thread is already running.");
-		return true;
-	}
-*/
-
-	networkServerThread = SDL_CreateThread (net_getNetworkServerPackets, "net_getNetworkServerPackets", (void *) nullptr);
-
-	if ( nullptr == networkServerThread )
-	{
-		con_print (CON_ERROR, true, "SDL_CreateThread - net_getNetworkServerPackets  - failed : [ %s ]", SDL_GetError ());
+		con_print (CON_ERROR, true, "Unable to resolve hostName [ %s ] to create server.", hostAddress);
 		return false;
 	}
 
-	return true;
-}
+	enetServerAddress.host = ENET_HOST_ANY;
 
-//----------------------------------------------------------------
-//
-// Start the network server thread running
-bool net_startNetworkServerThread ()
-//----------------------------------------------------------------
-{
+	enetServer = enet_host_create (&enetServerAddress, enetMaxNumClients, enetNumChannels, 0, 0);    // Set numClients
+	if ( enetServer == nullptr )
+	{
+		con_print (CON_ERROR, true, "Unable to create server instance.");
+		return false;
+	}
+
+	returnValue = enet_address_get_host_ip (&enetServer->address, (char *) ip.c_str (), 16);
+	if ( returnValue < 0 )
+	{
+		con_print (CON_ERROR, true, "Unable to obtain server address.");
+		return false;
+	}
+
+	con_print (CON_INFO, true, "Server address [ %s : %i] numClients [ %i ]", ip.c_str (), hostPort, enetMaxNumClients);
+
+	enetServerThread = SDL_CreateThread (enet_pollServerEvents, "enet_pollServerEvents", (void *) nullptr);
+	if ( nullptr == enetServerThread )
+	{
+		printf ("SDL_CreateThread - enetServerThread - failed: %s\n", SDL_GetError ());
+		return false;
+	}
+
 	userEventNetworkServerThread = SDL_CreateThread (net_processNetworkServerQueue, "net_processNetworkServerQueue", (void *) nullptr);
 	if ( nullptr == userEventNetworkServerThread )
 	{
@@ -173,97 +204,23 @@ bool net_startNetworkServerThread ()
 		printf ("Couldn't create mutex - networkServerOutMutex.\n");
 		return false;
 	}
+
 	SDL_DetachThread (userEventNetworkServerThread);
-
-	//
-	// Now create the thread that will watch for network packets and then place them into the network server queue
-
-//	if ( !runNetworkServerThread )     // Not currently running
-	{
-		if ( net_createNetworkServerThread ())
-		{
-			runNetworkServerThread = true;
-			SDL_DetachThread (networkServerThread);
-		}
-	}
+	SDL_DetachThread (enetServerThread);
 
 	return true;
 }
 
-//----------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------
 //
-// Create the network server
-bool net_createServer ( float time )
-//----------------------------------------------------------------
+/// \param argc
+/// \param argv
+/// \return
+void enet_shutdownServer ()
+//-----------------------------------------------------------------------------------------------------
 {
-	struct netcode_server_config_t server_config{};
-
-	serverAddress = net_setNetworkAddress (serverPort,"127.0.0.1" );
-
-	printf("server [ %s ]\n", serverAddress.c_str());
-
-	if ( netcode_init () != NETCODE_OK )
-	{
-		con_print(CON_ERROR, true, "Failed to initialize netcode.io. Could not start server.");
-		return false;
-	}
-
-//	static int (*printf_function) ( NETCODE_CONST char *, ... ) = (int (*) ( NETCODE_CONST char *, ... )) printf;
-//	netcode_set_printf_function (int (*function) ( 	NETCODE_CONST char *, ... ))
-
-//	netcode_set_printf_function(testPrint, (NETCODE_CONST char *) (int (*) ( NETCODE_CONST char *, ... )) printf);
-
-	netcode_log_level (NETCODE_LOG_LEVEL_INFO);// NETCODE_LOG_LEVEL_DEBUG
-
-	netcode_default_server_config (&server_config);
-	server_config.protocol_id = PROTOCOL_ID;
-	memcpy (&server_config.private_key, private_key, NETCODE_KEY_BYTES);
-
-	networkServer = netcode_server_create (serverAddress.c_str(), &server_config, time);
-
-	if ( !networkServer )
-	{
-		con_print (CON_ERROR, true, "Failed to create the network server.");
-		return false;
-	}
-
-	netcode_server_start (networkServer, maxNumClients);
-
-	clientInfo.reserve (maxNumClients);
-	_clientInfo tempClient;
-
-	for (int index = 0; index < maxNumClients; index++)
-      {
-        tempClient.packetSequenceCount = 0;
-        tempClient.clientName = "Player";
-        strcpy(tempClient.currentDeck, "");
-
-        clientInfo.push_back(tempClient);
-      }
-
-	net_startNetworkServerThread ();
-
-	return true;
-}
-
-//----------------------------------------------------------------
-//
-// Shutdown the server instance and terminate netcode
-void net_shutdownServer()
-//----------------------------------------------------------------
-{
-	netcode_server_destroy( networkServer );
-
-	net_stopNetworkServerThread ();
-}
-
-//--------------------------------------------------------------------------------
-//
-// Update the network server
-void net_updateNetworkServer ( float time )
-//--------------------------------------------------------------------------------
-{
-	netcode_server_update (networkServer, time);
+	if ( enetServer )
+		enet_host_destroy (enetServer);
 }
 
 //--------------------------------------------------------------------------------

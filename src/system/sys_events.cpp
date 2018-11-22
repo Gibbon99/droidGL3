@@ -219,7 +219,6 @@ bool evt_registerUserEventSetup ()
 	SDL_DetachThread (userEventGameThread);
 	SDL_DetachThread (userEventServerThread);
 
-
 	return true;
 }
 

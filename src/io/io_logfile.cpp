@@ -125,23 +125,26 @@ void io_logToFile ( const char *format, ... )
 	char		logText[MAX_STRING_SIZE];
 
 	//
-	// check if filelogging is actually enabled
-	//
-	if ( !fileLoggingOn )
-		return;
-
-	//
 	// check and make sure we don't overflow our string buffer
 	//
-	if ( strlen ( format ) >= MAX_STRING_SIZE - 1 )
-		printf ("String passed to logfile too long max [ %i ] - [ %i ]", ( MAX_STRING_SIZE - 1 ), (int)strlen ( format ) - ( MAX_STRING_SIZE - 1 ) );
+	if ( strlen (format) >= MAX_STRING_SIZE - 1 )
+		printf ("String passed to logfile too long max [ %i ] - [ %i ]", (MAX_STRING_SIZE - 1), (int) strlen (format) - (MAX_STRING_SIZE - 1));
 
 	//
 	// get out the passed in parameters
 	//
-	va_start ( args, format );
-	vsprintf ( logText, format, args );
-	va_end ( args );
+	va_start (args, format);
+	vsprintf (logText, format, args);
+	va_end (args);
+
+	//
+	// check if file logging is actually enabled
+	//
+	if ( !fileLoggingOn )
+	{
+		printf("%s\n", logText);
+		return;
+	}
 	//
 	// put a linefeed onto the end of the text line
 	// and send it to the logging queue

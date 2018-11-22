@@ -28,10 +28,10 @@ void sys_shutdownToSystem ()
 	sys_reportMemLeak ("leakReport.txt");
 	evt_shutdownMutex ();
 
-	if ( networkServerIsRunning)
-		net_shutdownServer ();
-	if ( networkClientIsRunning )
-		net_shutdownClient ();
+//	enet_shutdownServer ();
+	enet_shutdownClient ();
+
+	enet_deinitialize ();
 
 	SDL_Quit ();
 }

@@ -18,6 +18,7 @@
       <file path="$PROJECT_DIR$/src/io" />
       <file path="$PROJECT_DIR$/src/libGL" />
       <file path="$PROJECT_DIR$/src/network" />
+      <file path="$PROJECT_DIR$/src/network/enet" />
       <file path="$PROJECT_DIR$/src/opengl" />
       <file path="$PROJECT_DIR$/src/physfs" />
       <file path="$PROJECT_DIR$/src/script" />

@@ -185,10 +185,7 @@ set(C_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/stb_image_aug.c
         ${CMAKE_CURRENT_LIST_DIR}/src/io/simpleIni/io_convertUTF.c
 
-        ${CMAKE_CURRENT_LIST_DIR}/src/network/netcode.c
-
         ${CMAKE_CURRENT_LIST_DIR}/src/io/minilzo/minilzo.c
-
         )
 
 set_source_files_properties(
@@ -197,7 +194,7 @@ set_source_files_properties(
 
 set_source_files_properties(
         ${C_SRCS} PROPERTIES COMPILE_FLAGS
-        " -g -O0 -Wall")
+        " -g -O0 -Wall -Wpointer-sign")
 
 add_executable(droidGL ${RC_SRCS} ${CXX_SRCS} ${C_SRCS})
 target_link_libraries(droidGL ${LINK_OPTIONS})
@@ -212,5 +209,5 @@ target_link_libraries(droidGL
         SDL2
         SDL2_mixer
         freetype
-        sodium
+        enet
         )
