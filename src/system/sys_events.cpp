@@ -27,11 +27,12 @@ SDL_mutex *gameMutex;
 SDL_mutex *levelMutex;
 SDL_mutex *textureSetMutex;
 
-SDL_mutex *networkServerOutMutex;
-SDL_mutex *networkClientOutMutex;
+SDL_mutex *networkOutMutex;
 
 SDL_mutex *serverEventInMutex;
 SDL_mutex *clientEventInMutex;
+
+
 
 queue <_myEventData> consoleEventQueue;
 queue <_myEventData> audioEventQueue;
@@ -42,7 +43,7 @@ queue<_myEventData> clientEventInQueue;
 queue<_myEventData> networkClientOutQueue;
 
 queue<_myEventData> serverEventInQueue;
-queue<_myEventData> networkServerOutQueue;
+queue<_myEventData> networkOutQueue;
 
 bool runThreads = true;     // Master flag to control state of detached threads
 
@@ -213,6 +214,10 @@ bool evt_registerUserEventSetup ()
 		return false;
 	}
 
+
+
+
+
 	SDL_DetachThread (userEventConsoleThread);
 	SDL_DetachThread (userEventAudioThread);
 	SDL_DetachThread (userEventLoggingThread);
@@ -307,11 +312,11 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			}
 			break;
 
-		case USER_EVENT_NETWORK_FROM_SERVER:    // Send a packet OUT to clients
-			if ( SDL_LockMutex (networkServerOutMutex) == 0 )
+		case USER_EVENT_NETWORK_OUT:    // Send a packet OUT to clients
+			if ( SDL_LockMutex (networkOutMutex) == 0 )
 			{
-				networkServerOutQueue.push (eventData);
-				SDL_UnlockMutex (networkServerOutMutex);
+				networkOutQueue.push (eventData);
+				SDL_UnlockMutex (networkOutMutex);
 			}
 			break;
 
@@ -323,14 +328,15 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			}
 			break;
 
+			/*
 		case USER_EVENT_NETWORK_FROM_CLIENT:    // Send packet OUT to the server
-			if ( SDL_LockMutex (networkClientOutMutex) == 0 )
+			if ( SDL_LockMutex (networkOutMutex) == 0 )
 			{
 				networkClientOutQueue.push (eventData);
-				SDL_UnlockMutex (networkClientOutMutex);
+				SDL_UnlockMutex (networkOutMutex);
 			}
 			break;
-
+*/
 		case USER_EVENT_CLIENT_EVENT:     // Take some action from a packet IN from the server
 			if ( SDL_LockMutex (clientEventInMutex) == 0 )
 			{

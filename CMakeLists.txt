@@ -30,6 +30,7 @@ include_directories(
         hdr/libGL/freetype-gl
         hdr/libGL/chipmunk
         hdr/libGL/soil
+        hdr/network/raknet
         /usr/include/freetype2
         /usr/include/SDL2
 )
@@ -109,7 +110,120 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_mouse.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_fbo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_shaders.cpp
-        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/gam_levels.cpp hdr/game/gam_levels.h src/game/gam_render.cpp hdr/game/gam_render.h src/game/gam_renderDebug.cpp hdr/game/gam_renderDebug.h src/game/gam_lightCaster.cpp hdr/game/gam_lightCaster.h src/opengl/gl_renderSprite.cpp hdr/opengl/gl_renderSprite.h src/game/gam_hud.cpp hdr/game/gam_hud.h src/game/gam_healing.cpp hdr/game/gam_healing.h src/game/gam_player.cpp hdr/game/gam_player.h src/game/gam_game.cpp hdr/game/gam_game.h src/game/gam_lifts.cpp hdr/game/gam_lifts.h src/game/gam_droids.cpp hdr/game/gam_droids.h src/system/sys_utils.cpp hdr/system/sys_utils.h src/game/gam_droidAIPatrol.cpp hdr/game/gam_droidAIPatrol.h src/system/sys_maths.cpp hdr/system/sys_maths.h src/network/net_server.cpp hdr/network/net_server.h src/network/net_client.cpp hdr/network/net_client.h src/network/net_common.cpp src/game/gam_droidNetwork.cpp hdr/game/gam_droidNetwork.h src/game/gam_doors.cpp hdr/game/gam_doors.h src/game/gam_physicsCollisions.cpp hdr/game/gam_physicsCollisions.h src/game/gam_physicsPlayer.cpp hdr/game/gam_physicsPlayer.h src/game/gam_eventsServer.cpp hdr/game/gam_eventsServer.h src/game/gam_eventsClient.cpp hdr/game/gam_eventsClient.h)
+        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/gam_levels.cpp hdr/game/gam_levels.h src/game/gam_render.cpp hdr/game/gam_render.h src/game/gam_renderDebug.cpp hdr/game/gam_renderDebug.h src/game/gam_lightCaster.cpp hdr/game/gam_lightCaster.h src/opengl/gl_renderSprite.cpp hdr/opengl/gl_renderSprite.h src/game/gam_hud.cpp hdr/game/gam_hud.h src/game/gam_healing.cpp hdr/game/gam_healing.h src/game/gam_player.cpp hdr/game/gam_player.h src/game/gam_game.cpp hdr/game/gam_game.h src/game/gam_lifts.cpp hdr/game/gam_lifts.h src/game/gam_droids.cpp hdr/game/gam_droids.h src/system/sys_utils.cpp hdr/system/sys_utils.h src/game/gam_droidAIPatrol.cpp hdr/game/gam_droidAIPatrol.h src/system/sys_maths.cpp hdr/system/sys_maths.h src/network/net_server.cpp hdr/network/net_server.h src/network/net_client.cpp hdr/network/net_client.h src/network/net_common.cpp src/game/gam_droidNetwork.cpp hdr/game/gam_droidNetwork.h src/game/gam_doors.cpp hdr/game/gam_doors.h src/game/gam_physicsCollisions.cpp hdr/game/gam_physicsCollisions.h src/game/gam_physicsPlayer.cpp hdr/game/gam_physicsPlayer.h src/game/gam_eventsServer.cpp hdr/game/gam_eventsServer.h src/game/gam_eventsClient.cpp hdr/game/gam_eventsClient.h
+
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/DynDNS.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/GridSectorizer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/FileListTransfer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/DataCompressor.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/LinuxStrings.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/PacketLogger.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/ReadyEvent.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/ReplicaManager3.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/BitStream.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/PacketOutputWindowLogger.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/LocklessTypes.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/CloudServer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/PS4Includes.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RelayPlugin.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/Itoa.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/ReliabilityLayer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetStatistics.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/NatPunchthroughServer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/SendToThread.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/Gets.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/DS_ByteQueue.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_Berkley.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/DS_HuffmanEncodingTree.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/SecureHandshake.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/ConsoleServer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/FullyConnectedMesh2.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/NatTypeDetectionCommon.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/TableSerializer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_Windows_Linux_360.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/UDPProxyServer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/UDPProxyCoordinator.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakPeer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/DS_BytePool.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/CloudClient.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_PS4.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/ThreadsafePacketLogger.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/MessageFilter.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/CCRakNetUDT.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/PacketizedTCP.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/TelnetTransport.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/Base64Encoder.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakThread.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/PacketConsoleLogger.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/SimpleMutex.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetTransport2.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/Getche.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/Rackspace.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakSleep.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RandSync.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/EpochTimeToString.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/VariableDeltaSerializer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakWString.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/NetworkIDObject.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/HTTPConnection2.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/LogCommandParser.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/CCRakNetSlidingWindow.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_Windows_Linux.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/StatisticsHistory.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/NatTypeDetectionServer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_NativeClient.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_Berkley_NativeClient.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/SuperFastHash.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/FileList.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/StringTable.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/StringCompressor.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/TeamManager.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/TeamBalancer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetTypes.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/PluginInterface2.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/VitaIncludes.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/CloudCommon.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_360_720.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/TCPInterface.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/CommandParserInterface.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_PS3_PS4.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/VariadicSQLParser.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/UDPProxyClient.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/ConnectionGraph2.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/NetworkIDManager.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/NatPunchthroughClient.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/_FindFirst.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/CheckSum.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetCommandParser.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/HTTPConnection.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/DR_SHA1.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/gettimeofday.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/EmailSender.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/Router2.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_WindowsStore8.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/IncrementalReadInterface.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/SocketLayer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/DS_Table.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakString.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/WSAStartupSingleton.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/FileOperations.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/DirectoryDeltaTransfer.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/FormatString.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakMemoryOverride.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/SignaledEvent.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/NatTypeDetectionClient.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/PacketFileLogger.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RakNetSocket2_Vita.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/GetTime.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/Rand.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/TwoWayAuthentication.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/UDPForwarder.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RPC4Plugin.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/VariableListDeltaTracker.cpp
+
+        )
 
 # Define the C sources
 set(C_SRCS
@@ -185,12 +299,12 @@ set(C_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/stb_image_aug.c
         ${CMAKE_CURRENT_LIST_DIR}/src/io/simpleIni/io_convertUTF.c
 
-        ${CMAKE_CURRENT_LIST_DIR}/src/io/minilzo/minilzo.c
         )
 
 set_source_files_properties(
         ${CXX_SRCS} PROPERTIES COMPILE_FLAGS
         " -pg -g -O0")
+#        " -pg -g -O0 -fsanitize=address -fno-omit-frame-pointer")
 
 set_source_files_properties(
         ${C_SRCS} PROPERTIES COMPILE_FLAGS
@@ -201,6 +315,7 @@ target_link_libraries(droidGL ${LINK_OPTIONS})
 
 
 target_link_libraries(droidGL
+//        asan
         GL
         GLU
         rt
@@ -209,5 +324,4 @@ target_link_libraries(droidGL
         SDL2
         SDL2_mixer
         freetype
-        enet
         )

@@ -1,14 +1,15 @@
 #include <unordered_map>
 #include <string>
-#include <hdr/game/gam_render.h>
-#include <hdr/game/gam_renderDebug.h>
-#include <hdr/game/gam_lightCaster.h>
-#include <hdr/console/con_conScript.h>
-#include <hdr/game/gam_healing.h>
-#include <hdr/game/gam_game.h>
-#include <hdr/game/gam_droidAIPatrol.h>
-#include <hdr/network/net_client.h>
-#include <hdr/game/gam_doors.h>
+//#include "hdr/system/sys_leakDetector.h"
+#include "hdr/game/gam_render.h"
+#include "hdr/game/gam_renderDebug.h"
+#include "hdr/game/gam_lightCaster.h"
+#include "hdr/console/con_conScript.h"
+#include "hdr/game/gam_healing.h"
+#include "hdr/game/gam_game.h"
+#include "hdr/game/gam_droidAIPatrol.h"
+#include "hdr/network/net_client.h"
+#include "hdr/game/gam_doors.h"
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_audio.h"
@@ -27,6 +28,9 @@
 #include "hdr/game/gam_physics.h"
 #include "hdr/game/gam_player.h"
 #include "hdr/game/gam_droids.h"
+
+#include "hdr/network/net_client.h"
+#include "hdr/network/net_server.h"
 
 bool    quitProgram;
 int     loops;
@@ -81,13 +85,14 @@ void sys_displayScreen(float interpolation)
 
 	glViewport (0, 0, winWidth, winHeight);
 
-	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,
-			frameTime / 1000.0f, mousePosition.x, mousePosition.y);
-	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "PacketCount Client [ %i ] Server [ %i ]]", networkPacketCountSentClient, networkPacketCountSentServer);
+	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,frameTime / 1000.0f, mousePosition.x, mousePosition.y);
+
+	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "OutQueue [ %ul ] PacketCount Client [ %i ] Server [ %i ]]", networkOutQueueSize, networkPacketCountSentClient, networkPacketCountSentServer);
 
 	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "playerLocation [ %3.3f %3.3f ] velocity [ %3.3f %3.3f ]", playerDroid.worldPos.x, playerDroid.worldPos.y, playerDroid.velocity.x, playerDroid.velocity.y);
-	if ( g_memLeakLastRun)
-		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
+
+//	if ( g_memLeakLastRun)
+//		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
 
 	lib_swapBuffers ();
 
@@ -140,6 +145,8 @@ void sys_gameTickRun()
             gam_doorCheckTriggerAreas(lvl_getCurrentLevelName ());
 
 			cpSpaceStep (space, SKIP_TICKS);
+
+			net_processNetworkOutQueue (nullptr);
 			break;
 
 		default:

@@ -8,7 +8,7 @@
 #include <queue>
 #include "hdr/libGL/glad/glad.h"
 
-#include "hdr/system/sys_leakDetector.h"
+//#include "hdr/system/sys_leakDetector.h"
 
 // Include GLM
 #include "glm/glm.hpp"

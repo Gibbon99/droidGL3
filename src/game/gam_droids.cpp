@@ -53,7 +53,7 @@ void drd_renderThisLevel( const string levelName, float interpolate)
                     glm::vec2{drawPosition.x, drawPosition.y},
                     levelInfo.at(levelName).droid[index].currentFrame,
                     glm::vec3{1, 1, 0});
-        }
+	    }
 	}
 }
 

@@ -41,6 +41,8 @@ void con_addConsoleCommands()
 	con_addCommand ( "scShowFunc", 		"Show all script added commands", ( ExternFunc ) showScriptAddedCommands );
 	con_addCommand ( "quit",            "Shutdown the game",            (ExternFunc) conQuit );
 	con_addCommand ("showLevels", "Show level info", (ExternFunc) lvl_showLevelsLoaded);
+	con_addCommand ("startClient",      "Start network client",     (ExternFunc) net_consoleStartNetClient);
+	con_addCommand ("startServer",      "Start network server",     (ExternFunc) net_consoleStartNetServer);
 
 //	conAddCommand("scDo",		"Execute script function",		(ExternFunc)conScriptExecute);
 }

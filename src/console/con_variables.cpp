@@ -36,8 +36,6 @@ _hostScriptFunctions hostVariables[] =
 	{"cpVect vect1",                        &vect1},
 	{"int healingAnimateInterval",          &healingAnimateInterval},
     {"int doorAnimateInterval",             &doorAnimateInterval},
-	{"int serverPort",                      &serverPort},
-	{"int maxNumClients",                   &maxNumClients},
 	{"float shipDamping",                   &shipDamping},
 	{"float collisionSlop",                 &collisionSlop},
 	{"float wallFriction",                  &wallFriction},
@@ -47,6 +45,7 @@ _hostScriptFunctions hostVariables[] =
 	{"float playerFriction",                &playerFriction},
 	{"float playerElastic",                 &playerElastic},
 	{"float gravity",                       &gravity},
+	{"int maxNumClients",                   &maxNumClients},
 	{"",                                    nullptr},
 };
 

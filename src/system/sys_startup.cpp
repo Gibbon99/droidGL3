@@ -6,7 +6,6 @@
 #include <hdr/game/gam_player.h>
 #include <hdr/network/net_server.h>
 #include <hdr/network/net_client.h>
-#include <hdr/io/minilzo/lzoconf.h>
 #include <hdr/game/gam_doors.h>
 #include <hdr/game/gam_physicsCollisions.h>
 #include <hdr/game/gam_physicsPlayer.h>
@@ -53,6 +52,7 @@ bool sys_initAll()
 	if (!io_getGamePrefs(GAME_PREFS_FILENAME))
 		return false;
 
+	/*
 	if ( sys_checkMemLeak ("leakReport.txt"))
 	{
 		con_print (CON_INFO, true, "No memory leak from last run.");
@@ -63,7 +63,7 @@ bool sys_initAll()
 		con_print (CON_ERROR, true, "MEMORY LEAK: Check logfile for details.");
 		g_memLeakLastRun = true;
 	}
-
+*/
 	if (!lib_openWindow ())
 		return false;
 
@@ -135,21 +135,6 @@ bool sys_initAll()
 //	con_executeScriptFunction ("scr_addAllScriptCommands", "");
 		}
 
-
-		//
-		// Start networking system
-		if ( !enet_initLibrary ())
-			return false;
-
-		if ( !enet_startServer ("127.0.0.1", 9999, static_cast<size_t>(maxNumClients), 2))
-			return false;
-
-		if ( !enet_startClient (2))
-			return false;
-
-		if ( !enet_clientConnectTo ("127.0.0.1", 9999, 2, 5000))
-			return false;
-
 		sys_setupPhysicsEngine ();
 		sys_setupPlayerPhysics ();
 		sys_setupCollisionHandlers ();
@@ -182,6 +167,8 @@ bool sys_initAll()
 
 		gam_setPlayerAnimateState ( false );
 		gam_initPlayerAnimateTimer (150 );
+
+		net_initLibrary ();
 
 	}   // end of file system check
 

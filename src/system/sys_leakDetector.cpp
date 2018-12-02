@@ -206,6 +206,9 @@ void * xmalloc ( unsigned int size, const char * file, unsigned int line )
 		{
 			add_mem_info ( ptr, size, file, line );
 		}
+
+//		printf("Called xmalloc size [ %i ] file [ %s ] line [ %i ]\n", size, file, line);
+
 	return ptr;
 }
 

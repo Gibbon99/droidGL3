@@ -23,9 +23,6 @@ void as_setGameVariables()
     sys_testVect(vect1);
     sys_testVect(anotherVect);
 
-    serverPort = 9991;
-    maxNumClients = 8;
-
     drawHUD = false;
 
     nearPlane = 0.0;
@@ -71,6 +68,9 @@ void as_setGameVariables()
     //
     // Slowdown factor
     gravity = 0.0002;
+    //
+    // Max number of clients allowed on server
+    maxNumClients = 4;
 }
 
 //-----------------------------------------------------------------------------

@@ -4,15 +4,21 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/network/net_common.h"
 
-extern bool             runAsServer;
-extern bool             networkServerIsRunning;
+typedef struct
+{
+	RakNet::SystemAddress               systemAddress;
+	RakNet::RakNetGUID                  GUID;
+	char                                name[16];
+	int                                 packetSequenceCount;
+} _netClientInfo;
 
-extern int              serverPort;     // From script
+extern std::vector<_netClientInfo> netClientInfo;
+
 extern int              maxNumClients;  // From script
 
-bool enet_startServer ( const std::string &hostAddress, enet_uint16 hostPort, size_t enetMaxNumClients, size_t enetNumChannels );
+bool net_startServer( const std::string &hostAddress, unsigned short hostPort, unsigned short netMaxNumClients );
 
 // Send the client world position according to the server
 void net_sendPositionUpdate ( int whichClient );
 
-void enet_shutdownServer ();
+void net_shutdownServer();

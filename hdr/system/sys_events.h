@@ -40,7 +40,7 @@ using namespace std;
 
 #define USER_EVENT_KEY_EVENT            0x28
 
-#define USER_EVENT_NETWORK_FROM_SERVER       0x29
+#define USER_EVENT_NETWORK_OUT       0x29
 #define NETWORK_RECEIVE_DATA                 0x30
 #define USER_EVENT_NETWORK_FROM_CLIENT       0x31
 #define NETWORK_SEND_DATA               0x32
@@ -69,7 +69,7 @@ extern std::queue<_myEventData> clientEventInQueue;
 extern std::queue<_myEventData> networkClientOutQueue;
 
 extern std::queue<_myEventData> serverEventInQueue;
-extern std::queue<_myEventData> networkServerOutQueue;
+extern std::queue<_myEventData> networkOutQueue;
 
 extern SDL_mutex *consoleMutex;
 extern SDL_mutex *audioMutex;
@@ -78,8 +78,7 @@ extern SDL_mutex *gameMutex;
 extern SDL_mutex *levelMutex;
 extern SDL_mutex *textureSetMutex;
 
-extern SDL_mutex *networkServerOutMutex;
-extern SDL_mutex *networkClientOutMutex;
+extern SDL_mutex *networkOutMutex;
 
 extern SDL_mutex *serverEventInMutex;
 extern SDL_mutex *clientEventInMutex;

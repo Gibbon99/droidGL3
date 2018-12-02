@@ -25,13 +25,11 @@ void sys_shutdownToSystem ()
 	io_closeLogFile();
 	runThreads = false;
 	SDL_Delay (1000);
-	sys_reportMemLeak ("leakReport.txt");
+//	sys_reportMemLeak ("leakReport.txt");
 	evt_shutdownMutex ();
 
-//	enet_shutdownServer ();
-	enet_shutdownClient ();
-
-	enet_deinitialize ();
+	net_shutdownServer ();
+	net_shutdownClient ();
 
 	SDL_Quit ();
 }

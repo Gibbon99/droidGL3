@@ -1,8 +1,10 @@
 #pragma once
 
-//#include <string>
+#include <string>
 
-void * xrealloc ( void *str,int size,const char *file,unsigned int line );
+#include <stdbool.h>
+
+void * xrealloc ( void *str, int size, const char *file, unsigned int line );
 void * xmalloc ( unsigned int size, const char * file, unsigned int line );
 void * xcalloc ( unsigned int elements, unsigned int size, const char * file, unsigned int line );
 char * xstrdup ( const char *str, const char * file, unsigned int line );

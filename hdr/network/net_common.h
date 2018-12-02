@@ -1,34 +1,18 @@
 #pragma once
 
-#include <enet/enet.h>
+#include "hdr/network/raknet/RakPeer.h"
+#include "hdr/network/raknet/MessageIdentifiers.h"
+#include "hdr/network/raknet/RakPeerInterface.h"
+#include "hdr/network/raknet/RakNetTypes.h"
+
 #include "hdr/system/sys_main.h"
 #include "hdr/system/sys_events.h"
 #include "hdr/network/net_server.h"
 
-
-
-typedef struct
+enum GameMessages
 {
-	ENetPeer peer;
-	std::string name;
-	int packetSequenceCount;
-} _enetClientInfo;
-
-extern std::vector<_enetClientInfo> enetClientInfo;
-
-typedef struct
-{
-	long timeStamp;
-	long sequence;
-	int packetOwner;
-	int packetType;
-	int data1;
-	int data2;
-	int data3;
-	glm::vec2 vec2_1;
-	glm::vec2 vec2_2;
-	char text[32];
-} _networkPacket;
+	ID_GAME_MESSAGE_1=ID_USER_PACKET_ENUM+1
+};
 
 #define NET_TEXT_SIZE        32
 
@@ -47,12 +31,34 @@ extern std::string  serverAddress;
 
 extern int          networkPacketCountSentClient;
 extern int          networkPacketCountSentServer;
+extern size_t       networkOutQueueSize;
 
-extern bool         enetInitDone;
-extern ENetPeer *serverPeer;
+extern RakNet::RakPeerInterface     *netClient;
+extern RakNet::RakPeerInterface     *netServer;
 
-bool enet_initLibrary ();
+extern bool     isServer;
+extern bool     isClient;
+
+extern std::string   serverName;
+extern int      serverPort;
+
+extern bool     serverRunning;
+extern bool     clientRunning;
+
+// Start the network library
+bool net_initLibrary ();
 
 // Send the packet over the network
-void enet_sendPacket ( _networkPacket networkPacket, int packetSource, int whichClient );
+void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichClient );
 
+// Handle all the network IN actvity here
+int net_processNetworkTraffic( void *ptr );
+
+// This function sends packets OUT from both client and server
+int net_processNetworkOutQueue ( void *ptr );
+
+// Connect to the server
+void net_consoleStartNetClient();
+
+// Start the server from the console
+void net_consoleStartNetServer();

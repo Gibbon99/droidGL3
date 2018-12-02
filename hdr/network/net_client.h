@@ -3,13 +3,11 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/network/net_common.h"
 
-extern ENetPeer            *serverPeer;
+bool net_startClient();
 
-bool enet_startClient ( size_t maxNumChannels );
+void net_shutdownClient();
 
-bool enet_clientConnectTo ( const string &serverName, enet_uint16 serverPort, size_t numChannels, enet_uint32 timeOut );
+bool net_clientConnectTo( const string &serverName, int serverPort );
 
 // Send the current level to the server for this client
 void net_sendCurrentLevel(std::string whichLevel);
-
-void enet_shutdownClient ();

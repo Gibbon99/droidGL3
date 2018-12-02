@@ -68,5 +68,11 @@ bool io_getGamePrefs(const string fileName)
 	pszValue = iniFile.GetValue ("mainSection", "vsyncType", "1");
 	vsyncType = atoi(pszValue);
 
+	pszValue = iniFile.GetValue ("mainSection", "serverName", "127.0.0.1");
+	serverName = pszValue;
+
+	pszValue = iniFile.GetValue ("mainSection", "serverPort", "49999");
+	serverPort = atoi(pszValue);
+
 	return true;
 }

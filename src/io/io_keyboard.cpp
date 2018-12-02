@@ -236,6 +236,8 @@ int io_returnStandardInputActionKeyboard (Uint32 eventType)
       default:
         break;
     }
+
+    return -1;
 }
 
 //--------------------------------------------------------------------------
@@ -283,6 +285,8 @@ int io_returnStandardInputValueKeyboard (SDL_Keycode keyValue)
       break;
 
     }
+
+    return -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -308,11 +312,9 @@ void io_handleKeyboardEvent ( SDL_Event event )
 			// Put the key event onto the Game Queue as in INPUT event
 			//
 			// Also send to the server
-//			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_KEY_EVENT, io_returnStandardInputActionKeyboard (event.type), io_returnStandardInputValueKeyboard (event.key.keysym.sym) , 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y},"");
+			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_KEY_EVENT, io_returnStandardInputActionKeyboard (event.type), io_returnStandardInputValueKeyboard (event.key.keysym.sym) , 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y},"");
 
-			//			evt_sendEvent (USER_EVENT_NETWORK_FROM_CLIENT, NETWORK_SEND_DATA, event.type, event.key.keysym.sym, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y}, "Keyboard event");
-
-			evt_sendEvent (USER_EVENT_NETWORK_FROM_CLIENT, NETWORK_SEND_DATA, NET_CURRENT_TICK, (int) frameCount, 0, glm::vec2 (), glm::vec2 (), "");
+			evt_sendEvent (USER_EVENT_NETWORK_OUT, USER_EVENT_NETWORK_OUT, NET_CURRENT_TICK, (int) frameCount, 0, glm::vec2 (), glm::vec2 (), "");
 
             if (event.type == SDL_KEYDOWN)
                 net_sendCurrentLevel(lvl_getCurrentLevelName ());

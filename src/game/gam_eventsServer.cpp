@@ -14,7 +14,7 @@ void gam_handleServerEvent(_myEventData thisEvent)
 			break;
 
 		case NET_CURRENT_TICK:
-//			printf("Client tickCount [ %i ] Server tickCount [ %i ]\n", thisEvent.data2, (int)frameCount);
+			printf("Client tickCount [ %i ] Server tickCount [ %i ]\n", thisEvent.data2, (int)frameCount);
 			break;
 
 		default:
