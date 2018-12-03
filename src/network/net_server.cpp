@@ -18,6 +18,8 @@ bool net_startServer( const string &hostAddress, unsigned short hostPort, unsign
 
 	RakNet::SocketDescriptor socketDescriptors[2];
 
+	printf("Server IP: [ %s ]\n", hostAddress.c_str());
+
 	strcpy(socketDescriptors[0].hostAddress, hostAddress.c_str());
 	socketDescriptors[0].port = hostPort;
 	socketDescriptors[0].socketFamily = AF_INET; // Test out IPV4
@@ -48,7 +50,7 @@ bool net_startServer( const string &hostAddress, unsigned short hostPort, unsign
 	netServer->SetOccasionalPing(true);
 	netServer->SetUnreliableTimeout(1000);
 
-	printf("Server: Number of connections [ %i ]\n", netServer->NumberOfConnections ());
+	printf("Server: MAx number of connections [ %i ]\n", netMaxNumClients);
 
 	unsigned int i;
 	for (i = 0; i < netServer->GetNumberOfAddresses(); i++)
@@ -65,9 +67,12 @@ bool net_startServer( const string &hostAddress, unsigned short hostPort, unsign
 void net_shutdownServer()
 //-----------------------------------------------------------------------------------------------------
 {
-	netServer->Shutdown(300);
-	// We're done with the network
-	RakNet::RakPeerInterface::DestroyInstance(netServer);
+	if (serverRunning)
+	{
+		netServer->Shutdown ( 300 );
+		// We're done with the network
+		RakNet::RakPeerInterface::DestroyInstance ( netServer );
+	}
 }
 
 //--------------------------------------------------------------------------------

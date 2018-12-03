@@ -7,6 +7,8 @@
 
 int         networkPacketCountSentClient = 0;
 int         networkPacketCountSentServer = 0;
+int         networkPacketCountReceiveServer = 0;
+
 size_t      networkOutQueueSize = 0;
 
 RakNet::RakPeerInterface *netClient = nullptr;
@@ -75,14 +77,22 @@ void net_consoleStartNetServer()
 void net_consoleStartNetClient()
 //-----------------------------------------------------------------------------------------------------
 {
-	net_startClient ();
-	if (!net_clientConnectTo ( serverName, serverPort ))
-	{
-		con_print(CON_ERROR, true, "Unable to connect to the server.");
-		clientRunning = false;
-		return;
-	}
+	net_startClient (serverPort);
+
 	clientRunning = true;
+
+
+//	for (int i = 0; i != 5; i++)
+	{
+		SDL_Delay(500);
+
+		if ( !net_clientConnectTo ( serverName, serverPort ))
+		{
+			con_print ( CON_ERROR, true, "Unable to connect to the server." );
+			clientRunning = false;
+			return;
+		}
+	}
 }
 
 
@@ -159,7 +169,7 @@ int net_processNetworkTraffic( void *ptr )
 	{
 		SDL_Delay (THREAD_DELAY_MS);
 
-		if ((clientRunning) && (serverRunning))
+		if (clientRunning)
 		{
 			for ( p = netClient->Receive (); p; netClient->DeallocatePacket ( p ), p = netClient->Receive ())
 			{
@@ -227,6 +237,11 @@ int net_processNetworkTraffic( void *ptr )
 						printf ( "Ping from %s\n", p->systemAddress.ToString ( true ));
 						break;
 
+					case ID_UNCONNECTED_PONG:
+						printf("Got pong from %s \n", p->systemAddress.ToString());
+						break;
+
+
 					case ID_GAME_MESSAGE_1:
 					{
 						RakNet::BitStream bsin ( p->data, p->length, false );
@@ -252,10 +267,17 @@ int net_processNetworkTraffic( void *ptr )
 						break;
 				}
 			}
-
+		}
+		//
+		// Check Server IN packets
+		//
+		if ( serverRunning )
+		{
 			// Now process SERVER
 			for ( p = netServer->Receive (); p; netServer->DeallocatePacket ( p ), p = netServer->Receive ())
 			{
+				networkPacketCountReceiveServer++;
+
 				// We got a packet, get the identifier with our handy function
 				packetIdentifier = net_getPacketIdentifier ( p );
 

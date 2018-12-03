@@ -7,10 +7,18 @@
 /// \param argc
 /// \param argv
 /// \return
-bool net_startClient()
+bool net_startClient(int serverPort)
 //-----------------------------------------------------------------------------------------------------
 {
+	RakNet::SocketDescriptor socketDescriptor (serverPort + 1, 0);
+
 	netClient = RakNet::RakPeerInterface::GetInstance ();
+
+	socketDescriptor.socketFamily = AF_INET;    // Only IPv4 supports broadcast on 255.255.255.255
+//	socketDescriptor.port = serverPort;
+//	socketDescriptor.hostAddress = "10.1.1.30";
+	netClient->Startup (1, &socketDescriptor, 1);
+	netClient->SetOccasionalPing(true);
 
 	return true;
 }
@@ -23,10 +31,13 @@ bool net_startClient()
 bool net_clientConnectTo( const string &serverName, int serverPort )
 //-----------------------------------------------------------------------------------------------------
 {
-	RakNet::SocketDescriptor socketDescriptor;
 
-	netClient->Startup (1, &socketDescriptor, 1);
-	netClient->SetOccasionalPing(true);
+	netClient->Ping("255.255.255.255", serverPort, false);
+	printf("Pinging to locate server.\n");
+
+//return true;
+
+	printf("CLIENT: Connect to [ %s : %i ]\n", serverName.c_str(), serverPort);
 
 //	RakNet::ConnectionAttemptResult car = netClient->Connect( serverName.c_str(), static_cast<unsigned short>(serverPort), "Rumpelstiltskin", (int) strlen( "Rumpelstiltskin"));
 	RakNet::ConnectionAttemptResult car = netClient->Connect( serverName.c_str(), static_cast<unsigned short>(serverPort), 0, 0);
@@ -51,11 +62,14 @@ bool net_clientConnectTo( const string &serverName, int serverPort )
 void net_shutdownClient()
 //-----------------------------------------------------------------------------------------------------
 {
-	// Be nice and let the server know we quit.
-	netClient->Shutdown(300);
+	if (clientRunning)
+	{
+		// Be nice and let the server know we quit.
+		netClient->Shutdown ( 300 );
 
-	// We're done with the network
-	RakNet::RakPeerInterface::DestroyInstance(netClient);
+		// We're done with the network
+		RakNet::RakPeerInterface::DestroyInstance ( netClient );
+	}
 }
 
 //--------------------------------------------------------------------------------

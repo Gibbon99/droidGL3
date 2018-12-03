@@ -3,7 +3,7 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/network/net_common.h"
 
-bool net_startClient();
+bool net_startClient(int serverPort);
 
 void net_shutdownClient();
 

@@ -87,7 +87,7 @@ void sys_displayScreen(float interpolation)
 
 	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,frameTime / 1000.0f, mousePosition.x, mousePosition.y);
 
-	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "OutQueue [ %ul ] PacketCount Client [ %i ] Server [ %i ]]", networkOutQueueSize, networkPacketCountSentClient, networkPacketCountSentServer);
+	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "OutQueue [ %ul ] PacketCount Client [ %i - %s ] Server [ Out %i In %i - %s ]", networkOutQueueSize, networkPacketCountSentClient, clientRunning ? "true" : "false", networkPacketCountSentServer, networkPacketCountReceiveServer,  serverRunning ? "true" : "false");
 
 	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "playerLocation [ %3.3f %3.3f ] velocity [ %3.3f %3.3f ]", playerDroid.worldPos.x, playerDroid.worldPos.y, playerDroid.velocity.x, playerDroid.velocity.y);
 

@@ -31,6 +31,7 @@ extern std::string  serverAddress;
 
 extern int          networkPacketCountSentClient;
 extern int          networkPacketCountSentServer;
+extern int          networkPacketCountReceiveServer;
 extern size_t       networkOutQueueSize;
 
 extern RakNet::RakPeerInterface     *netClient;
