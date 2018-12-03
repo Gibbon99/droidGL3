@@ -33,28 +33,36 @@ SDL_Thread      *userEventNetworkOutThread;
 void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichClient )
 //-----------------------------------------------------------------------------
 {
-	if ((clientRunning) && (serverRunning))
+	switch ( packetSource )
 	{
-		switch ( packetSource )
-		{
 			case USER_EVENT_NETWORK_FROM_CLIENT:        // From the client to the server
+			if (clientRunning)
+			{
 
-//				printf("Client sending to [ %s ]\n",  netServerPacket.systemAddress.ToString ( true ));
-
-				netClient->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClient->GetSystemAddressFromGuid (netServerPacket.guid), false );
+				netClient->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClient->GetSystemAddressFromGuid ( netServerPacket.guid ), false );
 				networkPacketCountSentClient++;
-				break;
+			}
+			break;
 
-			case NETWORK_SEND_DATA:             // From the server to the client
+		case NETWORK_SEND_DATA:             // From the server to the client
+			if (serverRunning)
+			{
+				if ( netClientInfo[whichClient].inUse )
+				{
+					if ( netServer->GetConnectionState ( netClientInfo[whichClient].systemAddress ) ==
+					     RakNet::IS_CONNECTED )
+					{
+						netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0,
+						                  netClientInfo[whichClient].systemAddress, false );
+						networkPacketCountSentServer++;
+					}
+				}
+			}
+			break;
 
-				netServer->Send (bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClientInfo[whichClient].systemAddress, false);
-				networkPacketCountSentServer++;
-				break;
-
-			default:
-				printf ( "Unknown packet source.\n" );
-				break;
-		}
+		default:
+			printf ( "Unknown packet source.\n" );
+			break;
 	}
 }
 
@@ -296,6 +304,7 @@ int net_processNetworkTraffic( void *ptr )
 					case ID_NEW_INCOMING_CONNECTION:
 						// Somebody connected.  We have their IP now
 
+						tempNetClientInfo.inUse = true;
 						tempNetClientInfo.systemAddress = p->systemAddress;
 						tempNetClientInfo.GUID = p->guid;
 						tempNetClientInfo.packetSequenceCount = 0;

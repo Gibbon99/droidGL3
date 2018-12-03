@@ -6,6 +6,7 @@
 
 typedef struct
 {
+	bool                                inUse;
 	RakNet::SystemAddress               systemAddress;
 	RakNet::RakNetGUID                  GUID;
 	char                                name[16];

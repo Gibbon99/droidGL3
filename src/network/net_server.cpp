@@ -56,6 +56,10 @@ bool net_startServer( const string &hostAddress, unsigned short hostPort, unsign
 	for (i = 0; i < netServer->GetNumberOfAddresses(); i++)
 		printf("Server address : [ %s ]\n", netServer->GetLocalIP (i));
 
+	netClientInfo.reserve(netMaxNumClients);
+	for (auto it = netClientInfo.begin(); it != netClientInfo.end(); ++it)
+		it->inUse = false;
+
 	return true;
 }
 
