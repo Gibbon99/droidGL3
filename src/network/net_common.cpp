@@ -42,11 +42,13 @@ void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichCl
 //				printf("Client sending to [ %s ]\n",  netServerPacket.systemAddress.ToString ( true ));
 
 				netClient->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClient->GetSystemAddressFromGuid (netServerPacket.guid), false );
+				networkPacketCountSentClient++;
 				break;
 
 			case NETWORK_SEND_DATA:             // From the server to the client
 
 				netServer->Send (bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClientInfo[whichClient].systemAddress, false);
+				networkPacketCountSentServer++;
 				break;
 
 			default:
@@ -69,6 +71,7 @@ void net_consoleStartNetServer()
 		return;
 	}
 	serverRunning = true;
+	isServer = true;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -250,8 +253,7 @@ int net_processNetworkTraffic( void *ptr )
 						bsin.Read ( dataType );
 						if ( dataType == NET_DROID_WORLDPOS )
 						{
-							for ( int index = 0;
-							      index != levelInfo.at ( lvl_getCurrentLevelName ()).numDroids; index++ )
+							for ( int index = 0; index != levelInfo.at ( lvl_getCurrentLevelName ()).numDroids; index++ )
 							{
 								bsin.ReadVector ( varX, varY, varZ );
 								levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x = varX;

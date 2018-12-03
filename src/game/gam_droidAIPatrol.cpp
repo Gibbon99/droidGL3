@@ -90,5 +90,6 @@ void ai_processDroidMovement(const string &levelName)
 		BSOut.WriteVector (levelInfo.at (levelName).droid[index].worldPos.x, levelInfo.at (levelName).droid[index].worldPos.y, 0.0);
 	}
 
-	net_sendPacket ( &BSOut, NETWORK_SEND_DATA, 0 );
+	if (isServer)
+		net_sendPacket ( &BSOut, NETWORK_SEND_DATA, 0 );
 }

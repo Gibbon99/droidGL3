@@ -314,10 +314,10 @@ void io_handleKeyboardEvent ( SDL_Event event )
 			// Also send to the server
 			evt_sendEvent (USER_EVENT_GAME, USER_EVENT_KEY_EVENT, io_returnStandardInputActionKeyboard (event.type), io_returnStandardInputValueKeyboard (event.key.keysym.sym) , 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, glm::vec2{playerDroid.velocity.x, playerDroid.velocity.y},"");
 
-			evt_sendEvent (USER_EVENT_NETWORK_OUT, USER_EVENT_NETWORK_OUT, NET_CURRENT_TICK, (int) frameCount, 0, glm::vec2 (), glm::vec2 (), "");
+//			evt_sendEvent (USER_EVENT_NETWORK_OUT, USER_EVENT_NETWORK_OUT, NET_CURRENT_TICK, (int) frameCount, 0, glm::vec2 (), glm::vec2 (), "");
 
-            if (event.type == SDL_KEYDOWN)
-                net_sendCurrentLevel(lvl_getCurrentLevelName ());
+//            if (event.type == SDL_KEYDOWN)
+//                net_sendCurrentLevel(lvl_getCurrentLevelName ());
 
 			break;
 
