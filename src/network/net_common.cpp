@@ -1,4 +1,5 @@
 #include <hdr/game/gam_levels.h>
+#include <hdr/game/gam_eventsClient.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/network/net_common.h"
 #include "hdr/network/net_client.h"
@@ -92,8 +93,7 @@ void net_consoleStartNetClient()
 
 	clientRunning = true;
 
-
-//	for (int i = 0; i != 5; i++)
+	//	for (int i = 0; i != 5; i++)
 	{
 		SDL_Delay(500);
 
@@ -104,6 +104,7 @@ void net_consoleStartNetClient()
 			return;
 		}
 	}
+	sys_changeMode (MODE_INIT_GAME);
 }
 
 
@@ -166,12 +167,10 @@ int net_processNetworkTraffic( void *ptr )
 	RakNet::Packet*         p;
 	RakNet::RakString       rs;
 
+	RakNet::Packet          sendPacket;
+
 	unsigned char           packetIdentifier;
 	_netClientInfo          tempNetClientInfo;
-
-	int dataType;
-	float varX, varY, varZ;
-
 
 	// Record the first client that connects to us so we can pass it to the ping function
 	RakNet::SystemAddress clientID = RakNet::UNASSIGNED_SYSTEM_ADDRESS;
@@ -252,23 +251,15 @@ int net_processNetworkTraffic( void *ptr )
 						printf("Got pong from %s \n", p->systemAddress.ToString());
 						break;
 
-
 					case ID_GAME_MESSAGE_1:
-					{
-						RakNet::BitStream bsin ( p->data, p->length, false );
-
-						bsin.IgnoreBytes ( sizeof ( RakNet::MessageID ));
-						bsin.Read ( dataType );
-						if ( dataType == NET_DROID_WORLDPOS )
 						{
-							for ( int index = 0; index != levelInfo.at ( lvl_getCurrentLevelName ()).numDroids; index++ )
-							{
-								bsin.ReadVector ( varX, varY, varZ );
-								levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x = varX;
-								levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.y = varY;
-							}
+							RakNet::Packet      passPacket;
+
+							passPacket = *p;    // Does this work - does it copy the data* from the packet??
+							//
+							// and pass it by value so we can work with it
+							gam_handleClientInPacket ( passPacket);
 						}
-					}
 						break;
 
 					default:
@@ -337,7 +328,9 @@ int net_processNetworkTraffic( void *ptr )
 					case ID_CONNECTION_LOST:
 						// Couldn't deliver a reliable packet - i.e. the other system was abnormally
 						// terminated
-						printf ( "ID_CONNECTION_LOST from %s\n", p->systemAddress.ToString ( true ));;
+						printf ( "ID_CONNECTION_LOST from %s\n", p->systemAddress.ToString ( true ));
+						//
+						// TODO: Remove client from vector arrat based on systemAddress
 						break;
 
 					case ID_GAME_MESSAGE_1:
@@ -420,4 +413,26 @@ int net_processNetworkOutQueue ( void *ptr )
 
 //	printf ("NETWORK OUT thread stopped.\n");
 	return 0;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Console command to show the list of connected clients, if this is the server
+void con_listClients()
+//-----------------------------------------------------------------------------
+{
+	RakNet::ConnectionState isConnected;
+
+	if (!isServer)
+	{
+		con_print(CON_ERROR, true, "You are not the server.");
+		return;
+	}
+
+	for ( auto &it : netClientInfo )
+	{
+		isConnected = netServer->GetConnectionState ( it.systemAddress );
+
+		con_print(CON_INFO, true, "[ %s ] - [ %s ] Connected [ %s ] Avg Ping [ %i ms ]", it.name, it.systemAddress.ToString(), isConnected == RakNet::IS_CONNECTED ? "true" : "false", netServer->GetAveragePing (it.systemAddress));
+	}
 }

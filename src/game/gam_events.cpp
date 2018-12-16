@@ -2,6 +2,7 @@
 #include <hdr/game/gam_levels.h>
 #include <hdr/system/sys_events.h>
 #include <hdr/io/io_keyboard.h>
+#include <hdr/gui/gui_main.h>
 #include "hdr/game/gam_events.h"
 #include "hdr/system/sys_events.h"
 
@@ -94,6 +95,12 @@ int gam_processGameEventQueue ( void *ptr )
 					// Handle key press events
                     io_processGameInputEvents (tempEventData);
 					break;
+				}
+				case USER_EVENT_TTF_ERROR:
+				{
+					gui_handleTTFError (tempEventData.data1, tempEventData.eventString);
+					break;
+
 				}
 
 				default:

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include <hdr/game/gam_droids.h>
+#include "hdr/game/gam_droids.h"
 #include "hdr/system/sys_main.h"
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/game/gam_lifts.h"
@@ -32,11 +32,6 @@
 #define TERMINAL_BOTTOM         52
 #define TERMINAL_RIGHT          53
 #define TERMINAL_LEFT           54
-
-#define LEVEL_LOAD_ERROR_NOT_FOUND    0x01
-#define LEVEL_LOAD_ERROR_FILESYSTEM   0x02
-#define LEVEL_LOAD_MEMORY_ERROR       0x03
-#define LEVEL_LOAD_MALLOC_ERROR       0x04
 
 typedef struct
 {

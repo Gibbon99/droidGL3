@@ -10,7 +10,7 @@ bool        drawHUD;
 void s_renderHUD()
 //------------------------------------------------------------------------
 {
-	glm::vec2           textureSize;
+	static glm::vec2           textureSize;
 	glm::vec2           scaleBy;
 	static auto         haveSize = false;
 	static glm::vec2    renderPosition;
@@ -22,7 +22,9 @@ void s_renderHUD()
 	if (!haveSize)
 	{
 		textureSize = io_getTextureSize("hud");
-		scaleBy = gl_getScaleby("hud");
+//		scaleBy = gl_getScaleby("hud");
+
+		scaleBy = glm::vec2{1.3f, 1.2f};
 
 		textureSize.x *= scaleBy.x;
 		textureSize.y *= scaleBy.y;
@@ -32,6 +34,6 @@ void s_renderHUD()
 
 		haveSize = true;
 	}
-//	gl_renderSprite("hud", renderPosition, 1, glm::vec3{0,0,0});
-	gl_draw2DQuad (renderPosition, textureSize, "quad3d", io_getTextureID ("hud"), glm::vec3{0, 0, 0}, glm::vec3{-1.0, 0.0, 0.0}, texCoords);
+// TODO - Draw as sprite - after configuring parameters
+	gl_draw2DQuad ( renderPosition, textureSize, "colorKey", io_getTextureID ("hud"), glm::vec3{0, 0, 0}, glm::vec3{-1.0, 0.0, 0.0}, texCoords);
 }

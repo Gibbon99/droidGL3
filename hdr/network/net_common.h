@@ -63,3 +63,6 @@ void net_consoleStartNetClient();
 
 // Start the server from the console
 void net_consoleStartNetServer();
+
+// Console command to show the list of connected clients, if this is the server
+void con_listClients();

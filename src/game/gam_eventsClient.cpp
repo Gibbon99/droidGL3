@@ -5,25 +5,51 @@
 //----------------------------------------------------------------------------------------
 //
 // Farm out the events received by the client for action
-void gam_handleClientEvent ( _myEventData thisEvent )
+void gam_handleClientInPacket( RakNet::Packet passPacket )
 //----------------------------------------------------------------------------------------
 {
-	switch ( thisEvent.data1 )
+	float varX, varY, varZ;
+	int dataType;
+
+	// TODO Add time variable and RakNet time to each packet
+
+	RakNet::BitStream bsin ( passPacket.data, passPacket.length, false );
+
+	bsin.IgnoreBytes ( sizeof ( RakNet::MessageID ));
+	bsin.Read ( dataType );
+
+	switch ( dataType )
 	{
 		case NET_CLIENT_WORLDPOS:
-			playerDroid.serverWorldPos.x = thisEvent.vec2_1.x;
-			playerDroid.serverWorldPos.y = thisEvent.vec2_1.y;
-
-			printf("Got player world position [ %3.3f %3.3f ]\n", playerDroid.serverWorldPos.x, playerDroid.serverWorldPos.y);
-
 			break;
 
 		case NET_DROID_WORLDPOS:
+				bsin.Read (networkServerTick);
+				for ( int index = 0; index != levelInfo.at ( lvl_getCurrentLevelName ()).numDroids; index++ )
+				{
+					// World position according to the server
+					bsin.ReadVector ( varX, varY, varZ );
+					levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x = varX;
+					levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.y = varY;
 
-			//printf("Got droid [ %i ] new position.\n", thisEvent.data3);
+					// Current speed according to the server
+					bsin.ReadVector (varX, varY, varZ);
+					levelInfo.at (lvl_getCurrentLevelName()).droid[index].serverVelocity.x = varX;
+					levelInfo.at (lvl_getCurrentLevelName()).droid[index].serverVelocity.y = varY;
 
-			levelInfo.at (lvl_getCurrentLevelName ()).droid[thisEvent.data3].serverWorldPos.x = thisEvent.vec2_1.x;
-			levelInfo.at (lvl_getCurrentLevelName ()).droid[thisEvent.data3].serverWorldPos.y = thisEvent.vec2_1.y;
+
+					if ( ((int)levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x - (int)levelInfo.at ( lvl_getCurrentLevelName()).droid[index].worldPos.x) > 1)
+					{
+						levelInfo.at (lvl_getCurrentLevelName ()).droid[index].worldPos.x = levelInfo.at (lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x;
+					}
+
+
+					if (0 == index)
+					{
+						printf("Diff Droid 0 [ %3.3f %3.3f ]\n", levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x - levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].worldPos.x,
+						       levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.y - levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].worldPos.y );
+					}
+				}
 			break;
 
 		default:
@@ -55,7 +81,7 @@ int gam_processClientEventQueue ( void *ptr )
 			switch ( tempEventData.eventAction )
 			{
 				case NET_CLIENT_DATA_PACKET:
-					gam_handleClientEvent (tempEventData);
+//					gam_handleClientInPacket (tempEventData);
 					break;
 
 				case NET_CLIENT_SYSTEM_PACKET:

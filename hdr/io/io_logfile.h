@@ -16,7 +16,8 @@
 #endif
 
 // Log output to file on disk
-void io_logToFile ( const char *format, ... );
+//void io_logToFile ( const char *format, ... );
+void io_logToFile ( std::string format, ... );
 
 // start the log file - if possible
 // set fileLoggingOn to true

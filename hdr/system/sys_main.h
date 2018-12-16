@@ -6,6 +6,7 @@
 #include <vector>
 #include <utility>
 #include <queue>
+#include <unordered_map>
 #include "hdr/libGL/glad/glad.h"
 
 //#include "hdr/system/sys_leakDetector.h"
@@ -40,9 +41,13 @@ const int TICKS_PER_SECOND = 30;
 const int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
 const int MAX_FRAMESKIP = 5;
 
+extern Uint32 currentServerTick;
+extern Uint32 currentClientTick;
+extern Uint32 networkServerTick;
+
 extern Uint32 frameStart;
 extern Uint32 frameTime;
-extern float frameCount;
+extern Uint32 frameCount;
 
 extern bool quitProgram;
 extern int  fps, thinkFPS;

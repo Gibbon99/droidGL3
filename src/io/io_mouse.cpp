@@ -1,7 +1,54 @@
 #include <hdr/game/gam_render.h>
 #include "hdr/io/io_mouse.h"
 
-vec3 mousePosition{0,0,0};
+vec2 mousePosition{0,0};
+
+SDL_TimerID         getMouseTimer;
+
+//-----------------------------------------------------------------------------
+//
+// Get the current mouse position - used in GUI for action
+SDL_Point io_getMousePointLocation()
+//-----------------------------------------------------------------------------
+{
+	SDL_Point   mousePoint;
+
+	mousePoint.x = mousePosition.x;
+	mousePoint.y = mousePosition.y;
+
+	return mousePoint;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Called by the timer to read the mouse position
+Uint32 io_getMousePositionCallback(Uint32 interval, void *ptr)
+//-----------------------------------------------------------------------------
+{
+	int mouseX, mouseY;
+
+	SDL_GetMouseState(&mouseX, &mouseY);
+
+	mousePosition.x = mouseX;
+	mousePosition.y = mouseY;
+
+	evt_sendEvent (USER_EVENT_GUI, USER_EVENT_MOUSE_MOTION, 0, 0, 0, mousePosition, glm::vec2(), "");
+
+	return interval;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Start the mouse timer
+void io_mouseTimerState(bool runState)
+//-----------------------------------------------------------------------------
+{
+	static Uint32 timerInterval;
+
+	if ( runState ? (timerInterval = 50) : (timerInterval = 0))
+
+	getMouseTimer = SDL_AddTimer ( timerInterval, io_getMousePositionCallback, nullptr );   // Time in milliseconds
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -14,14 +61,20 @@ void io_handleMouseEvent ( SDL_Event event )
 		case MODE_CONSOLE:
 			break;
 
-		case MODE_GAME:
-			if ( event.type == SDL_MOUSEMOTION )
+		case MODE_GUI:
+			switch (event.type)
 			{
-				mousePosition.x = event.motion.x;
-				mousePosition.y = winHeight - event.motion.y;
-				mousePosition.z = 0.0f;
+				case SDL_MOUSEBUTTONDOWN:       // Set TRUE for mouse source - data3
+					evt_sendEvent (USER_EVENT_GUI, USER_EVENT_KEY_EVENT, MY_INPUT_ACTION_PRESS, MY_INPUT_ACTION, true, glm::vec2{}, glm::vec2{},"");
+					break;
+
+				case SDL_MOUSEBUTTONUP:
+					evt_sendEvent (USER_EVENT_GUI, USER_EVENT_KEY_EVENT, MY_INPUT_ACTION_RELEASE, MY_INPUT_ACTION, true, glm::vec2{}, glm::vec2{},"");
+					break;
+
+				default:
+					break;
 			}
-			break;
 
 		case MODE_PAUSE:
 			break;
@@ -52,15 +105,4 @@ void io_renderMouseCursor()
 		default:
 			break;
 	}
-}
-
-//-----------------------------------------------------------------------------------------------------
-//
-/// \param argc
-/// \param argv
-/// \return
-glm::vec3 io_getMousePosition()
-//-----------------------------------------------------------------------------------------------------
-{
-	return mousePosition;
 }

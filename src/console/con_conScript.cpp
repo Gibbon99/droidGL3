@@ -1,4 +1,5 @@
 #include <utility>
+#include <hdr/gui/gui_main.h>
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/script/as_scriptbuilder.h"
 #include "hdr/io/io_logfile.h"
@@ -11,6 +12,8 @@ asDWORD				callType;
 asIScriptEngine 	*scriptEngine = nullptr;
 asIScriptContext 	*scriptContext = nullptr;
 CScriptBuilder 		builder;
+
+void PrintVariables();
 
 //-----------------------------------------------------------------------------
 //
@@ -43,12 +46,13 @@ typedef struct
 _scriptInfo     scriptInfo[] =
 {
 	{"conCommands.as",            "script"},
+	{"conGuiSetup.as",            "GUI"},
 	{"",            ""},
 };
 
-void sys_testVect(cpVect *testValue)
+void sys_testVect(cpVect testValue)
 	{
-		printf("[ Script ] Values [ %3.3f %3.3f ]\n",testValue->x, testValue->x);
+		printf("[ Script ] Values [ %3.3f %3.3f ]\n", testValue.x, testValue.y);
 	};
 
 //-----------------------------------------------------------------------------
@@ -76,9 +80,22 @@ _hostScriptFunctions hostScriptFunctions[] =
 //	{"bool sdf_initFontSystem()",	                                    (void * ) sdf_initFontSystem},
 	{"void sys_changeMode(int newMode)",                                (void * ) sys_changeMode},
 //	{"void aud_setAudioGain(int newLevel)",                             (void * ) aud_setAudioGain},
-	{"void sys_testVect(cpVect &in)",                           (void *) sys_testVect},
+	{"void sys_testVect(cpVect &out)",                                  (void * ) sys_testVect},
+	{"void PrintVariables()",                                           (void * ) PrintVariables},
+
+	{"void as_guiCreateNewScreen		(string &in)", 						( void * ) &gui_hostCreateNewScreen},
+	{"void as_guiCreateObject			(int guiObjectType, string &in)", 	( void * ) &gui_hostCreateObject},
+	{"int as_guiFindIndex				(int guiObjectType, string &in)", 	( void * ) &gui_findIndex},
+	{"void as_guiSetObjectColor    (int guiObjectType, string &in, int whichColor, int red, int green, int blue, int alpha)", 		( void * ) &gui_hostSetObjectColor},
+	{"void as_guiSetObjectPosition (int guiObjectType, string &in, int coordType, int startX, int startY, int width, int height)", 	( void * ) &gui_hostSetObjectPosition},
+	{"void as_guiSetObjectLabel    (int guiObjectType, string &in, int labelPos, string &in)", 		( void * ) &gui_hostSetObjectLabel},
+	{"void as_guiAddObjectToScreen (int guiObjectType, string &in, string &in)", 					( void * ) &gui_hostAddObjectToScreen},
+	{"void as_guiSetObjectFunctions(int guiObjectType, string &in, string &in)", 		            ( void * ) &gui_hostSetObjectFunctions},
 	{"",							NULL},
 };
+
+//{"void as_gui_changeToGUIScreen		(int newScreen)", 					( const void * ) &gui_changeToGUIScreen},
+
 
 //-----------------------------------------------------------------------------
 //
@@ -86,11 +103,11 @@ _hostScriptFunctions hostScriptFunctions[] =
 //-----------------------------------------------------------------------------
 typedef struct
 {
-	asIScriptFunction 		*funcID;
-	bool 					fromScript;         // Is this created from a console script
+	asIScriptFunction 		*funcID{};
+	bool 					fromScript{};         // Is this created from a console script
 	string 					functionName;
 	string 					scriptName;
-	bool 					param1;             // Does this function need something passed to it
+	bool 					param1{};             // Does this function need something passed to it
 } _scriptFunctionName;
 
 //
@@ -98,9 +115,12 @@ typedef struct
 //
 _scriptFunctionName     scriptFunctionName[] =
 {
-	// Name of function in script			Name we call from host
-	{0, false, "void as_addAllScriptCommands()",		"scr_addAllScriptCommands",		NULL},
-	{0, false, "void as_setGameVariables()",			"scr_setGameVariables",         NULL},
+	// Name of function in script			                Name we call from host
+	{0, false, "void as_addAllScriptCommands()",		    "scr_addAllScriptCommands",		NULL},
+	{0, false, "void as_setGameVariables()",			    "scr_setGameVariables",         NULL},
+	{0, false, "cpVect as_vectTest(cpVect cpParam)",        "scr_vectTest",                 NULL},
+	{0, false, "void as_setupGUI()",                        "scr_setupGUI",                 NULL},
+	{0, false, "void as_guiHandleButtonPress(string &in)",  "scr_guiHandleButtonPress",     true},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},
@@ -117,6 +137,48 @@ _scriptFunctionName     scriptFunctionName[] =
 //
 //----------------------------------------------------------------------
 vector<_scriptFunctionName> scriptFunctions;
+
+
+void PrintVariables()
+{
+	asUINT  stackLevel;
+
+	asIScriptContext *ctx = asGetActiveContext();
+	asIScriptEngine *engine = ctx->GetEngine();
+
+	int typeId = ctx->GetThisTypeId();
+	void *varPointer = ctx->GetThisPointer();
+	if( typeId )
+	{
+		printf(" this = 0x%x\n", varPointer);
+	}
+
+	int numVars = ctx->GetVarCount();
+	for( int n = 0; n < numVars; n++ )
+	{
+		int typeId = ctx->GetVarTypeId(n);
+		void *varPointer = ctx->GetAddressOfVar(n);
+		if( typeId == engine->GetTypeIdByDecl("int") )
+		{
+			printf(" %s = %d\n", ctx->GetVarDeclaration(n, stackLevel), *(int*)varPointer);
+		}
+		else if( typeId == engine->GetTypeIdByDecl("string") )
+		{
+			std::string *str = (std::string*)varPointer;
+			if( str )
+				printf(" %s = '%s'\n", ctx->GetVarDeclaration(n, stackLevel), str->c_str());
+			else
+				printf(" %s = <null>\n", ctx->GetVarDeclaration(n, stackLevel));
+		}
+		else
+		{
+			cpVect *getValue = (cpVect *)varPointer;
+			printf(" %s = {...}\n", ctx->GetVarDeclaration(n, stackLevel));
+			printf("Debug [ %3.3f %3.3f ]\n", getValue->x, getValue->y);
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 //
@@ -552,16 +614,25 @@ bool con_executeScriptFunction ( string functionName, string funcParam )
 	// Pass the parameter to the function if there is one
 	//
 	int testInt;
+/*
+	if ("scr_vectTest" == functionName)
+	{
+		printf("Run vecTest\n");
+		vect1.x = 987;
+		vect1.y = 456;
+		scriptContext->SetArgObject(0, &vect1);
+	}
+*/
 
 	if ( scriptFunctions[i].param1 )
 		{
-//		io_logToFile("Parameter to pass to script [ %s ]", funcParam.c_str());
+		printf("Parameter to pass to script [ %s ]", funcParam.c_str());
 			//
 			// See if it's a number or a string - check first character of the string only
 			if ( isdigit ( funcParam.c_str() [0] ) )
 				{
 					//
-					// Paramater is a number - convert before passing in
+					// Parameter is a number - convert before passing in
 					//
 					testInt = atoi ( funcParam.c_str() );
 					scriptContext->SetArgAddress ( 0, &testInt );

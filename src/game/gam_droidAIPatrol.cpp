@@ -79,15 +79,28 @@ void ai_processDroidMovement(const string &levelName)
 
 	if ( levelInfo.at (levelName).droid.empty ())
 		return;     // Nothing to process
+	//
+	// Send updates if this is the server
+	if (isServer)
+	{
 
-	BSOut.Write ((RakNet::MessageID)ID_GAME_MESSAGE_1);
-	BSOut.Write (NET_DROID_WORLDPOS);
+		BSOut.Write ((RakNet::MessageID) ID_GAME_MESSAGE_1 );
+		BSOut.Write ( NET_DROID_WORLDPOS );
+		BSOut.Write ( currentServerTick );
+	}
 
 	for ( int index = 0; index != levelInfo.at (levelName).numDroids; index++ )
 	{
 		ai_processWaypointMove (levelName, index);
 
-		BSOut.WriteVector (levelInfo.at (levelName).droid[index].worldPos.x, levelInfo.at (levelName).droid[index].worldPos.y, 0.0);
+		if (isServer)
+		{
+			BSOut.WriteVector ( levelInfo.at ( levelName ).droid[index].worldPos.x,
+			                    levelInfo.at ( levelName ).droid[index].worldPos.y, 0.0 );
+
+			BSOut.WriteVector ( levelInfo.at ( levelName ).droid[index].velocity.x,
+			                    levelInfo.at ( levelName ).droid[index].velocity.y, 0.0 );
+		}
 	}
 
 	if (isServer)

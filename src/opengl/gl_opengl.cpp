@@ -15,8 +15,6 @@
 
 #endif
 
-
-
 typedef struct
 {
 	int counter{};
@@ -227,6 +225,8 @@ void APIENTRY gl_DebugCallback ( GLenum source, GLenum type, GLenum id, GLenum s
 //	if ( false == g_debugOpenGL )
 //		return;
 
+return;
+
 	if (( 131185 == id) | (131169 == id))
 		return;
 
@@ -331,7 +331,7 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 
 
 	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture0"), 0));
-	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture1"), 1));
+//	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture1"), 1));
 
 	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "gamma"), g_gamma));
 

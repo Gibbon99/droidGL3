@@ -50,15 +50,17 @@ bool net_startServer( const string &hostAddress, unsigned short hostPort, unsign
 	netServer->SetOccasionalPing(true);
 	netServer->SetUnreliableTimeout(1000);
 
-	printf("Server: MAx number of connections [ %i ]\n", netMaxNumClients);
+	printf("Server: Max number of connections [ %i ]\n", netMaxNumClients);
 
 	unsigned int i;
 	for (i = 0; i < netServer->GetNumberOfAddresses(); i++)
 		printf("Server address : [ %s ]\n", netServer->GetLocalIP (i));
 
+//	printf("External address : [ %s ]\n", netServer->GetExternalID (netServer->))
+
 	netClientInfo.reserve(netMaxNumClients);
-	for (auto it = netClientInfo.begin(); it != netClientInfo.end(); ++it)
-		it->inUse = false;
+	for ( auto &it : netClientInfo )
+		it.inUse = false;
 
 	return true;
 }

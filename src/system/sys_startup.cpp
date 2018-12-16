@@ -9,6 +9,7 @@
 #include <hdr/game/gam_doors.h>
 #include <hdr/game/gam_physicsCollisions.h>
 #include <hdr/game/gam_physicsPlayer.h>
+#include <hdr/gui/gui_main.h>
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -152,8 +153,11 @@ bool sys_initAll()
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "splash.png");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "lightmap.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "hud.tga");
+		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "button.bmp");
         evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "whiteSquare.bmp");
         evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "redSquare.bmp");
+
+
 
 		gl_setupDroidToSpriteLookup ();
 
@@ -169,6 +173,18 @@ bool sys_initAll()
 		gam_initPlayerAnimateTimer (150 );
 
 		net_initLibrary ();
+
+		if (!gui_initGUI())
+		{
+			con_print(CON_ERROR, true, "Unable to start GUI system.");
+			return false;
+		}
+
+		if (!gui_loadTTFFont("Digital.ttf", 48, "fontDigital"))
+			return false;
+
+		if (!gui_loadTTFFont("Digital.ttf", 32, "fontDigital32"))
+			return false;
 
 	}   // end of file system check
 

@@ -108,7 +108,7 @@ void io_writeToFile(string textToWrite)
 	#endif
 
 	#if defined __gnu_linux__
-		bytesWritten = fprintf(logFileHandle, "%s", textToWrite.c_str());
+		bytesWritten = fprintf(logFileHandle, "%s\n", textToWrite.c_str());
 	#endif
 
 	if (bytesWritten < 0)
@@ -117,40 +117,45 @@ void io_writeToFile(string textToWrite)
 
 //--------------------------------------------------------
 // Log output to file on disk
+// http://www.cplusplus.com/forum/general/133535/
+// http://coliru.stacked-crooked.com/a/511842875075aa26
 // TODO IS this thread safe now it's passing events
-void io_logToFile ( const char *format, ... )
+void io_logToFile ( std::string format, ... )
 //--------------------------------------------------------
 {
-	va_list		args;
-	char		logText[MAX_STRING_SIZE];
+	va_list		args, args_copy;
 
-	//
-	// check and make sure we don't overflow our string buffer
-	//
-	if ( strlen (format) >= MAX_STRING_SIZE - 1 )
-		printf ("String passed to logfile too long max [ %i ] - [ %i ]", (MAX_STRING_SIZE - 1), (int) strlen (format) - (MAX_STRING_SIZE - 1));
+	va_start( args, format);
+	va_copy(args_copy, args);
 
-	//
-	// get out the passed in parameters
-	//
-	va_start (args, format);
-	vsprintf (logText, format, args);
-	va_end (args);
+	const auto sz = std::vsnprintf(nullptr, 0, format.c_str(), args ) + 1;
 
-	//
-	// check if file logging is actually enabled
-	//
-	if ( !fileLoggingOn )
+	try
 	{
-		printf("%s\n", logText);
-		return;
-	}
-	//
-	// put a linefeed onto the end of the text line
-	// and send it to the logging queue
-	strcat ( logText, "\n" );
+		std::string result (sz, ' ' );
+		std::vsnprintf( &result.front(), sz, format.c_str(), args_copy);
 
-	evt_sendEvent (USER_EVENT_LOGGING, USER_EVENT_LOGGING_ADD_LINE, 0, 0, 0, vec2 (), vec2 (), logText);
+		va_end(args_copy);
+		va_end(args);
+
+		//
+		// check if file logging is actually enabled - print it out instead
+		//
+		if ( !fileLoggingOn )
+		{
+			printf("%s\n", result.c_str());
+			return;
+		}
+
+		evt_sendEvent (USER_EVENT_LOGGING, USER_EVENT_LOGGING_ADD_LINE, 0, 0, 0, vec2 (), vec2 (), result);
+	}
+
+	catch( const std::bad_alloc& )
+	{
+		va_end(args_copy) ;
+		va_end(args) ;
+		printf("Error allocating string parsing in io_logToFile.\n");
+	}
 }
 
 //--------------------------------------------------------
@@ -158,18 +163,19 @@ void io_logToFile ( const char *format, ... )
 void logTimeToFile()
 //--------------------------------------------------------
 {
-	char tmptime[128];
-	char tmpdate[128];
-
 #if defined (WIN32)
-	_strtime_s ( tmptime );
-	_strdate_s ( tmpdate );
-#else
-	strcpy ( tmptime, "Unknown" );
-	strcpy ( tmpdate, "Unknown" );
-#endif
+	time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
 
-	io_logToFile ( "%s\t%s", tmpdate, tmptime );
+    io_logToFile("%d-%d-%d %d:%d:%d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+#else
+	time_t      rawtime;
+	struct tm * timeinfo;
+
+	time ( &rawtime );
+	timeinfo = localtime ( &rawtime );
+	io_logToFile ("%s", asctime (timeinfo) );
+#endif
 }
 
 //--------------------------------------------------------
@@ -199,6 +205,7 @@ bool io_startLogFile ( const char *logFileName )
 
 //--------------------------------------------------------
 // if the log file is open - close it
+// TODO: Sync this with the LOGGING thread - thread stopping too early
 void io_closeLogFile()
 //--------------------------------------------------------
 {
@@ -211,6 +218,8 @@ void io_closeLogFile()
 			_close ( logFile );
 #else
 			close ( logFile );
+			fsync( logFile);
+
 #endif
 			fileLoggingOn = false;
 		}

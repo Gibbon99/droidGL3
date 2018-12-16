@@ -510,8 +510,6 @@ void io_loadTileTextureFile(const string fileName)
 
 	SDL_UnlockSurface (allTiles);
 
-	SDL_SaveBMP(allTiles, "tilesTest.bmp");
-
 	if (0 == tileTextureID)
 	{
 		con_print(CON_ERROR, true, "Soil load error [ %s ]", SOIL_last_result ());

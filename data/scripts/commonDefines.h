@@ -2,20 +2,40 @@
 // Defines for sound
 //
 const float AUDIO_PAN_CENTER = 0.0f;
-const float AUDIO_PAN_LEFT = -1.0f;
-const float AUDIO_PAN_RIGHT = 1.0f;
+const float AUDIO_PAN_LEFT =  -1.0f;
+const float AUDIO_PAN_RIGHT =  1.0f;
+
+const int GUI_COORD_TYPE_PIXEL      = 0;
+const int GUI_COORD_TYPE_PERCENT    = 1;
+
+const int GUI_LABEL_CENTER          = 0;
+const int GUI_LABEL_LEFT            = 1;
+const int GUI_LABEL_RIGHT           = 2;
+
+//
+//      Defines for GUI objects
+const int GUI_OBJECT_SCREEN         = 1;
+const int GUI_OBJECT_BUTTON         = 2;
 
 //
 //		Defines for Game Modes
 
-const int MODE_CONSOLE          = 1;
-const int MODE_GAME             = 2;
-const int MODE_PAUSE            = 3;
-const int MODE_SHUTDOWN         = 4;
-const int MODE_LOADING          = 5;
-const int MODE_INIT             = 6;
-const int MODE_SPLASH           = 7;
-const int MODE_INIT_GAME        = 8;
+const int MODE_CONSOLE              = 1;
+const int MODE_GAME                 = 2;
+const int MODE_PAUSE                = 3;
+const int MODE_SHUTDOWN             = 4;
+const int MODE_LOADING              = 5;
+const int MODE_INIT                 = 6;
+const int MODE_SPLASH               = 7;
+const int MODE_INIT_GAME            = 8;
+const int MODE_GUI                  = 9;
+
+const int GUI_BUTTON_ACTIVE_COL            = 10;
+const int GUI_BUTTON_INACTIVE_COL          = 11;
+const int GUI_BUTTON_ACTIVE_CORNER_COL     = 12;
+const int GUI_BUTTON_INACTIVE_CORNER_COL   = 13;
+const int GUI_BUTTON_ACTIVE_LABEL_COL      = 14;
+const int GUI_BUTTON_INACTIVE_LABEL_COL    = 15;
 
 enum mySounds
 {

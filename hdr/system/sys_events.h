@@ -40,13 +40,39 @@ using namespace std;
 
 #define USER_EVENT_KEY_EVENT            0x28
 
-#define USER_EVENT_NETWORK_OUT       0x29
-#define NETWORK_RECEIVE_DATA                 0x30
-#define USER_EVENT_NETWORK_FROM_CLIENT       0x31
+#define USER_EVENT_NETWORK_OUT          0x29
+#define NETWORK_RECEIVE_DATA            0x30
+#define USER_EVENT_NETWORK_FROM_CLIENT  0x31
 #define NETWORK_SEND_DATA               0x32
 
 #define USER_EVENT_CLIENT_EVENT         0x33
 #define USER_EVENT_SERVER_EVENT         0x34
+
+#define USER_EVENT_TTF_ERROR            0x35
+
+#define MY_INPUT_ACTION_PRESS           0x36
+#define MY_INPUT_ACTION_RELEASE         0x37
+
+#define MY_INPUT_LEFT                   0x38
+#define MY_INPUT_RIGHT                  0x39
+#define MY_INPUT_UP                     0x40
+#define MY_INPUT_DOWN                   0x41
+#define MY_INPUT_ACTION                   0x42
+#define MY_INPUT_ESCAPE                   0x43
+#define MY_INPUT_CONSOLE                0x44
+#define MY_INPUT_FORWARD                0x45
+#define MY_INPUT_BACKWARD               0x46
+#define MY_INPUT_PAUSE                  0x47
+
+#define LEVEL_LOAD_ERROR_NOT_FOUND      0x48
+#define LEVEL_LOAD_ERROR_FILESYSTEM     0x49
+#define LEVEL_LOAD_MEMORY_ERROR         0x50
+#define LEVEL_LOAD_MALLOC_ERROR         0x51
+
+#define USER_EVENT_TTF_BAD_LOAD         0x52
+#define USER_EVENT_TTF_INIT_FAIL        0x53
+
+#define USER_EVENT_GUI                  0x54
 
 typedef struct
 {
@@ -64,6 +90,7 @@ extern std::queue<_myEventData> consoleEventQueue;
 extern std::queue<_myEventData> audioEventQueue;
 extern std::queue<_myEventData> loggingEventQueue;
 extern std::queue<_myEventData> gameEventQueue;
+extern std::queue<_myEventData> guiEventQueue;
 
 extern std::queue<_myEventData> clientEventInQueue;
 extern std::queue<_myEventData> networkClientOutQueue;
@@ -75,6 +102,7 @@ extern SDL_mutex *consoleMutex;
 extern SDL_mutex *audioMutex;
 extern SDL_mutex *loggingMutex;
 extern SDL_mutex *gameMutex;
+extern SDL_mutex *guiMutex;
 extern SDL_mutex *levelMutex;
 extern SDL_mutex *textureSetMutex;
 

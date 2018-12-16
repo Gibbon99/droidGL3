@@ -233,11 +233,11 @@ int io_getFileIntoMemory ( const char *fileName, void *results )
 bool io_doesFileExist(string fileName)
 // ---------------------------------------------------------------------------
 {
-	if ( false == fileSystemReady )
+	if ( !fileSystemReady )
 	{
 		con_print(CON_ERROR, true, "File system not ready. Can not check for file [ %s ]", fileName.c_str());
 		return false;
 	}
 	
-	return PHYSFS_exists(fileName.c_str());
+	return static_cast<bool>(PHYSFS_exists( fileName.c_str()));
 }

@@ -25,6 +25,7 @@ typedef struct
 	cpVect          destinationCoords;          // This is the line segment end point
 	cpVect          destDirection;              // Which way is the droid heading
 	cpVect          velocity;                   // Current speed
+	cpVect          serverVelocity;             // Current speed according to the server
 
 	/*
 	cpVect acceleration;

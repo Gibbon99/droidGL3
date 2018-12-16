@@ -21,7 +21,7 @@ void gl_createAllSprites()
 	sprites.at("001").tintColor = glm::vec3{1.0, 1.0, 1.0};        // Keep 001 white to start with
 	sprites.at("001").scaleBy = glm::vec2{1.0f, 1.0f};
 
-	gl_createSprite ("hud", glm::vec3{0.0f, 0.0f, 0.0f}, 1, glm::vec2{1.3f, 1.2f}, glm::vec3{-1.0, 0.0, 0.0});
+//	gl_createSprite ("hud", glm::vec3{0.0f, 0.0f, 0.0f}, 1, glm::vec2{1.3f, 1.2f}, glm::vec3{-1.0, 0.0, 0.0});
 	gl_createSprite ("splash", glm::vec3{-1.0f, 0.0f, 0.0f}, 1, glm::vec2{1.6f, 1.2f}, glm::vec3{-1.0, 0.0, 0.0});
 }
 
@@ -109,11 +109,18 @@ void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames,
 		}
 		else
 			errorCount++;
-
 		return;
 	}
-	tempSprite.frameWidth = (tempSprite.textureSize.x / tempSprite.numberOfFrames ) / tempSprite.textureSize.x;
-	tempSprite.frameHeight = tempSprite.textureSize.y;
+	if (1 == tempSprite.numberOfFrames)
+	{
+		tempSprite.frameWidth = tempSprite.textureSize.x;
+		tempSprite.frameHeight = tempSprite.textureSize.y;
+	}
+	else
+	{
+		tempSprite.frameWidth = (tempSprite.textureSize.x / tempSprite.numberOfFrames) / tempSprite.textureSize.x;
+		tempSprite.frameHeight = tempSprite.textureSize.y;
+	}
 
 	tempSprite.renderOffset.x = (tempSprite.textureSize.x / tempSprite.numberOfFrames) * 0.5f;
 	tempSprite.renderOffset.y = tempSprite.textureSize.y * 0.5f;
@@ -175,9 +182,8 @@ void gl_renderSprite(string whichSprite, glm::vec2 position, int frameNumber, gl
 		textureSize.x *= spriteItr->second.scaleBy.x;
 		textureSize.y *= spriteItr->second.scaleBy.y;
 
-
-
 		frameWidth = spriteItr->second.frameWidth;
+
 		framePosition.x = frameWidth * frameNumber;
 		framePosition.y = 0.0f;
 
@@ -212,7 +218,7 @@ void gl_renderSprite(string whichSprite, glm::vec2 position, int frameNumber, gl
 		if (errorCount == 0)
 		{
 			errorCount++;
-			con_print (CON_ERROR, true, "Unable to find sprite [ %s ] to render.");
+			con_print (CON_ERROR, true, "Unable to find sprite [ %s ] to render.", whichSprite.c_str());
 		}
 		else
 			errorCount++;

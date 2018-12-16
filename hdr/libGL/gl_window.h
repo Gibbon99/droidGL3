@@ -1,5 +1,7 @@
 #pragma once
 
+extern SDL_Window      *mainWindow;
+
 // Swap buffers for displaying screen
 void lib_swapBuffers ();
 

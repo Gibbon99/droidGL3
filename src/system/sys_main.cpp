@@ -1,6 +1,10 @@
 #include <unordered_map>
 #include <string>
+#include <hdr/gui/gui_button.h>
+
 //#include "hdr/system/sys_leakDetector.h"
+
+#include "hdr/gui/gui_render.h"
 #include "hdr/game/gam_render.h"
 #include "hdr/game/gam_renderDebug.h"
 #include "hdr/game/gam_lightCaster.h"
@@ -37,9 +41,13 @@ int     loops;
 float   interpolation;
 int     currentMode;
 
+Uint32 currentServerTick;
+Uint32 currentClientTick;
+Uint32 networkServerTick;
+
 Uint32 frameStart;
 Uint32 frameTime;
-float frameCount = 0;
+Uint32 frameCount;
 
 vec3 quadPosition{640.0f,380.0f,-560.0f};
 
@@ -71,8 +79,11 @@ void sys_displayScreen(float interpolation)
 			con_showConsole ();
 			break;
 
-		case MODE_GAME:
+		case MODE_GUI:
+			gui_displayGUI ();
+			break;
 
+		case MODE_GAME:
 //			gam_processMovement (interpolation);
 
 			gam_drawFullLevel(lvl_getCurrentLevelName (), "quad3d", tileTextureID, interpolation);
@@ -89,12 +100,15 @@ void sys_displayScreen(float interpolation)
 
 	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "OutQueue [ %ul ] PacketCount Client [ %i - %s ] Server [ Out %i In %i - %s ]", networkOutQueueSize, networkPacketCountSentClient, clientRunning ? "true" : "false", networkPacketCountSentServer, networkPacketCountReceiveServer,  serverRunning ? "true" : "false");
 
-	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "playerLocation [ %3.3f %3.3f ] velocity [ %3.3f %3.3f ]", playerDroid.worldPos.x, playerDroid.worldPos.y, playerDroid.velocity.x, playerDroid.velocity.y);
+	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "networkServerTick [ %i ] currentServerTick [ %i ] Diff [ %i ] Framecount [ %i ]", networkServerTick, currentServerTick, currentServerTick - networkServerTick, frameCount);
+
+	//fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "playerLocation [ %3.3f %3.3f ] velocity [ %3.3f %3.3f ]", playerDroid.worldPos.x, playerDroid.worldPos.y, playerDroid.velocity.x, playerDroid.velocity.y);
 
 //	if ( g_memLeakLastRun)
 //		fnt_printText (vec2{0, winHeight - 64}, vec4{1, 1, 1, 1}, "MEM LEAK");
 
 	lib_swapBuffers ();
+	frameCount++;
 
 //	printf("PacketCount Client[ %i ] Server[ %i ]\n", networkPacketCountSentClient, networkPacketCountSentServer);
 }
@@ -130,6 +144,9 @@ void sys_gameTickRun()
 		case MODE_CONSOLE:
 			break;
 
+		case MODE_GUI:
+			break;
+
 		case MODE_GAME:
 
             io_processInputActions ();
@@ -147,13 +164,19 @@ void sys_gameTickRun()
 			cpSpaceStep (space, SKIP_TICKS);
 
 			net_processNetworkOutQueue (nullptr);
+
+			sys_changeMode (MODE_GUI);
 			break;
 
 		default:
 			break;
 	}
 	evt_handleEvents ();
-	frameCount++;
+
+	if (isServer)
+		currentServerTick++;        // Don't update locally if this is the server - get it from the network
+
+	currentClientTick++;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -166,6 +189,8 @@ int main (int argc, char *argv[] )
 //-----------------------------------------------------------------------------------------------------
 {
 	Uint32 next_game_tick = SDL_GetTicks();
+	currentServerTick = 0;
+	frameCount = 0;
 
 	sys_initAll();
 
@@ -212,6 +237,8 @@ void sys_changeMode ( int newMode )
 {
 	static int previousMode = -1;
 
+	SDL_ShowCursor (SDL_ENABLE);
+
 	if ( -1 == newMode )
 	{
 		currentMode = previousMode;
@@ -219,6 +246,12 @@ void sys_changeMode ( int newMode )
 	}
 
 	previousMode = currentMode;
+
+	if ( newMode == MODE_GUI)
+	{
+		gui_timerFocusAnimation(true);
+		io_mouseTimerState(true);
+	}
 
 	if ( newMode == MODE_PAUSE )
 	{
@@ -228,16 +261,18 @@ void sys_changeMode ( int newMode )
 
 	if ( newMode == MODE_GAME )
 	{
+		gui_timerFocusAnimation(false);
 		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GAME_TIMER_OFF");
 		SDL_ShowCursor(SDL_DISABLE);
-		SDL_WarpMouseInWindow (NULL, 200, 200);
+//		SDL_WarpMouseInWindow (NULL, 200, 200);
 	}
 
 	if ( newMode == MODE_CONSOLE )
 	{
 		SDL_StartTextInput ();
 		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_ON, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GAME_TIMER_ON");
-		SDL_ShowCursor (SDL_ENABLE);
+		gam_setPlayerAnimateState ( false);
+
 	}
 
 	currentMode = newMode;

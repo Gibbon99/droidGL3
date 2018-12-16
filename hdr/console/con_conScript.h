@@ -19,3 +19,5 @@ bool con_addScriptConsoleFunction ( std::string funcName, std::string funcPtr, b
 
 // Shutdown the scripting engine
 bool con_shutDownScriptEngine ();
+
+void PrintVariables();

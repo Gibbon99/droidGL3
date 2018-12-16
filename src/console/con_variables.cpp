@@ -1,8 +1,10 @@
-#include <hdr/game/gam_lightCaster.h>
-#include <hdr/game/gam_render.h>
-#include <hdr/game/gam_healing.h>
-#include <hdr/game/gam_doors.h>
-#include <hdr/game/gam_physics.h>
+#include <hdr/gui/gui_button.h>
+#include "hdr/game/gam_lightCaster.h"
+#include "hdr/game/gam_render.h"
+#include "hdr/game/gam_healing.h"
+#include "hdr/game/gam_doors.h"
+#include "hdr/game/gam_physics.h"
+#include "hdr/gui/gui_main.h"
 #include "hdr/game/gam_renderDebug.h"
 #include "hdr/console/con_console.h"
 #include "hdr/system/sys_audio.h"
@@ -46,6 +48,9 @@ _hostScriptFunctions hostVariables[] =
 	{"float playerElastic",                 &playerElastic},
 	{"float gravity",                       &gravity},
 	{"int maxNumClients",                   &maxNumClients},
+	{"int currentGUIScreen",                &currentGUIScreen},
+	{"int currentObjectSelected",           &currentObjectSelected},
+	{"int focusAnimateIntervalValue",       &focusAnimateIntervalValue},
 	{"",                                    nullptr},
 };
 

@@ -4,8 +4,11 @@
 #include <hdr/network/net_client.h>
 #include <hdr/game/gam_events.h>
 #include <hdr/game/gam_physics.h>
+#include <hdr/system/sys_audio.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/system/sys_events.h"
+
+#include "hdr/gui/gui_main.h"
 
 bool eventMoveForward = false;
 bool eventMoveBackward = false;
@@ -69,85 +72,90 @@ void io_readPauseModeKey ( SDL_Keycode key, int action )
 void io_processGameInputEvents (_myEventData eventData)
 //-----------------------------------------------------------------------------
 {
-	if ( MY_INPUT_ACTION_PRESS == eventData.data1 )
+	switch (currentMode)
 	{
-		switch ( eventData.data2 )
-		{
-			case MY_INPUT_CONSOLE:
-				sys_changeMode (MODE_CONSOLE);
-				conCurrentCharCount = 0;
-				break;
+		case MODE_GAME:
+			if ( MY_INPUT_ACTION_PRESS == eventData.data1 )
+			{
+				switch ( eventData.data2 )
+				{
+					case MY_INPUT_CONSOLE:
+						sys_changeMode (MODE_CONSOLE);
+						conCurrentCharCount = 0;
+						break;
 
-			case MY_INPUT_LEFT:
-				eventMoveLeft = true;
-				break;
+					case MY_INPUT_LEFT:
+						eventMoveLeft = true;
+						break;
 
-			case MY_INPUT_RIGHT:
-				eventMoveRight = true;
-				break;
+					case MY_INPUT_RIGHT:
+						eventMoveRight = true;
+						break;
 
-			case MY_INPUT_UP:
-				eventMoveUp = true;
-				break;
+					case MY_INPUT_UP:
+						eventMoveUp = true;
+						break;
 
-			case MY_INPUT_DOWN:
-				eventMoveDown = true;
-				break;
+					case MY_INPUT_DOWN:
+						eventMoveDown = true;
+						break;
 
-			case MY_INPUT_FORWARD:
-				eventMoveForward = true;
-				break;
+					case MY_INPUT_FORWARD:
+						eventMoveForward = true;
+						break;
 
-			case MY_INPUT_BACKWARD:
-				eventMoveBackward = true;
-				break;
+					case MY_INPUT_BACKWARD:
+						eventMoveBackward = true;
+						break;
 
-			case SDLK_F12:
+					case SDLK_F12:
 //				io_saveScreenToFile ();
-				break;
+						break;
 
-			case MY_INPUT_PAUSE:
-				con_print (CON_INFO, true, "Pressed the P key - action is DOWN");
-				evt_sendEvent (USER_EVENT_MODE_PAUSE, 0, 0, 0, 0, glm::vec2(), glm::vec2(), "");
-				break;
+					case MY_INPUT_PAUSE:
+						con_print (CON_INFO, true, "Pressed the P key - action is DOWN");
+						evt_sendEvent (USER_EVENT_MODE_PAUSE, 0, 0, 0, 0, glm::vec2(), glm::vec2(), "");
+						break;
 
-			default:
-				break;
-		}
-	}
+					default:
+						break;
+				}
+			}
 
-	if ( MY_INPUT_ACTION_RELEASE == eventData.data1 )
-	{
-		switch ( eventData.data2 )
-		{
+			if ( MY_INPUT_ACTION_RELEASE == eventData.data1 )
+			{
+				switch ( eventData.data2 )
+				{
 
-			case MY_INPUT_LEFT:
-				eventMoveLeft = false;
-				break;
+					case MY_INPUT_LEFT:
+						eventMoveLeft = false;
+						break;
 
-			case MY_INPUT_RIGHT:
-				eventMoveRight = false;
-				break;
+					case MY_INPUT_RIGHT:
+						eventMoveRight = false;
+						break;
 
-			case MY_INPUT_UP:
-				eventMoveUp = false;
-				break;
+					case MY_INPUT_UP:
+						eventMoveUp = false;
+						break;
 
-			case MY_INPUT_DOWN:
-				eventMoveDown = false;
-				break;
+					case MY_INPUT_DOWN:
+						eventMoveDown = false;
+						break;
 
-			case MY_INPUT_FORWARD:
-				eventMoveForward = false;
-				break;
+					case MY_INPUT_FORWARD:
+						eventMoveForward = false;
+						break;
 
-			case MY_INPUT_BACKWARD:
-				eventMoveBackward = false;
-				break;
+					case MY_INPUT_BACKWARD:
+						eventMoveBackward = false;
+						break;
 
-			default:
-				break;
-		}
+					default:
+						break;
+				}
+			}
+			break;
 	}
 }
 
@@ -181,7 +189,20 @@ void io_readConsoleSpecialKeys ( SDL_Keycode key, int action )
 				con_completeCommand (conCurrentLine.conLine);
 				break;
 
+			case SDLK_RIGHT:
+				testX -= 0.01f;
+
+				printf("TestX is [ %3.3f ]\n", testX);
+				break;
+
+			case SDLK_LEFT:
+				testX += 0.01f;
+				printf("TestX is [ %3.3f ]\n", testX);
+				break;
+
 			case SDLK_UP:
+				testY -= 0.01f;
+				printf("TestY is [ %3.3f ]\n", testY);
 				con_popHistoryCommand ();
 				//
 				// Get the next command if we need it
@@ -190,6 +211,8 @@ void io_readConsoleSpecialKeys ( SDL_Keycode key, int action )
 				break;
 
 			case SDLK_DOWN:
+				testY += 0.01f;
+				printf("TestY is [ %3.3f ]\n", testY);
 				//
 				// Get the next command if we need it
 				if ( conHistoryPtr > 0 )
@@ -232,7 +255,7 @@ int io_returnStandardInputActionKeyboard (Uint32 eventType)
       case SDL_KEYUP:
         return MY_INPUT_ACTION_RELEASE;
         break;
-
+//  TODO Mouse button presses / releases
       default:
         break;
     }
@@ -267,6 +290,14 @@ int io_returnStandardInputValueKeyboard (SDL_Keycode keyValue)
       case SDLK_DOWN:
         return MY_INPUT_DOWN;
       break;
+
+    	case SDLK_ESCAPE:
+    		return MY_INPUT_ESCAPE;
+    		break;
+
+      case SDLK_RETURN:
+    		return MY_INPUT_ACTION;
+	  break;
 
       case SDLK_w:
         return MY_INPUT_FORWARD;
@@ -319,6 +350,10 @@ void io_handleKeyboardEvent ( SDL_Event event )
 //            if (event.type == SDL_KEYDOWN)
 //                net_sendCurrentLevel(lvl_getCurrentLevelName ());
 
+			break;
+
+		case MODE_GUI:
+			evt_sendEvent (USER_EVENT_GUI, USER_EVENT_KEY_EVENT, io_returnStandardInputActionKeyboard (event.type), io_returnStandardInputValueKeyboard (event.key.keysym.sym) , false, glm::vec2{}, glm::vec2{},"");
 			break;
 
 		case MODE_PAUSE:

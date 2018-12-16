@@ -1,4 +1,5 @@
 #include <hdr/game/gam_levels.h>
+#include <hdr/gui/gui_main.h>
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_events.h"
 #include "hdr/io/io_logfile.h"
@@ -17,6 +18,7 @@ SDL_Thread *userEventConsoleThread;
 SDL_Thread *userEventAudioThread;
 SDL_Thread *userEventLoggingThread;
 SDL_Thread *userEventGameThread;
+SDL_Thread *userEventGuiThread;
 SDL_Thread *userEventServerThread;
 SDL_Thread *userEventClientThread;
 
@@ -24,6 +26,7 @@ SDL_mutex *consoleMutex;
 SDL_mutex *audioMutex;
 SDL_mutex *loggingMutex;
 SDL_mutex *gameMutex;
+SDL_mutex *guiMutex;
 SDL_mutex *levelMutex;
 SDL_mutex *textureSetMutex;
 
@@ -38,6 +41,7 @@ queue <_myEventData> consoleEventQueue;
 queue <_myEventData> audioEventQueue;
 queue <_myEventData> loggingEventQueue;
 queue <_myEventData> gameEventQueue;
+queue <_myEventData> guiEventQueue;
 
 queue<_myEventData> clientEventInQueue;
 queue<_myEventData> networkClientOutQueue;
@@ -137,6 +141,13 @@ bool evt_registerUserEventSetup ()
 		return false;
 	}
 
+	userEventGuiThread = SDL_CreateThread (gam_processGuiEventQueue, "gam_processGuiEventQueue", (void *) nullptr);
+	if ( nullptr == userEventGuiThread )
+	{
+		printf ("SDL_CreateThread - userEventGuiThread - failed: %s\n", SDL_GetError ());
+		return false;
+	}
+
 	userEventGameThread = SDL_CreateThread (gam_processGameEventQueue, "userEventGameThread", (void *) nullptr);
 	if ( nullptr == userEventGameThread )
 	{
@@ -179,6 +190,13 @@ bool evt_registerUserEventSetup ()
 		return false;
 	}
 
+	guiMutex = SDL_CreateMutex ();
+	if ( !guiMutex )
+	{
+		printf ("Couldn't create mutex - guiMutex");
+		return false;
+	}
+
 	gameMutex = SDL_CreateMutex ();
 	if ( !gameMutex )
 	{
@@ -213,10 +231,6 @@ bool evt_registerUserEventSetup ()
 		printf ("Couldn't create mutex - clientEventInMutex");
 		return false;
 	}
-
-
-
-
 
 	SDL_DetachThread (userEventConsoleThread);
 	SDL_DetachThread (userEventAudioThread);
@@ -300,6 +314,14 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			{
 				loggingEventQueue.push (eventData);
 				SDL_UnlockMutex (loggingMutex);
+			}
+			break;
+
+		case USER_EVENT_GUI:
+			if ( SDL_LockMutex (guiMutex) == 0 )
+			{
+				guiEventQueue.push (eventData);
+				SDL_UnlockMutex (guiMutex);
 			}
 			break;
 
@@ -457,7 +479,7 @@ void evt_handleEvents ()
 	{
 		switch ( event.type )
 		{
-			case SDL_MOUSEMOTION:
+//			case SDL_MOUSEMOTION:
 			case SDL_MOUSEBUTTONUP:
 			case SDL_MOUSEBUTTONDOWN:
 				io_handleMouseEvent ( event );

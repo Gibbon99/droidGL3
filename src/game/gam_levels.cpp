@@ -1,16 +1,16 @@
-#include <hdr/game/gam_render.h>
-#include <hdr/game/gam_player.h>
-#include <hdr/network/net_client.h>
-#include <hdr/game/gam_doors.h>
-#include <hdr/game/gam_physics.h>
-#include <hdr/game/gam_physicsPlayer.h>
+#include "hdr/game/gam_render.h"
+#include "hdr/game/gam_player.h"
+#include "hdr/game/gam_doors.h"
+#include "hdr/game/gam_physics.h"
+#include "hdr/game/gam_physicsPlayer.h"
 #include "hdr/game/gam_levels.h"
 #include "hdr/game/gam_healing.h"
 #include "hdr/game/gam_lifts.h"
+#include "hdr/network/net_client.h"
 
 vector<_levelMemory>  levelMemoryPointers;
 unordered_map <string, _levelStruct> levelInfo;
-unordered_map<string, _levelStruct>::const_iterator currentLevelItr;
+unordered_map <string, _levelStruct>::const_iterator currentLevelItr;
 
 bool                allLevelsLoaded = false;
 
@@ -495,5 +495,5 @@ void lvl_changeToLevel ( const string levelName )
 
 	sys_createSolidWalls(levelName );
 
-	net_sendCurrentLevel(levelName);
+//	net_sendCurrentLevel(levelName);
 }

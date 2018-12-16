@@ -32,17 +32,18 @@ int				conNumInHistory = 0;
 void con_addConsoleCommands()
 //-----------------------------------------------------------------------------
 {
-	con_addCommand ( "help",			"List out available commands",	( ExternFunc ) conHelp );
-	con_addCommand ( "glInfo",			"Info about openGL",			( ExternFunc ) conOpenGLInfo );
-	con_addCommand ("listVars", "List script variables", (ExternFunc) con_listVariables);
-	con_addCommand ("listFunctions", "List script functions", (ExternFunc) con_listFunctions);
-	con_addCommand ("getVar", "Get the value of a variable", (ExternFunc) con_getVariableValue);
-	con_addCommand ("setVar", "Set the value of a variable", (ExternFunc) con_setVariableValue);
-	con_addCommand ( "scShowFunc", 		"Show all script added commands", ( ExternFunc ) showScriptAddedCommands );
+	con_addCommand ( "help",			"List out available commands",	(ExternFunc) conHelp );
+	con_addCommand ( "glInfo",			"Info about openGL",			(ExternFunc) conOpenGLInfo );
+	con_addCommand ( "listVars",        "List script variables",        (ExternFunc) con_listVariables );
+	con_addCommand ( "listFunctions",   "List script functions",        (ExternFunc) con_listFunctions );
+	con_addCommand ( "getVar",          "Get the value of a variable",  (ExternFunc) con_getVariableValue );
+	con_addCommand ( "setVar",          "Set the value of a variable",  (ExternFunc) con_setVariableValue );
+	con_addCommand ( "scShowFunc", 		"Show script added commands",   (ExternFunc) showScriptAddedCommands );
 	con_addCommand ( "quit",            "Shutdown the game",            (ExternFunc) conQuit );
-	con_addCommand ("showLevels", "Show level info", (ExternFunc) lvl_showLevelsLoaded);
-	con_addCommand ("startClient",      "Start network client",     (ExternFunc) net_consoleStartNetClient);
-	con_addCommand ("startServer",      "Start network server",     (ExternFunc) net_consoleStartNetServer);
+	con_addCommand ( "showLevels",      "Show level info",              (ExternFunc) lvl_showLevelsLoaded );
+	con_addCommand ( "startClient",     "Start network client",         (ExternFunc) net_consoleStartNetClient );
+	con_addCommand ( "startServer",     "Start network server",         (ExternFunc) net_consoleStartNetServer );
+	con_addCommand ( "listClients",     "Show client info.",            (ExternFunc) con_listClients );
 
 //	conAddCommand("scDo",		"Execute script function",		(ExternFunc)conScriptExecute);
 }
@@ -350,30 +351,29 @@ bool con_addCommand ( string command, string usage, ExternFunc functionPtr )
 //
 // Add a line to the console
 // Pass in type to change the color
-void con_print ( int type, bool fileLog, const char *printText, ... )
+void con_print ( int type, bool fileLog, std::string format, ... )
 //-----------------------------------------------------------------------------
 {
-	va_list		args;
-	char		conText[MAX_STRING_SIZE * 2];
-	string      finalText;
+	va_list		    args, args_copy;
+	std::string     finalText;
 
-	//
-	// check and make sure we don't overflow our string buffer
-	//
-	if ( strlen ( printText ) >= MAX_STRING_SIZE - 1 )
-		printf ( "String passed to console is too long - Max [ %i ] - [ %i ]", ( MAX_STRING_SIZE - 1 ), strlen ( printText ) - ( MAX_STRING_SIZE - 1 ) );
+	va_start( args, format);
+	va_copy(args_copy, args);
 
-	//
-	// get out the passed in parameters
-	//
-	va_start ( args, printText );
-	vsprintf ( conText, printText, args );
-	va_end ( args );
+	const auto sz = std::vsnprintf(nullptr, 0, format.c_str(), args ) + 1;
 
-	if ( fileLog )
-		io_logToFile ( "Console : %s", conText );
+	try
+	{
+		std::string result (sz, ' ' );
+		std::vsnprintf( &result.front(), sz, format.c_str(), args_copy);
 
-	switch ( type )
+		va_end(args_copy);
+		va_end(args);
+
+		if ( fileLog )
+			io_logToFile ( "Console : %s", result.c_str() );
+
+		switch ( type )
 		{
 			case CON_NOCHANGE:
 				break;
@@ -396,8 +396,16 @@ void con_print ( int type, bool fileLog, const char *printText, ... )
 				break;
 		}
 
-		finalText += conText;
+		finalText += result;
 		evt_sendEvent(USER_EVENT_CONSOLE, CONSOLE_ADD_LINE, (int)currentConLineColor.red, (int)currentConLineColor.green, (int)currentConLineColor.blue, glm::vec2(), glm::vec2(), finalText);
+	}
+
+	catch( const std::bad_alloc& )
+	{
+		va_end(args_copy) ;
+		va_end(args) ;
+		printf("Error allocating string parsing in con_print.\n");
+	}
 }
 
 //-----------------------------------------------------------------------------

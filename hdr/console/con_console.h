@@ -17,6 +17,9 @@
 #define CON_FUNC	3
 
 using namespace std;
+
+extern cpVect vect1;
+
 //
 //-----------------------------------------------------------------------------
 // Generic callback function pointer
@@ -99,7 +102,7 @@ void con_showConsole();
 //void con_createConsoleScreen ();
 
 // Add a line to the console
-void con_print ( int type, bool fileLog, const char *printText, ... );
+void con_print ( int type, bool fileLog, std::string format, ... );
 
 // Init the console
 void con_initConsole();

@@ -11,6 +11,12 @@
 void drd_animateThisLevel(const string levelName)
 //------------------------------------------------------------------------------
 {
+	if (levelName.empty ())
+	{
+		con_print(CON_ERROR, true, "Invalid or empty levelName passed to function [ %s ]", __LINE__);
+		return;
+	}
+
 	for (int index = 0; index != levelInfo.at(levelName).numDroids; index++)
 	{
 		levelInfo.at(levelName).droid[index].frameDelay += 1.0f / 3.0f;

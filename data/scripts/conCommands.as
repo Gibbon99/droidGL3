@@ -5,24 +5,30 @@ const int CON_USAGE = 2;
 const int CON_FUNC = 3;
 const int CON_PARAM = 4;
 
+cpVect as_vectTest(cpVect cpParam)
+{
+	cpVect testReturn;
+
+	testReturn.x = 333;
+	testReturn.y = 999;
+
+
+	if (cpParam.x == 987)
+		printCon_AS("Got 987 value in x", "");
+
+
+	cpParam.x = 400;
+	cpParam.y = 500;
+
+	return testReturn;
+}
+
 //-----------------------------------------------------------------------------
 //
 // Set variables used in the game
 void as_setGameVariables()
 //-----------------------------------------------------------------------------
 {
-    cpVect anotherVect;
-
-    anotherVect.x = 444.0;
-    anotherVect.y = 555.0;
-
-    vect1.x = 666.0;
-    vect1.y = 400.0;
-
-//    sys_testVect(vect1.x, vect1.y);
-    sys_testVect(vect1);
-    sys_testVect(anotherVect);
-
     drawHUD = false;
 
     nearPlane = 0.0;

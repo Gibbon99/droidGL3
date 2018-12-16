@@ -458,8 +458,16 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 
 	glm::vec2 backingSize;
 
+	if (levelName.empty ())
+	{
+		con_print(CON_ERROR, true, "No levelName passed to [ %s ]", __LINE__);
+		return;
+	}
 //    viewWorldLocationX = playerDroid.worldPos.x; // + (playerVelocity.x * interpolate);
 //    viewWorldLocationY = playerDroid.worldPos.y; // + (playerVelocity.y * interpolate);
+
+printf("Drawing levelName - %s\n", levelName.c_str());
+
 
     backingSize.x = static_cast<float>(levelInfo.at (levelName).levelDimensions.x * TILE_SIZE);
 	backingSize.y = static_cast<float>(levelInfo.at (levelName).levelDimensions.y * TILE_SIZE);

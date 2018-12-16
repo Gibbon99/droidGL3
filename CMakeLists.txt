@@ -223,7 +223,9 @@ set ( CXX_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/RPC4Plugin.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/VariableListDeltaTracker.cpp
 
-        )
+        ${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_main.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_sdfFont.cpp
+        src/gui/gui_button.cpp hdr/gui/gui_button.h src/gui/gui_render.cpp hdr/gui/gui_render.h)
 
 # Define the C sources
 set(C_SRCS
@@ -299,6 +301,12 @@ set(C_SRCS
         ${CMAKE_CURRENT_LIST_DIR}/src/libGL/soil/stb_image_aug.c
         ${CMAKE_CURRENT_LIST_DIR}/src/io/simpleIni/io_convertUTF.c
 
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/sdl2_gfx/SDL2_framerate.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/sdl2_gfx/SDL2_gfxPrimitives.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/sdl2_gfx/SDL2_imageFilter.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/libGL/sdl2_gfx/SDL2_rotozoom.c
+
+        ${CMAKE_CURRENT_LIST_DIR}/src/gui/SDL_ttf.c
         )
 
 set_source_files_properties(
@@ -315,7 +323,7 @@ target_link_libraries(droidGL ${LINK_OPTIONS})
 
 
 target_link_libraries(droidGL
-//        asan
+#        asan
         GL
         GLU
         rt
