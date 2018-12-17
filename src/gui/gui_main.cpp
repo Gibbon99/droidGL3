@@ -24,16 +24,17 @@ bool                                    guiReady = false;
 int				                        currentGUIScreen;
 int                                     currentObjectSelected;  // Pass this to script to act on
 
+SDL_Color                               focusAnimateColor;
+
 vector<_screenObject>	                guiScreens;
 vector<_guiButton>                      guiButtons;
-
-float testX = 0.15f;
-float testY = 0.54f;
+vector<_guiCheckBox>                    guiCheckBoxes;
 
 std::string                             guiFontName;
 
 _screenObject                           tmpScreen;
 _guiButton                              tmpGuiButton;
+_guiCheckBox                            tmpGuiCheckBox;
 
 //----------------------------------------------------------------
 //
@@ -132,6 +133,18 @@ int gui_findIndex(int guiObjectType, const string objectID)
 			return -1;  // Didn't find a match
 			break;
 
+		case GUI_OBJECT_CHECKBOX:
+			for ( const auto &iter : guiCheckBoxes )
+			{
+				if (iter.attributes.objectID == objectID)
+				{
+					return indexCount;
+				}
+				indexCount++;
+			}
+			return -1;  // Didn't find a match
+			break;
+
 		default:
 			break;
 	}
@@ -159,6 +172,15 @@ void gui_hostCreateObject(int guiObjectType, const string objectID)
 			tmpGuiButton.percentX = 0.15f;
 			tmpGuiButton.percentY = 0.54f;
 			guiButtons.push_back ( tmpGuiButton );
+			break;
+
+		case GUI_OBJECT_CHECKBOX:
+			tmpGuiCheckBox.attributes.objectID = objectID;
+			tmpGuiCheckBox.attributes.canFocus = true;
+			tmpGuiCheckBox.attributes.positionCalled = false;
+			tmpGuiCheckBox.gapSize = 8;
+			tmpGuiCheckBox.lineWidth = 3;
+			guiCheckBoxes.push_back (tmpGuiCheckBox);
 			break;
 
 		default:
@@ -211,12 +233,44 @@ void gui_hostSetObjectPosition(int guiObjectType, const string &objectID, int co
 				guiButtons[objectIndex].attributes.boundingBox.h = height;
 
 				guiButtons[objectIndex].attributes.mouseHitBox.x = startX - width;
-				guiButtons[objectIndex].attributes.mouseHitBox.y = startY;
+				guiButtons[objectIndex].attributes.mouseHitBox.y = startY;  // TODO Test if height needs to be added
 				guiButtons[objectIndex].attributes.mouseHitBox.w = width;
 				guiButtons[objectIndex].attributes.mouseHitBox.h = height;
 			}
 			guiButtons[objectIndex].attributes.positionCalled = true;
 		break;
+
+		case GUI_OBJECT_CHECKBOX:
+			guiCheckBoxes[objectIndex].attributes.coordType = coordType;
+			if (GUI_COORD_TYPE_PERCENT == guiCheckBoxes[objectIndex].attributes.coordType)
+			{
+				guiCheckBoxes[objectIndex].attributes.boundingBox.w = (int)(winWidth  * ((float)width  / 100.0f));
+				guiCheckBoxes[objectIndex].attributes.boundingBox.h = (int)(winHeight * ((float)height / 100.0f));
+
+				guiCheckBoxes[objectIndex].attributes.boundingBox.x = (int)((winWidth  * ((float)startX / 100.0f))); // + (guiCheckBoxes[objectIndex].attributes.boundingBox.w / 2));
+				guiCheckBoxes[objectIndex].attributes.boundingBox.y = (int)((winHeight * ((float)startY / 100.0f))); // + (guiCheckBoxes[objectIndex].attributes.boundingBox.h / 2));
+
+				guiCheckBoxes[objectIndex].attributes.mouseHitBox.x = guiCheckBoxes[objectIndex].attributes.boundingBox.x; // + guiCheckBoxes[objectIndex].attributes.boundingBox.w;
+				guiCheckBoxes[objectIndex].attributes.mouseHitBox.y = guiCheckBoxes[objectIndex].attributes.boundingBox.y;
+				guiCheckBoxes[objectIndex].attributes.mouseHitBox.w = guiCheckBoxes[objectIndex].attributes.boundingBox.w;
+				guiCheckBoxes[objectIndex].attributes.mouseHitBox.h = guiCheckBoxes[objectIndex].attributes.boundingBox.h;
+			}
+			else
+			{
+				guiCheckBoxes[objectIndex].attributes.boundingBox.x = startX;
+				guiCheckBoxes[objectIndex].attributes.boundingBox.y = startY;
+				guiCheckBoxes[objectIndex].attributes.boundingBox.w = width;
+				guiCheckBoxes[objectIndex].attributes.boundingBox.h = height;
+
+				guiCheckBoxes[objectIndex].attributes.mouseHitBox.x = startX;
+				guiCheckBoxes[objectIndex].attributes.mouseHitBox.y = startY;
+				guiCheckBoxes[objectIndex].attributes.mouseHitBox.w = width;
+				guiCheckBoxes[objectIndex].attributes.mouseHitBox.h = height;
+
+				printf("Mouse checkbox hit [ %i %i %i %i ]\n", startX, startY, width, height);
+			}
+			guiCheckBoxes[objectIndex].attributes.positionCalled = true;
+			break;
 
 		default:
 			break;
@@ -255,6 +309,16 @@ void gui_hostSetObjectLabel(int guiObjectType, const string &objectID, int label
 			}
 			guiButtons[objectIndex].attributes.label = std::move ( newLabel ); // TODO check what this does
 			guiButtons[objectIndex].attributes.labelPos = labelPos;
+			break;
+
+		case GUI_OBJECT_CHECKBOX:
+			if (!guiCheckBoxes[objectIndex].attributes.positionCalled)
+			{
+				con_print(CON_ERROR, true, "GUI object position has not been set [ %s ]", objectID.c_str());
+				return;
+			}
+			guiCheckBoxes[objectIndex].attributes.label = std::move ( newLabel ); // TODO check what this does
+			guiCheckBoxes[objectIndex].attributes.labelPos = labelPos;
 			break;
 
 		default:
@@ -310,7 +374,7 @@ void gui_hostAddObjectToScreen(int guiObjectType, string objectID, string whichS
 	switch (guiObjectType)
 	{
 		case GUI_OBJECT_BUTTON:
-//		case GUI_OBJECT_CHECKBOX:
+		case GUI_OBJECT_CHECKBOX:
 //		case GUI_OBJECT_TEXT_LABEL:
 //		case GUI_OBJECT_IMAGE:
 //		case GUI_OBJECT_TEXT_BOX:
@@ -359,33 +423,68 @@ void gui_setObjectColorByIndex(int guiObjectType, int objectIndex, int whichColo
 		//
 		// Colors for guiButton
 		case GUI_OBJECT_BUTTON:
-
 			switch ( whichColor )
 			{
-				case GUI_BUTTON_ACTIVE_COL:
+				case GUI_ACTIVE_COL:
 					guiButtons[objectIndex].attributes.hasFocusColor = gui_mapRGBA ( red, green, blue, alpha );
 					break;
 
-				case GUI_BUTTON_INACTIVE_COL:
+				case GUI_INACTIVE_COL:
 					guiButtons[objectIndex].attributes.noFocusColor = gui_mapRGBA ( red, green, blue, alpha );
 					break;
 
-				case GUI_BUTTON_ACTIVE_CORNER_COL:
+				case GUI_ACTIVE_CORNER_COL:
 					guiButtons[objectIndex].cornerFocusColor = gui_mapRGBA ( red, green, blue, alpha );
 					break;
 
-				case GUI_BUTTON_INACTIVE_CORNER_COL:
+				case GUI_INACTIVE_CORNER_COL:
 					guiButtons[objectIndex].cornerNoFocusColor = gui_mapRGBA ( red, green, blue, alpha );
 					break;
 
-				case GUI_BUTTON_ACTIVE_LABEL_COL:
+				case GUI_ACTIVE_LABEL_COL:
 					guiButtons[objectIndex].attributes.labelHasFocusColor = gui_mapRGBA ( red, green, blue, alpha );
 					break;
 
-				case GUI_BUTTON_INACTIVE_LABEL_COL:
+				case GUI_INACTIVE_LABEL_COL:
 					guiButtons[objectIndex].attributes.labelNoFocusColor = gui_mapRGBA ( red, green, blue, alpha );
 					break;
+
+				default:
+					break;
 			}
+
+		case GUI_OBJECT_CHECKBOX:
+			switch ( whichColor )
+			{
+				case GUI_ACTIVE_COL:
+					guiCheckBoxes[objectIndex].attributes.hasFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_INACTIVE_COL:
+					guiCheckBoxes[objectIndex].attributes.noFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_ACTIVE_CORNER_COL:
+					guiCheckBoxes[objectIndex].cornerFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_INACTIVE_CORNER_COL:
+					guiCheckBoxes[objectIndex].cornerNoFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_ACTIVE_LABEL_COL:
+					guiCheckBoxes[objectIndex].attributes.labelHasFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_INACTIVE_LABEL_COL:
+					guiCheckBoxes[objectIndex].attributes.labelNoFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+				default:
+					break;
+			}
+
+		default:
+			break;
 	}
 }
 
@@ -408,6 +507,10 @@ void gui_hostSetObjectColor(int guiObjectType, string objectID, int whichColor, 
 		{
 			case GUI_OBJECT_BUTTON:
 				numObjects = guiButtons.size();
+				break;
+
+			case GUI_OBJECT_CHECKBOX:
+				numObjects = guiCheckBoxes.size();
 				break;
 
 			default:
@@ -461,6 +564,13 @@ void gui_hostSetObjectFunctions(int guiObjectType, string objectID, string click
 		// Actions for a object
 		case GUI_OBJECT_BUTTON:
 			guiButtons[objectIndex].attributes.action = clickFunction;
+			break;
+
+		case GUI_OBJECT_CHECKBOX:
+			guiCheckBoxes[objectIndex].attributes.action = clickFunction;
+			break;
+
+		default:
 			break;
 	}
 }
@@ -860,7 +970,11 @@ bool gui_canObjectBeSelected(int objectType)
 	switch (objectType)
 	{
 		case GUI_OBJECT_BUTTON:
+		case GUI_OBJECT_CHECKBOX:
 			return true;
+
+		default:
+			break;
 	}
 	return false;
 }
@@ -880,6 +994,8 @@ void gui_handleFocusMove(int moveDirection, bool takeAction, int eventSource)
 	selectedSlider = guiScreens[currentGUIScreen].objectIDIndex[guiScreens[currentGUIScreen].selectedObject];
 	selectedKeyCode = guiScreens[currentGUIScreen].objectIDIndex[guiScreens[currentGUIScreen].selectedObject];
 
+	mouseLocation = io_getMousePointLocation ();
+
 	if ( takeAction )
 	{
 		currentObjectSelected = guiScreens[currentGUIScreen].objectIDIndex[guiScreens[currentGUIScreen].selectedObject];
@@ -887,17 +1003,23 @@ void gui_handleFocusMove(int moveDirection, bool takeAction, int eventSource)
 		switch (guiScreens[currentGUIScreen].objectType[guiScreens[currentGUIScreen].selectedObject])
 		{
 			case GUI_OBJECT_BUTTON:
-				if (!eventSource)
+				if (!eventSource)   // not a mouse action
 					con_executeScriptFunction(guiButtons[currentObjectSelected].attributes.action, guiButtons[currentObjectSelected].attributes.objectID);
 				else
 				{   // Event is from mouse - check it's inside the bounds of this button to be activated
-					mouseLocation = io_getMousePointLocation ();
-
 					if (SDL_PointInRect(&mouseLocation, &guiButtons[currentObjectSelected].attributes.mouseHitBox))
 						con_executeScriptFunction(guiButtons[currentObjectSelected].attributes.action, guiButtons[currentObjectSelected].attributes.objectID);
 				}
 				break;
 
+			case GUI_OBJECT_CHECKBOX:
+				if (!eventSource)
+					con_executeScriptFunction (guiCheckBoxes[currentObjectSelected].attributes.action, guiCheckBoxes[currentObjectSelected].attributes.objectID);
+				else
+				{
+					if (SDL_PointInRect (&mouseLocation, &guiCheckBoxes[currentObjectSelected].attributes.mouseHitBox))
+						con_executeScriptFunction (guiCheckBoxes[currentObjectSelected].attributes.action, guiCheckBoxes[currentObjectSelected].attributes.objectID);
+				}
 			default:
 				break;
 		}
@@ -1029,7 +1151,14 @@ void gui_handleMouseMotion(glm::vec2 mousePosition)
 		switch (guiScreens[currentGUIScreen].objectType[indexCount])
 		{
 			case GUI_OBJECT_BUTTON:
-				if (SDL_PointInRect(&mousePoint, &guiButtons[indexCount].attributes.mouseHitBox))
+				if (SDL_PointInRect(&mousePoint, &guiButtons[guiScreens[currentGUIScreen].objectIDIndex[indexCount]].attributes.mouseHitBox))
+				{
+					guiScreens[currentGUIScreen].selectedObject = indexCount;
+				}
+				break;
+
+			case GUI_OBJECT_CHECKBOX:
+				if (SDL_PointInRect (&mousePoint, &guiCheckBoxes[guiScreens[currentGUIScreen].objectIDIndex[indexCount]].attributes.mouseHitBox))
 				{
 					guiScreens[currentGUIScreen].selectedObject = indexCount;
 				}

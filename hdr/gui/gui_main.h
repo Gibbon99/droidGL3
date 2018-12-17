@@ -24,6 +24,7 @@ extern SDL_Renderer                            *renderer;       // Global for al
 extern SDL_Surface                             *guiSurface;     // GLobal surface where all SDL rendering takes place
 extern std::string                             guiFontName;     // Which font is currently in use
 extern int                                     currentObjectSelected;  // Pass this to script to act on
+extern SDL_Color                                focusAnimateColor;
 
 typedef struct
 {
@@ -74,12 +75,21 @@ typedef struct
 	float               percentY;       // How far along to start the corner cutout
 } _guiButton;
 
+typedef struct
+{
+	_guiObject          attributes;     // Common to all objects
+	bool                checked;        // Is the checkbox set
+	int                 gapSize;        // Space between edge of box and start of text
+	int                 lineWidth;      // Thickness of box outline
+	SDL_Color           cornerFocusColor;       // Color for the check mark
+	SDL_Color           cornerNoFocusColor;    // Color for the check mark with no focus on object
+} _guiCheckBox;
+
+
 extern int				        currentGUIScreen;
 extern vector<_screenObject>	guiScreens;
 extern vector<_guiButton>       guiButtons;
-
-extern float testX;
-extern float testY;
+extern vector<_guiCheckBox>     guiCheckBoxes;
 
 // Handle a GUI event - called by thread
 int gam_processGuiEventQueue ( void *ptr );

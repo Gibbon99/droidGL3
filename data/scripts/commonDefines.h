@@ -16,6 +16,7 @@ const int GUI_LABEL_RIGHT           = 2;
 //      Defines for GUI objects
 const int GUI_OBJECT_SCREEN         = 1;
 const int GUI_OBJECT_BUTTON         = 2;
+const int GUI_OBJECT_CHECKBOX       = 3;
 
 //
 //		Defines for Game Modes
@@ -30,12 +31,12 @@ const int MODE_SPLASH               = 7;
 const int MODE_INIT_GAME            = 8;
 const int MODE_GUI                  = 9;
 
-const int GUI_BUTTON_ACTIVE_COL            = 10;
-const int GUI_BUTTON_INACTIVE_COL          = 11;
-const int GUI_BUTTON_ACTIVE_CORNER_COL     = 12;
-const int GUI_BUTTON_INACTIVE_CORNER_COL   = 13;
-const int GUI_BUTTON_ACTIVE_LABEL_COL      = 14;
-const int GUI_BUTTON_INACTIVE_LABEL_COL    = 15;
+const int GUI_ACTIVE_COL            = 10;
+const int GUI_INACTIVE_COL          = 11;
+const int GUI_ACTIVE_CORNER_COL     = 12;
+const int GUI_INACTIVE_CORNER_COL   = 13;
+const int GUI_ACTIVE_LABEL_COL      = 14;
+const int GUI_INACTIVE_LABEL_COL    = 15;
 
 enum mySounds
 {

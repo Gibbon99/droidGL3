@@ -225,7 +225,7 @@ set ( CXX_SRCS
 
         ${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_main.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_sdfFont.cpp
-        src/gui/gui_button.cpp hdr/gui/gui_button.h src/gui/gui_render.cpp hdr/gui/gui_render.h)
+        src/gui/gui_button.cpp hdr/gui/gui_button.h src/gui/gui_render.cpp hdr/gui/gui_render.h src/gui/gui_checkBox.cpp hdr/gui/gui_checkBox.h)
 
 # Define the C sources
 set(C_SRCS

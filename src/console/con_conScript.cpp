@@ -1,10 +1,11 @@
 #include <utility>
-#include <hdr/gui/gui_main.h>
-#include <hdr/game/gam_game.h>
+#include "hdr/gui/gui_main.h"
+#include "hdr/game/gam_game.h"
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/script/as_scriptbuilder.h"
 #include "hdr/io/io_logfile.h"
 #include "hdr/physfs/physfs.h"
+#include "hdr/gui/gui_checkBox.h"
 
 unsigned int		numFunctionsInScripts;
 unsigned int		numHostScriptFunctions;
@@ -92,7 +93,7 @@ _hostScriptFunctions hostScriptFunctions[] =
 	{"void as_guiSetObjectLabel    (int guiObjectType, string &in, int labelPos, string &in)", 		( void * ) &gui_hostSetObjectLabel},
 	{"void as_guiAddObjectToScreen (int guiObjectType, string &in, string &in)", 					( void * ) &gui_hostAddObjectToScreen},
 	{"void as_guiSetObjectFunctions(int guiObjectType, string &in, string &in)", 		            ( void * ) &gui_hostSetObjectFunctions},
-
+	{"void as_updateCheckedStatus  (string &in, bool newState)",                                    ( void * ) &gui_updateCheckedStatus},
 	{"void gam_startNewGame ()",                                             (void *) &gam_startNewGame},
 	{"",							NULL},
 };
@@ -123,7 +124,7 @@ _scriptFunctionName     scriptFunctionName[] =
 	{0, false, "void as_setGameVariables()",			    "scr_setGameVariables",         NULL},
 	{0, false, "cpVect as_vectTest(cpVect cpParam)",        "scr_vectTest",                 NULL},
 	{0, false, "void as_setupGUI()",                        "scr_setupGUI",                 NULL},
-	{0, false, "void as_guiHandleButtonPress(string &in)",  "scr_guiHandleButtonPress",     true},
+	{0, false, "void as_guiHandleActionEvent(string &in)",  "scr_guiHandleActionEvent",     true},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},

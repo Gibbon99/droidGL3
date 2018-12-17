@@ -2,12 +2,11 @@
 #include "hdr/gui/gui_button.h"
 
 SDL_TimerID         guiFocusTimerID;
-SDL_Color           focusAnimateColor;
 int                 focusAnimateIntervalValue;      // Set from script
 
 //------------------------------------------------------------------------
 //
-// Callback for timer function - cursor flash
+// Callback for timer function - button focus animate flash
 Uint32 gui_focusAnimateCallback ( Uint32 interval, void *param )
 //------------------------------------------------------------------------
 {
@@ -21,8 +20,6 @@ Uint32 gui_focusAnimateCallback ( Uint32 interval, void *param )
 	{
 		focusAnimateColor = guiButtons[0].cornerFocusColor;
 		haveColorCopy = true;
-
-		printf("Have copy of color [ %i %i %i ]\n", focusAnimateColor.r, focusAnimateColor.g, focusAnimateColor.b);
 	}
 
 	if (fadeDown)
@@ -93,11 +90,10 @@ void gui_timerFocusAnimation(int newState)
 
 //--------------------------------------------------------------------------
 //
-// Create a SDL_Surface and draw to it
+// Draw a button onto the SDL renderer targeted surface
 void gui_drawButton( int objectIndex, bool hasFocus )
 //--------------------------------------------------------------------------
 {
-
 	Sint16      width, height;
 	int         fontLineWidth, fontLineHeight;
 	Sint16      startX, startY, gapSize, lineWidth;
@@ -105,6 +101,9 @@ void gui_drawButton( int objectIndex, bool hasFocus )
 	SDL_Color   buttonColor;
 	SDL_Color   cornerColor;
 	SDL_Color   labelColor;
+
+	if (guiButtons.empty())
+		return;
 
 	if (!guiButtons[objectIndex].attributes.positionCalled)
 		return; // don't draw - has no position information

@@ -1,4 +1,5 @@
 #include "hdr/gui/gui_button.h"
+#include "hdr/gui/gui_checkBox.h"
 #include "hdr/gui/gui_render.h"
 
 //-----------------------------------------------------------------------------
@@ -11,6 +12,10 @@ void gui_drawObject ( int objectType, int whichObject, bool hasFocus )
 	{
 		case GUI_OBJECT_BUTTON:
 			gui_drawButton( whichObject, hasFocus);
+			break;
+
+		case GUI_OBJECT_CHECKBOX:
+			gui_drawCheckbox( whichObject, hasFocus );
 			break;
 
 		default:
