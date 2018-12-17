@@ -73,10 +73,12 @@ void sys_displayScreen(float interpolation)
 			gl_renderSprite("splash", glm::vec2{0, 0}, 1, glm::vec3{0,0,0});
 			break;
 
-		case MODE_CONSOLE:
 		case MODE_LOADING:
-		case MODE_INIT:
+		case MODE_CONSOLE:
 			con_showConsole ();
+			break;
+
+		case MODE_INIT:
 			break;
 
 		case MODE_GUI:
@@ -128,23 +130,21 @@ void sys_gameTickRun()
 
 		case MODE_LOADING:
 			if ((io_allTexturesLoaded()) && allLevelsLoaded)
-			{
 				sys_changeMode(MODE_INIT);
-			}
 			break;
 
 		case MODE_INIT:
-			sys_changeMode(MODE_CONSOLE);
-			break;
-
-		case MODE_INIT_GAME:
-			gam_startNewGame ();
+			sys_changeMode(MODE_GUI);
 			break;
 
 		case MODE_CONSOLE:
 			break;
 
 		case MODE_GUI:
+			break;
+
+		case MODE_INIT_GAME:
+			gam_startNewGame ();
 			break;
 
 		case MODE_GAME:
@@ -164,8 +164,6 @@ void sys_gameTickRun()
 			cpSpaceStep (space, SKIP_TICKS);
 
 			net_processNetworkOutQueue (nullptr);
-
-			sys_changeMode (MODE_GUI);
 			break;
 
 		default:
@@ -235,45 +233,79 @@ return 0;
 void sys_changeMode ( int newMode )
 //-----------------------------------------------------------------------------
 {
+//#define DEBUG_CHANGE_MODE 1
+
 	static int previousMode = -1;
 
-	SDL_ShowCursor (SDL_ENABLE);
+	if ((-1 == newMode) && (-1 == previousMode))
+	{
+		printf("ERROR: Need to call changeMode with a valid value.\n");
+		sys_shutdownToSystem ();
+	}
 
 	if ( -1 == newMode )
 	{
 		currentMode = previousMode;
+		sys_changeMode(currentMode);    // Call again to restart the timers
 		return;
 	}
 
 	previousMode = currentMode;
 
+	currentMode = newMode;
+
 	if ( newMode == MODE_GUI)
 	{
-		gui_timerFocusAnimation(true);
-		io_mouseTimerState(true);
+		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_TIMER_OFF");
+		evt_sendEvent (USER_EVENT_GUI, USER_EVENT_GAME_TIMER, USER_EVENT_GUI_ANIMATE_TIMER, USER_EVENT_TIMER_ON, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GUI_ANIMATE_TIMER");
+		evt_sendEvent (USER_EVENT_GUI, USER_EVENT_GAME_TIMER, USER_EVENT_GUI_MOUSE_TIMER, USER_EVENT_TIMER_ON, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GUI_MOUSE_TIMER");
+		SDL_ShowCursor (SDL_ENABLE);
+#ifdef DEBUG_CHANGE_MODE
+		printf("New mode [ %s ]\n", "MODE_GUI");
+#endif
+		return;
 	}
 
 	if ( newMode == MODE_PAUSE )
 	{
-		currentMode = MODE_PAUSE;
+		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_TIMER_OFF");
+		evt_sendEvent (USER_EVENT_GUI, USER_EVENT_GAME_TIMER, USER_EVENT_GUI_ANIMATE_TIMER, USER_EVENT_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GUI_ANIMATE_TIMER");
+		evt_sendEvent (USER_EVENT_GUI, USER_EVENT_GAME_TIMER, USER_EVENT_GUI_MOUSE_TIMER, USER_EVENT_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GUI_MOUSE_TIMER");
+//		currentMode = MODE_PAUSE;
+#ifdef DEBUG_CHANGE_MODE
+		printf("New mode [ %s ]\n", "MODE_PAUSE");
+#endif
+
 		return;
 	}
 
 	if ( newMode == MODE_GAME )
 	{
 		gui_timerFocusAnimation(false);
-		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GAME_TIMER_OFF");
+		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_TIMER_OFF");
+		evt_sendEvent (USER_EVENT_GUI, USER_EVENT_GAME_TIMER, USER_EVENT_GUI_MOUSE_TIMER, USER_EVENT_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GUI_MOUSE_TIMER");
+		evt_sendEvent (USER_EVENT_GUI, USER_EVENT_GAME_TIMER, USER_EVENT_GUI_ANIMATE_TIMER, USER_EVENT_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GUI_ANIMATE_TIMER");
 		SDL_ShowCursor(SDL_DISABLE);
+		gam_setPlayerAnimateState ( true);
 //		SDL_WarpMouseInWindow (NULL, 200, 200);
+#ifdef DEBUG_CHANGE_MODE
+		printf("New mode [ %s ]\n", "MODE_GAME");
+#endif
+
+		return;
 	}
 
 	if ( newMode == MODE_CONSOLE )
 	{
 		SDL_StartTextInput ();
-		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_GAME_TIMER_ON, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GAME_TIMER_ON");
+		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_GAME_TIMER, USER_EVENT_GAME_TIMER_CONSOLE, USER_EVENT_TIMER_ON, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_TIMER_ON");
+		evt_sendEvent (USER_EVENT_GUI, USER_EVENT_GAME_TIMER, USER_EVENT_GUI_MOUSE_TIMER, USER_EVENT_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GUI_MOUSE_TIMER");
+		evt_sendEvent (USER_EVENT_GUI, USER_EVENT_GAME_TIMER, USER_EVENT_GUI_ANIMATE_TIMER, USER_EVENT_TIMER_OFF, 0, glm::vec2 (), glm::vec2 (), "USER_EVENT_GUI_ANIMATE_TIMER");
 		gam_setPlayerAnimateState ( false);
+#ifdef DEBUG_CHANGE_MODE
+		printf("New mode [ %s ]\n", "MODE_CONSOLE");
+#endif
 
+		return;
 	}
-
-	currentMode = newMode;
 }

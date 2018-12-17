@@ -488,11 +488,6 @@ void lvl_changeToLevel ( const string levelName )
 	playerDroid.worldPos.y += TILE_SIZE * 0.5f;
 	sys_setPlayerPhysicsPosition (playerDroid.worldPos);
 
-    // Turn on timers for animations
-    gam_setHealingState (true);
-    gam_setPlayerAnimateState(true);
-    gam_setDoorAnimateState (true);
-
 	sys_createSolidWalls(levelName );
 
 //	net_sendCurrentLevel(levelName);

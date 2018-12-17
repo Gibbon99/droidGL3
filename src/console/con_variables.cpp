@@ -1,4 +1,5 @@
 #include <hdr/gui/gui_button.h>
+#include <hdr/io/io_mouse.h>
 #include "hdr/game/gam_lightCaster.h"
 #include "hdr/game/gam_render.h"
 #include "hdr/game/gam_healing.h"
@@ -51,6 +52,7 @@ _hostScriptFunctions hostVariables[] =
 	{"int currentGUIScreen",                &currentGUIScreen},
 	{"int currentObjectSelected",           &currentObjectSelected},
 	{"int focusAnimateIntervalValue",       &focusAnimateIntervalValue},
+	{"int getMousePositionInterval",        &getMousePositionInterval},
 	{"",                                    nullptr},
 };
 

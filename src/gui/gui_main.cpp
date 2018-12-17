@@ -5,6 +5,8 @@
 #include <hdr/io/io_logfile.h>
 #include <hdr/system/sys_audio.h>
 #include <hdr/io/io_mouse.h>
+#include <hdr/gui/gui_button.h>
+#include <hdr/game/gam_hud.h>
 
 #include "hdr/gui/gui_main.h"
 #include "hdr/gui/gui_render.h"
@@ -64,7 +66,23 @@ int gam_processGuiEventQueue ( void *ptr )
 					//
 					// Call the function associated with this button
 					gui_handleInputEvent(tempEventData.data1, tempEventData.data2, tempEventData.data3);
+					break;
 
+				case USER_EVENT_GAME_TIMER:
+					switch ( tempEventData.data1 )
+					{
+						case USER_EVENT_GUI_MOUSE_TIMER:
+						{
+							io_mouseTimerState ( tempEventData.data2 );
+							break;
+						}
+						case USER_EVENT_GUI_ANIMATE_TIMER:
+							gui_timerFocusAnimation( tempEventData.data2 );
+							break;
+
+						default:
+							break;
+					}
 					break;
 
 				default:
@@ -88,8 +106,6 @@ int gui_findIndex(int guiObjectType, const string objectID)
 
 	indexCount = 0;
 
-	printf("Looking for index\n");
-
 	switch ( guiObjectType )
 	{
 		case GUI_OBJECT_SCREEN:
@@ -97,9 +113,6 @@ int gui_findIndex(int guiObjectType, const string objectID)
 			{
 				if ( iter.screenID == objectID )
 				{
-
-					printf("Found screen [ %s ] index [ %i ]\n", objectID.c_str(), indexCount);
-
 					return indexCount;
 				}
 				indexCount++;
@@ -494,6 +507,8 @@ void gui_displayGUI()
 	//
 	// Put the OpenGL texture onto the visible framebuffer
 	gl_draw2DQuad ( guiPosition, guiSize, "colorKey", io_getTextureID ("guiScreen"), guiColorKey, guiTintColor, texCoords);
+
+	s_renderHUD ();
 }
 
 //--------------------------------------------------------------------------
@@ -856,8 +871,8 @@ bool gui_canObjectBeSelected(int objectType)
 void gui_handleFocusMove(int moveDirection, bool takeAction, int eventSource)
 //-----------------------------------------------------------------------------
 {
-	int indexCount = 0;
-	int selectedSlider, selectedKeyCode;
+	int             indexCount = 0;
+	int             selectedSlider, selectedKeyCode;
 	SDL_Point       mouseLocation;
 
 	indexCount = 0;
@@ -977,6 +992,16 @@ void gui_handleInputEvent(int eventAction, int eventType, int eventSource)
 
 			default:
 				break;
+		}
+	}
+	else
+	{
+		switch (eventType)
+		{
+			case MY_INPUT_CONSOLE:
+				sys_changeMode (MODE_CONSOLE);
+				break;
+
 		}
 	}
 }

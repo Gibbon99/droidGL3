@@ -26,4 +26,9 @@ void gam_startNewGame ()
 	gam_doorTriggerSetup();
 
 	sys_changeMode (MODE_GAME);
+
+	// Turn on timers for animations
+	gam_setHealingState (true);
+	gam_setPlayerAnimateState(true);
+	gam_setDoorAnimateState (true);
 }

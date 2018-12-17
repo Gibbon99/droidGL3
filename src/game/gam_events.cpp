@@ -86,7 +86,6 @@ int gam_processGameEventQueue ( void *ptr )
 				case USER_EVENT_LEVEL_LOAD_DONE:    // Levels all loaded - do lifts, droids etc
 				{
 					allLevelsLoaded = true;
-					sys_changeMode (MODE_INIT_GAME);
 					break;
 				}
 

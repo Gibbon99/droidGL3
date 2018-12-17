@@ -172,7 +172,7 @@ void io_readConsoleSpecialKeys ( SDL_Keycode key, int action )
 		switch ( key )
 		{
 			case SDLK_BACKQUOTE:
-				sys_changeMode (MODE_GAME);
+				sys_changeMode (-1);        // Back to previous mode
 				conCurrentCharCount = 0;
 				SDL_StopTextInput ();
 				break;
@@ -255,7 +255,7 @@ int io_returnStandardInputActionKeyboard (Uint32 eventType)
       case SDL_KEYUP:
         return MY_INPUT_ACTION_RELEASE;
         break;
-//  TODO Mouse button presses / releases
+
       default:
         break;
     }

@@ -87,13 +87,13 @@ void evt_cursorChangeState ( int newState )
 {
 	switch ( newState )
 	{
-		case USER_EVENT_GAME_TIMER_OFF:
+		case USER_EVENT_TIMER_OFF:
 		{
 			SDL_RemoveTimer (timerCursorFlash);
 			timerCursorFlash = 0;
 			break;
 		}
-		case USER_EVENT_GAME_TIMER_ON:
+		case USER_EVENT_TIMER_ON:
 		{
 			timerCursorFlash = SDL_AddTimer (500, evt_cursorTimerCallback, nullptr);   // Time in milliseconds
 			break;

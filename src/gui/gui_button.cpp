@@ -70,14 +70,25 @@ Uint32 gui_focusAnimateCallback ( Uint32 interval, void *param )
 //------------------------------------------------------------------------
 //
 // Use a timer to animate the colors for the active ( has focus ) button
-void gui_timerFocusAnimation(bool runState)
+void gui_timerFocusAnimation(int newState)
 //------------------------------------------------------------------------
 {
-	static Uint32 timerInterval;
-
-	if ( runState ? (timerInterval = 0) : (timerInterval = focusAnimateIntervalValue))
-
-	guiFocusTimerID = SDL_AddTimer ( timerInterval, gui_focusAnimateCallback, nullptr );   // Time in milliseconds
+	switch ( newState )
+	{
+		case USER_EVENT_TIMER_OFF:
+		{
+			SDL_RemoveTimer (guiFocusTimerID);
+			guiFocusTimerID = 0;
+			break;
+		}
+		case USER_EVENT_TIMER_ON:
+		{
+			guiFocusTimerID = SDL_AddTimer ( focusAnimateIntervalValue, gui_focusAnimateCallback, nullptr );   // Time in milliseconds
+			break;
+		}
+		default:
+			break;
+	}
 }
 
 //--------------------------------------------------------------------------

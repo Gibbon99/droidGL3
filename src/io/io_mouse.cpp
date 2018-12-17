@@ -4,6 +4,7 @@
 vec2 mousePosition{0,0};
 
 SDL_TimerID         getMouseTimer;
+Uint32              getMousePositionInterval;
 
 //-----------------------------------------------------------------------------
 //
@@ -37,17 +38,29 @@ Uint32 io_getMousePositionCallback(Uint32 interval, void *ptr)
 	return interval;
 }
 
-//-----------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
 //
-// Start the mouse timer
-void io_mouseTimerState(bool runState)
-//-----------------------------------------------------------------------------
+// Change the state of the console timer cursor animation
+void io_mouseTimerState ( int newState )
+//------------------------------------------------------------------------
 {
-	static Uint32 timerInterval;
-
-	if ( runState ? (timerInterval = 50) : (timerInterval = 0))
-
-	getMouseTimer = SDL_AddTimer ( timerInterval, io_getMousePositionCallback, nullptr );   // Time in milliseconds
+	switch ( newState )
+	{
+		case USER_EVENT_TIMER_OFF:
+		{
+			SDL_RemoveTimer (getMouseTimer);
+			getMouseTimer = 0;
+			break;
+		}
+		case USER_EVENT_TIMER_ON:
+		{
+			getMouseTimer = SDL_AddTimer ( getMousePositionInterval, io_getMousePositionCallback, nullptr );   // Time in milliseconds
+			break;
+		}
+		default:
+			break;
+	}
 }
 
 //-----------------------------------------------------------------------------

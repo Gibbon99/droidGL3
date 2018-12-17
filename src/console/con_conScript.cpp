@@ -1,5 +1,6 @@
 #include <utility>
 #include <hdr/gui/gui_main.h>
+#include <hdr/game/gam_game.h>
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/script/as_scriptbuilder.h"
 #include "hdr/io/io_logfile.h"
@@ -91,6 +92,8 @@ _hostScriptFunctions hostScriptFunctions[] =
 	{"void as_guiSetObjectLabel    (int guiObjectType, string &in, int labelPos, string &in)", 		( void * ) &gui_hostSetObjectLabel},
 	{"void as_guiAddObjectToScreen (int guiObjectType, string &in, string &in)", 					( void * ) &gui_hostAddObjectToScreen},
 	{"void as_guiSetObjectFunctions(int guiObjectType, string &in, string &in)", 		            ( void * ) &gui_hostSetObjectFunctions},
+
+	{"void gam_startNewGame ()",                                             (void *) &gam_startNewGame},
 	{"",							NULL},
 };
 
@@ -626,7 +629,6 @@ bool con_executeScriptFunction ( string functionName, string funcParam )
 
 	if ( scriptFunctions[i].param1 )
 		{
-		printf("Parameter to pass to script [ %s ]", funcParam.c_str());
 			//
 			// See if it's a number or a string - check first character of the string only
 			if ( isdigit ( funcParam.c_str() [0] ) )

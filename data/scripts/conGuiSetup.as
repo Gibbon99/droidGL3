@@ -1,5 +1,9 @@
 #include "data/scripts/commonDefines.h"
 
+enum myValues { one,
+		two,
+		three};
+
 //------------------------------------------------------------
 //
 // This function is called when a object is clicked
@@ -13,6 +17,7 @@ void as_guiHandleButtonPress ( string &in objectID )
 	{
 		if ( objectID == "buttonStartGame" )
 		{
+			gam_startNewGame();
 			return;
 		}
 
@@ -47,6 +52,7 @@ void as_setupGUI()
 {
 
 	focusAnimateIntervalValue = 7;     // Color animation in milliseconds
+	getMousePositionInterval = 50;      // how often to get the mouse position in milliseconds - to fast is too many events
 
 	as_guiCreateNewScreen ( "scrMainMenu" );
 

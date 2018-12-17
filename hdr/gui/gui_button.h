@@ -6,4 +6,4 @@ extern int              focusAnimateIntervalValue;      // Set from script
 void gui_drawButton(int objectIndex, bool hasFocus);
 
 // Use a timer to animate the colors for the active ( has focus ) button
-void gui_timerFocusAnimation(bool runState);
+void gui_timerFocusAnimation(int newState);
