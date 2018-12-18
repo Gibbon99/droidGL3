@@ -85,11 +85,22 @@ typedef struct
 	SDL_Color           cornerNoFocusColor;    // Color for the check mark with no focus on object
 } _guiCheckBox;
 
+typedef struct
+{
+	_guiObject          attributes;     // Common to all objects
+	int                 gapSize;        // Space between label and editbox
+	int                 lineWidth;      // Thickness of box outline
+	SDL_Color           cornerFocusColor;       // Color for the check mark
+	SDL_Color           cornerNoFocusColor;    // Color for the check mark with no focus on object
+	string              contents;       // Text in the editbox
+} _guiTextBox;
 
 extern int				        currentGUIScreen;
 extern vector<_screenObject>	guiScreens;
 extern vector<_guiButton>       guiButtons;
 extern vector<_guiCheckBox>     guiCheckBoxes;
+extern vector<_guiTextBox>      guiTextBoxes;
+extern vector<_guiObject>       guiLabels;
 
 // Handle a GUI event - called by thread
 int gam_processGuiEventQueue ( void *ptr );
@@ -147,6 +158,9 @@ void gui_hostSetObjectColor(int guiObjectType, string objectID, int whichColor, 
 
 // Set the script function to run when clicked or mouse is over
 void gui_hostSetObjectFunctions(int guiObjectType, string objectID, string clickFunction);
+
+// Find the objectID on the current screen and make it selected
+void gui_setObjectFocus(string objectID);
 
 // Look through the relevant vector to locate the index of the objectID
 //

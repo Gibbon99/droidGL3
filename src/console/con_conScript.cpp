@@ -6,6 +6,7 @@
 #include "hdr/io/io_logfile.h"
 #include "hdr/physfs/physfs.h"
 #include "hdr/gui/gui_checkBox.h"
+#include "hdr/gui/gui_language.h"
 
 unsigned int		numFunctionsInScripts;
 unsigned int		numHostScriptFunctions;
@@ -47,8 +48,10 @@ typedef struct
 
 _scriptInfo     scriptInfo[] =
 {
-	{"conCommands.as",            "script"},
-	{"conGuiSetup.as",            "GUI"},
+	{"conCommands.as",              "script"},
+	{"conGuiSetup.as",              "GUI"},
+	{"langEnglish.as",              "langEnglish"},
+	{"langItalian.as",              "langItalian"},
 	{"",            ""},
 };
 
@@ -94,7 +97,10 @@ _hostScriptFunctions hostScriptFunctions[] =
 	{"void as_guiAddObjectToScreen (int guiObjectType, string &in, string &in)", 					( void * ) &gui_hostAddObjectToScreen},
 	{"void as_guiSetObjectFunctions(int guiObjectType, string &in, string &in)", 		            ( void * ) &gui_hostSetObjectFunctions},
 	{"void as_updateCheckedStatus  (string &in, bool newState)",                                    ( void * ) &gui_updateCheckedStatus},
-	{"void gam_startNewGame ()",                                             (void *) &gam_startNewGame},
+	{"void as_guiSetObjectFocus     (string &in)",                          ( void * ) &gui_setObjectFocus},
+	{"string gui_getString          (string &in )",                         ( void * ) &gui_getString},
+	{"void gui_addKeyAndText        (string &in, string &in)",              ( void * ) &gui_addKeyAndText},
+	{"void gam_startNewGame ()",                                            ( void * ) &gam_startNewGame},
 	{"",							NULL},
 };
 
@@ -125,6 +131,7 @@ _scriptFunctionName     scriptFunctionName[] =
 	{0, false, "cpVect as_vectTest(cpVect cpParam)",        "scr_vectTest",                 NULL},
 	{0, false, "void as_setupGUI()",                        "scr_setupGUI",                 NULL},
 	{0, false, "void as_guiHandleActionEvent(string &in)",  "scr_guiHandleActionEvent",     true},
+	{0, false, "void as_setLanguageStrings()", 		        "as_setLanguageStrings", 		false},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},

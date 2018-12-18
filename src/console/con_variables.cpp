@@ -1,5 +1,6 @@
-#include <hdr/gui/gui_button.h>
-#include <hdr/io/io_mouse.h>
+#include "hdr/gui/gui_button.h"
+#include "hdr/io/io_mouse.h"
+#include "hdr/gui/gui_language.h"
 #include "hdr/game/gam_lightCaster.h"
 #include "hdr/game/gam_render.h"
 #include "hdr/game/gam_healing.h"
@@ -53,6 +54,7 @@ _hostScriptFunctions hostVariables[] =
 	{"int currentObjectSelected",           &currentObjectSelected},
 	{"int focusAnimateIntervalValue",       &focusAnimateIntervalValue},
 	{"int getMousePositionInterval",        &getMousePositionInterval},
+	{"int currentLanguage",                 &currentLanguage},
 	{"",                                    nullptr},
 };
 

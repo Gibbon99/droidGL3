@@ -11,8 +11,6 @@ using namespace std;
 
 enum myEvents
 {
-
-
 USER_EVENT_MOUSE = 0,
 USER_EVENT_AUDIO,
 USER_EVENT_CONSOLE,

@@ -29,12 +29,16 @@ SDL_Color                               focusAnimateColor;
 vector<_screenObject>	                guiScreens;
 vector<_guiButton>                      guiButtons;
 vector<_guiCheckBox>                    guiCheckBoxes;
+vector<_guiTextBox>                     guiTextBoxes;
+vector<_guiObject>                      guiLabels;
 
 std::string                             guiFontName;
 
 _screenObject                           tmpScreen;
 _guiButton                              tmpGuiButton;
 _guiCheckBox                            tmpGuiCheckBox;
+_guiTextBox                             tmpGuiTextBox;
+_guiObject                              tmpLabel;
 
 //----------------------------------------------------------------
 //
@@ -73,10 +77,9 @@ int gam_processGuiEventQueue ( void *ptr )
 					switch ( tempEventData.data1 )
 					{
 						case USER_EVENT_GUI_MOUSE_TIMER:
-						{
 							io_mouseTimerState ( tempEventData.data2 );
 							break;
-						}
+
 						case USER_EVENT_GUI_ANIMATE_TIMER:
 							gui_timerFocusAnimation( tempEventData.data2 );
 							break;
@@ -95,6 +98,48 @@ int gam_processGuiEventQueue ( void *ptr )
 	return 0;
 }
 
+
+//-----------------------------------------------------------------------------
+//
+// Find the objectID on the current screen and make it selected
+void gui_setObjectFocus(string objectID)
+//-----------------------------------------------------------------------------
+{
+	int indexCount = 0;
+
+	for (indexCount = 0; indexCount != (int)guiScreens[currentGUIScreen].objectIDIndex.size(); indexCount++)
+	{
+		switch (guiScreens[currentGUIScreen].objectType[indexCount])
+		{
+			case GUI_OBJECT_BUTTON:
+				if (guiButtons[guiScreens[currentGUIScreen].objectIDIndex[indexCount]].attributes.objectID == objectID)
+				{
+					guiScreens[currentGUIScreen].selectedObject = indexCount;
+					return;
+				}
+				break;
+
+			case GUI_OBJECT_CHECKBOX:
+				if (guiCheckBoxes[guiScreens[currentGUIScreen].objectIDIndex[indexCount]].attributes.objectID == objectID)
+				{
+					guiScreens[currentGUIScreen].selectedObject = indexCount;
+					return;
+				}
+				break;
+
+			case GUI_OBJECT_TEXTBOX:
+				if (guiTextBoxes[guiScreens[currentGUIScreen].objectIDIndex[indexCount]].attributes.objectID == objectID)
+				{
+					guiScreens[currentGUIScreen].selectedObject = indexCount;
+					return;
+				}
+				break;
+		}
+	}
+	io_logToFile("GUI Error: ObjectID [ %s ] not found", objectID.c_str());
+}
+
+
 //-----------------------------------------------------------------------------
 //
 // Look through the relevant vector to locate the index of the objectID
@@ -110,7 +155,7 @@ int gui_findIndex(int guiObjectType, const string objectID)
 	switch ( guiObjectType )
 	{
 		case GUI_OBJECT_SCREEN:
-			for ( const auto iter : guiScreens )
+			for ( const auto &iter : guiScreens )
 			{
 				if ( iter.screenID == objectID )
 				{
@@ -137,6 +182,30 @@ int gui_findIndex(int guiObjectType, const string objectID)
 			for ( const auto &iter : guiCheckBoxes )
 			{
 				if (iter.attributes.objectID == objectID)
+				{
+					return indexCount;
+				}
+				indexCount++;
+			}
+			return -1;  // Didn't find a match
+			break;
+
+		case GUI_OBJECT_TEXTBOX:
+			for ( const auto &iter : guiTextBoxes )
+			{
+				if (iter.attributes.objectID == objectID)
+				{
+					return indexCount;
+				}
+				indexCount++;
+			}
+			return -1;  // Didn't find a match
+			break;
+
+		case GUI_OBJECT_LABEL:
+			for ( const auto &iter : guiLabels )
+			{
+				if (iter.objectID == objectID)
 				{
 					return indexCount;
 				}
@@ -181,6 +250,23 @@ void gui_hostCreateObject(int guiObjectType, const string objectID)
 			tmpGuiCheckBox.gapSize = 8;
 			tmpGuiCheckBox.lineWidth = 3;
 			guiCheckBoxes.push_back (tmpGuiCheckBox);
+			break;
+
+		case GUI_OBJECT_TEXTBOX:
+			tmpGuiTextBox.attributes.objectID = objectID;
+			tmpGuiTextBox.attributes.canFocus = true;
+			tmpGuiTextBox.attributes.positionCalled = false;
+			tmpGuiTextBox.gapSize = 8;
+			tmpGuiTextBox.lineWidth = 3;
+			tmpGuiTextBox.contents = serverName;    // TODO Change
+			guiTextBoxes.push_back (tmpGuiTextBox);
+			break;
+
+		case GUI_OBJECT_LABEL:
+			tmpLabel.objectID = objectID;
+			tmpLabel.canFocus = false;
+			tmpLabel.positionCalled = false;
+			guiLabels.push_back (tmpLabel);
 			break;
 
 		default:
@@ -266,10 +352,58 @@ void gui_hostSetObjectPosition(int guiObjectType, const string &objectID, int co
 				guiCheckBoxes[objectIndex].attributes.mouseHitBox.y = startY;
 				guiCheckBoxes[objectIndex].attributes.mouseHitBox.w = width;
 				guiCheckBoxes[objectIndex].attributes.mouseHitBox.h = height;
-
-				printf("Mouse checkbox hit [ %i %i %i %i ]\n", startX, startY, width, height);
 			}
 			guiCheckBoxes[objectIndex].attributes.positionCalled = true;
+			break;
+
+		case GUI_OBJECT_TEXTBOX:
+			guiTextBoxes[objectIndex].attributes.coordType = coordType;
+			if (GUI_COORD_TYPE_PERCENT == guiTextBoxes[objectIndex].attributes.coordType)
+			{
+				guiTextBoxes[objectIndex].attributes.boundingBox.w = (int)(winWidth  * ((float)width  / 100.0f));
+				guiTextBoxes[objectIndex].attributes.boundingBox.h = (int)(winHeight * ((float)height / 100.0f));
+
+				guiTextBoxes[objectIndex].attributes.boundingBox.x = (int)((winWidth  * ((float)startX / 100.0f))); // + (guiCheckBoxes[objectIndex].attributes.boundingBox.w / 2));
+				guiTextBoxes[objectIndex].attributes.boundingBox.y = (int)((winHeight * ((float)startY / 100.0f))); // + (guiCheckBoxes[objectIndex].attributes.boundingBox.h / 2));
+
+				guiTextBoxes[objectIndex].attributes.mouseHitBox.x = guiTextBoxes[objectIndex].attributes.boundingBox.x; // + guiCheckBoxes[objectIndex].attributes.boundingBox.w;
+				guiTextBoxes[objectIndex].attributes.mouseHitBox.y = guiTextBoxes[objectIndex].attributes.boundingBox.y;
+				guiTextBoxes[objectIndex].attributes.mouseHitBox.w = guiTextBoxes[objectIndex].attributes.boundingBox.w;
+				guiTextBoxes[objectIndex].attributes.mouseHitBox.h = guiTextBoxes[objectIndex].attributes.boundingBox.h;
+			}
+			else
+			{
+				guiTextBoxes[objectIndex].attributes.boundingBox.x = startX;
+				guiTextBoxes[objectIndex].attributes.boundingBox.y = startY;
+				guiTextBoxes[objectIndex].attributes.boundingBox.w = width;
+				guiTextBoxes[objectIndex].attributes.boundingBox.h = height;
+
+				guiTextBoxes[objectIndex].attributes.mouseHitBox.x = startX;
+				guiTextBoxes[objectIndex].attributes.mouseHitBox.y = startY;
+				guiTextBoxes[objectIndex].attributes.mouseHitBox.w = width;
+				guiTextBoxes[objectIndex].attributes.mouseHitBox.h = height;
+			}
+			guiTextBoxes[objectIndex].attributes.positionCalled = true;
+			break;
+
+		case GUI_OBJECT_LABEL:
+			guiLabels[objectIndex].coordType = coordType;
+			if (GUI_COORD_TYPE_PERCENT == guiLabels[objectIndex].coordType)
+			{
+				guiLabels[objectIndex].boundingBox.w = (int)(winWidth  * ((float)width  / 100.0f));
+				guiLabels[objectIndex].boundingBox.h = (int)(winHeight * ((float)height / 100.0f));
+
+				guiLabels[objectIndex].boundingBox.x = (int)((winWidth  * ((float)startX / 100.0f))); // + (guiCheckBoxes[objectIndex].attributes.boundingBox.w / 2));
+				guiLabels[objectIndex].boundingBox.y = (int)((winHeight * ((float)startY / 100.0f))); // + (guiCheckBoxes[objectIndex].attributes.boundingBox.h / 2));
+			}
+			else
+			{
+				guiLabels[objectIndex].boundingBox.x = startX;
+				guiLabels[objectIndex].boundingBox.y = startY;
+				guiLabels[objectIndex].boundingBox.w = width;
+				guiLabels[objectIndex].boundingBox.h = height;
+			}
+			guiLabels[objectIndex].positionCalled = true;
 			break;
 
 		default:
@@ -319,6 +453,26 @@ void gui_hostSetObjectLabel(int guiObjectType, const string &objectID, int label
 			}
 			guiCheckBoxes[objectIndex].attributes.label = std::move ( newLabel ); // TODO check what this does
 			guiCheckBoxes[objectIndex].attributes.labelPos = labelPos;
+			break;
+
+		case GUI_OBJECT_TEXTBOX:
+			if (!guiTextBoxes[objectIndex].attributes.positionCalled)
+			{
+				con_print(CON_ERROR, true, "GUI object position has not been set [ %s ]", objectID.c_str());
+				return;
+			}
+			guiTextBoxes[objectIndex].attributes.label = std::move ( newLabel ); // TODO check what this does
+			guiTextBoxes[objectIndex].attributes.labelPos = labelPos;
+			break;
+
+		case GUI_OBJECT_LABEL:
+			if (!guiLabels[objectIndex].positionCalled)
+			{
+				con_print(CON_ERROR, true, "GUI object position has not been set [ %s ]", objectID.c_str());
+				return;
+			}
+			guiLabels[objectIndex].label = std::move ( newLabel ); // TODO check what this does
+			guiLabels[objectIndex].labelPos = labelPos;
 			break;
 
 		default:
@@ -375,9 +529,9 @@ void gui_hostAddObjectToScreen(int guiObjectType, string objectID, string whichS
 	{
 		case GUI_OBJECT_BUTTON:
 		case GUI_OBJECT_CHECKBOX:
-//		case GUI_OBJECT_TEXT_LABEL:
+		case GUI_OBJECT_TEXTBOX:
+		case GUI_OBJECT_LABEL:
 //		case GUI_OBJECT_IMAGE:
-//		case GUI_OBJECT_TEXT_BOX:
 //		case GUI_OBJECT_SLIDER:
 //		case GUI_OBJECT_KEYCODE:
 			guiScreens[screenIndex].objectIDIndex.push_back(objectIndex);    // Add objectIndex to the end
@@ -479,6 +633,61 @@ void gui_setObjectColorByIndex(int guiObjectType, int objectIndex, int whichColo
 				case GUI_INACTIVE_LABEL_COL:
 					guiCheckBoxes[objectIndex].attributes.labelNoFocusColor = gui_mapRGBA ( red, green, blue, alpha );
 					break;
+
+				default:
+					break;
+			}
+
+		case GUI_OBJECT_TEXTBOX:
+			switch ( whichColor )
+			{
+				case GUI_ACTIVE_COL:
+					guiTextBoxes[objectIndex].attributes.hasFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_INACTIVE_COL:
+					guiTextBoxes[objectIndex].attributes.noFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_ACTIVE_CORNER_COL:
+					guiTextBoxes[objectIndex].cornerFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_INACTIVE_CORNER_COL:
+					guiTextBoxes[objectIndex].cornerNoFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_ACTIVE_LABEL_COL:
+					guiTextBoxes[objectIndex].attributes.labelHasFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_INACTIVE_LABEL_COL:
+					guiTextBoxes[objectIndex].attributes.labelNoFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				default:
+					break;
+			}
+
+		case GUI_OBJECT_LABEL:
+			switch ( whichColor )
+			{
+				case GUI_ACTIVE_COL:
+					guiLabels[objectIndex].hasFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_INACTIVE_COL:
+					guiLabels[objectIndex].noFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_ACTIVE_LABEL_COL:
+					guiLabels[objectIndex].labelHasFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
+				case GUI_INACTIVE_LABEL_COL:
+					guiLabels[objectIndex].labelNoFocusColor = gui_mapRGBA ( red, green, blue, alpha );
+					break;
+
 				default:
 					break;
 			}
@@ -513,6 +722,14 @@ void gui_hostSetObjectColor(int guiObjectType, string objectID, int whichColor, 
 				numObjects = guiCheckBoxes.size();
 				break;
 
+			case GUI_OBJECT_TEXTBOX:
+				numObjects = guiTextBoxes.size();
+				break;
+
+			case GUI_OBJECT_LABEL:
+				numObjects = guiLabels.size();
+				break;
+
 			default:
 				break;
 		}
@@ -540,7 +757,7 @@ void gui_hostSetObjectColor(int guiObjectType, string objectID, int whichColor, 
 
 //-----------------------------------------------------------------------------
 //
-// Set the script function to run when clicked or mouse is over
+// Set the script function to run when actioned
 void gui_hostSetObjectFunctions(int guiObjectType, string objectID, string clickFunction)
 //-----------------------------------------------------------------------------
 {
@@ -568,6 +785,10 @@ void gui_hostSetObjectFunctions(int guiObjectType, string objectID, string click
 
 		case GUI_OBJECT_CHECKBOX:
 			guiCheckBoxes[objectIndex].attributes.action = clickFunction;
+			break;
+
+		case GUI_OBJECT_TEXTBOX:
+			guiTextBoxes[objectIndex].attributes.action = clickFunction;
 			break;
 
 		default:
@@ -971,7 +1192,11 @@ bool gui_canObjectBeSelected(int objectType)
 	{
 		case GUI_OBJECT_BUTTON:
 		case GUI_OBJECT_CHECKBOX:
+		case GUI_OBJECT_TEXTBOX:
 			return true;
+
+		case GUI_OBJECT_LABEL:
+			return false;
 
 		default:
 			break;
@@ -1020,6 +1245,7 @@ void gui_handleFocusMove(int moveDirection, bool takeAction, int eventSource)
 					if (SDL_PointInRect (&mouseLocation, &guiCheckBoxes[currentObjectSelected].attributes.mouseHitBox))
 						con_executeScriptFunction (guiCheckBoxes[currentObjectSelected].attributes.action, guiCheckBoxes[currentObjectSelected].attributes.objectID);
 				}
+
 			default:
 				break;
 		}
@@ -1089,6 +1315,8 @@ void gui_handleFocusMove(int moveDirection, bool takeAction, int eventSource)
 void gui_handleInputEvent(int eventAction, int eventType, int eventSource)
 //-----------------------------------------------------------------------------
 {
+	std::string tempString;
+
 	if (eventAction == MY_INPUT_ACTION_RELEASE)
 	{
 		switch ( eventType )
@@ -1113,6 +1341,15 @@ void gui_handleInputEvent(int eventAction, int eventType, int eventSource)
 				break;
 
 			default:
+				if (GUI_OBJECT_TEXTBOX == guiScreens[currentGUIScreen].objectType[guiScreens[currentGUIScreen].selectedObject])
+				{
+					if (eventType == SDLK_BACKSPACE)
+					{
+						guiTextBoxes[guiScreens[currentGUIScreen].objectIDIndex[guiScreens[currentGUIScreen].selectedObject]].contents.clear();
+						return;
+					}
+					guiTextBoxes[guiScreens[currentGUIScreen].objectIDIndex[guiScreens[currentGUIScreen].selectedObject]].contents += eventType;
+				}
 				break;
 		}
 	}
@@ -1159,6 +1396,13 @@ void gui_handleMouseMotion(glm::vec2 mousePosition)
 
 			case GUI_OBJECT_CHECKBOX:
 				if (SDL_PointInRect (&mousePoint, &guiCheckBoxes[guiScreens[currentGUIScreen].objectIDIndex[indexCount]].attributes.mouseHitBox))
+				{
+					guiScreens[currentGUIScreen].selectedObject = indexCount;
+				}
+				break;
+
+			case GUI_OBJECT_TEXTBOX:
+				if (SDL_PointInRect (&mousePoint, &guiTextBoxes[guiScreens[currentGUIScreen].objectIDIndex[indexCount]].attributes.mouseHitBox))
 				{
 					guiScreens[currentGUIScreen].selectedObject = indexCount;
 				}

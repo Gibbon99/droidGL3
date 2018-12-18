@@ -260,6 +260,8 @@ int io_returnStandardInputActionKeyboard (Uint32 eventType)
 int io_returnStandardInputValueKeyboard (SDL_Keycode keyValue)
 //--------------------------------------------------------------------------
 {
+	//
+	// TODO Map different values according to the current MODE ??
   switch (keyValue)
     {
       case SDLK_BACKQUOTE:
@@ -282,30 +284,25 @@ int io_returnStandardInputValueKeyboard (SDL_Keycode keyValue)
         return MY_INPUT_DOWN;
       break;
 
-    	case SDLK_ESCAPE:
-    		return MY_INPUT_ESCAPE;
-    		break;
+      case SDLK_ESCAPE:
+        return MY_INPUT_ESCAPE;
+      break;
 
       case SDLK_RETURN:
     		return MY_INPUT_ACTION;
 	  break;
 
-      case SDLK_w:
-        return MY_INPUT_FORWARD;
-      break;
-
-      case SDLK_s:
-        return MY_INPUT_BACKWARD;
-      break;
-
       case SDLK_F12:
 //				io_saveScreenToFile ();
         break;
 
-      case SDLK_p:
+    	case SDLK_PAUSE:
         return MY_INPUT_PAUSE;
       break;
 
+     default:
+        return keyValue;
+     break;
     }
 
     return -1;

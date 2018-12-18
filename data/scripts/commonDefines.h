@@ -17,6 +17,8 @@ const int GUI_LABEL_RIGHT           = 2;
 const int GUI_OBJECT_SCREEN         = 1;
 const int GUI_OBJECT_BUTTON         = 2;
 const int GUI_OBJECT_CHECKBOX       = 3;
+const int GUI_OBJECT_TEXTBOX        = 4;
+const int GUI_OBJECT_LABEL          = 5;
 
 //
 //		Defines for Game Modes
@@ -74,3 +76,9 @@ enum mySounds
 	SND_DOOR,
 	NUM_SOUNDS
 };
+
+//
+// Defines for different languages and strings
+//
+const int LANG_ENGLISH = 0;
+const int LANG_ITALIAN = 1;
