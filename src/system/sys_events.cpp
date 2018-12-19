@@ -30,7 +30,7 @@ SDL_mutex *guiMutex;
 SDL_mutex *levelMutex;
 SDL_mutex *textureSetMutex;
 
-SDL_mutex *networkOutMutex;
+SDL_mutex *networkInMutex;
 
 SDL_mutex *serverEventInMutex;
 SDL_mutex *clientEventInMutex;
@@ -335,10 +335,10 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 			break;
 
 		case USER_EVENT_NETWORK_OUT:    // Send a packet OUT to clients
-			if ( SDL_LockMutex (networkOutMutex) == 0 )
+			if ( SDL_LockMutex (networkInMutex) == 0 )
 			{
 				networkOutQueue.push (eventData);
-				SDL_UnlockMutex (networkOutMutex);
+				SDL_UnlockMutex (networkInMutex);
 			}
 			break;
 
@@ -352,10 +352,10 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 
 			/*
 		case USER_EVENT_NETWORK_FROM_CLIENT:    // Send packet OUT to the server
-			if ( SDL_LockMutex (networkOutMutex) == 0 )
+			if ( SDL_LockMutex (networkInMutex) == 0 )
 			{
 				networkClientOutQueue.push (eventData);
-				SDL_UnlockMutex (networkOutMutex);
+				SDL_UnlockMutex (networkInMutex);
 			}
 			break;
 */

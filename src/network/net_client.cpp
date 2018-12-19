@@ -25,17 +25,22 @@ bool net_startClient(int serverPort)
 
 //-----------------------------------------------------------------------------------------------------
 //
+// Send an unconnected broadcast ping to locate a server
+void net_clientSendDiscoverPing(unsigned short serverPort)
+//-----------------------------------------------------------------------------------------------------
+{
+	netClient->Ping( "255.255.255.255", serverPort, false);
+	printf("Pinging to locate server.\n");
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
 /// \param argc
 /// \param argv
 /// \return
-bool net_clientConnectTo( const string &serverName, int serverPort )
+bool net_clientConnectTo( const string &serverName, unsigned short serverPort )
 //-----------------------------------------------------------------------------------------------------
 {
-
-	netClient->Ping("255.255.255.255", serverPort, false);
-	printf("Pinging to locate server.\n");
-
-//return true;
 
 	printf("CLIENT: Connect to [ %s : %i ]\n", serverName.c_str(), serverPort);
 

@@ -111,7 +111,7 @@ extern SDL_mutex *guiMutex;
 extern SDL_mutex *levelMutex;
 extern SDL_mutex *textureSetMutex;
 
-extern SDL_mutex *networkOutMutex;
+extern SDL_mutex *networkInMutex;
 
 extern SDL_mutex *serverEventInMutex;
 extern SDL_mutex *clientEventInMutex;
