@@ -22,7 +22,13 @@ void as_guiHandleActionEvent ( string &in objectID )
 	{
 		if ( objectID == "buttonStartGame" )
 		{
-			gam_startNewGame();
+			gam_startNewGame(NET_GAME_SINGLE);
+			return;
+		}
+
+		if ( objectID == "buttonJoinGame" )
+		{
+			gam_startNewGame(NET_GAME_JOIN_NETWORK);
 			return;
 		}
 
@@ -101,26 +107,31 @@ void as_setupGUI()
 	as_guiCreateNewScreen ( "scrMainMenu" );
 
 	as_guiCreateObject ( GUI_OBJECT_BUTTON, "buttonStartGame" );
+	as_guiCreateObject ( GUI_OBJECT_BUTTON, "buttonJoinGame" );
 	as_guiCreateObject ( GUI_OBJECT_BUTTON, "buttonOptions" );
 	as_guiCreateObject ( GUI_OBJECT_BUTTON, "buttonStartTutorial" );
 	as_guiCreateObject ( GUI_OBJECT_BUTTON, "buttonQuit" );
 
 	as_guiAddObjectToScreen ( GUI_OBJECT_BUTTON, "buttonStartGame", "scrMainMenu" );
+	as_guiAddObjectToScreen ( GUI_OBJECT_BUTTON, "buttonJoinGame", "scrMainMenu" );
 	as_guiAddObjectToScreen ( GUI_OBJECT_BUTTON, "buttonOptions", "scrMainMenu" );
 	as_guiAddObjectToScreen ( GUI_OBJECT_BUTTON, "buttonStartTutorial", "scrMainMenu" );
 	as_guiAddObjectToScreen ( GUI_OBJECT_BUTTON, "buttonQuit", "scrMainMenu" );
 
 	as_guiSetObjectPosition ( GUI_OBJECT_BUTTON, "buttonStartGame", GUI_COORD_TYPE_PERCENT,      50, 10, 30, 10 );
-	as_guiSetObjectPosition ( GUI_OBJECT_BUTTON, "buttonOptions", GUI_COORD_TYPE_PERCENT,        50, 30, 30, 10 );
-	as_guiSetObjectPosition ( GUI_OBJECT_BUTTON, "buttonStartTutorial", GUI_COORD_TYPE_PERCENT,  50, 50, 30, 10 );
+	as_guiSetObjectPosition ( GUI_OBJECT_BUTTON, "buttonJoinGame", GUI_COORD_TYPE_PERCENT,       50, 25, 30, 10 );
+	as_guiSetObjectPosition ( GUI_OBJECT_BUTTON, "buttonOptions", GUI_COORD_TYPE_PERCENT,        50, 40, 30, 10 );
+	as_guiSetObjectPosition ( GUI_OBJECT_BUTTON, "buttonStartTutorial", GUI_COORD_TYPE_PERCENT,  50, 55, 30, 10 );
 	as_guiSetObjectPosition ( GUI_OBJECT_BUTTON, "buttonQuit", GUI_COORD_TYPE_PERCENT,           50, 70, 30, 10 );
 
 	as_guiSetObjectLabel ( GUI_OBJECT_BUTTON, "buttonStartGame",     GUI_LABEL_CENTER, gui_getString ( "startGame" ) );
+	as_guiSetObjectLabel ( GUI_OBJECT_BUTTON, "buttonJoinGame",      GUI_LABEL_CENTER, gui_getString ( "joinGame" ) );
 	as_guiSetObjectLabel ( GUI_OBJECT_BUTTON, "buttonOptions",       GUI_LABEL_CENTER, gui_getString ( "options" ) );
 	as_guiSetObjectLabel ( GUI_OBJECT_BUTTON, "buttonStartTutorial", GUI_LABEL_CENTER, gui_getString ( "tutorial" ) );
 	as_guiSetObjectLabel ( GUI_OBJECT_BUTTON, "buttonQuit",          GUI_LABEL_CENTER, gui_getString ( "exit" ) );
 
 	as_guiSetObjectFunctions ( GUI_OBJECT_BUTTON, "buttonStartGame",     "scr_guiHandleActionEvent");
+	as_guiSetObjectFunctions ( GUI_OBJECT_BUTTON, "buttonJoinGame",      "scr_guiHandleActionEvent");
 	as_guiSetObjectFunctions ( GUI_OBJECT_BUTTON, "buttonOptions",       "scr_guiHandleActionEvent");
 	as_guiSetObjectFunctions ( GUI_OBJECT_BUTTON, "buttonStartTutorial", "scr_guiHandleActionEvent");
 	as_guiSetObjectFunctions ( GUI_OBJECT_BUTTON, "buttonQuit",          "scr_guiHandleActionEvent");

@@ -40,6 +40,7 @@ extern RakNet::RakPeerInterface     *netServer;
 extern bool     isServer;
 extern bool     isClient;
 
+extern std::string      connectionPassword;
 extern std::string   serverName;
 extern int      serverPort;
 

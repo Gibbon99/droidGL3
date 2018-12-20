@@ -4,4 +4,4 @@
 
 
 // Start a new game
-void gam_startNewGame ();
+void gam_startNewGame (int gameType);

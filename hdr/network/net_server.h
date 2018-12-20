@@ -17,7 +17,7 @@ extern std::vector<_netClientInfo> netClientInfo;
 
 extern int              maxNumClients;  // From script
 
-bool net_startServer( const std::string &hostAddress, unsigned short hostPort, unsigned short netMaxNumClients );
+bool net_startServer( unsigned short hostPort, unsigned short netMaxNumClients );
 
 // Send the client world position according to the server
 void net_sendPositionUpdate ( int whichClient );

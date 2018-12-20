@@ -17,14 +17,16 @@ RakNet::RakPeerInterface *netServer = nullptr;
 
 RakNet::Packet          netServerPacket;
 
+std::string      connectionPassword;
+
 bool            isServer = true;
 bool            isClient = true;
 
-std::string     serverName;
 int             serverPort;
 
 bool            serverRunning = false;
 bool            clientRunning = false;
+bool            clientConnected = false;
 
 SDL_Thread      *userEventNetworkInThread;
 
@@ -68,50 +70,6 @@ void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichCl
 }
 
 //-----------------------------------------------------------------------------------------------------
-//
-// Start the server from the console
-void net_consoleStartNetServer()
-//-----------------------------------------------------------------------------------------------------
-{
-	if (!net_startServer ( serverName, serverPort, static_cast<unsigned short>(maxNumClients)))
-	{
-		con_print(CON_ERROR, true, "Unable to start the server.");
-		serverRunning = false;
-		return;
-	}
-	serverRunning = true;
-	isServer = true;
-}
-
-//-----------------------------------------------------------------------------------------------------
-//
-// Connect to the server
-void net_consoleStartNetClient()
-//-----------------------------------------------------------------------------------------------------
-{
-	net_startClient (serverPort);
-
-	clientRunning = true;
-
-	for (int i = 0; i != 5; i++)
-	{
-		SDL_Delay(500);
-
-		net_clientSendDiscoverPing(serverPort);
-		/*
-		if ( !net_clientConnectTo ( serverName, serverPort ))
-		{
-			con_print ( CON_ERROR, true, "Unable to connect to the server." );
-			clientRunning = false;
-			return;
-		}
-		 */
-	}
-//	sys_changeMode (MODE_INIT_GAME);
-}
-
-
-//-----------------------------------------------------------------------------------------------------
 // If the first byte is ID_TIMESTAMP, then we want the 5th byte
 // Otherwise we want the 1st byte
 unsigned char net_getPacketIdentifier( RakNet::Packet *p )
@@ -141,7 +99,29 @@ unsigned char net_getPacketIdentifier( RakNet::Packet *p )
 bool net_initLibrary ()
 //-----------------------------------------------------------------------------------------------------
 {
+	connectionPassword = "ParaDroid";
 
+	// Not running by default
+	serverRunning = false;
+	//
+	// See if we are even a server
+	if (isServer)
+	{
+		if ( !net_startServer ( static_cast<unsigned short>(serverPort), static_cast<unsigned short>(maxNumClients)))
+			return false;
+		// Yes we are, and we are now listening
+		serverRunning = true;
+	}
+
+	clientRunning = false;
+	// We will always have a client ( local for a single player game )
+	if (!net_startClient (serverPort))
+		return false;
+	clientRunning = true;
+	clientConnected = false;
+
+	//
+	// Now start the listening thread
 	userEventNetworkInThread = SDL_CreateThread (net_processNetworkTraffic, "net_processNetworkTraffic", (void *) nullptr);
 	if ( nullptr == userEventNetworkInThread )
 	{
@@ -236,10 +216,8 @@ int net_processNetworkTraffic( void *ptr )
 
 					case ID_CONNECTION_REQUEST_ACCEPTED:
 						// This tells the client they have connected
-						printf ( "ID_CONNECTION_REQUEST_ACCEPTED to %s with GUID %s\n",
-						         p->systemAddress.ToString ( true ), p->guid.ToString ());
-						printf ( "My external address is %s\n",
-						         netClient->GetExternalID ( p->systemAddress ).ToString ( true ));
+
+						net_clientConnectionAccepted(p->systemAddress, p->guid);
 
 						netServerPacket.systemAddress = p->systemAddress;
 						netServerPacket.guid = p->guid;
@@ -251,6 +229,7 @@ int net_processNetworkTraffic( void *ptr )
 						break;
 
 					case ID_UNCONNECTED_PONG:
+						net_clientGotPong(p->systemAddress);
 						printf ( "Got pong from %s \n", p->systemAddress.ToString ());
 						break;
 

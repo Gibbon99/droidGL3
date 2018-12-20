@@ -144,7 +144,7 @@ void sys_gameTickRun()
 			break;
 
 		case MODE_INIT_GAME:
-			gam_startNewGame ();
+			//gam_startNewGame ();
 			break;
 
 		case MODE_GAME:

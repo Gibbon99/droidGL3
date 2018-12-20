@@ -40,6 +40,7 @@ void as_setEnglishText()
 	gui_addKeyAndText("deadlock",			"Deadlock");
 
 	gui_addKeyAndText("startGame", 			"Start Game");
+	gui_addKeyAndText("joinGame", 			"Join Game");
 	gui_addKeyAndText("tutorial", 			"Tutorial");
 	gui_addKeyAndText("options", 			"Options");
 	gui_addKeyAndText("help", 				"Information");

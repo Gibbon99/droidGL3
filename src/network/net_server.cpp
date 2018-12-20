@@ -11,50 +11,33 @@ int                     maxNumClients;  // From script
 /// \param argc
 /// \param argv
 /// \return
-bool net_startServer( const string &hostAddress, unsigned short hostPort, unsigned short netMaxNumClients )
+bool net_startServer( unsigned short hostPort, unsigned short netMaxNumClients )
 //-----------------------------------------------------------------------------------------------------
 {
 	bool serverStartResult;
 
-	RakNet::SocketDescriptor socketDescriptors[2];
+	netServer = RakNet::RakPeerInterface::GetInstance();
 
-	printf("Server IP: [ %s ]\n", hostAddress.c_str());
-
-	strcpy(socketDescriptors[0].hostAddress, hostAddress.c_str());
-	socketDescriptors[0].port = hostPort;
-	socketDescriptors[0].socketFamily = AF_INET; // Test out IPV4
-
-	strcpy(socketDescriptors[1].hostAddress, "::1");
-	socketDescriptors[1].port = hostPort;
-	socketDescriptors[1].socketFamily = AF_INET6; // Test out IPV6
+	RakNet::SocketDescriptor socketDescriptor(hostPort, nullptr);       // Just tell is a port to listen on
+	socketDescriptor.socketFamily = AF_INET;                            // Use IPv4 for auto discovery for clients
 
 	netServer = RakNet::RakPeerInterface::GetInstance ();
-//	netServer->SetIncomingPassword("Rumpelstiltskin", (int)strlen("Rumpelstiltskin"));
+	netServer->SetIncomingPassword(connectionPassword.c_str(), connectionPassword.length());
 	netServer->SetTimeoutTime(30000,RakNet::UNASSIGNED_SYSTEM_ADDRESS);
 
-	serverStartResult = netServer->Startup(netMaxNumClients, socketDescriptors, 1 ) == RakNet::RAKNET_STARTED;  // Only use 1 socketDescriptor ( IPv4)
+	serverStartResult = netServer->Startup(netMaxNumClients, &socketDescriptor, 1 ) == RakNet::RAKNET_STARTED;  // Only use 1 socketDescriptor ( IPv4)
 	netServer->SetMaximumIncomingConnections(netMaxNumClients);
 
 	if (!serverStartResult)
 	{
-		printf("Failed to start dual IPV4 and IPV6 ports. Trying IPV4 only.\n");
-
-		// Try again, but leave out IPV6
-		serverStartResult = netServer->Startup(netMaxNumClients, socketDescriptors, 1 ) == RakNet::RAKNET_STARTED;
-		if (!serverStartResult)
-		{
-			printf("Server failed to start.  Terminating.\n");
-			return false;
-		}
+		con_print(CON_ERROR, true, "Server failed to start. Is the port [ %i ] already in use?", hostPort);
+		return false;
 	}
+
 	netServer->SetOccasionalPing(true);
 	netServer->SetUnreliableTimeout(1000);
 
-	printf("Server: Max number of connections [ %i ]\n", netMaxNumClients);
-
-	unsigned int i;
-	for (i = 0; i < netServer->GetNumberOfAddresses(); i++)
-		printf("Server address : [ %s ]\n", netServer->GetLocalIP (i));
+	con_print(CON_INFO, true, "Server: Max number of connections [ %i ]", netMaxNumClients);
 
 //	printf("External address : [ %s ]\n", netServer->GetExternalID (netServer->))
 

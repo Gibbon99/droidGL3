@@ -4,8 +4,6 @@
 #include <hdr/opengl/gl_renderSprite.h>
 #include <hdr/game/gam_healing.h>
 #include <hdr/game/gam_player.h>
-#include <hdr/network/net_server.h>
-#include <hdr/network/net_client.h>
 #include <hdr/game/gam_doors.h>
 #include <hdr/game/gam_physicsCollisions.h>
 #include <hdr/game/gam_physicsPlayer.h>
@@ -171,8 +169,6 @@ bool sys_initAll()
 
 		gam_setPlayerAnimateState ( false );
 		gam_initPlayerAnimateTimer (150 );
-
-		net_initLibrary ();
 
 		if (!gui_initGUI())
 		{

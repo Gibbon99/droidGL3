@@ -3,14 +3,32 @@
 #include <hdr/game/gam_healing.h>
 #include <hdr/game/gam_player.h>
 #include <hdr/game/gam_doors.h>
+#include <hdr/network/net_client.h>
 #include "gam_game.h"
 
 //------------------------------------------------------------------------------
 //
 // Start a new game
-void gam_startNewGame ()
+void gam_startNewGame (int gameType)
 //------------------------------------------------------------------------------
 {
+	switch (gameType)
+	{
+		case NET_GAME_JOIN_NETWORK:
+			isServer = false;
+			break;
+
+		case NET_GAME_SINGLE:
+			isServer = true;
+			break;
+
+		default:
+			break;
+	}
+	net_initLibrary ();
+
+	net_startConnectionToServer(USER_EVENT_TIMER_ON);
+
   //
   // Turn off timers while changing level
 	gam_setHealingState (false);

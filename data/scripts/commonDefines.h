@@ -5,6 +5,10 @@ const float AUDIO_PAN_CENTER = 0.0f;
 const float AUDIO_PAN_LEFT =  -1.0f;
 const float AUDIO_PAN_RIGHT =  1.0f;
 
+const int NET_GAME_SINGLE          = 0;
+const int NET_GAME_JOIN_NETWORK    = 1;
+
+
 const int GUI_COORD_TYPE_PIXEL      = 0;
 const int GUI_COORD_TYPE_PERCENT    = 1;
 
