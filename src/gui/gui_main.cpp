@@ -12,7 +12,7 @@
 #include "hdr/gui/gui_render.h"
 #include "hdr/system/sys_sdfFont.h"
 
-#define DEBUG_GUI_SETUP 1
+//#define DEBUG_GUI_SETUP 1
 
 
 SDL_Renderer                            *renderer = nullptr;
@@ -577,6 +577,12 @@ void gui_setObjectColorByIndex(int guiObjectType, int objectIndex, int whichColo
 		//
 		// Colors for guiButton
 		case GUI_OBJECT_BUTTON:
+			if (objectIndex > guiButtons.size() - 1)
+			{
+				con_print(CON_ERROR, true, "Index used to access guiButtons is too large.");
+				return;
+			}
+
 			switch ( whichColor )
 			{
 				case GUI_ACTIVE_COL:
@@ -606,8 +612,15 @@ void gui_setObjectColorByIndex(int guiObjectType, int objectIndex, int whichColo
 				default:
 					break;
 			}
+			break;
 
 		case GUI_OBJECT_CHECKBOX:
+			if (objectIndex > guiCheckBoxes.size() - 1)
+			{
+				con_print(CON_ERROR, true, "Index used to access guiButtons is too large.");
+				return;
+			}
+
 			switch ( whichColor )
 			{
 				case GUI_ACTIVE_COL:
@@ -637,8 +650,15 @@ void gui_setObjectColorByIndex(int guiObjectType, int objectIndex, int whichColo
 				default:
 					break;
 			}
+			break;
 
 		case GUI_OBJECT_TEXTBOX:
+			if (objectIndex > guiTextBoxes.size() - 1)
+			{
+				con_print(CON_ERROR, true, "Index used to access guiButtons is too large.");
+				return;
+			}
+
 			switch ( whichColor )
 			{
 				case GUI_ACTIVE_COL:
@@ -668,8 +688,15 @@ void gui_setObjectColorByIndex(int guiObjectType, int objectIndex, int whichColo
 				default:
 					break;
 			}
+			break;
 
 		case GUI_OBJECT_LABEL:
+			if (objectIndex > guiLabels.size() - 1)
+			{
+				con_print(CON_ERROR, true, "Index used to access guiButtons is too large.");
+				return;
+			}
+
 			switch ( whichColor )
 			{
 				case GUI_ACTIVE_COL:
@@ -691,6 +718,7 @@ void gui_setObjectColorByIndex(int guiObjectType, int objectIndex, int whichColo
 				default:
 					break;
 			}
+			break;
 
 		default:
 			break;
@@ -737,7 +765,7 @@ void gui_hostSetObjectColor(int guiObjectType, string objectID, int whichColor, 
 		if (numObjects == 0)
 			return;
 
-		for (int i = 0; i != numObjects; i++)	// Loop through each object and set it's color
+		for (int i = 0; i < numObjects; i++)	// Loop through each object and set it's color
 			gui_setObjectColorByIndex(guiObjectType, i, whichColor, red, green, blue, alpha);
 	}
 	else    // Just setting color for one object
@@ -808,6 +836,9 @@ void gui_displayGUI()
 			0.0, 0.0,
 			1.0, 0.0,
 			1.0, 1.0};  // Y is reversed for this texture
+
+	if (!guiReady)
+		return;
 
 	glViewport (0, 0, winWidth, winHeight);
 	gl_set2DMode(glm::vec2{0,0}, glm::vec2{winWidth,winHeight}, glm::vec3(1, 1, 1));
@@ -907,6 +938,8 @@ bool gui_initGUI()
 	amask = 0xff000000;
 #endif
 
+	printf("About to initGUI.\n");
+
 	if (nullptr == guiSurface)
 	{
 		guiSurface = SDL_CreateRGBSurface ( 0, winWidth, winHeight, 32, rmask, gmask, bmask, amask );
@@ -931,11 +964,13 @@ bool gui_initGUI()
 		}
 	}
 
-	guiReady = true;
-
 	gui_setFontName("fontDigital32");
 
 	con_executeScriptFunction ("scr_setupGUI", "");
+
+	guiReady = true;
+
+	printf("Init GUI done - font loaded, GUI script all run - guiReady set to true\n");
 
 	return true;
 }

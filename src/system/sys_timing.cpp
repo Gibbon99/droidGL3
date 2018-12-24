@@ -26,5 +26,5 @@ void sys_initTimingVars ()
 	fps = 0;
 	thinkFPS = 0;
 
-	fpsTimerID = SDL_AddTimer (1000, fpsTimerCallback, nullptr);     // Every one second
+	fpsTimerID = evt_registerTimer(1000, fpsTimerCallback, "FPS Counter");
 }

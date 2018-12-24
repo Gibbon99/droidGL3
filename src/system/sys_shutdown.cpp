@@ -18,6 +18,8 @@
 void sys_shutdownToSystem ()
 //-----------------------------------------------------------------------------------------------------
 {
+	evt_removeAllTimers();
+
 	sys_destroyPlayerPhysics ();
 	sys_freePhysicsEngine ();
 	gl_displayErrors ();

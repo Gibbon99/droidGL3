@@ -269,7 +269,7 @@ void gl_registerDebugCallback ()
 //-----------------------------------------------------------------------------
 //
 // Draw a 2D quad - uses ortho matrix to draw - screen pixel coordinates
-void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader, GLuint whichTexture, glm::vec3 colorKey, glm::vec3 tintColor, float textureCoords[])
+void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichShader, GLuint whichTexture, glm::vec3 colorKey, glm::vec3 tintColor, float textureCoords[])
 //-----------------------------------------------------------------------------
 {
 	glm::vec3           quadVerts[4];
@@ -328,7 +328,6 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, string whichShader,
 
 	GL_CHECK (glActiveTexture (GL_TEXTURE1));
 	GL_CHECK (glBindTexture (GL_TEXTURE_2D, io_getTextureID ("lightcaster")));
-
 
 	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture0"), 0));
 //	GL_CHECK (glUniform1i (gl_getUniform (whichShader, "inTexture1"), 1));

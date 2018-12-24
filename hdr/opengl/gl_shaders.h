@@ -14,4 +14,4 @@ GLint gl_getUniform ( string whichShader, string keyName );
 
 // If variable is not found, still record, but mark has invalid - count how many
 // times it is called.
-GLuint gl_getAttrib ( string whichShader, string keyName );
+int gl_getAttrib ( string whichShader, string keyName );

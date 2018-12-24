@@ -80,28 +80,24 @@ _hostScriptFunctions hostScriptFunctions[] =
 	{"void conPushCommand_AS(string &in)",                              (void * ) con_pushScriptCommand},
 	{"bool startPackFile(string &in, string &in)",                      (void * ) io_startFileSystem},
 	{"bool startLogFile(string &in)",                                   (void * ) io_startLogFile},
-//	{"void lib_resizeWindow(int newWidth, int newHeight)",              (void * ) lib_resizeWindow},
-//	{"void sdf_addFontInfo(uint whichFont, string &in, uint fontSize)", (void * ) sdf_addFontInfo},
-//	{"bool sdf_initFontSystem()",	                                    (void * ) sdf_initFontSystem},
 	{"void sys_changeMode(int newMode)",                                (void * ) sys_changeMode},
-//	{"void aud_setAudioGain(int newLevel)",                             (void * ) aud_setAudioGain},
 	{"void sys_testVect(cpVect &out)",                                  (void * ) sys_testVect},
 	{"void PrintVariables()",                                           (void * ) PrintVariables},
 
-	{"void as_guiCreateNewScreen		(string &in)", 						( void * ) &gui_hostCreateNewScreen},
-	{"void as_guiCreateObject			(int guiObjectType, string &in)", 	( void * ) &gui_hostCreateObject},
-	{"int as_guiFindIndex				(int guiObjectType, string &in)", 	( void * ) &gui_findIndex},
+	{"void as_guiCreateNewScreen   (string &in)", 						( void * ) &gui_hostCreateNewScreen},
+	{"void as_guiCreateObject	   (int guiObjectType, string &in)", 	( void * ) &gui_hostCreateObject},
+	{"int as_guiFindIndex		   (int guiObjectType, string &in)", 	( void * ) &gui_findIndex},
 	{"void as_guiSetObjectColor    (int guiObjectType, string &in, int whichColor, int red, int green, int blue, int alpha)", 		( void * ) &gui_hostSetObjectColor},
 	{"void as_guiSetObjectPosition (int guiObjectType, string &in, int coordType, int startX, int startY, int width, int height)", 	( void * ) &gui_hostSetObjectPosition},
 	{"void as_guiSetObjectLabel    (int guiObjectType, string &in, int labelPos, string &in)", 		( void * ) &gui_hostSetObjectLabel},
 	{"void as_guiAddObjectToScreen (int guiObjectType, string &in, string &in)", 					( void * ) &gui_hostAddObjectToScreen},
 	{"void as_guiSetObjectFunctions(int guiObjectType, string &in, string &in)", 		            ( void * ) &gui_hostSetObjectFunctions},
 	{"void as_updateCheckedStatus  (string &in, bool newState)",                                    ( void * ) &gui_updateCheckedStatus},
-	{"void as_guiSetObjectFocus     (string &in)",                          ( void * ) &gui_setObjectFocus},
-	{"string gui_getString          (string &in )",                         ( void * ) &gui_getString},
-	{"void gui_addKeyAndText        (string &in, string &in)",              ( void * ) &gui_addKeyAndText},
-	{"void gam_startNewGame (int gameType)",                                ( void * ) &gam_startNewGame},
-	{"",							NULL},
+	{"void as_guiSetObjectFocus    (string &in)",                          ( void * ) &gui_setObjectFocus},
+	{"string gui_getString         (string &in )",                         ( void * ) &gui_getString},
+	{"void gui_addKeyAndText       (string &in, string &in)",              ( void * ) &gui_addKeyAndText},
+	{"void gam_startNewGame        (int gameType)",                        ( void * ) &gam_startNewGame},
+	{"",							nullptr},
 };
 
 //{"void as_gui_changeToGUIScreen		(int newScreen)", 					( const void * ) &gui_changeToGUIScreen},
@@ -128,10 +124,10 @@ _scriptFunctionName     scriptFunctionName[] =
 	// Name of function in script			                Name we call from host
 	{0, false, "void as_addAllScriptCommands()",		    "scr_addAllScriptCommands",		NULL},
 	{0, false, "void as_setGameVariables()",			    "scr_setGameVariables",         NULL},
-	{0, false, "cpVect as_vectTest(cpVect cpParam)",        "scr_vectTest",                 NULL},
+//	{0, false, "cpVect as_vectTest(cpVect cpParam)",        "scr_vectTest",                 NULL},
 	{0, false, "void as_setupGUI()",                        "scr_setupGUI",                 NULL},
 	{0, false, "void as_guiHandleActionEvent(string &in)",  "scr_guiHandleActionEvent",     true},
-	{0, false, "void as_setLanguageStrings()", 		        "as_setLanguageStrings", 		false},
+	{0, false, "void as_setLanguageStrings()", 		        "as_setLanguageStrings", 		NULL},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},
 	{0, false, "",						"",				NULL},
@@ -149,23 +145,26 @@ _scriptFunctionName     scriptFunctionName[] =
 //----------------------------------------------------------------------
 vector<_scriptFunctionName> scriptFunctions;
 
-
+//----------------------------------------------------------------------
+//
+// Print out the variables that Angelscript knows about internally - DEBUGGING
 void PrintVariables()
+//----------------------------------------------------------------------
 {
-	asUINT  stackLevel;
+	asUINT  stackLevel = 0;
 
 	asIScriptContext *ctx = asGetActiveContext();
 	asIScriptEngine *engine = ctx->GetEngine();
 
-	int typeId = ctx->GetThisTypeId();
-	void *varPointer = ctx->GetThisPointer();
-	if( typeId )
+	int typeId1 = ctx->GetThisTypeId();
+	void *varPointer1 = ctx->GetThisPointer();
+	if( typeId1 )
 	{
-		printf(" this = 0x%x\n", varPointer);
+		printf(" this = 0x%x\n", varPointer1);
 	}
 
 	int numVars = ctx->GetVarCount();
-	for( int n = 0; n < numVars; n++ )
+	for( asUINT n = 0; n < numVars; n++ )
 	{
 		int typeId = ctx->GetVarTypeId(n);
 		void *varPointer = ctx->GetAddressOfVar(n);
@@ -175,7 +174,7 @@ void PrintVariables()
 		}
 		else if( typeId == engine->GetTypeIdByDecl("string") )
 		{
-			std::string *str = (std::string*)varPointer;
+			auto *str = (std::string*)varPointer;
 			if( str )
 				printf(" %s = '%s'\n", ctx->GetVarDeclaration(n, stackLevel), str->c_str());
 			else
@@ -183,7 +182,7 @@ void PrintVariables()
 		}
 		else
 		{
-			cpVect *getValue = (cpVect *)varPointer;
+			auto *getValue = (cpVect *)varPointer;
 			printf(" %s = {...}\n", ctx->GetVarDeclaration(n, stackLevel));
 			printf("Debug [ %3.3f %3.3f ]\n", getValue->x, getValue->y);
 		}
@@ -505,12 +504,12 @@ bool con_loadAndCompileScripts ()
 					return false;
 				}
 
-			fileResults = (char *)malloc(fileLength);
+			fileResults = (char *)malloc( static_cast<size_t>(fileLength));
 			if (nullptr == fileResults)
-			{
-				con_print(CON_ERROR, true, "Failed to get memory to hold script file [ %s ].", scriptInfo[fileCounter].scriptFileName.c_str());
-				return false;
-			}
+				{
+					con_print(CON_ERROR, true, "Failed to get memory to hold script file [ %s ].", scriptInfo[fileCounter].scriptFileName.c_str());
+					return false;
+				}
 
 			if (-1 == io_getFileIntoMemory(scriptInfo[fileCounter].scriptFileName.c_str(), fileResults))
 				{
@@ -521,17 +520,16 @@ bool con_loadAndCompileScripts ()
 			retCode = builder.AddSectionFromMemory(scriptInfo[fileCounter].scriptName.c_str(), fileResults, (unsigned int)fileLength, 0);
 			if ( retCode < 0 )
 				{
+					free (fileResults);        // Prevent memory leak if it fails to build
+
 					con_print (CON_ERROR, true, "Failed to add script file [ %s ].", scriptInfo[fileCounter].scriptFileName.c_str() );
 					return false;
 				}
 
 			fileCounter++;
 
-			if (fileResults)
-			{
-				free (fileResults);        // Prevent memory leak if it fails to build
-				fileResults = nullptr;
-			}
+			free (fileResults);
+			fileResults = nullptr;
 		}
 
 	//
@@ -774,8 +772,8 @@ bool con_addScriptConsoleFunction ( string funcName, string funcPtr, bool setPar
 {
 	_scriptFunctionName tempScriptFunction;
 
-	tempScriptFunction.functionName = std::move (funcPtr);
-	tempScriptFunction.scriptName = std::move (funcName);
+	tempScriptFunction.functionName = funcPtr; //std::move (funcPtr);
+	tempScriptFunction.scriptName = funcName; //std::move (funcName);
 	tempScriptFunction.fromScript = true;
 	tempScriptFunction.param1 = setParam;
 

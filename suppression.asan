@@ -1,0 +1,3 @@
+leak:libX11
+leak:libSDL2-2
+interceptor_via_lib:nvidia

@@ -12,14 +12,10 @@ unordered_map<std::string, std::string> textStrings;
 string gui_getString(string key)
 //--------------------------------------------------------
 {
-	std::unordered_map<std::string, std::string>::const_iterator stringIndex;
-
-	stringIndex = textStrings.find(key);
+	auto stringIndex = textStrings.find(key);
 
 	if (stringIndex == textStrings.end())
-	{
 		return key + " not found.";
-	}
 
 	return stringIndex->second;
 }
@@ -27,8 +23,8 @@ string gui_getString(string key)
 //--------------------------------------------------------
 //
 // Add a key and string to the map
-void gui_addKeyAndText(std::string key, const std::string &textString)
+void gui_addKeyAndText(std::string key, std::string textString)
 //--------------------------------------------------------
 {
-	textStrings.insert ( {key, textString} );
+	textStrings.emplace ( key, textString );
 }

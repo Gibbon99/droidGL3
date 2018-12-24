@@ -83,15 +83,17 @@ void net_startConnectionToServer(int newState)
 	{
 		case USER_EVENT_TIMER_OFF:
 		{
-			SDL_RemoveTimer (net_clientConnectionTimer);
+			evt_removeTimer(net_clientConnectionTimer);
 			net_clientConnectionTimer = 0;
 			break;
 		}
+
 		case USER_EVENT_TIMER_ON:
 		{
-			net_clientConnectionTimer = SDL_AddTimer ( 1000, net_clientConnectionCallback, nullptr );   // Time in milliseconds
+			net_clientConnectionTimer = evt_registerTimer(1000, net_clientConnectionCallback, "Network client discovery");
 			break;
 		}
+
 		default:
 			break;
 	}

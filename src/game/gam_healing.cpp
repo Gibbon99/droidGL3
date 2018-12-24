@@ -5,7 +5,7 @@
 // structure to hold information for healing tiles
 //
 //-----------------------------------------------------------------------------
-vector<_basicHealing>        healing;
+vector<_basicHealing>       healing;
 bool                        doHealingAnimate = true;
 SDL_TimerID                 timerHealingAnimate;
 Uint32                      healingAnimateInterval;      // From script
@@ -51,11 +51,7 @@ void gam_setHealingState(bool newState)
 void gam_initHealingAnimateTimer(Uint32 interval)
 // ----------------------------------------------------------------------------
 {
-	timerHealingAnimate = SDL_AddTimer (interval, gam_healingAnimateTimerCallback, nullptr);   // Time in milliseconds
-	if (0 == timerHealingAnimate)
-	{
-		con_print(CON_ERROR, true, "Could not add healing tile animate timer : [ %s ]", SDL_GetError ());
-	}
+	timerHealingAnimate = evt_registerTimer(interval, gam_healingAnimateTimerCallback, "Healing tile animation");
 }
 
 // ----------------------------------------------------------------------------

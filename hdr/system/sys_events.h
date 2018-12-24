@@ -139,3 +139,13 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, vec
 
 // Change the state of the console timer cursor animation
 void evt_cursorChangeState ( int newState );
+
+// Keep a list of the timers and remove them at shutdown
+SDL_TimerID evt_registerTimer(Uint32 timerInterval, SDL_TimerCallback timerFunction, std::string timerName);
+
+//
+// Remove all the timers
+void evt_removeAllTimers();
+
+// Remove a single timer - pass in SDL_TimerID as index
+void evt_removeTimer(SDL_TimerID whichTimerID);

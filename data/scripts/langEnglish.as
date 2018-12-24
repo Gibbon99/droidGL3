@@ -405,4 +405,5 @@ void as_setEnglishText()
 	gui_addKeyAndText("buttonEndGameYes", "Return to menu");
 
 	gui_addKeyAndText("beamOn", "Beam On");
+
 }

@@ -66,10 +66,14 @@ bool sys_initAll()
 	if (!lib_openWindow ())
 		return false;
 
-	if ( !evt_registerUserEventSetup ())      // Start all the threads
-		return false;
+#ifdef GLAD_DEBUG
+	// before every opengl call call pre_gl_call
+//	glad_set_pre_callback (pre_gl_call);
+	// don't use the callback for glClear
+	// (glClear could be replaced with your own function)
+	//glad_debug_glClear = glad_glClear;
+#endif
 
-	SDL_Delay(1000);
 
 	if ( !gladLoadGL ())
 	{
@@ -77,12 +81,8 @@ bool sys_initAll()
 		return false;
 	}
 
-#ifdef GLAD_DEBUG
-	// before every opengl call call pre_gl_call
-//	glad_set_pre_callback (pre_gl_call);
-	// don't use the callback for glClear
-	// (glClear could be replaced with your own function)
-	//glad_debug_glClear = glad_glClear;
+#if (DEBUG_LEVEL > 0)
+	gl_registerDebugCallback ();
 #endif
 
 	con_print (CON_INFO, true, "OpenGL system version [ %d.%d ]", GLVersion.major, GLVersion.minor);
@@ -92,9 +92,10 @@ bool sys_initAll()
 		return false;
 	}
 
-#if (DEBUG_LEVEL > 0)
-	gl_registerDebugCallback ();
-#endif
+	SDL_Delay(1000);
+
+	if ( !evt_registerUserEventSetup ())      // Start all the threads
+		return false;
 
 	sys_initTimingVars ();
 
@@ -152,8 +153,8 @@ bool sys_initAll()
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "lightmap.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "hud.tga");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "button.bmp");
-        evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "whiteSquare.bmp");
-        evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "redSquare.bmp");
+//        evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "whiteSquare.bmp");
+//        evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "redSquare.bmp");
 
 
 
@@ -181,6 +182,8 @@ bool sys_initAll()
 
 		if (!gui_loadTTFFont("Digital.ttf", 32, "fontDigital32"))
 			return false;
+
+		SDL_Delay(2000);
 
 	}   // end of file system check
 

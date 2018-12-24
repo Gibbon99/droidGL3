@@ -133,11 +133,7 @@ void gam_setDoorAnimateState(bool newState)
 void gam_initDoorAnimateTimer(Uint32 interval)
 // ----------------------------------------------------------------------------
 {
-  timerDoorAnimate = SDL_AddTimer (interval, gam_animateDoorCallback, nullptr);   // Time in milliseconds
-  if (0 == timerDoorAnimate)
-    {
-      con_print(CON_ERROR, true, "Could not add door animate timer : [ %s ]", SDL_GetError ());
-    }
+	timerDoorAnimate = evt_registerTimer(interval, gam_animateDoorCallback, "Door animation");
 }
 
 // ----------------------------------------------------------------------------

@@ -56,9 +56,8 @@ bool net_startServer( unsigned short hostPort, unsigned short netMaxNumClients )
 void net_shutdownServer()
 //-----------------------------------------------------------------------------------------------------
 {
-	if (serverRunning)
+	if (netServer)
 	{
-		netServer->Shutdown ( 300 );
 		// We're done with the network
 		RakNet::RakPeerInterface::DestroyInstance ( netServer );
 	}

@@ -104,31 +104,7 @@ bool lib_openWindow ()
 	// Initialize SDL
 	if ( SDL_Init (SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0 )
 		return false;
-
-	// Set the OpenGL version.
-	// SDL_GL_CONTEXT_CORE gives us only the newer version, deprecated functions are disabled
-	SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-	SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 3);
-
-	SDL_GL_SetAttribute (SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
-
-#if (DEBUG_LEVEL > 0)
-	SDL_GL_SetAttribute (SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-#endif
-
-
-	// Turn on double buffering with a 24bit Z buffer.
-	// May need to change this to 16 or 32
-	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
-
-	if (-1 == SDL_GL_SetSwapInterval (vsyncType))
-	{
-		con_print(CON_ERROR, true, "Unable to use selected vsync method : [ %s ]", SDL_GetError ());
-		SDL_GL_SetSwapInterval (1);
-	}
-
+	/*
 	numVideoDrivers = SDL_GetNumVideoDrivers ();
 
 	for ( int i = 0; i != numVideoDrivers; i++ )
@@ -137,6 +113,7 @@ bool lib_openWindow ()
 	}
 
 	con_print (CON_INFO, true, "Num video displays [ %i ]", SDL_GetNumVideoDisplays ());
+*/
 
 	// Create the window centered at resolution
 	Uint32 windowFlags;
@@ -154,6 +131,9 @@ bool lib_openWindow ()
 		return false;
 	}
 
+	SDL_Delay(1000);
+
+	/*
 	// TODO: Parse the modes and get the refresh rate
 	if ( fullScreen )
 	{
@@ -171,6 +151,20 @@ bool lib_openWindow ()
 			sys_shutdownToSystem ();
 		}
 	}
+*/
+
+	// Set the OpenGL version.
+	// SDL_GL_CONTEXT_CORE gives us only the newer version, deprecated functions are disabled
+	SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+	SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, 3);
+
+	SDL_GL_SetAttribute (SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
+
+#if (DEBUG_LEVEL > 0)
+	SDL_GL_SetAttribute (SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
 
 	// Create the opengl context and attach it to the window
 	mainContext = SDL_GL_CreateContext (mainWindow);
@@ -184,6 +178,15 @@ bool lib_openWindow ()
 	{
 		con_print (CON_ERROR, true, "Context error [ %s ]", SDL_GetError ());
 		return false;
+	}
+
+	// Turn on double buffering with a 24bit Z buffer.
+	// May need to change this to 16 or 32
+	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1);
+	if (-1 == SDL_GL_SetSwapInterval (vsyncType))
+	{
+		con_print(CON_ERROR, true, "Unable to use selected vsync method : [ %s ]", SDL_GetError ());
+		SDL_GL_SetSwapInterval (1);
 	}
 
 	int value = 0;

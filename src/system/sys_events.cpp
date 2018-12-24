@@ -50,8 +50,72 @@ queue<_myEventData> serverEventInQueue;
 queue<_myEventData> networkOutQueue;
 
 bool runThreads = true;     // Master flag to control state of detached threads
+bool doCursorAnimation = false;     // Flag to animate the cursor in callback
 
 uint32_t        SDL_myEventType;
+
+typedef struct
+{
+	SDL_TimerID             timerID = 0;
+	std::string             timerName;
+} _registeredTimers;
+
+vector<_registeredTimers>         registeredTimers;
+
+//------------------------------------------------------------------------
+//
+// Keep a list of the timers and remove them at shutdown
+SDL_TimerID evt_registerTimer(Uint32 timerInterval, SDL_TimerCallback timerFunction, const std::string timerName)
+//------------------------------------------------------------------------
+{
+	_registeredTimers       newTimer;
+
+	newTimer.timerID = 0;
+
+	newTimer.timerID = SDL_AddTimer ( timerInterval, timerFunction, nullptr );   // Time in milliseconds
+	if (newTimer.timerID == 0)
+	{
+		con_print(CON_ERROR, true, "Unable to create new timer for [ %s ] - [ %s ]", timerName.c_str(), SDL_GetError ());
+		return 0;
+	}
+
+	newTimer.timerName = timerName;
+
+	registeredTimers.push_back(newTimer);
+
+	printf("Added new timer - %s\n", timerName.c_str());
+
+	return newTimer.timerID;
+}
+
+//------------------------------------------------------------------------
+//
+// Remove a single timer - pass in SDL_TimerID as index
+void evt_removeTimer(SDL_TimerID whichTimerID)
+//------------------------------------------------------------------------
+{
+	for ( unsigned int i = 0; i < registeredTimers.size(); i++)
+	{
+		if (registeredTimers[i].timerID == whichTimerID)
+		{
+			SDL_RemoveTimer (registeredTimers[i].timerID);
+			registeredTimers.erase ( registeredTimers.begin () + i);
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+//
+// Remove all the timers
+void evt_removeAllTimers()
+//------------------------------------------------------------------------
+{
+	for ( const auto &timerIndex : registeredTimers)
+	{
+		SDL_RemoveTimer(timerIndex.timerID);
+		printf("Removed timer [ %s ]\n", timerIndex.timerName.c_str());
+	}
+}
 
 //------------------------------------------------------------------------
 //
@@ -74,6 +138,9 @@ Uint32 evt_getLevelInfo ( Uint32 interval, void *param)
 Uint32 evt_cursorTimerCallback ( Uint32 interval, void *param )
 //------------------------------------------------------------------------
 {
+	if (!doCursorAnimation)
+		return interval;
+
 	con_processCursor ();
 
 	return interval;
@@ -89,15 +156,16 @@ void evt_cursorChangeState ( int newState )
 	{
 		case USER_EVENT_TIMER_OFF:
 		{
-			SDL_RemoveTimer (timerCursorFlash);
-			timerCursorFlash = 0;
+			doCursorAnimation = false;
 			break;
 		}
+
 		case USER_EVENT_TIMER_ON:
 		{
-			timerCursorFlash = SDL_AddTimer (500, evt_cursorTimerCallback, nullptr);   // Time in milliseconds
+			doCursorAnimation = true;
 			break;
 		}
+
 		default:
 			break;
 	}
@@ -116,9 +184,9 @@ bool evt_registerUserEventSetup ()
 		sys_shutdownToSystem ();
 	}
 
-	testLevelLoad = SDL_AddTimer (500, evt_getLevelInfo, nullptr);
+	testLevelLoad = evt_registerTimer(500, evt_getLevelInfo, "Check level loading");
 
-	timerCursorFlash = SDL_AddTimer (500, evt_cursorTimerCallback, nullptr);   // Time in milliseconds
+	timerCursorFlash = evt_registerTimer(500, evt_cursorTimerCallback, "Console cursor animation");
 
 	userEventConsoleThread = SDL_CreateThread (con_processConsoleUserEvent, "userEventConsoleThread", (void *) nullptr);
 	if ( nullptr == userEventConsoleThread )

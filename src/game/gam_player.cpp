@@ -156,11 +156,7 @@ Uint32 gam_playerAnimateTimerCallback ( Uint32 interval, void *param )
 void gam_initPlayerAnimateTimer ( Uint32 interval )
 // ----------------------------------------------------------------------------
 {
-	timerPlayerAnimate = SDL_AddTimer (interval, gam_playerAnimateTimerCallback, nullptr);   // Time in milliseconds
-	if ( 0 == timerPlayerAnimate )
-	{
-		con_print (CON_ERROR, true, "Could not add player animate timer : [ %s ]", SDL_GetError ());
-	}
+	timerPlayerAnimate = evt_registerTimer(interval, gam_playerAnimateTimerCallback, "Player animation");
 }
 
 //------------------------------------------------------------------------------

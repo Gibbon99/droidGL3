@@ -1,8 +1,9 @@
 #include "hdr/gui/gui_main.h"
 #include "hdr/gui/gui_button.h"
 
-SDL_TimerID         guiFocusTimerID;
+SDL_TimerID         guiFocusTimerID = 0;
 int                 focusAnimateIntervalValue;      // Set from script
+bool                doButtonAnimate = false;
 
 //------------------------------------------------------------------------
 //
@@ -13,7 +14,22 @@ Uint32 gui_focusAnimateCallback ( Uint32 interval, void *param )
 	static bool haveColorCopy = false;
 	static bool fadeDown = true;
 
+	if (!doButtonAnimate)
+		return interval;
+
+	if (!guiReady)
+		return interval;
+
 	if (guiButtons.empty())
+		return interval;
+
+	if (guiLabels.empty())
+		return interval;
+
+	if (guiCheckBoxes.empty())
+		return interval;
+
+	if (guiTextBoxes.empty())
 		return interval;
 
 	if (!haveColorCopy)
@@ -74,13 +90,15 @@ void gui_timerFocusAnimation(int newState)
 	{
 		case USER_EVENT_TIMER_OFF:
 		{
-			SDL_RemoveTimer (guiFocusTimerID);
-			guiFocusTimerID = 0;
+			doButtonAnimate = false;
 			break;
 		}
 		case USER_EVENT_TIMER_ON:
 		{
-			guiFocusTimerID = SDL_AddTimer ( focusAnimateIntervalValue, gui_focusAnimateCallback, nullptr );   // Time in milliseconds
+			if (guiFocusTimerID == 0)
+				guiFocusTimerID = evt_registerTimer(focusAnimateIntervalValue, gui_focusAnimateCallback, "GUI Focus Animation");
+
+			doButtonAnimate = true;
 			break;
 		}
 		default:

@@ -10,11 +10,17 @@ typedef struct
 	bool    isFound;
 } _shaderVarType;
 
-std::map<string, _shaderVarType> shaderUniformValues;
-std::map<string, _shaderVarType> shaderAttribValues;
-std::map<string, _shaderVarType>::iterator shaderItr;
+typedef struct
+{
+	GLuint      shaderID = 0;
+	bool        compiled = false;
+} _shaderVars;
 
-std::map<string, int> shaderProgram;
+std::map<string, _shaderVarType>            shaderUniformValues;
+std::map<string, _shaderVarType>            shaderAttribValues;
+std::map<string, _shaderVarType>::iterator  shaderItr;
+
+std::map<string, _shaderVars>               shaderProgram;
 
 //-----------------------------------------------------------------------------
 //
@@ -151,19 +157,24 @@ bool gl_shaderLoadAndCompile ( const string fileName, GLuint *returnObject_ID, i
 //-----------------------------------------------------------------------------
 //
 // Return the Shader ID
-GLuint gl_getShaderID( string shaderName)
+GLuint gl_getShaderID( std::string shaderName)
 //-----------------------------------------------------------------------------
 {
-	std::map<std::string, int>::const_iterator shaderIDIter;
+	auto shaderIDIter = shaderProgram.find(shaderName);
 
-	shaderIDIter = shaderProgram.find(shaderName);
 	if (shaderIDIter == shaderProgram.end())
 	{
-		con_print(CON_ERROR, true, "Unable to find shaderID by name [ %s ]", shaderName);
+		con_print(CON_ERROR, true, "Unable to find shaderID by name [ %s ]", shaderName.c_str());
 		return 0;
 	}
 
-	return shaderProgram[shaderName];
+	if ( !shaderIDIter->second.compiled )
+	{
+		con_print(CON_ERROR, true, "Shader [ %s ] is not ready for use.", shaderName.c_str());
+		return 0;
+	}
+
+	return shaderProgram[shaderName].shaderID;
 }
 
 //-----------------------------------------------------------------------------
@@ -172,7 +183,7 @@ GLuint gl_getShaderID( string shaderName)
 //
 // If variable is not found, still record, but mark has invalid - count how many
 // times it is called.
-GLuint gl_getAttrib ( string whichShader, string keyName )
+int gl_getAttrib ( string whichShader, string keyName )
 //-----------------------------------------------------------------------------
 {
 	string          u_keyName;
@@ -190,7 +201,7 @@ GLuint gl_getAttrib ( string whichShader, string keyName )
 
 		if ( keyLocation == -1 )
 		{
-			con_print (CON_ERROR, true, "Shader [ %s ] Value [ %s ] does not exist.", whichShader.c_str(), keyName.c_str ());
+			con_print (CON_ERROR, true, "Shader Attrib [ %s ] Value [ %s ] does not exist.", whichShader.c_str(), keyName.c_str ());
 			varInfoType.locationID = keyLocation;
 			varInfoType.refCount = 0;
 			varInfoType.isFound = false;
@@ -239,17 +250,20 @@ GLint gl_getUniform ( string whichShader, string keyName )
 	shaderItr = shaderUniformValues.find (u_keyName);
 	if ( shaderItr == shaderUniformValues.end ())   // Key doesn't exist
 	{
-//		con_print (CON_INFO, true, "Key [ %s ] doesn't exist in map.", u_keyName.c_str ());
+		con_print (CON_INFO, true, "Key [ %s ] doesn't exist in map.", u_keyName.c_str ());
 
 		keyLocation = glGetUniformLocation (gl_getShaderID (whichShader), keyName.c_str ());
 
 		if ( keyLocation == -1 )
 		{
-			con_print (CON_ERROR, true, "Shader [ %s ] Value [ %s ] does not exist.", whichShader.c_str (), keyName.c_str ());
+			con_print (CON_ERROR, true, "Shader Uniform [ %s ] Value [ %s ] does not exist.", whichShader.c_str (), keyName.c_str ());
 			varInfoType.locationID = keyLocation;
 			varInfoType.refCount = 0;
 			varInfoType.isFound = false;
-			shaderUniformValues.insert (std::pair<string, _shaderVarType> (u_keyName, varInfoType));
+
+			shaderUniformValues.emplace(u_keyName, varInfoType);
+
+//			shaderUniformValues.insert (std::pair<string, _shaderVarType> (u_keyName, varInfoType));
 			return 0;
 		}
 
@@ -257,7 +271,9 @@ GLint gl_getUniform ( string whichShader, string keyName )
 		varInfoType.refCount = 0;
 		varInfoType.isFound = true;
 
-		shaderUniformValues.insert (std::pair<string, _shaderVarType> (u_keyName, varInfoType));
+		shaderUniformValues.emplace(u_keyName, varInfoType);
+
+		//shaderUniformValues.insert (std::pair<string, _shaderVarType> (u_keyName, varInfoType));
 		return keyLocation;
 	}
 	else    // already used in the map
@@ -279,12 +295,13 @@ GLint gl_getUniform ( string whichShader, string keyName )
 //-----------------------------------------------------------------------------
 //
 // Create a shader object from the source files and indexed by enum
-bool gl_createShader ( string shaderName, string vertFileName, string fragFileName, string geomFileName )
+bool gl_createShader ( const string &shaderName, const string &vertFileName, const string &fragFileName, const string &geomFileName )
 //-----------------------------------------------------------------------------
 {
-	GLint shaderID;
-	GLint linkedStatus;
-	GLuint vertexShaderObject, fragmentShaderObject, geometryShaderObject;
+	GLuint      shaderID = 0;
+	GLint       linkedStatus = false;
+	GLuint      vertexShaderObject, fragmentShaderObject, geometryShaderObject;
+	_shaderVars tmpShaderVars;
 
 	//
 	// Load the shaders and set their object ID
@@ -310,6 +327,11 @@ bool gl_createShader ( string shaderName, string vertFileName, string fragFileNa
 	//
 	// Create the program ID
 	shaderID = glCreateProgram ();
+	if (0 == shaderID)
+	{
+		con_print(CON_ERROR, true, "Unable to create GLSL program object for shader [ %s ]", vertFileName.c_str());
+		return false;
+	}
 	//
 	// Attach the object ID to the program ID ready for compiling
 	GL_CHECK (glAttachShader (shaderID, vertexShaderObject));
@@ -330,11 +352,17 @@ bool gl_createShader ( string shaderName, string vertFileName, string fragFileNa
 	{
 		con_print (CON_ERROR, true, "ERROR: Shader failed to link - [ %s ]", shaderName.c_str());
 		gl_getGLSLError (shaderID, GLSL_PROGRAM);
+		tmpShaderVars.compiled = false;
+		tmpShaderVars.shaderID = 0;
+		shaderProgram.insert(std::pair<string, _shaderVars>(shaderName, tmpShaderVars));
 		return false;
 	}
 	//
 	// Store shader name and it's OpenGL ID
-	shaderProgram.insert(std::pair<string, int>(shaderName, shaderID));
+	tmpShaderVars.compiled = true;
+	tmpShaderVars.shaderID = shaderID;
+
+	shaderProgram.insert(std::pair<string, _shaderVars>(shaderName, tmpShaderVars));
 
 	return true;
 }

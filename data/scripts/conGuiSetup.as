@@ -74,22 +74,22 @@ void as_createOptionsScreen()
 {
 	as_guiCreateNewScreen ( "scrOptions" );
 
-	as_guiCreateObject ( GUI_OBJECT_LABEL, "scrOptionsHeading");
-	as_guiAddObjectToScreen (GUI_OBJECT_LABEL, "scrOptionsHeading", "scrOptions" );
-	as_guiSetObjectPosition (GUI_OBJECT_LABEL, "scrOptionsHeading", GUI_COORD_TYPE_PERCENT,      50, 10, 10, 10 );
-	as_guiSetObjectLabel ( GUI_OBJECT_LABEL, "scrOptionsHeading", GUI_LABEL_CENTER, "OPTIONS" );
+	as_guiCreateObject             ( GUI_OBJECT_LABEL, "scrOptionsHeading");
+	as_guiAddObjectToScreen        ( GUI_OBJECT_LABEL, "scrOptionsHeading", "scrOptions" );
+	as_guiSetObjectPosition        ( GUI_OBJECT_LABEL, "scrOptionsHeading", GUI_COORD_TYPE_PERCENT,      50, 10, 10, 10 );
+	as_guiSetObjectLabel           ( GUI_OBJECT_LABEL, "scrOptionsHeading", GUI_LABEL_CENTER, "OPTIONS" );
 
-	as_guiCreateObject ( GUI_OBJECT_CHECKBOX, "checkBoxTest" );
-	as_guiAddObjectToScreen (GUI_OBJECT_CHECKBOX, "checkBoxTest", "scrOptions" );
-	as_guiSetObjectPosition (GUI_OBJECT_CHECKBOX, "checkBoxTest", GUI_COORD_TYPE_PIXEL,              20, 200, 44, 44 );
-	as_guiSetObjectLabel ( GUI_OBJECT_CHECKBOX, "checkBoxTest", GUI_LABEL_CENTER, "Show HUD graphic" );
-	as_guiSetObjectFunctions ( GUI_OBJECT_CHECKBOX, "checkBoxTest",          "scr_guiHandleActionEvent");
+	as_guiCreateObject             ( GUI_OBJECT_CHECKBOX, "checkBoxTest" );
+	as_guiAddObjectToScreen        ( GUI_OBJECT_CHECKBOX, "checkBoxTest", "scrOptions" );
+	as_guiSetObjectPosition        ( GUI_OBJECT_CHECKBOX, "checkBoxTest", GUI_COORD_TYPE_PIXEL,              20, 200, 44, 44 );
+	as_guiSetObjectLabel           ( GUI_OBJECT_CHECKBOX, "checkBoxTest", GUI_LABEL_CENTER, "Show HUD graphic" );
+	as_guiSetObjectFunctions       ( GUI_OBJECT_CHECKBOX, "checkBoxTest",          "scr_guiHandleActionEvent");
 
-	as_guiCreateObject ( GUI_OBJECT_TEXTBOX, "textBoxTest" );
-	as_guiAddObjectToScreen (GUI_OBJECT_TEXTBOX, "textBoxTest", "scrOptions" );
-	as_guiSetObjectPosition (GUI_OBJECT_TEXTBOX, "textBoxTest", GUI_COORD_TYPE_PIXEL,              230, 555, 380, 44 );
-	as_guiSetObjectLabel ( GUI_OBJECT_TEXTBOX, "textBoxTest", GUI_LABEL_CENTER, "Server address" );
-	as_guiSetObjectFunctions ( GUI_OBJECT_TEXTBOX, "textBoxTest",          "scr_guiHandleActionEvent");
+	as_guiCreateObject             ( GUI_OBJECT_TEXTBOX, "textBoxTest" );
+	as_guiAddObjectToScreen        ( GUI_OBJECT_TEXTBOX, "textBoxTest", "scrOptions" );
+	as_guiSetObjectPosition        ( GUI_OBJECT_TEXTBOX, "textBoxTest", GUI_COORD_TYPE_PIXEL,              230, 555, 380, 44 );
+	as_guiSetObjectLabel           ( GUI_OBJECT_TEXTBOX, "textBoxTest", GUI_LABEL_CENTER, "Server address" );
+	as_guiSetObjectFunctions       ( GUI_OBJECT_TEXTBOX, "textBoxTest",          "scr_guiHandleActionEvent");
 }
 
 //-----------------------------------------------------------------------------

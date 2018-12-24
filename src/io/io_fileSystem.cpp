@@ -124,7 +124,7 @@ bool io_startFileSystem()
 		}
 	//
 	// What compression types are available
-	io_getArchivers();
+//	io_getArchivers();
 
 	fileSystemReady = true;
 
