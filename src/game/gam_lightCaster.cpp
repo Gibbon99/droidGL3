@@ -1,9 +1,9 @@
 #include "hdr/system/sys_main.h"
-#include <hdr/libGL/glm/glm.hpp>
-#include <hdr/game/gam_levels.h>
-#include <hdr/opengl/gl_openGLWrap.h>
-#include <hdr/opengl/gl_fbo.h>
-#include "gam_lightCaster.h"
+#include "hdr/libGL/glm/glm.hpp"
+#include "hdr/game/gam_levels.h"
+#include "hdr/opengl/gl_openGLWrap.h"
+#include "hdr/opengl/gl_fbo.h"
+#include "hdr/game/gam_lightCaster.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_textures.h"
 

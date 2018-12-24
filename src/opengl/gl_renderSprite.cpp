@@ -1,7 +1,7 @@
 #include <utility>
 
-#include <hdr/io/io_textures.h>
-#include "gl_renderSprite.h"
+#include "hdr/io/io_textures.h"
+#include "hdr/opengl/gl_renderSprite.h"
 
 unordered_map<string, _sprite>      sprites;
 vector<string>      droidToSpriteLookup;

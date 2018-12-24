@@ -1,4 +1,4 @@
-#include "gam_droidNetwork.h"
+#include "hdr/game/gam_droidNetwork.h"
 
 // For each connected client
 // Get their current deck

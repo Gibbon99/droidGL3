@@ -4,9 +4,10 @@
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/game/s_shadows.h"
 #include "hdr/game/gam_lightCaster.h"
-#include <hdr/io/io_textures.h>
-#include <hdr/game/gam_levels.h>
-#include <hdr/game/gam_render.h>
+#include "hdr/io/io_textures.h"
+#include "hdr/game/gam_levels.h"
+#include "hdr/game/gam_render.h"
+#include "hdr/game/gam_player.h"
 #include <map>
 
 #ifdef __linux__

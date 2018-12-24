@@ -1,5 +1,5 @@
 #include "hdr/game/gam_levels.h"
-#include "gam_lifts.h"
+#include "hdr/game/gam_lifts.h"
 
 //------------------------------------------------------------------------------
 //

@@ -1,8 +1,8 @@
-#include <hdr/game/gam_levels.h>
-#include <hdr/opengl/gl_renderSprite.h>
-#include <hdr/game/gam_render.h>
-#include <hdr/game/gam_physicsPlayer.h>
-#include <hdr/io/io_keyboard.h>
+#include "hdr/game/gam_levels.h"
+#include "hdr/opengl/gl_renderSprite.h"
+#include "hdr/game/gam_render.h"
+#include "hdr/game/gam_physicsPlayer.h"
+#include "hdr/io/io_keyboard.h"
 #include "hdr/game/gam_player.h"
 #include "hdr/game/gam_physics.h"
 

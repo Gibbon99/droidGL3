@@ -1,19 +1,18 @@
 #include <utility>
 
-#include <hdr/libGL/sdl2_gfx/SDL2_rotozoom.h>
-#include <hdr/system/sys_timing.h>
-#include <hdr/io/io_logfile.h>
-#include <hdr/system/sys_audio.h>
-#include <hdr/io/io_mouse.h>
-#include <hdr/gui/gui_button.h>
-#include <hdr/game/gam_hud.h>
+#include "hdr/libGL/sdl2_gfx/SDL2_rotozoom.h"
+#include "hdr/system/sys_timing.h"
+#include "hdr/io/io_logfile.h"
+#include "hdr/system/sys_audio.h"
+#include "hdr/io/io_mouse.h"
+#include "hdr/gui/gui_button.h"
+#include "hdr/game/gam_hud.h"
 
 #include "hdr/gui/gui_main.h"
 #include "hdr/gui/gui_render.h"
 #include "hdr/system/sys_sdfFont.h"
 
 //#define DEBUG_GUI_SETUP 1
-
 
 SDL_Renderer                            *renderer = nullptr;
 SDL_Surface                             *guiSurface = nullptr;

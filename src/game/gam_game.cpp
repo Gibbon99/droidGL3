@@ -1,10 +1,10 @@
-#include <hdr/game/gam_levels.h>
-#include <hdr/opengl/gl_renderSprite.h>
-#include <hdr/game/gam_healing.h>
-#include <hdr/game/gam_player.h>
-#include <hdr/game/gam_doors.h>
-#include <hdr/network/net_client.h>
-#include "gam_game.h"
+#include "hdr/game/gam_levels.h"
+#include "hdr/opengl/gl_renderSprite.h"
+#include "hdr/game/gam_healing.h"
+#include "hdr/game/gam_player.h"
+#include "hdr/game/gam_doors.h"
+#include "hdr/network/net_client.h"
+#include "hdr/game/gam_game.h"
 
 //------------------------------------------------------------------------------
 //

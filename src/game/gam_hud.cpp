@@ -1,6 +1,6 @@
-#include <hdr/opengl/gl_renderSprite.h>
+#include "hdr/opengl/gl_renderSprite.h"
 #include "hdr/io/io_textures.h"
-#include "gam_hud.h"
+#include "hdr/game/gam_hud.h"
 
 bool        drawHUD;
 

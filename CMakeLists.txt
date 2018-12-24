@@ -17,15 +17,10 @@ endif ()
 
 include_directories(
         .
-        hdr
-        hdr/console
-        hdr/game
-        hdr/io
+#        hdr
         hdr/libGL
         hdr/libGL/glad
-        hdr/opengl
         hdr/script
-        hdr/system
         hdr/physfs
         hdr/libGL/freetype-gl
         hdr/libGL/chipmunk
@@ -108,9 +103,35 @@ set ( CXX_SRCS
 
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_textures.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/io/io_mouse.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/io/io_gameprefs.cpp
+
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_fbo.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_shaders.cpp
-        src/io/io_gameprefs.cpp hdr/io/io_gameprefs.h src/game/gam_levels.cpp hdr/game/gam_levels.h src/game/gam_render.cpp hdr/game/gam_render.h src/game/gam_renderDebug.cpp hdr/game/gam_renderDebug.h src/game/gam_lightCaster.cpp hdr/game/gam_lightCaster.h src/opengl/gl_renderSprite.cpp hdr/opengl/gl_renderSprite.h src/game/gam_hud.cpp hdr/game/gam_hud.h src/game/gam_healing.cpp hdr/game/gam_healing.h src/game/gam_player.cpp hdr/game/gam_player.h src/game/gam_game.cpp hdr/game/gam_game.h src/game/gam_lifts.cpp hdr/game/gam_lifts.h src/game/gam_droids.cpp hdr/game/gam_droids.h src/system/sys_utils.cpp hdr/system/sys_utils.h src/game/gam_droidAIPatrol.cpp hdr/game/gam_droidAIPatrol.h src/system/sys_maths.cpp hdr/system/sys_maths.h src/network/net_server.cpp hdr/network/net_server.h src/network/net_client.cpp hdr/network/net_client.h src/network/net_common.cpp src/game/gam_droidNetwork.cpp hdr/game/gam_droidNetwork.h src/game/gam_doors.cpp hdr/game/gam_doors.h src/game/gam_physicsCollisions.cpp hdr/game/gam_physicsCollisions.h src/game/gam_physicsPlayer.cpp hdr/game/gam_physicsPlayer.h src/game/gam_eventsServer.cpp hdr/game/gam_eventsServer.h src/game/gam_eventsClient.cpp hdr/game/gam_eventsClient.h
+		${CMAKE_CURRENT_LIST_DIR}/src/opengl/gl_renderSprite.cpp 
+
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_levels.cpp
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_render.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_renderDebug.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_lightCaster.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_hud.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_healing.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_player.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_game.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_lifts.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_droids.cpp		
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_droidAIPatrol.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_droidNetwork.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_doors.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_physicsCollisions.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_physicsPlayer.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_eventsServer.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/game/gam_eventsClient.cpp
+
+		${CMAKE_CURRENT_LIST_DIR}/src/system/sys_utils.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/system/sys_maths.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/network/net_server.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/network/net_client.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/network/net_common.cpp 
 
         ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/DynDNS.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/network/raknet/GridSectorizer.cpp
@@ -225,7 +246,13 @@ set ( CXX_SRCS
 
         ${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_main.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/system/sys_sdfFont.cpp
-        src/gui/gui_button.cpp hdr/gui/gui_button.h src/gui/gui_render.cpp hdr/gui/gui_render.h src/gui/gui_checkBox.cpp hdr/gui/gui_checkBox.h src/gui/gui_textBox.cpp hdr/gui/gui_textBox.h src/gui/gui_label.cpp hdr/gui/gui_label.h src/gui/gui_language.cpp hdr/gui/gui_language.h)
+        ${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_button.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_render.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_checkBox.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_textBox.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_label.cpp 
+		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_language.cpp 
+		)
 
 # Define the C sources
 set(C_SRCS
@@ -312,7 +339,8 @@ set(C_SRCS
 set_source_files_properties(
         ${CXX_SRCS} PROPERTIES COMPILE_FLAGS
         " -pg -g -O0")
-#        " -pg -g -O0 -fsanitize=address -fno-omit-frame-pointer")
+#        " -pg -g -O0 -fsanitize=address -fno-omit-frame-pointer")	# Address sanitizer - and memleak
+#        " -pg -g -O0 -fsanitize=thread -fno-omit-frame-pointer")	# Thread sanitizer
 
 set_source_files_properties(
         ${C_SRCS} PROPERTIES COMPILE_FLAGS
@@ -323,7 +351,8 @@ target_link_libraries(droidGL ${LINK_OPTIONS})
 
 
 target_link_libraries(droidGL
-#        asan
+#        asan		# Used for address sanitizer
+#		tsan		# Used for thread sanitizer
         GL
         GLU
         rt
