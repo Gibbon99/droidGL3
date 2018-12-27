@@ -63,6 +63,12 @@ void as_guiHandleActionEvent ( string &in objectID )
 			as_updateCheckedStatus  ("checkBoxTest", drawHUD);
 			return;
 		}
+
+		if ( objectID == "buttonOptionsBack" )
+		{
+			as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrMainMenu" ) );
+			as_guiSetObjectFocus("buttonStartGame");
+		}
 	}
 }
 
@@ -90,6 +96,62 @@ void as_createOptionsScreen()
 	as_guiSetObjectPosition        ( GUI_OBJECT_TEXTBOX, "textBoxTest", GUI_COORD_TYPE_PIXEL,              230, 555, 380, 44 );
 	as_guiSetObjectLabel           ( GUI_OBJECT_TEXTBOX, "textBoxTest", GUI_LABEL_CENTER, "Server address" );
 	as_guiSetObjectFunctions       ( GUI_OBJECT_TEXTBOX, "textBoxTest",          "scr_guiHandleActionEvent");
+
+	as_guiCreateObject              ( GUI_OBJECT_BUTTON, "buttonOptionsBack");
+	as_guiAddObjectToScreen         ( GUI_OBJECT_BUTTON, "buttonOptionsBack", "scrOptions");
+	as_guiSetObjectPosition         ( GUI_OBJECT_BUTTON, "buttonOptionsBack",     GUI_COORD_TYPE_PERCENT,      50, 10, 30, 10 );
+	as_guiSetObjectLabel            ( GUI_OBJECT_BUTTON, "buttonOptionsBack",     GUI_LABEL_CENTER, gui_getString ( "buttonOptionsBack" ) );
+	as_guiSetObjectFunctions        ( GUI_OBJECT_BUTTON, "buttonOptionsBack",     "scr_guiHandleActionEvent");
+}
+
+//-----------------------------------------------------------------------------
+//
+// Setup colors and variables for db scrollbox
+void as_setdbValues ()
+//-----------------------------------------------------------------------------
+{
+	// Position of the droid rotating graphic
+//	dbImagePositionX = ( winWidth - 290.0f );
+//	dbImagePositionY = 165.0f;
+
+	// Position of the scrollbox in the droid database screen
+	dbStartX = 70;
+	dbStartY = 50;
+	dbWidth = ( winWidth - dbStartX ) - 40;
+	dbHeight = winHeight - dbStartY;
+	dbBackRed = 0;
+	dbBackGreen = 0;
+	dbBackBlue = 255;
+	dbBackAlpha = 255;
+	dbFontRed = 110;
+	dbFontGreen = 190;
+	dbFontBlue = 190;
+	dbFontAlpha = 200;
+	dbScrollSpeed = 20;     // Scroll speed in milliseconds
+}
+
+//-----------------------------------------------------------------------------
+//
+// Setup colors and variables for intro scrollbox
+void as_setIntroValues()
+//-----------------------------------------------------------------------------
+{
+	int gutterSize = 20;
+
+	introStartX = gutterSize;
+	introStartY = winHeight - 100;
+	introWidth = (winWidth - gutterSize) - introStartX;
+	introHeight = 500;      // Get size of HUD image??
+	introBackRed = 0;
+	introBackGreen = 0;
+	introBackBlue = 255;
+	introBackAlpha = 255;
+	introFontRed = 110;
+	introFontGreen = 190;
+	introFontBlue = 190;
+	introFontAlpha = 200;
+	introScrollSpeed = 10;     // Scroll speed in milliseconds
+	introPauseTime = 3000;      // Pause for 3 seconds
 }
 
 //-----------------------------------------------------------------------------
@@ -103,6 +165,8 @@ void as_setupGUI()
 
 	focusAnimateIntervalValue = 7;      // Color animation in milliseconds
 	getMousePositionInterval = 50;      // How often to get the mouse position in milliseconds - to fast is too many events
+
+	as_setIntroValues();
 
 	as_guiCreateNewScreen ( "scrMainMenu" );
 

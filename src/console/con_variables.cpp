@@ -1,3 +1,4 @@
+#include "hdr/gui/gui_scrollBox.h"
 #include "hdr/gui/gui_button.h"
 #include "hdr/io/io_mouse.h"
 #include "hdr/gui/gui_language.h"
@@ -20,8 +21,8 @@ cpVect vect1;
 _hostScriptFunctions hostVariables[] =
 {
 	{"bool quitProgram",			        &quitProgram},
-//	{"int winWidth",                        &winWidth},
-//	{"int winHeight",                       &winHeight},
+	{"int winWidth",                        &winWidth},
+	{"int winHeight",                       &winHeight},
 	{"int currentMode",                     &currentMode},
 	{"int as_audioVolume",                  &as_audioVolume},
 	{"int as_numAudioSamples",              &as_numAudioSamples},
@@ -55,6 +56,35 @@ _hostScriptFunctions hostVariables[] =
 	{"int focusAnimateIntervalValue",       &focusAnimateIntervalValue},
 	{"int getMousePositionInterval",        &getMousePositionInterval},
 	{"int currentLanguage",                 &currentLanguage},
+
+	{"int introStartX",                     &introStartX},
+	{"int introStartY",                     &introStartY},
+	{"int introWidth",                      &introWidth},
+	{"int introHeight",                     &introHeight},
+	{"int introBackRed",                    &introBackRed},
+	{"int introBackGreen",                  &introBackGreen},
+	{"int introBackBlue",                   &introBackBlue},
+	{"int introBackAlpha",                  &introBackAlpha},
+	{"int introFontRed",                    &introFontRed},
+	{"int introFontGreen",                  &introFontGreen},
+	{"int introFontBlue",                   &introFontBlue},
+	{"int introFontAlpha",                  &introFontAlpha},
+
+	{"int dbStartX",                        &dbStartX},
+	{"int dbStartY",                        &dbStartY},
+	{"int dbWidth",                         &dbWidth},
+	{"int dbHeight",                        &dbHeight},
+	{"int dbBackRed",                       &dbBackRed},
+	{"int dbBackGreen",                     &dbBackGreen},
+	{"int dbBackBlue",                      &dbBackBlue},
+	{"int dbBackAlpha",                     &dbBackAlpha},
+	{"int dbFontRed",                       &dbFontRed},
+	{"int dbFontGreen",                     &dbFontGreen},
+	{"int dbFontBlue",                      &dbFontBlue},
+	{"int dbFontAlpha",                     &dbFontAlpha},
+	{"int introScrollSpeed",                &introScrollSpeed},
+	{"int introPauseTime",                  &introPauseTime},
+	{"int dbScrollSpeed",                   &dbScrollSpeed},
 	{"",                                    nullptr},
 };
 

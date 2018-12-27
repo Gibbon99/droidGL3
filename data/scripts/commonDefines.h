@@ -36,6 +36,7 @@ const int MODE_INIT                 = 6;
 const int MODE_SPLASH               = 7;
 const int MODE_INIT_GAME            = 8;
 const int MODE_GUI                  = 9;
+const int MODE_INTRO                = 10;
 
 const int GUI_ACTIVE_COL            = 10;
 const int GUI_INACTIVE_COL          = 11;

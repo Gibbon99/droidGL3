@@ -1,6 +1,7 @@
 #include <unordered_map>
 #include <string>
-#include <hdr/gui/gui_button.h>
+#include "hdr/gui/gui_button.h"
+#include "hdr/gui/gui_scrollBox.h"
 
 //#include "hdr/system/sys_leakDetector.h"
 
@@ -85,6 +86,10 @@ void sys_displayScreen(float interpolation)
 			gui_displayGUI ();
 			break;
 
+		case MODE_INTRO:
+			gui_displayGUI ();
+			break;
+
 		case MODE_GAME:
 //			gam_processMovement (interpolation);
 
@@ -134,7 +139,7 @@ void sys_gameTickRun()
 			break;
 
 		case MODE_INIT:
-			sys_changeMode(MODE_GUI);
+			sys_changeMode(MODE_INTRO);         // change here
 			break;
 
 		case MODE_CONSOLE:
@@ -298,6 +303,10 @@ void sys_changeMode ( int newMode )
 #ifdef DEBUG_CHANGE_MODE
 			printf("New mode [ %s ]\n", "MODE_CONSOLE");
 #endif
+			break;
+
+		case MODE_INTRO:
+			gui_timerScrollSpeedIntro(USER_EVENT_TIMER_ON, introScrollBox.scrollSpeed);
 			break;
 
 		default:

@@ -1,4 +1,5 @@
 #include <utility>
+#include "hdr/gui/gui_scrollBox.h"
 
 #include "hdr/libGL/sdl2_gfx/SDL2_rotozoom.h"
 #include "hdr/system/sys_timing.h"
@@ -68,7 +69,7 @@ int gam_processGuiEventQueue ( void *ptr )
 
 				case USER_EVENT_KEY_EVENT:
 					//
-					// Call the function associated with this button
+					// Call the function associated with this element
 					gui_handleInputEvent(tempEventData.data1, tempEventData.data2, tempEventData.data3);
 					break;
 
@@ -842,7 +843,20 @@ void gui_displayGUI()
 	glViewport (0, 0, winWidth, winHeight);
 	gl_set2DMode(glm::vec2{0,0}, glm::vec2{winWidth,winHeight}, glm::vec3(1, 1, 1));
 
-	gui_drawGUI ();
+	switch (currentMode)
+	{
+		case MODE_GUI:
+			gui_drawGUI ();
+			break;
+
+		case MODE_INTRO:
+			gui_drawScrollBox ( &introScrollBox );
+			break;
+
+		default:
+			break;
+	}
+
 	//
 	// Upload the SDL Surface into a OpenGL texture
 	gui_surfaceToGL(guiSurface, "guiScreen");
@@ -870,6 +884,13 @@ void gui_displayGUI()
 	gl_draw2DQuad ( guiPosition, guiSize, "colorKey", io_getTextureID ("guiScreen"), guiColorKey, guiTintColor, texCoords);
 
 	s_renderHUD ();
+
+	// Select the color for clearing the renderer
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+	/* Clear the entire screen to our selected color. */
+	SDL_RenderClear(renderer);
+
 }
 
 //--------------------------------------------------------------------------
@@ -911,6 +932,22 @@ void gui_surfaceToGL(SDL_Surface *whichSurface, string textureName)
 	newImageSize.y = whichSurface->h;
 
 	io_storeTextureInfoIntoMap(newTextureID, newImageSize, textureName, false);
+}
+
+//--------------------------------------------------------------------------
+//
+// Prepare the GUI - call scripts, setup scrollbox values
+// Needs to happen after GUI fonts are loaded
+void gui_prepareGUI()
+//--------------------------------------------------------------------------
+{
+	gui_setFontName ( "fontDigital32" );
+
+	con_executeScriptFunction ( "scr_setupGUI", "" );
+
+	gui_setupScrollBox ( SCROLLBOX_INTRO, &introScrollBox, "scrollText" );
+
+	guiReady = true;
 }
 
 //--------------------------------------------------------------------------
@@ -962,15 +999,6 @@ bool gui_initGUI()
 			return false;
 		}
 	}
-
-	gui_setFontName("fontDigital32");
-
-	con_executeScriptFunction ("scr_setupGUI", "");
-
-	guiReady = true;
-
-	printf("Init GUI done - font loaded, GUI script all run - guiReady set to true\n");
-
 	return true;
 }
 
@@ -1043,6 +1071,7 @@ bool gui_loadTTFFont(string fileName, int fontSize, string indexName)
 	SDL_RWops       *fp;
 	PHYSFS_sint64   fontFileMemSize;
 	_font           tempTTFFont;
+	int             fontWidth, fontHeight;
 
 	//
 	// Start the library once before using it
@@ -1093,6 +1122,9 @@ bool gui_loadTTFFont(string fileName, int fontSize, string indexName)
 	tempTTFFont.valid = true;
 	tempTTFFont.fileName = fileName;
 	tempTTFFont.fontSize = fontSize;
+
+	TTF_SizeText(tempTTFFont.ttfFont, "ABCqQjJiIpP", &fontWidth, &fontHeight);
+	tempTTFFont.fontHeight = fontHeight;            // store the font height
 
 	ttfFonts.push_back(tempTTFFont);
 
@@ -1353,6 +1385,12 @@ void gui_handleInputEvent(int eventAction, int eventType, int eventSource)
 
 	if (eventAction == MY_INPUT_ACTION_RELEASE)
 	{
+		if (currentMode == MODE_INTRO)
+		{
+			sys_changeMode(MODE_GUI);
+			return;
+		}
+
 		switch ( eventType )
 		{
 			case MY_INPUT_UP:

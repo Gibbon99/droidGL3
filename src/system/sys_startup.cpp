@@ -183,6 +183,8 @@ bool sys_initAll()
 		if (!gui_loadTTFFont("Digital.ttf", 32, "fontDigital32"))
 			return false;
 
+		gui_prepareGUI();
+
 		SDL_Delay(2000);
 
 	}   // end of file system check

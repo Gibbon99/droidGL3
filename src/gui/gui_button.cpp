@@ -96,7 +96,7 @@ void gui_timerFocusAnimation(int newState)
 		case USER_EVENT_TIMER_ON:
 		{
 			if (guiFocusTimerID == 0)
-				guiFocusTimerID = evt_registerTimer(focusAnimateIntervalValue, gui_focusAnimateCallback, "GUI Focus Animation");
+				guiFocusTimerID = evt_registerTimer( static_cast<Uint32>(focusAnimateIntervalValue), gui_focusAnimateCallback, "GUI Focus Animation");
 
 			doButtonAnimate = true;
 			break;
@@ -128,7 +128,7 @@ void gui_drawButton( int objectIndex, bool hasFocus )
 
 	startX = static_cast<Sint16>(guiButtons[objectIndex].attributes.boundingBox.x);
 	startY = static_cast<Sint16>(guiButtons[objectIndex].attributes.boundingBox.y);
-	width = static_cast<Sint16>(guiButtons[objectIndex].attributes.boundingBox.w);
+	width =  static_cast<Sint16>(guiButtons[objectIndex].attributes.boundingBox.w);
 	height = static_cast<Sint16>(guiButtons[objectIndex].attributes.boundingBox.h);
 
 	gapSize = static_cast<Sint16>(guiButtons[objectIndex].gapSize);

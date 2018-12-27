@@ -29,7 +29,7 @@ cpVect as_vectTest(cpVect cpParam)
 void as_setGameVariables()
 //-----------------------------------------------------------------------------
 {
-    drawHUD = false;
+    drawHUD = true;
 
     nearPlane = 0.0;
     farPlane = 400.0;

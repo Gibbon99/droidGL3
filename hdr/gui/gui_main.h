@@ -20,19 +20,20 @@
 #define FOCUS_RIGHT						3
 
 extern bool                                    guiReady;
-extern SDL_Renderer                            *renderer;       // Global for all GUI functions to access
-extern SDL_Surface                             *guiSurface;     // GLobal surface where all SDL rendering takes place
+extern SDL_Renderer                           *renderer;       // Global for all GUI functions to access
+extern SDL_Surface                            *guiSurface;     // GLobal surface where all SDL rendering takes place
 extern std::string                             guiFontName;     // Which font is currently in use
 extern int                                     currentObjectSelected;  // Pass this to script to act on
-extern SDL_Color                                focusAnimateColor;
+extern SDL_Color                               focusAnimateColor;
 
 typedef struct
 {
-	TTF_Font		    *ttfFont;
+	TTF_Font		   *ttfFont;
 	bool				valid;
 	string				fileName;
 	int                 fontSize;
-	int                 *fontFileMemPtr;
+	int                 fontHeight;
+	int                *fontFileMemPtr;
 } _font;
 
 extern vector<_font>        ttfFonts;
@@ -124,6 +125,10 @@ bool gui_renderText(string fontIndexName, glm::vec2 position, glm::vec3 color, S
 // Create the GUI SDL_Surface, which is the destination surface to hold
 // all the SDL GUI rendering - gets uploaded to GL texture for quad render
 bool gui_initGUI();
+
+// Prepare the GUI - call scripts, setup scrollbox values
+// Needs to happen after GUI fonts are loaded
+void gui_prepareGUI();
 
 bool gui_loadTTFFont(string fileName, int fontSize, string indexName);
 
