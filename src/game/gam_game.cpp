@@ -25,21 +25,25 @@ void gam_startNewGame (int gameType)
 		default:
 			break;
 	}
-	net_initLibrary ();
 
-	net_startConnectionToServer(USER_EVENT_TIMER_ON);
-
-  //
-  // Turn off timers while changing level
+	//
+	// Turn off timers while changing level
 	gam_setHealingState (false);
 	gam_setPlayerAnimateState (false);
 	gam_setDoorAnimateState (false);
 
-	gl_createAllSprites ();
+	net_initLibrary ();
+
+	net_startConnectionToServer(USER_EVENT_TIMER_ON);
+
+	while (!haveServerConnection);      // Stop here until connected - need to put up some sort of message
+
+
+	gl_createAllSprites ();     // TODO: Move this startup somewhere
 
 	gam_initialPlayerSetup ();
 
-	lvl_changeToLevel ("Upper cargo");
+	lvl_changeToLevel (lvl_getStartingLevel (), true);
 
 	gam_doorTriggerSetup();
 

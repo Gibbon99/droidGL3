@@ -147,7 +147,7 @@ glm::vec2 gl_getScaleby(string whichSprite)
 	if (errorCount == 0)
 	{
 		errorCount++;
-		con_print (CON_ERROR, true, "Unable to find sprite [ %s ] to return scaleBy.", whichSprite);
+		con_print (CON_ERROR, true, "Unable to find sprite [ %s ] to return scaleBy.", whichSprite.c_str());
 	}
 	else
 		errorCount++;

@@ -20,7 +20,7 @@ RakNet::Packet          netServerPacket;
 std::string      connectionPassword;
 
 bool            isServer = true;
-bool            isClient = true;
+//bool            isClient = true;
 
 int             serverPort;
 
@@ -36,12 +36,13 @@ SDL_Thread      *userEventNetworkInThread;
 void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichClient )
 //-----------------------------------------------------------------------------
 {
+	unsigned long clientIndex = 0;
+
 	switch ( packetSource )
 	{
-			case USER_EVENT_NETWORK_FROM_CLIENT:        // From the client to the server
+		case USER_EVENT_NETWORK_FROM_CLIENT:        // From the client to the server
 			if (clientRunning)
 			{
-
 				netClient->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClient->GetSystemAddressFromGuid ( netServerPacket.guid ), false );
 				networkPacketCountSentClient++;
 			}
@@ -50,14 +51,26 @@ void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichCl
 		case NETWORK_SEND_DATA:             // From the server to the client
 			if (serverRunning)
 			{
-				if ( netClientInfo[whichClient].inUse )
+				if ( -1 == whichClient )      // to all clients
 				{
-					if ( netServer->GetConnectionState ( netClientInfo[whichClient].systemAddress ) ==
-					     RakNet::IS_CONNECTED )
+					clientIndex = netClientInfo.size();
+
+					for (auto i = 0; i != clientIndex; i++)
 					{
-						netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0,
-						                  netClientInfo[whichClient].systemAddress, false );
-						networkPacketCountSentServer++;
+						netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClientInfo[i].systemAddress, false );
+					}
+					return;
+				}
+				else
+				{
+					if ( netClientInfo[whichClient].inUse )
+					{
+						if ( netServer->GetConnectionState ( netClientInfo[whichClient].systemAddress ) ==
+						     RakNet::IS_CONNECTED )
+						{
+							netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClientInfo[whichClient].systemAddress, false );
+							networkPacketCountSentServer++;
+						}
 					}
 				}
 			}

@@ -104,5 +104,5 @@ void ai_processDroidMovement(const string &levelName)
 	}
 
 	if (isServer)
-		net_sendPacket ( &BSOut, NETWORK_SEND_DATA, 0 );
+		net_sendPacket ( &BSOut, NETWORK_SEND_DATA, -1 );
 }

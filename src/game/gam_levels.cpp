@@ -35,6 +35,15 @@ inline bool lvl_isLevelValid ( string levelName )
 
 //-----------------------------------------------------------------------------------------------------
 //
+// Get a starting level - randomly chosen
+std::string lvl_getStartingLevel ()
+//-----------------------------------------------------------------------------------------------------
+{
+	return "Bridge";       // TODO: Make a random choice
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
 // Return the string name of the current level
 string lvl_getCurrentLevelName ()
 //-----------------------------------------------------------------------------------------------------
@@ -470,7 +479,7 @@ void lvl_showLevelsLoaded ()
 //-----------------------------------------------------------------------------------------------------
 //
 // Change to a new level
-void lvl_changeToLevel ( const string levelName )
+void lvl_changeToLevel ( const string levelName, bool startOnLift )
 //-----------------------------------------------------------------------------------------------------
 {
 	currentLevelName = levelName;
@@ -478,15 +487,22 @@ void lvl_changeToLevel ( const string levelName )
 	lvl_getLiftPositions ( levelName );
 	drd_setupLevel ( levelName );
 
-	playerDroid.worldPos = s_getLiftworldPosition (levelName, 0);
+	if (startOnLift)
+	{
+		playerDroid.worldPos = s_getLiftworldPosition ( levelName, 0 );
 
-    playerDroid.worldPos.x = static_cast<float>(playerDroid.worldPos.x) * TILE_SIZE;
-    playerDroid.worldPos.y = static_cast<float>(playerDroid.worldPos.y) * TILE_SIZE;
-	//
-	// Center on the lift tile
-	playerDroid.worldPos.x += TILE_SIZE * 0.5f;
-	playerDroid.worldPos.y += TILE_SIZE * 0.5f;
-	sys_setPlayerPhysicsPosition (playerDroid.worldPos);
+		playerDroid.worldPos.x = static_cast<float>(playerDroid.worldPos.x) * TILE_SIZE;
+		playerDroid.worldPos.y = static_cast<float>(playerDroid.worldPos.y) * TILE_SIZE;
+		//
+		// Center on the lift tile
+		playerDroid.worldPos.x += TILE_SIZE * 0.5f;
+		playerDroid.worldPos.y += TILE_SIZE * 0.5f;
+		sys_setPlayerPhysicsPosition ( playerDroid.worldPos );
+	}
+	else
+	{
+		// Get random starting position from waypoints
+	}
 
 	sys_createSolidWalls(levelName );
 

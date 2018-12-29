@@ -3,6 +3,8 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/network/net_common.h"
 
+extern bool                    haveServerConnection;  // Have we connected to the server
+
 bool net_startClient(int serverPort);
 
 void net_shutdownClient();

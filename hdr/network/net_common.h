@@ -13,16 +13,24 @@
 
 enum GameMessages
 {
-	ID_GAME_MESSAGE_1=ID_USER_PACKET_ENUM+1
+	ID_GAME_MESSAGE_1=ID_USER_PACKET_ENUM+1,
+	ID_GAME_WELCOME,
 };
 
-#define NET_TEXT_SIZE        32
+enum playerState
+{
+	playerStateNormal = 0,
+	playerStateUsingLift,
+	playerStateInTransferGame,
+	playerStateInTransferMode,
+	playerStateUsingHealing,
+	playerStateUsingTerminal,
+};
 
-#define NET_SYS_KEEPALIVE         0x501
+//#define NET_TEXT_SIZE        32
+
+//#define NET_SYS_KEEPALIVE         0x501
 #define NET_CLIENT_DATA_PACKET    0x502
-#define NETWORK_SEND_SYSTEM       0x503
-#define NET_SYSTEM_PACKET         0x504
-#define NET_STATUS                0x505
 #define NET_CLIENT_CURRENT_LEVEL  0x506
 #define NET_CLIENT_WORLDPOS       0x507
 #define NET_CLIENT_SYSTEM_PACKET  0x508
@@ -39,12 +47,12 @@ extern size_t       networkOutQueueSize;
 extern RakNet::RakPeerInterface     *netClient;
 extern RakNet::RakPeerInterface     *netServer;
 
-extern bool     isServer;
-extern bool     isClient;
+extern bool             isServer;
+//extern bool             isClient;
 
 extern std::string      connectionPassword;
-extern std::string   serverName;
-extern int      serverPort;
+extern std::string      serverName;
+extern int              serverPort;
 
 extern bool     serverRunning;
 extern bool     clientRunning;

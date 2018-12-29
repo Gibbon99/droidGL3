@@ -11,11 +11,14 @@ typedef struct
 	RakNet::RakNetGUID                  GUID;
 	char                                name[16];
 	int                                 packetSequenceCount;
+	std::string                         currentLevel;       // Level client is currently on
+	int                                 state;              // What is the player doing now
 } _netClientInfo;
 
-extern std::vector<_netClientInfo> netClientInfo;
+extern std::vector<_netClientInfo>  netClientInfo;
 
-extern int              maxNumClients;  // From script
+extern int                          maxNumClients;  // From script
+
 
 bool net_startServer( unsigned short hostPort, unsigned short netMaxNumClients );
 

@@ -1387,6 +1387,8 @@ void gui_handleInputEvent(int eventAction, int eventType, int eventSource)
 	{
 		if (currentMode == MODE_INTRO)
 		{
+			evt_removeTimer (introScrollPauseTimerID);
+			evt_removeTimer (introScrollTimerID);
 			sys_changeMode(MODE_GUI);
 			return;
 		}
@@ -1395,20 +1397,17 @@ void gui_handleInputEvent(int eventAction, int eventType, int eventSource)
 		{
 			case MY_INPUT_UP:
 				// Play sound
-				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_KEYPRESS_GOOD, 0, 0, glm::vec2 (),
-				                glm::vec2 (), "" );
+				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_KEYPRESS_GOOD, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 				gui_handleFocusMove ( FOCUS_PREVIOUS, false, eventSource );
 				break;
 
 			case MY_INPUT_DOWN:
-				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_KEYPRESS_GOOD, 0, 0, glm::vec2 (),
-				                glm::vec2 (), "" );
+				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_KEYPRESS_GOOD, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 				gui_handleFocusMove ( FOCUS_NEXT, false, eventSource );
 				break;
 
 			case MY_INPUT_ACTION:
-				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_KEYPRESS_GOOD, 0, 0, glm::vec2 (),
-				                glm::vec2 (), "" );
+				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_KEYPRESS_GOOD, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 				gui_handleFocusMove ( -1, true, eventSource );  //eventSource is TRUE if event is from mouse
 				break;
 

@@ -30,6 +30,9 @@ typedef struct
 extern _scrollBox		introScrollBox;
 extern _scrollBox   	databaseScrollBox;
 
+extern SDL_TimerID         introScrollTimerID;
+extern SDL_TimerID         introScrollPauseTimerID;
+
 extern int introStartX;
 extern int introStartY;
 extern int introWidth;

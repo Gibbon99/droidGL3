@@ -2,8 +2,8 @@
 #include "hdr/network/net_common.h"
 #include <hdr/network/raknet/RakNetTypes.h>
 
-bool                    haveServerAddress;     // Do we know who to connect to
-bool                    haveServerConnection;  // Have we connected to the server
+bool                    haveServerAddress = false;     // Do we know who to connect to
+bool                    haveServerConnection = false;  // Have we connected to the server
 SDL_TimerID             net_clientConnectionTimer;
 std::string             serverName;             // Name / address of the discovered server
 

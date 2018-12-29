@@ -95,8 +95,22 @@ void net_shutdownServer()
 //--------------------------------------------------------------------------------
 //
 // Send the client world position according to the server
-void net_sendPositionUpdate ( int whichClient )
+void net_sendWelcomePacket ( int whichClient )
 //--------------------------------------------------------------------------------
 {
-	evt_sendEvent (USER_EVENT_NETWORK_OUT, USER_EVENT_NETWORK_OUT, NET_CLIENT_WORLDPOS, whichClient, 0, glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y} , glm::vec2 (), "");
+	RakNet::BitStream BSOut{};
+
+	BSOut.Write ((RakNet::MessageID) ID_GAME_WELCOME );
+	BSOut.Write ( NET_DROID_WORLDPOS );
+	BSOut.Write ( currentServerTick );
+
+//	BSOut.Write ();         // Level for new client to start on
+//	BSOut.WriteVector ();   // Position for new client to start at
+
+
+//	BSOut.WriteVector ( levelInfo.at ( levelName ).droid[index].worldPos.x, levelInfo.at ( levelName ).droid[index].worldPos.y, 0.0 );
+
+//	BSOut.WriteVector ( levelInfo.at ( levelName ).droid[index].velocity.x, levelInfo.at ( levelName ).droid[index].velocity.y, 0.0 );
+
+	net_sendPacket ( &BSOut, NETWORK_SEND_DATA, 0 );
 }

@@ -62,7 +62,7 @@ void gam_findHealingTiles ( string levelName )
 // ----------------------------------------------------------------------------
 {
 	int                 index;
-	_basicHealing       tempHealing;
+	_basicHealing       tempHealing{};
 
 	CHECK_LEVEL_NAME
 

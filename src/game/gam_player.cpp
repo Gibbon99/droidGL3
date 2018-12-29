@@ -96,7 +96,7 @@ void gam_processPlayerMovement ()
 	playerDroid.middlePosition.x = playerDroid.worldPos.x + (DROID_SIZE * 0.5);
 	playerDroid.middlePosition.y = playerDroid.worldPos.y + (DROID_SIZE * 0.5);
 
-	net_sendPositionUpdate (0);
+//	net_sendPositionUpdate (0);
 }
 
 //------------------------------------------------------------------------------

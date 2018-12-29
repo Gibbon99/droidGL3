@@ -9,7 +9,7 @@
 #define MAP_VERSION             115
 
 #define CHECK_LEVEL_NAME    	if (!lvl_isLevelValid(levelName))    \
-								{ con_print(CON_ERROR, true, "No valid level name [ %s ] - [ %s ]", levelName, __func__); \
+								{ con_print(CON_ERROR, true, "No valid level name [ %s ] - [ %s ]", levelName.c_str(), __func__); \
 								}
 
 #define MAX_NUM_SPRITES         20   // maximum number of sprites per level
@@ -115,10 +115,13 @@ void lvl_addPaddingToLevel(string levelName);
 void lvl_showLevelsLoaded ();
 
 // Change to a new level
-void lvl_changeToLevel ( const string levelName );
+void lvl_changeToLevel ( const string levelName, bool startOnLift );
 
 // Return the string name of the current level
 string lvl_getCurrentLevelName ();
 
 // Check if the level name is valid before accessing the map
 inline bool lvl_isLevelValid ( string levelName );
+
+// Get a starting level - randomly chosen
+std::string lvl_getStartingLevel ();
