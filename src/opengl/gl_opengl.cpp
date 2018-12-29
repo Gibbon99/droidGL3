@@ -338,6 +338,7 @@ void gl_draw2DQuad ( glm::vec2 position, glm::vec2 quadSize, std::string whichSh
 	GL_CHECK (glUniform3fv (gl_getUniform (whichShader, "inColorKey"), 1, glm::value_ptr(colorKey)));
 	GL_CHECK (glUniform3fv (gl_getUniform (whichShader, "inTintColor"), 1, glm::value_ptr (tintColor)));
 
+	GL_CHECK (glUniform1f (gl_getUniform (whichShader, "time"), (float)frameCount));
 
 	GL_CHECK (glBindVertexArray (vao));
 	//

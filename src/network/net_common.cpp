@@ -174,44 +174,66 @@ int net_processNetworkTraffic( void *ptr )
 				{
 					case ID_DISCONNECTION_NOTIFICATION:
 						// Connection lost normally
-						printf ( "ID_DISCONNECTION_NOTIFICATION\n" );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: ID_DISCONNECTION_NOTIFICATION\n" );
+#endif
 						break;
 					case ID_ALREADY_CONNECTED:
 						// Connection lost normally
-						printf ( "ID_ALREADY_CONNECTED with guid %" PRINTF_64_BIT_MODIFIER "u\n", p->guid );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: ID_ALREADY_CONNECTED with guid %" PRINTF_64_BIT_MODIFIER "u\n", p->guid );
+#endif
 						break;
 					case ID_INCOMPATIBLE_PROTOCOL_VERSION:
-						printf ( "ID_INCOMPATIBLE_PROTOCOL_VERSION\n" );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: ID_INCOMPATIBLE_PROTOCOL_VERSION\n" );
+#endif
 						break;
 					case ID_REMOTE_DISCONNECTION_NOTIFICATION: // Server telling the clients of another client disconnecting gracefully.  You can manually broadcast this in a peer to peer enviroment if you want.
-						printf ( "ID_REMOTE_DISCONNECTION_NOTIFICATION\n" );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: ID_REMOTE_DISCONNECTION_NOTIFICATION\n" );
+#endif
 						break;
 					case ID_REMOTE_CONNECTION_LOST: // Server telling the clients of another client disconnecting forcefully.  You can manually broadcast this in a peer to peer enviroment if you want.
-						printf ( "ID_REMOTE_CONNECTION_LOST\n" );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: ID_REMOTE_CONNECTION_LOST\n" );
+#endif
 						break;
 					case ID_REMOTE_NEW_INCOMING_CONNECTION: // Server telling the clients of another client connecting.  You can manually broadcast this in a peer to peer enviroment if you want.
-						printf ( "ID_REMOTE_NEW_INCOMING_CONNECTION\n" );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: ID_REMOTE_NEW_INCOMING_CONNECTION\n" );
+#endif
 						break;
 					case ID_CONNECTION_BANNED: // Banned from this server
-						printf ( "We are banned from this server.\n" );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: We are banned from this server.\n" );
+#endif
 						break;
 					case ID_CONNECTION_ATTEMPT_FAILED:
-						printf ( "Connection attempt failed\n" );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: Connection attempt failed\n" );
+#endif
 						break;
 					case ID_NO_FREE_INCOMING_CONNECTIONS:
 						// Sorry, the server is full.  I don't do anything here but
 						// A real app should tell the user
-						printf ( "ID_NO_FREE_INCOMING_CONNECTIONS\n" );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: ID_NO_FREE_INCOMING_CONNECTIONS\n" );
+#endif
 						break;
 
 					case ID_INVALID_PASSWORD:
-						printf ( "ID_INVALID_PASSWORD\n" );
+#ifdef NET_DEBUG
+						printf ( "CLIENT: ID_INVALID_PASSWORD\n" );
+#endif
 						break;
 
 					case ID_CONNECTION_LOST:
+#ifdef NET_DEBUG
 						// Couldn't deliver a reliable packet - i.e. the other system was abnormally
 						// terminated
-						printf ( "ID_CONNECTION_LOST\n" );
+						printf ( "CLIENT: ID_CONNECTION_LOST\n" );
+#endif
 						break;
 
 					case ID_CONNECTION_REQUEST_ACCEPTED:
@@ -225,12 +247,16 @@ int net_processNetworkTraffic( void *ptr )
 
 					case ID_CONNECTED_PING:
 					case ID_UNCONNECTED_PING:
-						printf ( "Ping from %s\n", p->systemAddress.ToString ( true ));
+#ifdef NET_DEBUG
+						printf ( "CLIENT: Ping from %s\n", p->systemAddress.ToString ( true ));
+#endif
 						break;
 
 					case ID_UNCONNECTED_PONG:
 						net_clientGotPong(p->systemAddress);
-						printf ( "Got pong from %s \n", p->systemAddress.ToString ());
+#ifdef NET_DEBUG
+						printf ( "CLIENT: Got pong from %s \n", p->systemAddress.ToString ());
+#endif
 						break;
 
 					case ID_GAME_MESSAGE_1:
@@ -273,51 +299,41 @@ int net_processNetworkTraffic( void *ptr )
 					{
 						case ID_DISCONNECTION_NOTIFICATION:
 							// Connection lost normally
-							printf ( "ID_DISCONNECTION_NOTIFICATION from %s\n", p->systemAddress.ToString ( true ));;
+#ifdef NET_DEBUG
+							printf ( "SERVER: ID_DISCONNECTION_NOTIFICATION from %s\n", p->systemAddress.ToString ( true ));;
+#endif
 							break;
 
 						case ID_NEW_INCOMING_CONNECTION:
 							// Somebody connected.  We have their IP now
 
-							tempNetClientInfo.inUse = true;
-							tempNetClientInfo.systemAddress = p->systemAddress;
-							tempNetClientInfo.GUID = p->guid;
-							tempNetClientInfo.packetSequenceCount = 0;
-							sprintf ( tempNetClientInfo.name, "%s", "No Name" );
-
-							netClientInfo.push_back ( tempNetClientInfo );
-
-							printf ( "ID_NEW_INCOMING_CONNECTION from %s with GUID %s\n",
-							         netClientInfo[0].systemAddress.ToString ( true ),
-							         netClientInfo[0].GUID.ToString ());
-
-							printf ( "Remote internal IDs:\n" );
-							for ( int index = 0; index < MAXIMUM_NUMBER_OF_INTERNAL_IDS; index++ )
-							{
-								RakNet::SystemAddress internalId = netServer->GetInternalID ( p->systemAddress, index );
-								if ( internalId != RakNet::UNASSIGNED_SYSTEM_ADDRESS )
-								{
-									printf ( "%i. %s\n", index + 1, internalId.ToString ( true ));
-								}
-							}
+							net_addNewClient(p->systemAddress, p->guid);
 							break;
 
 						case ID_INCOMPATIBLE_PROTOCOL_VERSION:
-							printf ( "ID_INCOMPATIBLE_PROTOCOL_VERSION\n" );
+#ifdef NET_DEBUG
+							printf ( "SERVER: ID_INCOMPATIBLE_PROTOCOL_VERSION\n" );
+#endif
 							break;
 
 						case ID_CONNECTED_PING:
-							printf ( "Ping from %s\n", p->systemAddress.ToString ( true ));
+#ifdef NET_DEBUG
+							printf ( "SERVER: Ping from %s\n", p->systemAddress.ToString ( true ));
+#endif
 							break;
 
 						case ID_UNCONNECTED_PING:
-							printf ( "Unconnected discovery Ping from %s\n", p->systemAddress.ToString ( true ));
+#ifdef NET_DEBUG
+							printf ( "SERVER: Unconnected discovery Ping from %s\n", p->systemAddress.ToString ( true ));
+#endif
 							break;
 
 						case ID_CONNECTION_LOST:
 							// Couldn't deliver a reliable packet - i.e. the other system was abnormally
 							// terminated
-							printf ( "ID_CONNECTION_LOST from %s\n", p->systemAddress.ToString ( true ));
+#ifdef NET_DEBUG
+							printf ( "SERVER: ID_CONNECTION_LOST from %s\n", p->systemAddress.ToString ( true ));
+#endif
 							//
 							// TODO: Remove client from vector array based on systemAddress
 							break;

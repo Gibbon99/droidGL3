@@ -23,3 +23,6 @@ bool net_startServer( unsigned short hostPort, unsigned short netMaxNumClients )
 void net_sendPositionUpdate ( int whichClient );
 
 void net_shutdownServer();
+
+// New client connected - record their details
+bool net_addNewClient(RakNet::SystemAddress clientAddressReceived, RakNet::RakNetGUID clientGUID );

@@ -8,6 +8,35 @@ int                     maxNumClients;  // From script
 
 //-----------------------------------------------------------------------------------------------------
 //
+// New client connected - record their details
+bool net_addNewClient(RakNet::SystemAddress clientAddressReceived, RakNet::RakNetGUID clientGUID )
+//-----------------------------------------------------------------------------------------------------
+{
+	_netClientInfo          tempNetClientInfo;
+	unsigned long           newClientIndex = 0;
+
+	if (maxNumClients == netClientInfo.size())
+	{
+		// Server is full
+		return false;       // Send to client 'server is full' message
+	}
+
+	tempNetClientInfo.inUse = true;
+	tempNetClientInfo.systemAddress = clientAddressReceived;
+	tempNetClientInfo.GUID = clientGUID;
+	tempNetClientInfo.packetSequenceCount = 0;
+	sprintf ( tempNetClientInfo.name, "%s", "No Name" );
+
+	netClientInfo.push_back ( tempNetClientInfo );
+	newClientIndex = netClientInfo.size() - 1;
+
+	printf ( "SERVER: ID_NEW_INCOMING_CONNECTION from %s with GUID %s\n", netClientInfo[newClientIndex].systemAddress.ToString ( true ), netClientInfo[newClientIndex].GUID.ToString ());
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
 /// \param argc
 /// \param argv
 /// \return

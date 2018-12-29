@@ -13,17 +13,13 @@ std::string             serverName;             // Name / address of the discove
 void net_clientConnectionAccepted(RakNet::SystemAddress serverAddressReceived, RakNet::RakNetGUID clientGUID)
 //------------------------------------------------------------------------
 {
-
-
 	if (!haveServerConnection)
 	{
 		net_startConnectionToServer ( USER_EVENT_TIMER_OFF );  // Don't need the timer anymore
 		haveServerConnection = true;
 
-
-		printf ( "ID_CONNECTION_REQUEST_ACCEPTED to %s with GUID %s\n", serverAddressReceived.ToString ( true ),
-		         clientGUID.ToString ());
-		printf ( "My external address is %s\n", serverAddressReceived.ToString ( true ));
+		printf ( "CLIENT: ID_CONNECTION_REQUEST_ACCEPTED to %s with GUID %s\n", serverAddressReceived.ToString ( true ), clientGUID.ToString ());
+		printf ( "CLIENT: My external address is %s\n", serverAddressReceived.ToString ( true ));
 	}
 }
 
@@ -48,7 +44,7 @@ void net_clientSendDiscoverPing(unsigned short serverPort)
 //-----------------------------------------------------------------------------------------------------
 {
 	netClient->Ping( "255.255.255.255", serverPort, false);
-	printf("Pinging to locate server on port [ %i ]\n", serverPort);
+	printf("CLIENT: Pinging to locate server on port [ %i ]\n", serverPort);
 }
 
 //------------------------------------------------------------------------
@@ -115,7 +111,7 @@ bool net_startClient(int serverPort)
 	netClient->Startup (1, &socketDescriptor, 1);
 	netClient->SetOccasionalPing(true);
 
-	printf("Client started on [ %s : %i ]\n", netClient->GetExternalID (RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString(), serverPort + 1);
+	printf("CLIENT: Client started on [ %s : %i ]\n", netClient->GetExternalID (RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString(), serverPort + 1);
 
 	return true;
 }
@@ -138,10 +134,10 @@ bool net_clientConnectTo( const string &serverName, unsigned short serverPort )
 	unsigned int i;
 	for (i=0; i < netClient->GetNumberOfAddresses(); i++)
 	{
-		printf("Client IP Address [ %i. %s ]\n", i+1, netClient->GetLocalIP(i));
+		printf("CLIENT: Client IP Address [ %i. %s ]\n", i+1, netClient->GetLocalIP(i));
 	}
 
-	con_print(CON_INFO, true, "GUID is %s", netClient->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString());
+	con_print(CON_INFO, true, "CLIENT: GUID is %s", netClient->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString());
 
 	return true;
 }

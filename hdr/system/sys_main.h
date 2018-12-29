@@ -56,6 +56,8 @@ extern int  currentMode;
 extern bool fullScreen;
 extern int  vsyncType;
 
+extern float interpolation;
+
 extern vec3 quadPosition;
 
 // Change game mode

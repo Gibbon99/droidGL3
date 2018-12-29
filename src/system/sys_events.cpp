@@ -44,7 +44,7 @@ queue <_myEventData> gameEventQueue;
 queue <_myEventData> guiEventQueue;
 
 queue<_myEventData> clientEventInQueue;
-queue<_myEventData> networkClientOutQueue;
+//queue<_myEventData> networkClientOutQueue;
 
 queue<_myEventData> serverEventInQueue;
 queue<_myEventData> networkOutQueue;
@@ -61,6 +61,41 @@ typedef struct
 } _registeredTimers;
 
 vector<_registeredTimers>         registeredTimers;
+
+typedef struct
+{
+	SDL_Thread      *threadPointer = nullptr;
+	std::string     threadName;
+} _registeredThreads;
+
+vector<_registeredThreads>          registeredThreads;
+
+//------------------------------------------------------------------------
+//
+// Keep a list of threads that have been created. They will be detached and remove themselves
+// at shutdown
+SDL_Thread  *evt_registerThread(SDL_ThreadFunction threadFunction, const std::string &threadName)
+//------------------------------------------------------------------------
+{
+	_registeredThreads      newThread;
+
+	newThread.threadPointer = nullptr;
+
+	newThread.threadPointer = SDL_CreateThread(threadFunction, threadName.c_str(), (void *)nullptr);
+	if (nullptr == newThread.threadPointer)
+	{
+		con_print(CON_ERROR, true, "Unable to create new thread [ %s ]", threadName.c_str());
+		return nullptr;
+	}
+
+	newThread.threadName = threadName;
+
+	registeredThreads.push_back(newThread);
+
+	con_print(CON_INFO, true, "Created new thread [ %s ]", threadName.c_str());
+
+	return newThread.threadPointer;
+}
 
 //------------------------------------------------------------------------
 //
@@ -83,7 +118,7 @@ SDL_TimerID evt_registerTimer(Uint32 timerInterval, SDL_TimerCallback timerFunct
 
 	registeredTimers.push_back(newTimer);
 
-	printf("Added new timer - %s\n", timerName.c_str());
+	con_print(CON_INFO, true, "Added new timer [ %s ]", timerName.c_str());
 
 	return newTimer.timerID;
 }
@@ -113,8 +148,10 @@ void evt_removeAllTimers()
 	for ( const auto &timerIndex : registeredTimers)
 	{
 		SDL_RemoveTimer(timerIndex.timerID);
-		printf("Removed timer [ %s ]\n", timerIndex.timerName.c_str());
+		con_print(CON_INFO, true, "Removed timer [ %s ]", timerIndex.timerName.c_str());
 	}
+	registeredTimers.clear();
+	registeredTimers.resize(0);
 }
 
 //------------------------------------------------------------------------
@@ -188,54 +225,33 @@ bool evt_registerUserEventSetup ()
 
 	timerCursorFlash = evt_registerTimer(500, evt_cursorTimerCallback, "Console cursor animation");
 
-	userEventConsoleThread = SDL_CreateThread (con_processConsoleUserEvent, "userEventConsoleThread", (void *) nullptr);
+	userEventConsoleThread = evt_registerThread(con_processConsoleUserEvent, "userEventConsoleThread");
 	if ( nullptr == userEventConsoleThread )
-	{
-		printf ("SDL_CreateThread - userEventConsoleThread - failed: %s\n", SDL_GetError ());
 		return false;
-	}
 
-	userEventAudioThread = SDL_CreateThread (aud_processAudioEventQueue, "userEventAudioThread", (void *) nullptr);
+	userEventAudioThread = evt_registerThread(aud_processAudioEventQueue, "userEventAudioThread");
 	if ( nullptr == userEventAudioThread )
-	{
-		printf ("SDL_CreateThread - userEventConsoleThread - failed: %s\n", SDL_GetError ());
 		return false;
-	}
 
-	userEventLoggingThread = SDL_CreateThread (io_processLoggingEventQueue, "userEventLoggingThread", (void *) nullptr);
+	userEventLoggingThread = evt_registerThread(io_processLoggingEventQueue, "userEventLoggingThread");
 	if ( nullptr == userEventLoggingThread )
-	{
-		printf ("SDL_CreateThread - userEventLoggingThread - failed: %s\n", SDL_GetError ());
 		return false;
-	}
 
-	userEventGuiThread = SDL_CreateThread (gam_processGuiEventQueue, "gam_processGuiEventQueue", (void *) nullptr);
+	userEventGuiThread = evt_registerThread(gam_processGuiEventQueue, "gam_processGuiEventQueue");
 	if ( nullptr == userEventGuiThread )
-	{
-		printf ("SDL_CreateThread - userEventGuiThread - failed: %s\n", SDL_GetError ());
 		return false;
-	}
 
-	userEventGameThread = SDL_CreateThread (gam_processGameEventQueue, "userEventGameThread", (void *) nullptr);
+	userEventGameThread = evt_registerThread(gam_processGameEventQueue, "userEventGameThread");
 	if ( nullptr == userEventGameThread )
-	{
-		printf ("SDL_CreateThread - userEventGameThread - failed: %s\n", SDL_GetError ());
 		return false;
-	}
 
-	userEventServerThread = SDL_CreateThread (gam_processServerEventQueue, "userEventServerThread", (void *) nullptr);
+	userEventServerThread = evt_registerThread(gam_processServerEventQueue, "userEventServerThread");
 	if ( nullptr == userEventServerThread )
-	{
-		printf ("SDL_CreateThread - userEventServerThread - failed: %s\n", SDL_GetError ());
 		return false;
-	}
 
-	userEventClientThread = SDL_CreateThread (gam_processClientEventQueue, "userEventClientThread", (void *) nullptr);
+	userEventClientThread = evt_registerThread(gam_processClientEventQueue, "userEventClientThread");
 	if ( nullptr == userEventClientThread )
-	{
-		printf ("SDL_CreateThread - userEventClientThread - failed: %s\n", SDL_GetError ());
 		return false;
-	}
 
 	consoleMutex = SDL_CreateMutex ();
 	if ( !consoleMutex )
@@ -243,6 +259,8 @@ bool evt_registerUserEventSetup ()
 		printf ("Couldn't create mutex - consoleMutex");
 		return false;
 	}
+
+	SDL_DetachThread (userEventConsoleThread);
 
 	audioMutex = SDL_CreateMutex ();
 	if ( !audioMutex )
@@ -300,7 +318,6 @@ bool evt_registerUserEventSetup ()
 		return false;
 	}
 
-	SDL_DetachThread (userEventConsoleThread);
 	SDL_DetachThread (userEventAudioThread);
 	SDL_DetachThread (userEventLoggingThread);
 	SDL_DetachThread (userEventGameThread);
