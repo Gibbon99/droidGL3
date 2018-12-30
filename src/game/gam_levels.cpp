@@ -137,7 +137,7 @@ bool lvl_loadLevel ( intptr_t levelMemoryIndex )
 {
 	int            checkVersion;
 	SDL_RWops      *fp;
-	_levelStruct   tempLevel;
+	_levelStruct tempLevel = _levelStruct ();
 
 	tempLevel.lineSegments.clear();
 	tempLevel.wayPoints.clear();
@@ -404,6 +404,23 @@ void lvl_handleLevelFileError ( const int errorCode, const string fileName )
 			con_print (CON_ERROR, true, "MALLOC error loading level [ %s ]", fileName.c_str ());
 			lvl_setLevelError (fileName);
 			break;
+
+		case SIDEVIEW_FILE_NOT_FOUND:
+			con_print(CON_ERROR, true, "Could not find sideview data file [ %s ]", fileName.c_str());
+			break;
+
+		case SIDEVIEW_MALLOC_ERROR:
+			con_print(CON_ERROR, true, "Memory error loading datafile [ %s ]", fileName.c_str());
+			break;
+
+		case SIDEVIEW_LOAD_MEMORY_ERROR:
+			con_print(CON_ERROR, true, "Could not load datafile into memory [ %s ]", fileName.c_str());
+			break;
+
+		case SIDEVIEW_LOAD_ERROR_FILESYSTEM:
+			con_print(CON_ERROR, true, "Error reading from file [ %s ]", fileName.c_str());
+			break;
+
 		default:
 			break;
 	}

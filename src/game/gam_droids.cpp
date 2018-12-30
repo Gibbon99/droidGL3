@@ -69,8 +69,8 @@ void drd_renderThisLevel( const string levelName, float interpolate)
 void drd_setupLevel(string levelName)
 //------------------------------------------------------------------------------
 {
-	_droid      tempDroid;
-    int wayPointCount = 1;
+	_droid          tempDroid;
+    int             wayPointCount = 1;
 
 	if (!levelInfo.at(levelName).droid.empty())
 		return;
@@ -94,12 +94,5 @@ void drd_setupLevel(string levelName)
 		tempDroid.currentSpeed = 1.2f;
 
 		levelInfo.at(levelName).droid.push_back(tempDroid);
-
-        if (0 == i)
-          {
-            printf("Droid world [ %3.3f %3.3f ] Dest [ %3.3f %3.3f ]\n",
-                levelInfo.at(levelName).droid[0].worldPos.x, levelInfo.at(levelName).droid[0].worldPos.y,
-                   levelInfo.at(levelName).droid[0].destinationCoords.x, levelInfo.at(levelName).droid[0].destinationCoords.y);
-          }
 	}
 }

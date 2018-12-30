@@ -1,4 +1,5 @@
 #include <utility>
+#include "hdr/gui/gui_sideview.h"
 #include "hdr/gui/gui_main.h"
 #include "hdr/game/gam_game.h"
 #include "hdr/io/io_fileSystem.h"
@@ -89,6 +90,7 @@ _hostScriptFunctions hostScriptFunctions[] =
 	{"int as_guiFindIndex		   (int guiObjectType, string &in)", 	( void * ) &gui_findIndex},
 	{"void as_guiSetObjectColor    (int guiObjectType, string &in, int whichColor, int red, int green, int blue, int alpha)", 		( void * ) &gui_hostSetObjectColor},
 	{"void as_guiSetObjectPosition (int guiObjectType, string &in, int coordType, int startX, int startY, int width, int height)", 	( void * ) &gui_hostSetObjectPosition},
+	{"void as_createSideViewColor  (int index, int red, int green, int blue, int alpha)",                                             ( void * ) &gui_createSideViewColor},
 	{"void as_guiSetObjectLabel    (int guiObjectType, string &in, int labelPos, string &in)", 		( void * ) &gui_hostSetObjectLabel},
 	{"void as_guiAddObjectToScreen (int guiObjectType, string &in, string &in)", 					( void * ) &gui_hostAddObjectToScreen},
 	{"void as_guiSetObjectFunctions(int guiObjectType, string &in, string &in)", 		            ( void * ) &gui_hostSetObjectFunctions},

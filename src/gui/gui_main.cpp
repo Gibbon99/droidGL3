@@ -11,6 +11,7 @@
 
 #include "hdr/gui/gui_main.h"
 #include "hdr/gui/gui_render.h"
+#include "hdr/gui/gui_sideview.h"
 #include "hdr/system/sys_sdfFont.h"
 
 //#define DEBUG_GUI_SETUP 1
@@ -853,6 +854,11 @@ void gui_displayGUI()
 			gui_drawScrollBox ( &introScrollBox );
 			break;
 
+		case MODE_LIFT_VIEW:
+			// Show the ship in its sideview on the screen
+			gui_drawSideView();
+			break;
+
 		default:
 			break;
 	}
@@ -888,7 +894,7 @@ void gui_displayGUI()
 	// Select the color for clearing the renderer
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
-	/* Clear the entire screen to our selected color. */
+	// Clear the entire screen to our selected color.
 	SDL_RenderClear(renderer);
 
 }

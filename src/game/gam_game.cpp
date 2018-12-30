@@ -38,6 +38,7 @@ void gam_startNewGame (int gameType)
 
 	while (!haveServerConnection);      // Stop here until connected - need to put up some sort of message
 
+	currentAlertLevel = ALERT_GREEN_TILE;
 
 	gl_createAllSprites ();     // TODO: Move this startup somewhere
 

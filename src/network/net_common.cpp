@@ -53,20 +53,13 @@ void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichCl
 			{
 				if ( -1 == whichClient )      // to all clients
 				{
-					clientIndex = netClientInfo.size();
-
-					for (auto i = 0; i != clientIndex; i++)
-					{
-						netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClientInfo[i].systemAddress, false );
-					}
-					return;
+					netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, RakNet::UNASSIGNED_RAKNET_GUID, true );    // Broadcast to all connected clients
 				}
 				else
 				{
 					if ( netClientInfo[whichClient].inUse )
 					{
-						if ( netServer->GetConnectionState ( netClientInfo[whichClient].systemAddress ) ==
-						     RakNet::IS_CONNECTED )
+						if ( netServer->GetConnectionState ( netClientInfo[whichClient].systemAddress ) == RakNet::IS_CONNECTED )
 						{
 							netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClientInfo[whichClient].systemAddress, false );
 							networkPacketCountSentServer++;

@@ -1,13 +1,14 @@
-#include <hdr/io/io_gameprefs.h>
-#include <hdr/game/gam_levels.h>
-#include <hdr/game/gam_render.h>
-#include <hdr/opengl/gl_renderSprite.h>
-#include <hdr/game/gam_healing.h>
-#include <hdr/game/gam_player.h>
-#include <hdr/game/gam_doors.h>
-#include <hdr/game/gam_physicsCollisions.h>
-#include <hdr/game/gam_physicsPlayer.h>
-#include <hdr/gui/gui_main.h>
+#include "hdr/io/io_gameprefs.h"
+#include "hdr/game/gam_levels.h"
+#include "hdr/game/gam_render.h"
+#include "hdr/opengl/gl_renderSprite.h"
+#include "hdr/game/gam_healing.h"
+#include "hdr/game/gam_player.h"
+#include "hdr/game/gam_doors.h"
+#include "hdr/game/gam_physicsCollisions.h"
+#include "hdr/game/gam_physicsPlayer.h"
+#include "hdr/gui/gui_main.h"
+#include "hdr/gui/gui_sideview.h"
 #include "hdr/opengl/gl_fbo.h"
 #include "hdr/opengl/gl_shaders.h"
 #include "hdr/io/io_fileSystem.h"
@@ -176,6 +177,9 @@ bool sys_initAll()
 			return false;
 
 		if (!gui_loadTTFFont("Digital.ttf", 32, "fontDigital32"))
+			return false;
+
+		if (!gui_loadSideViewData( "sideview.dat" ))
 			return false;
 
 		gui_prepareGUI();

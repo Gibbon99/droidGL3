@@ -1,3 +1,5 @@
+
+
 //
 // Defines for sound
 //
@@ -37,6 +39,7 @@ const int MODE_SPLASH               = 7;
 const int MODE_INIT_GAME            = 8;
 const int MODE_GUI                  = 9;
 const int MODE_INTRO                = 10;
+const int MODE_LIFT_VIEW            = 11;
 
 const int GUI_ACTIVE_COL            = 10;
 const int GUI_INACTIVE_COL          = 11;
@@ -44,6 +47,16 @@ const int GUI_ACTIVE_CORNER_COL     = 12;
 const int GUI_INACTIVE_CORNER_COL   = 13;
 const int GUI_ACTIVE_LABEL_COL      = 14;
 const int GUI_INACTIVE_LABEL_COL    = 15;
+
+enum sideViewColorsIndex
+{
+	SIDEVIEW_SHIP_COLOR = 0,
+	SIDEVIEW_ACTIVE_DECK_COLOR,
+	SIDEVIEW_ENGINE_COLOR,
+	SIDEVIEW_LIFT_COLOR,
+	SIDEVIEW_ACTIVE_LIFT_COLOR,
+	SIDEVIEW_NUM_COLORS,
+};
 
 enum mySounds
 {

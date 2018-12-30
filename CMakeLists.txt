@@ -252,7 +252,7 @@ set ( CXX_SRCS
 		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_textBox.cpp 
 		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_label.cpp 
 		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_language.cpp
-        src/gui/gui_scrollBox.cpp hdr/gui/gui_scrollBox.h)
+        src/gui/gui_scrollBox.cpp hdr/gui/gui_scrollBox.h src/gui/gui_sideview.cpp hdr/gui/gui_sideview.h)
 
 # Define the C sources
 set(C_SRCS

@@ -90,6 +90,10 @@ void sys_displayScreen(float interpolation)
 			gui_displayGUI ();
 			break;
 
+		case MODE_LIFT_VIEW:
+			gui_displayGUI ();
+			break;
+
 		case MODE_GAME:
 //			gam_processMovement (interpolation);
 
@@ -139,7 +143,7 @@ void sys_gameTickRun()
 			break;
 
 		case MODE_INIT:
-			sys_changeMode(MODE_INTRO);         // change here
+			sys_changeMode(MODE_LIFT_VIEW);         // change here
 			break;
 
 		case MODE_CONSOLE:

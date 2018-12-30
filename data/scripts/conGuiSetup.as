@@ -156,6 +156,19 @@ void as_setIntroValues()
 
 //-----------------------------------------------------------------------------
 //
+// Create colors for the sideview graphic
+void as_setSideviewColors()
+//-----------------------------------------------------------------------------
+{
+	as_createSideViewColor  (SIDEVIEW_SHIP_COLOR,        142, 182, 12, 255);
+	as_createSideViewColor  (SIDEVIEW_ACTIVE_DECK_COLOR, 71, 199, 232, 255);
+	as_createSideViewColor  (SIDEVIEW_ENGINE_COLOR,      34, 34, 34, 255);
+	as_createSideViewColor  (SIDEVIEW_LIFT_COLOR,        18, 76, 88, 255);
+	as_createSideViewColor  (SIDEVIEW_ACTIVE_LIFT_COLOR, 38, 221, 188, 255);
+}
+
+//-----------------------------------------------------------------------------
+//
 // Setup the GUI screens and elements - called from Host
 void as_setupGUI()
 //-----------------------------------------------------------------------------
@@ -227,4 +240,6 @@ void as_setupGUI()
 	as_guiSetObjectColor ( GUI_OBJECT_LABEL, "scrOptionsHeading", GUI_INACTIVE_COL, 155, 155, 155, 255 );
 	as_guiSetObjectColor ( GUI_OBJECT_LABEL, "scrOptionsHeading", GUI_ACTIVE_LABEL_COL, 0, 255, 255, 255 );
 	as_guiSetObjectColor ( GUI_OBJECT_LABEL, "scrOptionsHeading", GUI_INACTIVE_LABEL_COL, 55, 55, 55, 255 );
+
+	as_setSideviewColors();
 }
