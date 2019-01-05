@@ -1,0 +1,37 @@
+GAME
+-----
+Bullets - player and droids
+Physics - collisions between droids / bullets / players / explosions
+Doors - use physics for detection
+Alert level
+Lightmap for alerts and bullets
+
+Terminal
+---------
+Load Database text into languages files
+Load routine for 3d models for display
+Handle key presses
+Add new MODE
+
+LOCATION
+---------
+Show whole deck layout
+Show flashing location indicator
+
+NETWORK
+--------
+Pass current status of player to server
+Server to send other player locations to clients
+
+GUI
+----
+Options screens
+Sideview screen from terminal
+Terminal screen
+Deck overview screen
+Database droid information screen
+
+BUGS
+-----
+Physics when changing lots of levels
+When switching to scrSideView - GUI Render is drawing textboxes - only one back button defined

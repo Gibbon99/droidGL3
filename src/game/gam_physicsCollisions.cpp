@@ -3,9 +3,13 @@
 #include <hdr/game/gam_physicsPlayer.h>
 #include "hdr/game/gam_physicsCollisions.h"
 
+
 cpCollisionHandler *handlerWallPlayer;
 
 bool useCollisionDetection = true;
+
+cpShapeFilter   testShapeFilter = {WALL_GROUP,          PHYSIC_TYPE_WALL,   PHYSIC_TYPE_PLAYER};
+cpShapeFilter   testShapeFilterPlayer = {PLAYER_GROUP,  PHYSIC_TYPE_PLAYER, PHYSIC_TYPE_WALL};
 
 //-------------------------------------------------------------------
 //
@@ -17,7 +21,7 @@ bool handleCollisionPlayerWall ( cpArbiter *arb, cpSpace *space, int *unused )
 {
 //	playerDroid.velocity = cpBodyGetVelocity (playerPhysicsObject.body );
 
-	if ( false == useCollisionDetection )
+	if ( !useCollisionDetection )
 		return cpFalse;
 	else
 		return cpTrue;

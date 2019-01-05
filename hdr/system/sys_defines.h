@@ -112,17 +112,15 @@ extern int __gl_error_code;
 
 #define GAME_PREFS_FILENAME     "data/gameprefs.ini"
 
-//-----------------------------------------------------------------------------
-//
-// Size of array to hold filenames for textures
-//
-//-----------------------------------------------------------------------------
-
-#define TEXTURE_FILENAME_LENGTH     32
-
-#define INVALID_UNIFORM_LOCATION 0xffffffff
-
 #define SPRITE_SIZE   24
+
+enum bulletTypes
+{
+    BULLET_TYPE_NORMAL = 0,
+    BULLET_TYPE_SINGLE,
+    BULLET_TYPE_DOUBLE,
+    BULLET_TYPE_DISRUPTER
+};
 
 #if defined _WIN32_
 	#define uint unsigned int

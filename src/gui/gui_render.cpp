@@ -51,6 +51,7 @@ void gui_drawGUI ()
 
 	indexCount = 0;
 
+// TODO - Drawing textboxes for scrSideView somehow
 	for ( auto it = guiScreens[currentGUIScreen].objectIDIndex.begin (); it != guiScreens[currentGUIScreen].objectIDIndex.end (); ++it )
 	{
 		if ( guiScreens[currentGUIScreen].selectedObject == indexCount )

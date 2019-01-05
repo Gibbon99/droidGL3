@@ -91,11 +91,12 @@ void gam_processPlayerMovement ()
 
 	cpBodySetForce (playerPhysicsObject.body, playerDroid.velocity);
 
-	playerDroid.worldPos = cpBodyGetPosition (playerPhysicsObject.body);
+	playerDroid.worldPos = cpBodyGetPosition (playerPhysicsObject.body);        // Call after physics processing?
 
 	playerDroid.middlePosition.x = playerDroid.worldPos.x + (DROID_SIZE * 0.5);
 	playerDroid.middlePosition.y = playerDroid.worldPos.y + (DROID_SIZE * 0.5);
 
+	playerDroid.overTile = gam_getTileUnderPlayer (lvl_getCurrentLevelName (), playerDroid.middlePosition.x / TILE_SIZE, playerDroid.middlePosition.y / TILE_SIZE);
 //	net_sendPositionUpdate (0);
 }
 

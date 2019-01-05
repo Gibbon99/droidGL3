@@ -160,7 +160,7 @@ void evt_removeAllTimers()
 Uint32 evt_getLevelInfo ( Uint32 interval, void *param)
 //------------------------------------------------------------------------
 {
-	if (levelInfo.size() == 19)
+	if (levelInfo.size() == numTotalLevelsToLoad)
 	{
 		evt_sendEvent (USER_EVENT_GAME, USER_EVENT_LEVEL_LOAD_DONE, 0, 0, 0, vec2 (), vec2 (), "");
 		return 0;       // Stop checking now
@@ -237,7 +237,7 @@ bool evt_registerUserEventSetup ()
 	if ( nullptr == userEventLoggingThread )
 		return false;
 
-	userEventGuiThread = evt_registerThread(gam_processGuiEventQueue, "gam_processGuiEventQueue");
+	userEventGuiThread = evt_registerThread ( gui_processGuiEventQueue, "gui_processGuiEventQueue" );
 	if ( nullptr == userEventGuiThread )
 		return false;
 

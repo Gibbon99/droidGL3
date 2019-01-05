@@ -1,6 +1,6 @@
 #pragma once
 
-#include "hdr/game/gam_levels.h"
+//#include "hdr/game/gam_levels.h"
 #include "hdr/system/sys_main.h"
 #include "hdr/libGL/chipmunk/chipmunk.h"
 
@@ -11,13 +11,17 @@
 #define PHYSIC_TYPE_DOOR            0x16
 #define PHYSIC_TYPE_PARTICLE        0x32
 
+#define WALL_GROUP      0x01
+#define PLAYER_GROUP    0x02
+#define NO_GROUP        0x03
+
 extern cpSpace *space;
 
 extern float shipDamping;       // Set from startup script
 extern float collisionSlop;     // Set from startup script
 extern float wallFriction;      // Set from startup script
 extern float wallRadius;        // Set from startup script
-extern float gravity;            // Set from startup script
+extern float gravity;           // Set from startup script
 
 typedef struct
 {
@@ -32,4 +36,7 @@ bool sys_setupPhysicsEngine();
 void sys_freePhysicsEngine ();
 
 // Create the solid walls for this level
-void sys_createSolidWalls ( string levelName );
+void sys_createSolidWalls ( std::string levelName );
+
+// Destroy all the bodies and shapes for this level
+void sys_destroyPhysicObjects ( std::string whichLevel );

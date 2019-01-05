@@ -6,6 +6,8 @@
 #include "hdr/network/net_client.h"
 #include "hdr/game/gam_game.h"
 
+float           baseGameSpeed;
+
 //------------------------------------------------------------------------------
 //
 // Start a new game
@@ -44,7 +46,7 @@ void gam_startNewGame (int gameType)
 
 	gam_initialPlayerSetup ();
 
-	lvl_changeToLevel (lvl_getStartingLevel (), true);
+	lvl_changeToLevel (lvl_getStartingLevel (), true, 0);
 
 	gam_doorTriggerSetup();
 

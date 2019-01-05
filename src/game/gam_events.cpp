@@ -67,7 +67,7 @@ int gam_processGameEventQueue ( void *ptr )
 
 				case USER_EVENT_GAME_LOAD_LEVEL:
 				{
-					lvl_loadLevelFromFile (tempEventData.eventString);
+					lvl_loadLevelFromFile (tempEventData.eventString, tempEventData.data1);
 				}
 
 				case USER_EVENT_LEVEL_ERROR:
@@ -86,6 +86,7 @@ int gam_processGameEventQueue ( void *ptr )
 				case USER_EVENT_LEVEL_LOAD_DONE:    // Levels all loaded - do lifts, droids etc
 				{
 					allLevelsLoaded = true;
+					gam_setupLifts ();
 					break;
 				}
 

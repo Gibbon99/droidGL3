@@ -99,6 +99,7 @@ _hostScriptFunctions hostScriptFunctions[] =
 	{"string gui_getString         (string &in )",                         ( void * ) &gui_getString},
 	{"void gui_addKeyAndText       (string &in, string &in)",              ( void * ) &gui_addKeyAndText},
 	{"void gam_startNewGame        (int gameType)",                        ( void * ) &gam_startNewGame},
+	{"void as_changeGameMode       (int newMode)",                         ( void * ) &sys_changeMode},
 	{"",							nullptr},
 };
 

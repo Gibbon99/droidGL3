@@ -246,6 +246,7 @@ void gam_doorTriggerSetup()
   cpFloat	width, height;
 
   numDoorsOnLevel = 0;
+  doorCounter = 0;
 
   for (i = 0; i != levelInfo.at(lvl_getCurrentLevelName()).levelDimensions.x * levelInfo.at(lvl_getCurrentLevelName()).levelDimensions.y; i++)
     {
@@ -298,7 +299,7 @@ void gam_doorTriggerSetup()
 
               center.x = (sourceX * TILE_SIZE) + (TILE_SIZE / 2);
               center.y = (sourceY * TILE_SIZE) + (TILE_SIZE / 2);
-              width = TILE_SIZE / 3;
+              width = TILE_SIZE / 3;    // TODO: Check they are never used
               height = TILE_SIZE;
             }
           else

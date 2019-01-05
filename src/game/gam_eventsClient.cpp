@@ -43,12 +43,13 @@ void gam_handleClientInPacket( RakNet::Packet passPacket )
 						levelInfo.at (lvl_getCurrentLevelName ()).droid[index].worldPos.x = levelInfo.at (lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x;
 					}
 
-
+/*
 					if (0 == index)
 					{
 						printf("Diff Droid 0 [ %3.3f %3.3f ]\n", levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x - levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].worldPos.x,
 						       levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.y - levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].worldPos.y );
 					}
+					*/
 				}
 			break;
 

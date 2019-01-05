@@ -36,3 +36,9 @@ void io_setTextureError ( std::string fileName );
 bool io_allTexturesLoaded();
 
 void io_loadTileTextureFile( std::string fileName);
+
+// Remove a texture from the textureSet
+void io_removeTextureFromMap( std::string textureName );
+
+// Look through the texture set and delete any that have been marked for deletion from other threads
+void io_cleanTextureMap ( );

@@ -104,7 +104,7 @@ extern vector<_guiTextBox>      guiTextBoxes;
 extern vector<_guiObject>       guiLabels;
 
 // Handle a GUI event - called by thread
-int gam_processGuiEventQueue ( void *ptr );
+int gui_processGuiEventQueue ( void *ptr );
 
 // Draw a gui button using a texture
 void gui_displayGUI();

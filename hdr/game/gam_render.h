@@ -14,3 +14,9 @@ void gam_drawAllTiles ( string whichShader, string levelName, GLuint whichTextur
 void gam_setSingleTileCoords(int posX, int totalWidth);
 
 void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTexture, float interpolation);
+
+// Init the drawing for a level - called on a level change
+void gam_initLevelDrawing (const string levelName );
+
+// Reset the level init
+void gam_resetLevelInit();

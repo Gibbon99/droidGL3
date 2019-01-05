@@ -2,6 +2,7 @@
 
 #include "hdr/system/sys_main.h"
 #include "hdr/game/gam_droids.h"
+#include "hdr/game/gam_levels.h"
 
 extern  _droid      playerDroid;
 

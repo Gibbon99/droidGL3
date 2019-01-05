@@ -7,6 +7,7 @@
 #include <utility>
 #include <queue>
 #include <unordered_map>
+#include <cstdlib>
 #include "hdr/libGL/glad/glad.h"
 
 //#include "hdr/system/sys_leakDetector.h"

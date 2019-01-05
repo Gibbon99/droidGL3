@@ -68,8 +68,93 @@ void as_guiHandleActionEvent ( string &in objectID )
 		{
 			as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrMainMenu" ) );
 			as_guiSetObjectFocus("buttonStartGame");
+			return;
 		}
 	}
+	else if ( currentGUIScreen == as_guiFindIndex (GUI_OBJECT_SCREEN, "scrTerminal" ))
+	{
+		if ( objectID == "buttonTermLogOff" )
+		{
+			as_changeGameMode ( MODE_GAME );
+			return;
+		}
+
+		if (objectID == "buttonTermInfo" )
+		{
+			return;
+		}
+
+		if (objectID == "buttonTermDeck" )
+		{
+			return;
+		}
+
+		if (objectID == "buttonTermShip" )
+		{
+			as_changeGameMode ( MODE_SIDE_VIEW );
+			as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrSideView" ) );
+			as_guiSetObjectFocus ( "buttonSideReturn" );
+			return;
+		}
+	}
+	else if (currentGUIScreen == as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrSideView" ))
+	{
+		if (objectID == "buttonSideReturn")
+		{
+			as_changeGameMode ( MODE_GUI );
+			as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrTerminal" ) );
+			as_guiSetObjectFocus ( "buttonTermLogOff" );
+			return;
+		}
+	}
+}
+
+//------------------------------------------------------------
+//
+// Setup the elements for the sideview of the ship GUI screen
+void as_setupSideView()
+//------------------------------------------------------------
+{
+	as_guiCreateNewScreen ("scrSideView");
+
+	as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonSideReturn" );
+	as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonSideReturn", GUI_COORD_TYPE_PERCENT, 50, 80, 30, 10 );
+	as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonSideReturn", GUI_LABEL_CENTER, gui_getString ( "buttonOptionsBack" ));
+	as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonSideReturn", "scr_guiHandleActionEvent");
+	as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonSideReturn", "scrSideView" );
+}
+
+//------------------------------------------------------------
+//
+// Setup the elements for the terminal screen
+void as_setupGUITerminal ()
+//------------------------------------------------------------
+{
+	as_guiCreateNewScreen ( "scrTerminal" );
+
+	as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonTermLogOff" );
+	as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonTermLogOff", GUI_COORD_TYPE_PERCENT, 50, 10, 35, 10 );
+	as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonTermLogOff", GUI_LABEL_CENTER, gui_getString ( "logoffTerminal" ));
+	as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonTermLogOff", "scr_guiHandleActionEvent");
+	as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonTermLogOff", "scrTerminal" );
+
+	as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonTermInfo" );
+	as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonTermInfo", GUI_COORD_TYPE_PERCENT, 50, 25, 35, 10 );
+	as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonTermInfo", GUI_LABEL_CENTER, gui_getString ( "droidInfo" ));
+	as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonTermInfo", "scr_guiHandleActionEvent");
+	as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonTermInfo", "scrTerminal" );
+
+	as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonTermDeck" );
+	as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonTermDeck", GUI_COORD_TYPE_PERCENT, 50, 40, 35, 10 );
+	as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonTermDeck", GUI_LABEL_CENTER, gui_getString ( "deckMap" ));
+	as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonTermDeck", "scr_guiHandleActionEvent");
+	as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonTermDeck", "scrTerminal" );
+
+	as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonTermShip" );
+	as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonTermShip", GUI_COORD_TYPE_PERCENT, 50, 55, 35, 10 );
+	as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonTermShip", GUI_LABEL_CENTER, gui_getString ( "shipView" ));
+	as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonTermShip", "scr_guiHandleActionEvent");
+	as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonTermShip", "scrTerminal" );
 }
 
 //-----------------------------------------------------------------------------
@@ -213,7 +298,9 @@ void as_setupGUI()
 	as_guiSetObjectFunctions ( GUI_OBJECT_BUTTON, "buttonStartTutorial", "scr_guiHandleActionEvent");
 	as_guiSetObjectFunctions ( GUI_OBJECT_BUTTON, "buttonQuit",          "scr_guiHandleActionEvent");
 
-	as_createOptionsScreen();
+	as_createOptionsScreen ();
+	as_setupGUITerminal ();
+	as_setupSideView ();
 
 	as_guiSetObjectColor ( GUI_OBJECT_BUTTON, "ALL", GUI_ACTIVE_COL, 255, 255, 255, 255 );
 	as_guiSetObjectColor ( GUI_OBJECT_BUTTON, "ALL", GUI_INACTIVE_COL, 155, 155, 155, 255 );

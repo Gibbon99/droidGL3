@@ -46,6 +46,8 @@ void as_setGameVariables()
 
     g_showDoorTriggers = false;
 
+	baseGameSpeed = 1.0f;
+
 //    sdf_addFontInfo(0, "Digital.ttf", 24);
   //  sdf_addFontInfo(1, "oldDigital.ttf", 28);
 //    sdf_addFontInfo(2, "President.ttf", 38);

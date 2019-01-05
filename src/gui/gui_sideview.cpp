@@ -233,9 +233,12 @@ void gui_drawSideView()
 	int             x1;
 	int             y1;
 	SDL_Color       tempAlert;
+	glm::vec2       textPosition;
 
-	int currentLevel = 8;   // TODO - change from keyboard
-	int currentTunnel = 2;
+	if (currentDeckNumber < 0)
+	{
+		currentDeckNumber = lvl_getDeckNumber (lvl_getCurrentLevelName ());
+	}
 
 	count = 0;
 	x1 = sideviewLevels[count].x2;
@@ -255,10 +258,10 @@ void gui_drawSideView()
 	{
 		//currentLevel = tunnel[currentTunnel].current;
 		// highlite current level
-		if (0 == currentLevel)
-			gui_sideviewDrawRect(sideviewLevels[currentLevel].x2, sideviewLevels[currentLevel].y2, sideviewLevels[currentLevel].x1, sideviewLevels[currentLevel].y1, sideviewColors[SIDEVIEW_ACTIVE_DECK_COLOR].color);
+		if (0 == currentDeckNumber)
+			gui_sideviewDrawRect(sideviewLevels[currentDeckNumber].x2, sideviewLevels[currentDeckNumber].y2, sideviewLevels[currentDeckNumber].x1, sideviewLevels[currentDeckNumber].y1, sideviewColors[SIDEVIEW_ACTIVE_DECK_COLOR].color);
 		else
-			gui_sideviewDrawRect(sideviewLevels[currentLevel].x1, sideviewLevels[currentLevel].y1, sideviewLevels[currentLevel].x2, sideviewLevels[currentLevel].y2, sideviewColors[SIDEVIEW_ACTIVE_DECK_COLOR].color);
+			gui_sideviewDrawRect(sideviewLevels[currentDeckNumber].x1, sideviewLevels[currentDeckNumber].y1, sideviewLevels[currentDeckNumber].x2, sideviewLevels[currentDeckNumber].y2, sideviewColors[SIDEVIEW_ACTIVE_DECK_COLOR].color);
 	}
 	else
 	{
@@ -277,13 +280,14 @@ void gui_drawSideView()
 				break;
 
 			default:
+				tempAlert = gui_mapRGBA(255, 255, 255, 255);
 				break;
 		}
 
-		if (0 == currentLevel)
-			gui_sideviewDrawRect(sideviewLevels[currentLevel].x2, sideviewLevels[currentLevel].y2, sideviewLevels[currentLevel].x1, sideviewLevels[currentLevel].y1, tempAlert);
+		if (0 == currentDeckNumber)
+			gui_sideviewDrawRect(sideviewLevels[currentDeckNumber].x2, sideviewLevels[currentDeckNumber].y2, sideviewLevels[currentDeckNumber].x1, sideviewLevels[currentDeckNumber].y1, tempAlert);
 		else
-			gui_sideviewDrawRect(sideviewLevels[currentLevel].x1, sideviewLevels[currentLevel].y1, sideviewLevels[currentLevel].x2, sideviewLevels[currentLevel].y2, tempAlert);
+			gui_sideviewDrawRect(sideviewLevels[currentDeckNumber].x1, sideviewLevels[currentDeckNumber].y1, sideviewLevels[currentDeckNumber].x2, sideviewLevels[currentDeckNumber].y2, tempAlert);
 	}
 
 
@@ -295,7 +299,7 @@ void gui_drawSideView()
 	else
 	{
 		// using tunnel connecting to level 13
-		if (currentLevel != 13)
+		if (currentDeckNumber != 13)
 		{
 			count = 13;
 			gui_sideviewDrawRect(sideviewLevels[count].x1, sideviewLevels[count].y1, sideviewLevels[count].x2, sideviewLevels[count].y2, sideviewColors[SIDEVIEW_SHIP_COLOR].color);
@@ -328,8 +332,11 @@ void gui_drawSideView()
 	}
 	else
 	{
-//		gui_sideviewDrawRect(10, winHeight - 55, 30, winHeight - 35, tempAlert);
-		gui_renderText( guiFontName, glm::vec2{33, winHeight - 65}, glm::vec3{200, 200, 200}, guiSurface, "You are here - %s", lvl_getCurrentLevelName().c_str());
-
+		textPosition = io_getTextureSize ("hud");
+		if (textPosition.y > 0)
+		{
+			// TODO: Put on HUD instead?
+			gui_renderText ( guiFontName, glm::vec2{33, textPosition.y + 10}, glm::vec3{tempAlert.r, tempAlert.g, tempAlert.b}, guiSurface, "You are here - %s", lvl_getCurrentLevelName ().c_str ());
+		}
 	}
 }

@@ -1,3 +1,4 @@
+#include "hdr/game/gam_game.h"
 #include "hdr/gui/gui_scrollBox.h"
 #include "hdr/gui/gui_button.h"
 #include "hdr/io/io_mouse.h"
@@ -29,14 +30,6 @@ _hostScriptFunctions hostVariables[] =
 	{"float nearPlane",                     &nearPlane},
 	{"float farPlane",                      &farPlane},
 	{"float cameraDistance",                &cameraDistance},
-	{"float g_gamma",                       &g_gamma},
-	{"bool g_debugShowWaypoints",           &g_debugShowWaypoints},
-	{"bool g_debugShowPhysicsLines",        &g_debugShowPhysicsLines},
-	{"bool g_debugShowHullCircle",          &g_debugShowHullCircle},
-	{"bool g_debugShowHullLines",           &g_debugShowHullLines},
-    {"bool g_showDoorTriggers",             &g_showDoorTriggers},
-	{"bool drawHUD",                        &drawHUD},
-	{"float g_scaleViewBy",                 &g_scaleViewBy},
 	{"int g_playFieldSize",                 &g_playFieldSize},
 	{"cpVect vect1",                        &vect1},
 	{"int healingAnimateInterval",          &healingAnimateInterval},
@@ -85,6 +78,18 @@ _hostScriptFunctions hostVariables[] =
 	{"int introScrollSpeed",                &introScrollSpeed},
 	{"int introPauseTime",                  &introPauseTime},
 	{"int dbScrollSpeed",                   &dbScrollSpeed},
+
+	{"float g_gamma",                       &g_gamma},
+	{"bool g_debugShowWaypoints",           &g_debugShowWaypoints},
+	{"bool g_debugShowPhysicsLines",        &g_debugShowPhysicsLines},
+	{"bool g_debugShowHullCircle",          &g_debugShowHullCircle},
+	{"bool g_debugShowHullLines",           &g_debugShowHullLines},
+	{"bool g_showDoorTriggers",             &g_showDoorTriggers},
+	{"bool drawHUD",                        &drawHUD},
+	{"float g_scaleViewBy",                 &g_scaleViewBy},
+
+	{"float baseGameSpeed",                 &baseGameSpeed},
+
 	{"",                                    nullptr},
 };
 

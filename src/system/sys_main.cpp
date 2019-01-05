@@ -91,6 +91,7 @@ void sys_displayScreen(float interpolation)
 			break;
 
 		case MODE_LIFT_VIEW:
+		case MODE_SIDE_VIEW:
 			gui_displayGUI ();
 			break;
 
@@ -143,7 +144,7 @@ void sys_gameTickRun()
 			break;
 
 		case MODE_INIT:
-			sys_changeMode(MODE_LIFT_VIEW);         // change here
+			sys_changeMode(MODE_GUI);         // change here
 			break;
 
 		case MODE_CONSOLE:
@@ -162,8 +163,6 @@ void sys_gameTickRun()
 
 			drd_animateThisLevel (lvl_getCurrentLevelName ());
 
-			gam_getTileUnderPlayer (lvl_getCurrentLevelName (), playerDroid.worldPos.x / TILE_SIZE, playerDroid.worldPos.y / TILE_SIZE);
-
 			gam_processPlayerMovement ();
 
 			ai_processDroidMovement (lvl_getCurrentLevelName () );
@@ -179,6 +178,8 @@ void sys_gameTickRun()
 			break;
 	}
 	evt_handleEvents ();
+
+	io_cleanTextureMap ( );
 
 	if (isServer)
 		currentServerTick++;        // Don't update locally if this is the server - get it from the network
@@ -242,7 +243,7 @@ return 0;
 void sys_changeMode ( int newMode )
 //-----------------------------------------------------------------------------
 {
-//#define DEBUG_CHANGE_MODE 1
+#define DEBUG_CHANGE_MODE 1
 
 	static int previousMode = -1;
 

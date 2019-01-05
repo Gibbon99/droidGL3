@@ -35,9 +35,16 @@ int numTileAcrossInTexture, numTilesDownInTexture;
 float tileTextureWidth;
 int indexCounter = 0;
 
-float aspectRatioX, aspectRatioY;;
-float g_scaleViewBy = 1.4f;
-int g_playFieldSize = 256;
+float       aspectRatioX, aspectRatioY;;
+float       g_scaleViewBy = 1.4f;
+int         g_playFieldSize = 256;
+
+GLuint      fullLevelTexture = 0;
+GLuint      fullLevel_FBO = 0;
+glm::vec2   backingSize{};
+glm::vec2   viewTextureSize{};
+bool        levelInitDone = false;
+
 
 //-----------------------------------------------------------------------------
 //
@@ -425,8 +432,6 @@ void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint
 void gam_createBackingTexture ( string textureName, glm::vec2 textureSize )
 //----------------------------------------------------------------------------------------
 {
-	GLuint fullLevelTexture = 0;
-
 	glGenTextures (1, &fullLevelTexture);
 	glBindTexture (GL_TEXTURE_2D, fullLevelTexture);
 	//
@@ -443,54 +448,83 @@ void gam_createBackingTexture ( string textureName, glm::vec2 textureSize )
 
 //----------------------------------------------------------------------------------------
 //
+// Init the drawing for a level - called on a level change
+void gam_initLevelDrawing (const string levelName )
+//----------------------------------------------------------------------------------------
+{
+	static bool viewTextureDone = false;
+
+	backingSize.x = static_cast<float>(levelInfo.at (levelName).levelDimensions.x * TILE_SIZE);
+	backingSize.y = static_cast<float>(levelInfo.at (levelName).levelDimensions.y * TILE_SIZE);
+
+	if (0 == fullLevel_FBO)
+	{
+		fullLevel_FBO = gl_createFBO (backingSize);
+		//
+		// Check it all worked ok
+		if ( 0 == fullLevel_FBO )
+		{
+			con_print (CON_ERROR, true, "Unable to create backing FBO. Critical error.");
+			return;     // TODO: Do something better here to handle the failure
+		}
+	}
+
+	gam_createBackingTexture (levelName, backingSize);
+	//
+	// Start drawing to backing texture
+	glBindFramebuffer (GL_FRAMEBUFFER, fullLevel_FBO);
+
+	gl_linkTextureToFBO (io_getTextureID (levelName), fullLevel_FBO);
+
+	viewTextureSize = glm::vec2{g_playFieldSize, g_playFieldSize};
+
+	if (!viewTextureDone)
+	{
+		gam_createBackingTexture ( "viewTexture", viewTextureSize );
+		viewTextureDone = true;
+	}
+
+	// TODO: Destroy texture on level change and relink it
+	gl_linkTextureToFBO (io_getTextureID ("viewTexture"), fullLevel_FBO);
+}
+
+//----------------------------------------------------------------------------------------
+//
+// Reset the level init
+void gam_resetLevelInit()
+//----------------------------------------------------------------------------------------
+{
+	levelInitDone = false;
+}
+
+//----------------------------------------------------------------------------------------
+//
 // Draw the current level
 // 1. Create the texture to hold the entire level
 // 2. Create a FBO and bind depth and texture to it
 // 3. Render the entire level to the backing texture
 // 4. Render viewable playfield texture to another texture
 // 5.
-void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceTexture, float interpolate )
+void gam_drawFullLevel ( const string levelName, const string whichShader, GLuint sourceTexture, float interpolate )
 //----------------------------------------------------------------------------------------
 {
-	static bool backingLevel = false;
-
-	static GLuint fullLevel_FBO = 0;
-
-	glm::vec2 backingSize;
+	glm::vec2 backingViewPosition{};
 
 	if (levelName.empty ())
 	{
 		con_print(CON_ERROR, true, "No levelName passed to [ %s ]", __LINE__);
 		return;
 	}
-//    viewWorldLocationX = playerDroid.worldPos.x; // + (playerVelocity.x * interpolate);
-//    viewWorldLocationY = playerDroid.worldPos.y; // + (playerVelocity.y * interpolate);
 
-    backingSize.x = static_cast<float>(levelInfo.at (levelName).levelDimensions.x * TILE_SIZE);
-	backingSize.y = static_cast<float>(levelInfo.at (levelName).levelDimensions.y * TILE_SIZE);
-
-	if ( !backingLevel )
+	if (!levelInitDone)
 	{
-		fullLevel_FBO = gl_createFBO (backingSize);
-		gam_createBackingTexture (levelName, backingSize);
+		gam_initLevelDrawing ( levelName );
+		levelInitDone = true;
+	}
 
-		// TODO: Destroy texture on level change and relink it
-		gl_linkTextureToFBO (io_getTextureID (levelName), fullLevel_FBO);
-		backingLevel = true;  // Reset on level change
-	}
-	//
-	// Check it all worked ok
-	if ( 0 == fullLevel_FBO )
-	{
-		con_print (CON_ERROR, true, "Unable to create backing FBO. Critical error.");
-		return;
-	}
-	//
-	// Start drawing to backing texture
 	glBindFramebuffer (GL_FRAMEBUFFER, fullLevel_FBO);
-	gl_linkTextureToFBO (io_getTextureID (levelName), fullLevel_FBO);
 
-	glm::vec2 backingViewPosition;
+	gl_linkTextureToFBO (io_getTextureID (levelName), fullLevel_FBO);
 
 	backingViewPosition = glm::vec2 ();
 
@@ -529,16 +563,17 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 	GL_CHECK ( glBlitFramebuffer (startPosX, startPosY, startPosX + winWidth, startPosY + winHeight, 0, 0, winWidth, winHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST ) );
 
 #else
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+/*
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
-//	glViewport(0,0,256, 256); // Render on the whole framebuffer
+	glViewport(0,0,256, 256); // Render on the whole framebuffer
 
-//	light_createLightCaster (levelName, testLightPosition);
+	light_createLightCaster (levelName, glm::vec3{playerDroid.worldPos.x, playerDroid.worldPos.y, 0});
 
-//	glm::vec2       lightSize;
-//	lightSize = io_getTextureSize ("lightcaster");
-
+	glm::vec2       lightSize;
+	lightSize = io_getTextureSize ("lightcaster");
+*/
 //	gl_draw2DQuad (glm::vec2{testLightPosition.x, testLightPosition.y}, glm::vec2{256,256}, "lightmapRender", io_getTextureID ("lightmap"), glm::vec3{0,0,0});
 
 //	light_createLightCaster (vec3(750.0, 400.0, 0.0));
@@ -548,20 +583,7 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 // Now copy the view size texture to another texture of the same size
 //
 //----------------------------------------------------------------------------
-	static bool viewTextureCreated = false;
-	glm::vec2 viewTextureSize;
 
-	viewTextureSize = glm::vec2{g_playFieldSize, g_playFieldSize};
-
-	if ( !viewTextureCreated )
-	{
-		gam_createBackingTexture ("viewTexture", viewTextureSize);
-
-		// TODO: Destroy texture on level change and relink it
-		gl_linkTextureToFBO (io_getTextureID ("viewTexture"), fullLevel_FBO);
-
-		viewTextureCreated = true;
-	}
 	//
 	// Start drawing to backing texture
 	glBindFramebuffer (GL_FRAMEBUFFER, fullLevel_FBO);
@@ -597,6 +619,7 @@ void gam_drawFullLevel ( string levelName, string whichShader, GLuint sourceText
 
 	glm::vec2 viewSize;
 	glm::vec2 viewPortPosition;
+
 	float texCoords[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0};
 
 	float scaleView = g_scaleViewBy;

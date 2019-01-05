@@ -1,4 +1,5 @@
 #include <utility>
+#include "hdr/game/gam_lifts.h"
 #include "hdr/gui/gui_scrollBox.h"
 
 #include "hdr/libGL/sdl2_gfx/SDL2_rotozoom.h"
@@ -44,7 +45,7 @@ _guiObject                              tmpLabel;
 //----------------------------------------------------------------
 //
 // Handle a GUI event - called by thread
-int gam_processGuiEventQueue ( void *ptr )
+int gui_processGuiEventQueue ( void *ptr )
 //----------------------------------------------------------------
 {
 	_myEventData tempEventData;
@@ -855,7 +856,12 @@ void gui_displayGUI()
 			break;
 
 		case MODE_LIFT_VIEW:
+			gui_drawSideView();
+			break;
+
+		case MODE_SIDE_VIEW:
 			// Show the ship in its sideview on the screen
+			gui_drawGUI ();
 			gui_drawSideView();
 			break;
 
@@ -1396,6 +1402,12 @@ void gui_handleInputEvent(int eventAction, int eventType, int eventSource)
 			evt_removeTimer (introScrollPauseTimerID);
 			evt_removeTimer (introScrollTimerID);
 			sys_changeMode(MODE_GUI);
+			return;
+		}
+
+		if (currentMode == MODE_LIFT_VIEW)
+		{
+			gam_moveLift(eventType);
 			return;
 		}
 

@@ -7,13 +7,13 @@
 PHYSFS_sint64 io_getFileSize ( const char *fileName );
 
 // Start the packfile system
-bool io_startFileSystem();
+bool io_startFileSystem ();
 
 // Load a text file into a pointer
 int io_getFileIntoMemory ( const char *fileName, void *results );
 
 // Return the state of the file system
-bool io_isFileSystemReady();
+bool io_isFileSystemReady ();
 
 // Check if a file exists
-bool io_doesFileExist(string fileName);
+bool io_doesFileExist ( std::string fileName );

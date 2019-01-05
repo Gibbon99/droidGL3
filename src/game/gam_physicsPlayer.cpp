@@ -1,3 +1,4 @@
+#include <hdr/game/gam_physicsCollisions.h>
 #include "hdr/game/gam_player.h"
 #include "hdr/game/gam_physicsPlayer.h"
 
@@ -92,5 +93,8 @@ void sys_setupPlayerPhysics ()
 	cpShapeSetFriction (playerPhysicsObject.shape, playerFriction);
 	cpShapeSetElasticity (playerPhysicsObject.shape, playerElastic);
 	cpShapeSetCollisionType (playerPhysicsObject.shape, PHYSIC_TYPE_PLAYER);
+
+	cpShapeSetFilter(playerPhysicsObject.shape, testShapeFilterPlayer);
+
 	cpShapeSetUserData (playerPhysicsObject.shape, (cpDataPointer) - 1);    // Passed into collision routine
 }
