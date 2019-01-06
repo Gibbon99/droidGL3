@@ -92,6 +92,7 @@ void sys_displayScreen(float interpolation)
 
 		case MODE_LIFT_VIEW:
 		case MODE_SIDE_VIEW:
+		case MODE_DECK_VIEW:
 			gui_displayGUI ();
 			break;
 

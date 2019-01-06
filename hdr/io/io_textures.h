@@ -10,6 +10,9 @@
 extern unsigned int         numTexturesToLoad;
 extern uint                 tileTextureID;
 
+extern std::string      g_tileType;
+extern std::string      g_tileColor;
+
 // Handle a texture file error event
 void io_handleTextureFileError ( int errorCode, std::string fileName );
 
@@ -35,7 +38,10 @@ void io_setTextureError ( std::string fileName );
 // Check if all the textures are loaded or not
 bool io_allTexturesLoaded();
 
-void io_loadTileTextureFile( std::string fileName);
+void io_loadTileTextureFile( std::string tileType, std::string tileColor);
+
+// Remove the old GLTexture and replace with this new one
+void io_replaceTileTexture ( std::string tileType, std::string tileColor );
 
 // Remove a texture from the textureSet
 void io_removeTextureFromMap( std::string textureName );

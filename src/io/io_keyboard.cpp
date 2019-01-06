@@ -435,6 +435,7 @@ void io_handleKeyboardEvent ( SDL_Event event )
 		case MODE_INTRO:
 		case MODE_LIFT_VIEW:
 		case MODE_SIDE_VIEW:
+		case MODE_DECK_VIEW:
 			evt_sendEvent ( USER_EVENT_GUI, USER_EVENT_KEY_EVENT, io_returnStandardInputActionKeyboard ( event.type ), io_returnStandardInputValueKeyboard ( event.key.keysym.sym ), false, glm::vec2{}, glm::vec2{}, "" );
 			break;
 

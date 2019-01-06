@@ -5,6 +5,7 @@ Physics - collisions between droids / bullets / players / explosions
 Doors - use physics for detection
 Alert level
 Lightmap for alerts and bullets
+Different tile styles and colors
 
 Terminal
 ---------
@@ -28,10 +29,15 @@ GUI
 Options screens
 Sideview screen from terminal
 Terminal screen
-Deck overview screen
 Database droid information screen
 
 BUGS
 -----
 Physics when changing lots of levels
 When switching to scrSideView - GUI Render is drawing textboxes - only one back button defined
+Back button on sideview screen is not activated via mouse click
+
+
+DONE
+-----
+05/01/19 - DONE - Deck overview screen

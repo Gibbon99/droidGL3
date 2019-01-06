@@ -316,11 +316,11 @@ void gui_drawSideView()
 		gui_sideviewDrawRect(sideviewLevels[count + toLifts].x1, sideviewLevels[count + toLifts].y1, sideviewLevels[count + toLifts].x2, sideviewLevels[count + toLifts].y2, sideviewColors[SIDEVIEW_LIFT_COLOR].color);
 	}
 
-	// highlight the current tunnel
-	gui_sideviewDrawRect(sideviewLevels[21 + currentTunnel].x1, sideviewLevels[21 + currentTunnel].y1, sideviewLevels[21 + currentTunnel].x2, sideviewLevels[21 + currentTunnel].y2, sideviewColors[SIDEVIEW_ACTIVE_LIFT_COLOR].color);
-
 	if (currentMode == MODE_LIFT_VIEW)
 	{
+		// highlight the current tunnel
+		gui_sideviewDrawRect(sideviewLevels[21 + currentTunnel].x1, sideviewLevels[21 + currentTunnel].y1, sideviewLevels[21 + currentTunnel].x2, sideviewLevels[21 + currentTunnel].y2, sideviewColors[SIDEVIEW_ACTIVE_LIFT_COLOR].color);
+
 		gui_sideviewDrawRect(20, winHeight - 85, 30, winHeight - 65, sideviewColors[SIDEVIEW_ACTIVE_LIFT_COLOR].color);
 		gui_renderText( guiFontName, glm::vec2{33, winHeight - 95}, glm::vec3{sideviewColors[SIDEVIEW_ACTIVE_LIFT_COLOR].color.r, sideviewColors[SIDEVIEW_ACTIVE_LIFT_COLOR].color.g, sideviewColors[SIDEVIEW_ACTIVE_LIFT_COLOR].color.b}, guiSurface, "Active lift");
 

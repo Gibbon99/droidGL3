@@ -30,6 +30,8 @@ vector<int> tileTextureSet;
 unsigned int numTexturesToLoad = 0;
 
 uint tileTextureID = 0;
+string      g_tileType;
+string      g_tileColor;
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -352,18 +354,23 @@ void io_setTextureError ( const string fileName )
 // Is called from the MAIN thread
 // Uses a single texture Atlas, puts coords for each tile into vector array for X position
 //
-void io_loadTileTextureFile ( const string fileName )
+void io_loadTileTextureFile ( std::string tileType, std::string tileColor  )
 //-----------------------------------------------------------------------------------------------------
 {
-	char *imageBuffer = nullptr;
-	int imageLength;
-	SDL_Surface *spriteSheetSurface;
-	SDL_RWops *filePointerMem;
+	char            *imageBuffer = nullptr;
+	int             imageLength;
+	SDL_Surface     *spriteSheetSurface;
+	SDL_RWops       *filePointerMem;
+	string          fileName;
+
+	g_tileType = tileType;
+	g_tileColor = tileColor;
+
+	fileName = tileType + "_" + tileColor + ".bmp";
 
 //	con_print(CON_INFO, true, "Step 1 - load texture file [ %s ]", fileName.c_str());
 
 	imageLength = (int) io_getFileSize ( fileName.c_str ());
-
 	if ( imageLength < 0 )
 	{
 		evt_sendEvent ( USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_NOT_FOUND, 0, 0, vec2 (), vec2 (), fileName );
@@ -373,7 +380,6 @@ void io_loadTileTextureFile ( const string fileName )
 //	con_print (CON_INFO, true, "Image size [ %i ]", imageLength);
 
 	imageBuffer = (char *) malloc ( sizeof ( char ) * imageLength );
-
 	if ( nullptr == imageBuffer )
 	{
 		evt_sendEvent ( USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_MALLOC_ERROR, 0, 0, vec2 (), vec2 (), fileName );
@@ -538,7 +544,6 @@ void io_loadTileTextureFile ( const string fileName )
 
 //	tileTextureID = SOIL_load_OGL_texture_from_memory ((const unsigned char *)allTiles->pixels, allTiles->h * allTiles->pitch, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y | SOIL_FLAG_MIPMAPS); //SOIL_FLAG_TEXTURE_REPEATS);
 
-
 	glGenTextures ( 1, &tileTextureID );
 	glBindTexture ( GL_TEXTURE_2D, tileTextureID );
 
@@ -569,4 +574,20 @@ void io_loadTileTextureFile ( const string fileName )
 	SDL_FreeSurface ( spriteSheetSurface );
 
 	free ( imageBuffer );
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Load a new tile spriteSheet.
+// Remove the old GLTexture and replace with this new one
+void io_replaceTileTexture ( const std::string tileType, const std::string tileColor )
+//-----------------------------------------------------------------------------------------------------
+{
+	glDeleteTextures(1, &tileTextureID);
+	tileTextureID = 0;
+
+	g_tileType = tileType;
+	g_tileColor = tileColor;
+
+	io_loadTileTextureFile ( tileType, tileColor );
 }

@@ -93,8 +93,6 @@ bool sys_initAll()
 		return false;
 	}
 
-	SDL_Delay(1000);
-
 	if ( !evt_registerUserEventSetup ())      // Start all the threads
 		return false;
 
@@ -148,7 +146,9 @@ bool sys_initAll()
 
 		evt_sendEvent (USER_EVENT_AUDIO, AUDIO_INIT_ENGINE, 0, 0, 0, vec2(), vec2(), "");
 
-		io_loadTileTextureFile("alltiles.bmp");
+		io_loadTileTextureFile("retro", "blue");
+
+		io_replaceTileTexture ("retro", "gray" );
 
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "splash.png");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "lightmap.bmp");
@@ -183,8 +183,6 @@ bool sys_initAll()
 			return false;
 
 		gui_prepareGUI();
-
-		SDL_Delay(2000);
 
 	}   // end of file system check
 

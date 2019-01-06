@@ -1,4 +1,5 @@
 #include <utility>
+#include "hdr/game/gui_deckView.h"
 #include "hdr/game/gam_lifts.h"
 #include "hdr/gui/gui_scrollBox.h"
 
@@ -860,9 +861,13 @@ void gui_displayGUI()
 			break;
 
 		case MODE_SIDE_VIEW:
-			// Show the ship in its sideview on the screen
 			gui_drawGUI ();
 			gui_drawSideView();
+			break;
+
+		case MODE_DECK_VIEW:
+			gui_drawGUI ();
+			gui_drawDeckView ();
 			break;
 
 		default:

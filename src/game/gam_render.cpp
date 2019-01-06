@@ -423,13 +423,11 @@ void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint
 	glBindVertexArray (0);
 }
 
-// TODO: Need a destroy texture - remove from MAP and free ID
-
 //----------------------------------------------------------------------------------------
 //
 // Create a texture of passed in size and name.
 // Store it in the texture Map array
-void gam_createBackingTexture ( string textureName, glm::vec2 textureSize )
+void gam_createBackingTexture ( const string &textureName, glm::vec2 textureSize )
 //----------------------------------------------------------------------------------------
 {
 	glGenTextures (1, &fullLevelTexture);

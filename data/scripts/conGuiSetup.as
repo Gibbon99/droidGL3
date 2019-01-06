@@ -86,6 +86,9 @@ void as_guiHandleActionEvent ( string &in objectID )
 
 		if (objectID == "buttonTermDeck" )
 		{
+			as_changeGameMode ( MODE_DECK_VIEW );
+			as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrDeckView" ) );
+			as_guiSetObjectFocus ( "buttonDeckReturn" );
 			return;
 		}
 
@@ -100,6 +103,16 @@ void as_guiHandleActionEvent ( string &in objectID )
 	else if (currentGUIScreen == as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrSideView" ))
 	{
 		if (objectID == "buttonSideReturn")
+		{
+			as_changeGameMode ( MODE_GUI );
+			as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrTerminal" ) );
+			as_guiSetObjectFocus ( "buttonTermLogOff" );
+			return;
+		}
+	}
+	else if (currentGUIScreen == as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrDeckView" ) )
+	{
+		if (objectID == "buttonDeckReturn")
 		{
 			as_changeGameMode ( MODE_GUI );
 			as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrTerminal" ) );
@@ -122,6 +135,21 @@ void as_setupSideView()
 	as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonSideReturn", GUI_LABEL_CENTER, gui_getString ( "buttonOptionsBack" ));
 	as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonSideReturn", "scr_guiHandleActionEvent");
 	as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonSideReturn", "scrSideView" );
+}
+
+//------------------------------------------------------------
+//
+// Setup the elements for the sideview of the ship GUI screen
+void as_setupDeckView()
+//------------------------------------------------------------
+{
+	as_guiCreateNewScreen ("scrDeckView");
+
+	as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonDeckReturn" );
+	as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonDeckReturn", GUI_COORD_TYPE_PERCENT, 50, 80, 30, 10 );
+	as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonDeckReturn", GUI_LABEL_CENTER, gui_getString ( "buttonOptionsBack" ));
+	as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonDeckReturn", "scr_guiHandleActionEvent");
+	as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonDeckReturn", "scrDeckView" );
 }
 
 //------------------------------------------------------------
@@ -301,6 +329,7 @@ void as_setupGUI()
 	as_createOptionsScreen ();
 	as_setupGUITerminal ();
 	as_setupSideView ();
+	as_setupDeckView();
 
 	as_guiSetObjectColor ( GUI_OBJECT_BUTTON, "ALL", GUI_ACTIVE_COL, 255, 255, 255, 255 );
 	as_guiSetObjectColor ( GUI_OBJECT_BUTTON, "ALL", GUI_INACTIVE_COL, 155, 155, 155, 255 );
