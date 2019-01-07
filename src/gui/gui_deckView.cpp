@@ -1,3 +1,4 @@
+#include <hdr/game/gam_player.h>
 #include "hdr/gui/gui_main.h"
 #include "hdr/game/gam_levels.h"
 #include "hdr/game/gui_deckView.h"
@@ -88,4 +89,51 @@ bool gui_drawDeckView ()
 //	term_drawIndicator(TILE_SIZE / 2);
 
 return true;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Show the player location on the deck view
+void gui_showPlayerLocation()
+//-----------------------------------------------------------------------------
+{
+	float           drawX, drawY;
+	glm::vec2       textPosition;
+	glm::vec2       linePosition;
+	int             fontLineWidth, fontLineHeight;
+	glm::vec2       drawScreenOffset;
+	int             indicatorSize;
+
+	indicatorSize = 8;
+
+	drawScreenOffset.x = (winWidth - (levelInfo.at(lvl_getCurrentLevelName ()).levelDimensions.x * (TILE_SIZE / 2))) / 2;
+	drawScreenOffset.y = (winHeight - (levelInfo.at(lvl_getCurrentLevelName ()).levelDimensions.y * (TILE_SIZE / 2))) / 2;
+
+	drawX = (playerDroid.middlePosition.x / TILE_SIZE)  * (TILE_SIZE / 2);
+	drawY = (playerDroid.middlePosition.y / TILE_SIZE)  * (TILE_SIZE / 2);
+
+	drawX += drawScreenOffset.x;
+	drawY += drawScreenOffset.y;
+
+	filledCircleRGBA ( renderer, drawX, drawY - (indicatorSize / 2), indicatorSize, 255,255,255,255);
+
+	textPosition = io_getTextureSize ("hud");
+	if (textPosition.y > 0)
+	{
+		TTF_SizeText(ttfFonts[gui_getFontIndex(guiFontName)].ttfFont, "Current Location", &fontLineWidth, &fontLineHeight);
+
+		textPosition.x = (winWidth - fontLineWidth) * 0.5f;
+		textPosition.y += fontLineHeight;
+
+		linePosition.x = textPosition.x;
+		linePosition.y = textPosition.y + fontLineHeight + 5;
+
+		gui_renderText ( guiFontName, glm::vec2{textPosition.x, textPosition.y}, glm::vec3{255, 255, 255}, guiSurface, "Current Location");
+		//
+		// Draw line under the text
+		thickLineRGBA (renderer, linePosition.x, linePosition.y, linePosition.x + fontLineWidth, linePosition.y, 4, 255,255,255,255);
+		//
+		// Draw line from middle of underline to location
+		thickLineRGBA (renderer, linePosition.x + (fontLineWidth / 2), linePosition.y, drawX, drawY - (indicatorSize / 2), 2, 255,255,255,255);
+	}
 }

@@ -868,6 +868,7 @@ void gui_displayGUI()
 		case MODE_DECK_VIEW:
 			gui_drawGUI ();
 			gui_drawDeckView ();
+			gui_showPlayerLocation ();
 			break;
 
 		default:

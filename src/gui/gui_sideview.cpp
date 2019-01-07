@@ -234,6 +234,7 @@ void gui_drawSideView()
 	int             y1;
 	SDL_Color       tempAlert;
 	glm::vec2       textPosition;
+	int             fontLineWidth, fontLineHeight;
 
 	if (currentDeckNumber < 0)
 	{
@@ -335,8 +336,16 @@ void gui_drawSideView()
 		textPosition = io_getTextureSize ("hud");
 		if (textPosition.y > 0)
 		{
-			// TODO: Put on HUD instead?
-			gui_renderText ( guiFontName, glm::vec2{33, textPosition.y + 10}, glm::vec3{tempAlert.r, tempAlert.g, tempAlert.b}, guiSurface, "You are here - %s", lvl_getCurrentLevelName ().c_str ());
+			string deckLocationString;
+
+			deckLocationString = "Deck [ " + lvl_getCurrentLevelName () + " ]";
+
+			TTF_SizeText(ttfFonts[gui_getFontIndex(guiFontName)].ttfFont, deckLocationString.c_str(), &fontLineWidth, &fontLineHeight);
+
+			textPosition.x = (winWidth - fontLineWidth) * 0.5f;
+			textPosition.y += fontLineHeight;
+
+			gui_renderText ( guiFontName, glm::vec2{textPosition.x, textPosition.y}, glm::vec3{255, 255, 255}, guiSurface, deckLocationString );
 		}
 	}
 }
