@@ -1,3 +1,6 @@
+#include "hdr/game/gam_droidAI.h"
+#include "hdr/system/sys_audio.h"
+#include "hdr/game/gam_database.h"
 #include "hdr/game/gam_levels.h"
 #include "hdr/opengl/gl_renderSprite.h"
 #include "hdr/game/gam_render.h"
@@ -17,32 +20,30 @@ Uint32      playerAnimateInterval;      // From script
 void gam_processPlayerMovement ()
 //------------------------------------------------------------------------------
 {
-	float playerMaxVelocity = 10.0f / 10000.0f;
-
 	if ( eventMoveLeft )
 	{
-		playerDroid.velocity.x -= playerDroid.acceleration;
-		if ( playerDroid.velocity.x < -playerMaxVelocity )
-			playerDroid.velocity.x = -playerMaxVelocity;
+		playerDroid.velocity.x -= dataBaseEntry[0].accelerate;
+		if ( playerDroid.velocity.x < -dataBaseEntry[0].maxSpeed )
+			playerDroid.velocity.x = -dataBaseEntry[0].maxSpeed;
 	}
 	else if ( eventMoveRight )
 	{
-		playerDroid.velocity.x += playerDroid.acceleration;
-		if ( playerDroid.velocity.x > playerMaxVelocity )
-			playerDroid.velocity.x = playerMaxVelocity;
+		playerDroid.velocity.x += dataBaseEntry[0].accelerate;
+		if ( playerDroid.velocity.x > dataBaseEntry[0].maxSpeed )
+			playerDroid.velocity.x = dataBaseEntry[0].maxSpeed;
 	}
 
 	if ( eventMoveUp )
 	{
-		playerDroid.velocity.y -= playerDroid.acceleration;
-		if (playerDroid.velocity.y < -playerMaxVelocity)
-			playerDroid.velocity.y = -playerMaxVelocity;
+		playerDroid.velocity.y -= dataBaseEntry[0].accelerate;
+		if (playerDroid.velocity.y < -dataBaseEntry[0].maxSpeed)
+			playerDroid.velocity.y = -dataBaseEntry[0].maxSpeed;
 	}
 	else if ( eventMoveDown )
 	{
-		playerDroid.velocity.y += playerDroid.acceleration;
-		if (playerDroid.velocity.y > playerMaxVelocity)
-			playerDroid.velocity.y = playerMaxVelocity;
+		playerDroid.velocity.y += dataBaseEntry[0].accelerate;
+		if (playerDroid.velocity.y > dataBaseEntry[0].maxSpeed)
+			playerDroid.velocity.y = dataBaseEntry[0].maxSpeed;
 	}
 
 	if ( !eventMoveLeft )
@@ -106,10 +107,21 @@ void gam_processPlayerMovement ()
 void gam_initialPlayerSetup ()
 //------------------------------------------------------------------------------
 {
-	playerDroid.acceleration = 0.00008f;
-	playerMass = 3000;
+	float   massWeight;
 
-	sys_setPlayerMass (playerMass);
+	playerDroid.mass = -1;
+	playerDroid.inTransferMode = false;
+
+	massWeight = static_cast<int>(strtof ( dataBaseEntry[0].weight.c_str(), nullptr ));
+
+	if (!physicsStarted)
+	{
+		con_print(CON_ERROR, true, "Attempting to setup player physics with no engine ready.");
+		return;
+	}
+	sys_setPlayerMass (massWeight);
+	sys_setupPlayerPhysics ();
+	sys_setPlayerMass (massWeight);
 }
 
 // ----------------------------------------------------------------------------
@@ -168,7 +180,7 @@ void gam_renderPlayerSprite ()
 {
     gl_renderSprite ("001", glm::vec2{winWidth / 2, winHeight / 2}, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 1.0} );
 
-	gl_renderSprite ("001", glm::vec2{playerDroid.serverWorldPos.x, playerDroid.serverWorldPos.y}, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 0.0});
+//	gl_renderSprite ("001", glm::vec2{playerDroid.serverWorldPos.x, playerDroid.serverWorldPos.y}, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 0.0});
 }
 
 //------------------------------------------------------------------------------
@@ -178,4 +190,48 @@ int gam_getTileUnderPlayer ( string levelName, float posX, float posY )
 //------------------------------------------------------------------------------
 {
 	return levelInfo.at(levelName).tiles[((int)(posY) * levelInfo.at(levelName).levelDimensions.x) + (int)posX];
+}
+
+
+//-----------------------------------------------------------------------------
+//
+// Do damage to player health
+// Can either be from DAMAGE_BULLET, DAMAGE_COLLISION or DAMAGE_EXPLOSION
+void gam_doDamageToPlayer ( int damageSource, int sourceDroid )
+//-----------------------------------------------------------------------------
+{
+	switch ( damageSource )
+	{
+		case DAMAGE_BULLET:
+			playerDroid.currentHealth -= dataBaseEntry[levelInfo.at(lvl_getCurrentLevelName ()).droid[sourceDroid].droidType].bulletDamage;
+//				printf("Player health now [ %i ]\n", playerCurrentHealth);
+			break;
+
+		case DAMAGE_COLLISION:
+			playerDroid.currentHealth -= collisionDamageInflicted;
+			break;
+
+		case DAMAGE_EXPLOSION:
+			playerDroid.currentHealth -= collisionExplosionDamage;
+			break;
+
+		default:
+			break;
+	}
+
+	evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
+
+	if ( playerDroid.currentHealth < 0 )
+	{
+		// End Game
+		con_print ( CON_INFO, true, "PLAYER DEAD [ %i ]", playerDroid.currentHealth );
+		/* TODO
+		playerIsExploding = true;	// Draw player exploding
+		playerCurrentFrame = 0;		// Start from beginning of explosion animation
+		sys_stopAllSounds();
+		sys_playSound(SND_EXPLODE_2, SND_PAN_LEFT, ALLEGRO_PLAYMODE_ONCE);
+		sys_playSound(SND_EXPLODE_2, SND_PAN_RIGHT, ALLEGRO_PLAYMODE_ONCE);
+		sys_changeMode ( MODE_PLAYER_EXPLODE, false );
+		 */
+	}
 }

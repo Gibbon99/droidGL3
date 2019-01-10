@@ -1,3 +1,5 @@
+#include <bitset>
+
 #include "hdr/game/gam_render.h"
 #include "hdr/game/gam_player.h"
 #include "hdr/game/gam_doors.h"
@@ -137,6 +139,8 @@ void lvl_loadLevelFromFile ( const string fileName, int deckNumber )
 bool lvl_loadLevel ( intptr_t levelMemoryIndex )
 //-----------------------------------------------------------------------------------------
 {
+	static int      bitmask = 1;
+
 	int checkVersion;
 	SDL_RWops *fp;
 	_levelStruct tempLevel = _levelStruct ();
@@ -256,6 +260,20 @@ bool lvl_loadLevel ( intptr_t levelMemoryIndex )
 	// Finished - close the file
 	//
 	SDL_RWclose ( fp );
+
+	std::bitset<32>    testMask;
+
+	testMask.reset();
+	testMask[tempLevel.deckNumber] = true;
+
+	tempLevel.deckCategory = static_cast<cpBitmask>(testMask.to_ulong());
+
+	// Generate physics masks and categories
+	tempLevel.wallPhysicsCreated = false;
+	tempLevel.droidPhysicsCreated = false;
+
+//	tempLevel.deckCategory = static_cast<cpBitmask>(bitmask);
+//	bitmask *= 2;
 
 //	printf("Finished loading file from memory [ %s ]\n", tempLevel.levelName);
 
@@ -550,17 +568,23 @@ void lvl_showLevelsLoaded ()
 //-----------------------------------------------------------------------------------------------------
 //
 // Change to a new level
-void lvl_changeToLevel ( const string levelName, bool startOnLift, int whichLift )
+void lvl_changeToLevel ( const std::string levelName, bool startOnLift, int whichLift )
 //-----------------------------------------------------------------------------------------------------
 {
-	string previousLevelName;
+	std::string previousLevelName;
+
+	//
+	// Turn off timers while changing to a new level
+	gam_setHealingState (false);
+	gam_setPlayerAnimateState (false);
+	gam_setDoorAnimateState (false);
 
 	previousLevelName = currentLevelName;
+	if (!previousLevelName.empty())
+		levelInfo.at(previousLevelName).containsClient = false;
 
 	currentLevelName = levelName;
-	gam_findHealingTiles ( levelName );
-	gam_getLiftPositions ( levelName );
-	drd_setupLevel ( levelName );
+	levelInfo.at(currentLevelName).containsClient = true;
 
 	if ( startOnLift )
 	{
@@ -576,14 +600,18 @@ void lvl_changeToLevel ( const string levelName, bool startOnLift, int whichLift
 		// Get random starting position from waypoints
 	}
 
-	sys_destroyPhysicObjects ( currentLevelName);
-	sys_createSolidWalls ( levelName );
-	gam_doorTriggerSetup();
+//	sys_destroyPhysicObjects ( currentLevelName);
+
+	sys_changePlayerPhysicsFilter();
 
 	if (previousLevelName != currentLevelName)
 		io_removeTextureFromMap( previousLevelName );
 
-	gam_resetLevelInit();
+	gam_resetRenderLevelInit ();
+
+	gam_setHealingState (true);
+	gam_setPlayerAnimateState (true);
+	gam_setDoorAnimateState (true);
 
 //	net_sendCurrentLevel(levelName);
 }

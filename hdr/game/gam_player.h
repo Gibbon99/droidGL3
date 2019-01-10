@@ -24,3 +24,7 @@ void gam_initialPlayerSetup ();
 
 // Process the player world position and movement
 void gam_processPlayerMovement ();
+
+// Do damage to player health
+// Can either be from DAMAGE_BULLET, DAMAGE_COLLISION or DAMAGE_EXPLOSION
+void gam_doDamageToPlayer ( int damageSource, int sourceDroid );

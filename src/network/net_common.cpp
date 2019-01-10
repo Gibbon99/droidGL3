@@ -6,34 +6,34 @@
 #include "hdr/network/net_server.h"
 #include "hdr/system/sys_events.h"
 
-int         networkPacketCountSentClient = 0;
-int         networkPacketCountSentServer = 0;
-int         networkPacketCountReceiveServer = 0;
+int networkPacketCountSentClient = 0;
+int networkPacketCountSentServer = 0;
+int networkPacketCountReceiveServer = 0;
 
-size_t      networkOutQueueSize = 0;
+size_t networkOutQueueSize = 0;
 
 RakNet::RakPeerInterface *netClient = nullptr;
 RakNet::RakPeerInterface *netServer = nullptr;
 
-RakNet::Packet          netServerPacket;
+RakNet::Packet netServerPacket;
 
-std::string      connectionPassword;
+std::string connectionPassword;
 
-bool            isServer = true;
+bool isServer = true;
 //bool            isClient = true;
 
-int             serverPort;
+int serverPort;
 
-bool            serverRunning = false;
-bool            clientRunning = false;
-bool            clientConnected = false;
+bool serverRunning = false;
+bool clientRunning = false;
+bool clientConnected = false;
 
-SDL_Thread      *userEventNetworkInThread;
+SDL_Thread *userEventNetworkInThread;
 
 //-----------------------------------------------------------------------------
 //
 // Send the packet over the network
-void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichClient )
+void net_sendPacket ( RakNet::BitStream *bitStream, int packetSource, int whichClient )
 //-----------------------------------------------------------------------------
 {
 	unsigned long clientIndex = 0;
@@ -41,7 +41,7 @@ void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichCl
 	switch ( packetSource )
 	{
 		case USER_EVENT_NETWORK_FROM_CLIENT:        // From the client to the server
-			if (clientRunning)
+			if ( clientRunning )
 			{
 				netClient->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClient->GetSystemAddressFromGuid ( netServerPacket.guid ), false );
 				networkPacketCountSentClient++;
@@ -49,7 +49,7 @@ void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichCl
 			break;
 
 		case NETWORK_SEND_DATA:             // From the server to the client
-			if (serverRunning)
+			if ( serverRunning )
 			{
 				if ( -1 == whichClient )      // to all clients
 				{
@@ -59,7 +59,8 @@ void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichCl
 				{
 					if ( netClientInfo[whichClient].inUse )
 					{
-						if ( netServer->GetConnectionState ( netClientInfo[whichClient].systemAddress ) == RakNet::IS_CONNECTED )
+						if ( netServer->GetConnectionState ( netClientInfo[whichClient].systemAddress ) ==
+						     RakNet::IS_CONNECTED )
 						{
 							netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClientInfo[whichClient].systemAddress, false );
 							networkPacketCountSentServer++;
@@ -78,18 +79,18 @@ void net_sendPacket( RakNet::BitStream *bitStream, int packetSource, int whichCl
 //-----------------------------------------------------------------------------------------------------
 // If the first byte is ID_TIMESTAMP, then we want the 5th byte
 // Otherwise we want the 1st byte
-unsigned char net_getPacketIdentifier( RakNet::Packet *p )
+unsigned char net_getPacketIdentifier ( RakNet::Packet *p )
 //-----------------------------------------------------------------------------------------------------
 {
-	if (p == nullptr)
+	if ( p == nullptr )
 		return 255;
 
-	if (p->data[0] == ID_TIMESTAMP)
+	if ( p->data[0] == ID_TIMESTAMP )
 	{
-		printf("First byte is a ID_TIMESTAMP\n");
+		printf ( "First byte is a ID_TIMESTAMP\n" );
 
-		RakAssert(p->length > sizeof(RakNet::MessageID) + sizeof(RakNet::Time));
-		return p->data[sizeof(RakNet::MessageID) + sizeof(RakNet::Time)];
+		RakAssert( p->length > sizeof ( RakNet::MessageID ) + sizeof ( RakNet::Time ));
+		return p->data[sizeof ( RakNet::MessageID ) + sizeof ( RakNet::Time )];
 	}
 	else
 		return p->data[0];
@@ -111,7 +112,7 @@ bool net_initLibrary ()
 	serverRunning = false;
 	//
 	// See if we are even a server
-	if (isServer)
+	if ( isServer )
 	{
 		if ( !net_startServer ( static_cast<unsigned short>(serverPort), static_cast<unsigned short>(maxNumClients)))
 			return false;
@@ -121,28 +122,28 @@ bool net_initLibrary ()
 
 	clientRunning = false;
 	// We will always have a client ( local for a single player game )
-	if (!net_startClient (serverPort))
+	if ( !net_startClient ( serverPort ))
 		return false;
 	clientRunning = true;
 	clientConnected = false;
 
 	//
 	// Now start the listening thread
-	userEventNetworkInThread = SDL_CreateThread (net_processNetworkTraffic, "net_processNetworkTraffic", (void *) nullptr);
+	userEventNetworkInThread = SDL_CreateThread ( net_processNetworkTraffic, "net_processNetworkTraffic", (void *) nullptr );
 	if ( nullptr == userEventNetworkInThread )
 	{
-		printf ("SDL_CreateThread - userEventNetworkClientThread - failed: %s\n", SDL_GetError ());
+		printf ( "SDL_CreateThread - userEventNetworkClientThread - failed: %s\n", SDL_GetError ());
 		return false;
 	}
 
 	networkInMutex = SDL_CreateMutex ();
 	if ( !networkInMutex )
 	{
-		printf ("Couldn't create mutex - networkInMutex");
+		printf ( "Couldn't create mutex - networkInMutex" );
 		return false;
 	}
 
-	SDL_DetachThread (userEventNetworkInThread);     // Thread to receive packets IN bound
+	SDL_DetachThread ( userEventNetworkInThread );     // Thread to receive packets IN bound
 
 	return true;
 }
@@ -150,7 +151,7 @@ bool net_initLibrary ()
 //-----------------------------------------------------------------------------------------------------
 //
 // Handle all the network IN activity here
-int net_processNetworkTraffic( void *ptr )
+int net_processNetworkTraffic ( void *ptr )
 //-----------------------------------------------------------------------------------------------------
 {
 	RakNet::Packet *p;
@@ -245,7 +246,7 @@ int net_processNetworkTraffic( void *ptr )
 					case ID_CONNECTION_REQUEST_ACCEPTED:
 						// This tells the client they have connected
 
-						net_clientConnectionAccepted(p->systemAddress, p->guid);
+						net_clientConnectionAccepted ( p->systemAddress, p->guid );
 
 						netServerPacket.systemAddress = p->systemAddress;
 						netServerPacket.guid = p->guid;
@@ -259,7 +260,7 @@ int net_processNetworkTraffic( void *ptr )
 						break;
 
 					case ID_UNCONNECTED_PONG:
-						net_clientGotPong(p->systemAddress);
+						net_clientGotPong ( p->systemAddress );
 #ifdef NET_DEBUG
 						printf ( "CLIENT: Got pong from %s \n", p->systemAddress.ToString ());
 #endif
@@ -285,89 +286,87 @@ int net_processNetworkTraffic( void *ptr )
 		}
 
 
-			//
-			// Check Server IN packets
-			//
-			if ( serverRunning )
+		//
+		// Check Server IN packets
+		//
+		if ( serverRunning )
+		{
+			// Now process SERVER
+			for ( p = netServer->Receive (); p; netServer->DeallocatePacket ( p ), p = netServer->Receive ())
 			{
-				// Now process SERVER
-				for ( p = netServer->Receive (); p; netServer->DeallocatePacket ( p ), p = netServer->Receive ())
+				networkPacketCountReceiveServer++;
+
+				// We got a packet, get the identifier with our handy function
+				packetIdentifier = net_getPacketIdentifier ( p );
+
+				printf ( "Server: Got Network traffic\n" );
+
+				// Check if this is a network message packet
+				switch ( packetIdentifier )
 				{
-					networkPacketCountReceiveServer++;
+					case ID_DISCONNECTION_NOTIFICATION:
+						// Connection lost normally
+#ifdef NET_DEBUG
+						printf ( "SERVER: ID_DISCONNECTION_NOTIFICATION from %s\n", p->systemAddress.ToString ( true ));;
+#endif
+						break;
 
-					// We got a packet, get the identifier with our handy function
-					packetIdentifier = net_getPacketIdentifier ( p );
+					case ID_NEW_INCOMING_CONNECTION:
+						// Somebody connected.  We have their IP now
 
-					printf ( "Server: Got Network traffic\n" );
+						net_addNewClient ( p->systemAddress, p->guid );
+						break;
 
-					// Check if this is a network message packet
-					switch ( packetIdentifier )
+					case ID_INCOMPATIBLE_PROTOCOL_VERSION:
+#ifdef NET_DEBUG
+						printf ( "SERVER: ID_INCOMPATIBLE_PROTOCOL_VERSION\n" );
+#endif
+						break;
+
+					case ID_CONNECTED_PING:
+#ifdef NET_DEBUG
+						printf ( "SERVER: Ping from %s\n", p->systemAddress.ToString ( true ));
+#endif
+						break;
+
+					case ID_UNCONNECTED_PING:
+#ifdef NET_DEBUG
+						printf ( "SERVER: Unconnected discovery Ping from %s\n", p->systemAddress.ToString ( true ));
+#endif
+						break;
+
+					case ID_CONNECTION_LOST:
+						// Couldn't deliver a reliable packet - i.e. the other system was abnormally
+						// terminated
+#ifdef NET_DEBUG
+						printf ( "SERVER: ID_CONNECTION_LOST from %s\n", p->systemAddress.ToString ( true ));
+#endif
+						//
+						// TODO: Remove client from vector array based on systemAddress
+						break;
+
+					case ID_GAME_MESSAGE_1:
 					{
-						case ID_DISCONNECTION_NOTIFICATION:
-							// Connection lost normally
-#ifdef NET_DEBUG
-							printf ( "SERVER: ID_DISCONNECTION_NOTIFICATION from %s\n", p->systemAddress.ToString ( true ));;
-#endif
-							break;
-
-						case ID_NEW_INCOMING_CONNECTION:
-							// Somebody connected.  We have their IP now
-
-							net_addNewClient(p->systemAddress, p->guid);
-							break;
-
-						case ID_INCOMPATIBLE_PROTOCOL_VERSION:
-#ifdef NET_DEBUG
-							printf ( "SERVER: ID_INCOMPATIBLE_PROTOCOL_VERSION\n" );
-#endif
-							break;
-
-						case ID_CONNECTED_PING:
-#ifdef NET_DEBUG
-							printf ( "SERVER: Ping from %s\n", p->systemAddress.ToString ( true ));
-#endif
-							break;
-
-						case ID_UNCONNECTED_PING:
-#ifdef NET_DEBUG
-							printf ( "SERVER: Unconnected discovery Ping from %s\n", p->systemAddress.ToString ( true ));
-#endif
-							break;
-
-						case ID_CONNECTION_LOST:
-							// Couldn't deliver a reliable packet - i.e. the other system was abnormally
-							// terminated
-#ifdef NET_DEBUG
-							printf ( "SERVER: ID_CONNECTION_LOST from %s\n", p->systemAddress.ToString ( true ));
-#endif
-							//
-							// TODO: Remove client from vector array based on systemAddress
-							break;
-
-						case ID_GAME_MESSAGE_1:
-						{
 //						printf ( "Message from client\n" );
 
-							RakNet::BitStream bsin ( p->data, p->length, false );
+						RakNet::BitStream bsin ( p->data, p->length, false );
 
-							bsin.IgnoreBytes ( sizeof ( RakNet::MessageID ));
-							bsin.Read ( rs );
+						bsin.IgnoreBytes ( sizeof ( RakNet::MessageID ));
+						bsin.Read ( rs );
 
 //						printf ( "Client says [ %s ]\n", rs.C_String ());
-						}
-							break;
-
-						default:
-							break;
 					}
+						break;
+
+					default:
+						break;
 				}
 			}
 		}
-		printf ( "NETWORK IN thread stopped.\n" );
-		return 0;
 	}
-
-
+	printf ( "NETWORK IN thread stopped.\n" );
+	return 0;
+}
 
 
 //-----------------------------------------------------------------------------
@@ -380,21 +379,21 @@ int net_processNetworkOutQueue ( void *ptr )
 {
 	_myEventData tempEventData;
 
-	RakNet::BitStream   BSOut{};
+	RakNet::BitStream BSOut{};
 
 //	while ( runThreads )
 	{
 //		SDL_Delay (THREAD_DELAY_MS);
 
-		networkOutQueueSize = networkOutQueue.size();
+		networkOutQueueSize = networkOutQueue.size ();
 
 		while ( !networkOutQueue.empty ())   // stuff in the queue to process
 		{
-			if ( SDL_LockMutex (networkInMutex) == 0 )
+			if ( SDL_LockMutex ( networkInMutex ) == 0 )
 			{
 				tempEventData = networkOutQueue.front ();       // back - get the latest one - not the earliest one
 				networkOutQueue.pop ();
-				SDL_UnlockMutex (networkInMutex);
+				SDL_UnlockMutex ( networkInMutex );
 			}
 
 			switch ( tempEventData.eventAction )
@@ -408,10 +407,10 @@ int net_processNetworkOutQueue ( void *ptr )
 					break;
 
 				case USER_EVENT_NETWORK_FROM_CLIENT:
-					printf ("CLIENT is sending out packets - queue [ %lu ].\n", networkOutQueue.size ());
+					printf ( "CLIENT is sending out packets - queue [ %lu ].\n", networkOutQueue.size ());
 
-					BSOut.Write ((RakNet::MessageID)ID_GAME_MESSAGE_1);
-					BSOut.Write ("Hello from the client");
+					BSOut.Write ((RakNet::MessageID) ID_GAME_MESSAGE_1 );
+					BSOut.Write ( "Hello from the client" );
 
 					net_sendPacket ( &BSOut, USER_EVENT_NETWORK_FROM_CLIENT, 0 );
 
@@ -431,14 +430,14 @@ int net_processNetworkOutQueue ( void *ptr )
 //-----------------------------------------------------------------------------
 //
 // Console command to show the list of connected clients, if this is the server
-void con_listClients()
+void con_listClients ()
 //-----------------------------------------------------------------------------
 {
 	RakNet::ConnectionState isConnected;
 
-	if (!isServer)
+	if ( !isServer )
 	{
-		con_print(CON_ERROR, true, "You are not the server.");
+		con_print ( CON_ERROR, true, "You are not the server." );
 		return;
 	}
 
@@ -446,6 +445,8 @@ void con_listClients()
 	{
 		isConnected = netServer->GetConnectionState ( it.systemAddress );
 
-		con_print(CON_INFO, true, "[ %s ] - [ %s ] Connected [ %s ] Avg Ping [ %i ms ]", it.name, it.systemAddress.ToString(), isConnected == RakNet::IS_CONNECTED ? "true" : "false", netServer->GetAveragePing (it.systemAddress));
+		con_print ( CON_INFO, true, "[ %s ] - [ %s ] Connected [ %s ] Avg Ping [ %i ms ]", it.name, it.systemAddress.ToString (),
+		            isConnected == RakNet::IS_CONNECTED ? "true"
+		                                                : "false", netServer->GetAveragePing ( it.systemAddress ));
 	}
 }

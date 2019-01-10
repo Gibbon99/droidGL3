@@ -6,7 +6,7 @@
 extern int     currentDeckNumber;
 
 // Get the positions of lifts
-void gam_getLiftPositions ( const std::string &levelName );
+void gam_findLiftPositions ( const std::string &levelName );
 
 // Locate the world position of the passed in lift
 cpVect gam_getLiftworldPosition ( std::string levelName, int whichLift );

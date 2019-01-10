@@ -5,39 +5,41 @@
 // structure to hold information for healing tiles
 //
 //-----------------------------------------------------------------------------
-vector<_basicHealing>       healing;
-bool                        doHealingAnimate = true;
-SDL_TimerID                 timerHealingAnimate;
-Uint32                      healingAnimateInterval;      // From script
+bool doHealingAnimate = true;
+SDL_TimerID timerHealingAnimate;
+Uint32 healingAnimateInterval;      // From script
 
 // ----------------------------------------------------------------------------
 //
 // Animate healing tiles called from timer callback
+// Does healing tiles on all levels
 Uint32 gam_healingAnimateTimerCallback ( Uint32 interval, void *param )
 // ----------------------------------------------------------------------------
 {
-	if (!doHealingAnimate)
+	if ( !doHealingAnimate )
 		return interval;
 
-	if ( healing.empty ())
-		return interval;
-
-	for (auto &healingItr: healing )
+	for ( auto &levelItr : levelInfo )
 	{
-		healingItr.currentFrame++;
-		if ( healingItr.currentFrame > HEALING_TILE + 3)
-			healingItr.currentFrame = HEALING_TILE;
+		if ( !levelItr.second.healing.empty ())
+		{
+			for ( auto &healingItr: levelItr.second.healing )
+			{
+				healingItr.currentFrame++;
+				if ( healingItr.currentFrame > HEALING_TILE + 3 )
+					healingItr.currentFrame = HEALING_TILE;
 
-		levelInfo.at (lvl_getCurrentLevelName ()).tiles[healingItr.pos] = healingItr.currentFrame;
+				levelItr.second.tiles[healingItr.pos] = healingItr.currentFrame;
+			}
+		}
 	}
-
 	return healingAnimateInterval;
 }
 
 // ----------------------------------------------------------------------------
 //
 // Set the state of the healing tile timer
-void gam_setHealingState(bool newState)
+void gam_setHealingState ( bool newState )
 // ----------------------------------------------------------------------------
 {
 	doHealingAnimate = newState;
@@ -48,10 +50,10 @@ void gam_setHealingState(bool newState)
 // Initiate the timer to animate the healing tiles
 //
 // Pass in time in milliseconds
-void gam_initHealingAnimateTimer(Uint32 interval)
+void gam_initHealingAnimateTimer ( Uint32 interval )
 // ----------------------------------------------------------------------------
 {
-	timerHealingAnimate = evt_registerTimer(interval, gam_healingAnimateTimerCallback, "Healing tile animation");
+	timerHealingAnimate = evt_registerTimer ( interval, gam_healingAnimateTimerCallback, "Healing tile animation" );
 }
 
 // ----------------------------------------------------------------------------
@@ -66,14 +68,10 @@ void gam_findHealingTiles ( string levelName )
 
 	CHECK_LEVEL_NAME
 
-	//
-	// Clear out from previous use
-	if ( !healing.empty() )
-		healing.clear();
-
-	for (index = 0; index < levelInfo.at(levelName).levelDimensions.x * levelInfo.at(levelName).levelDimensions.y; index++)
+	for ( index = 0;
+	      index < levelInfo.at ( levelName ).levelDimensions.x * levelInfo.at ( levelName ).levelDimensions.y; index++ )
 	{
-		switch ( levelInfo.at(levelName).tiles[index] )
+		switch ( levelInfo.at ( levelName ).tiles[index] )
 		{
 			case HEALING_TILE:
 			case HEALING_TILE + 1:
@@ -82,7 +80,7 @@ void gam_findHealingTiles ( string levelName )
 				tempHealing.pos = index;
 				tempHealing.currentFrame = HEALING_TILE;
 				tempHealing.frameDelay = 0.0f;
-				healing.push_back(tempHealing);
+				levelInfo.at ( levelName ).healing.push_back ( tempHealing );
 				break;
 
 			default:

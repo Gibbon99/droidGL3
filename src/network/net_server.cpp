@@ -1,3 +1,5 @@
+#include <hdr/game/gam_droidAIPatrol.h>
+#include <hdr/game/gam_doors.h>
 #include "hdr/network/net_server.h"
 #include "hdr/network/net_common.h"
 #include "hdr/game/gam_player.h"
@@ -113,4 +115,23 @@ void net_sendWelcomePacket ( int whichClient )
 //	BSOut.WriteVector ( levelInfo.at ( levelName ).droid[index].velocity.x, levelInfo.at ( levelName ).droid[index].velocity.y, 0.0 );
 
 	net_sendPacket ( &BSOut, NETWORK_SEND_DATA, 0 );
+}
+
+//--------------------------------------------------------------------------------
+//
+// Process the world simulation
+void net_processWorldStep()
+//--------------------------------------------------------------------------------
+{
+	for ( auto levelItr : levelInfo)     // Process every level
+	{
+		if (levelItr.second.containsClient)
+		{
+			ai_processDroidMovement ( levelItr.first );
+
+			drd_animateThisLevel ( levelItr.first );
+
+			gam_doorCheckTriggerAreas ( levelItr.first );
+		}
+	}
 }

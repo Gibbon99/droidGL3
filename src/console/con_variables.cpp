@@ -1,3 +1,4 @@
+#include "hdr/game/gam_droidAI.h"
 #include "hdr/game/gam_game.h"
 #include "hdr/gui/gui_scrollBox.h"
 #include "hdr/gui/gui_button.h"
@@ -38,7 +39,6 @@ _hostScriptFunctions hostVariables[] =
 	{"float collisionSlop",                 &collisionSlop},
 	{"float wallFriction",                  &wallFriction},
 	{"float wallRadius",                    &wallRadius},
-	{"float playerMass",                    &playerMass},
 	{"float playerRadius",                  &playerRadius},
 	{"float playerFriction",                &playerFriction},
 	{"float playerElastic",                 &playerElastic},
@@ -78,6 +78,10 @@ _hostScriptFunctions hostVariables[] =
 	{"int introScrollSpeed",                &introScrollSpeed},
 	{"int introPauseTime",                  &introPauseTime},
 	{"int dbScrollSpeed",                   &dbScrollSpeed},
+
+	{"float droidBeenShotValue",            &droidBeenShotValue},
+	{"int collisionExplosionDamage",        &collisionExplosionDamage},
+	{"int collisionDamageInflicted",        &collisionDamageInflicted},
 
 	{"float g_gamma",                       &g_gamma},
 	{"bool g_debugShowWaypoints",           &g_debugShowWaypoints},

@@ -4,24 +4,22 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/libGL/chipmunk/chipmunk.h"
 
-#define PHYSIC_TYPE_WALL            0x01
-#define PHYSIC_TYPE_ENEMY            0x02
-#define PHYSIC_TYPE_PLAYER            0x04
-#define PHYSIC_TYPE_BULLET            0x08
-#define PHYSIC_TYPE_DOOR            0x16
-#define PHYSIC_TYPE_PARTICLE        0x32
+enum PHYSIC_TYPES
+{
+	PHYSIC_TYPE_PLAYER = 21,      // one more than the number of levels
+	PHYSIC_TYPE_ENEMY,
+	PHYSIC_TYPE_BULLET,
+	PHYSIC_TYPE_WALL
+};
 
-#define WALL_GROUP      0x01
-#define PLAYER_GROUP    0x02
-#define NO_GROUP        0x03
+extern bool                        physicsStarted;
+extern cpSpace                      *space;
 
-extern cpSpace *space;
-
-extern float shipDamping;       // Set from startup script
-extern float collisionSlop;     // Set from startup script
-extern float wallFriction;      // Set from startup script
-extern float wallRadius;        // Set from startup script
-extern float gravity;           // Set from startup script
+extern float                        shipDamping;       // Set from startup script
+extern float                        collisionSlop;     // Set from startup script
+extern float                        wallFriction;      // Set from startup script
+extern float                        wallRadius;        // Set from startup script
+extern float                        gravity;           // Set from startup script
 
 typedef struct
 {
@@ -40,3 +38,9 @@ void sys_createSolidWalls ( std::string levelName );
 
 // Destroy all the bodies and shapes for this level
 void sys_destroyPhysicObjects ( std::string whichLevel );
+
+// Create the physics bodies and shapes for the enemy droids
+void sys_createEnemyPhysics( std::string levelName);
+
+// Update the droids information from physics properties
+void drd_updateDroidPosition ( std::string levelName, int whichDroid );

@@ -5,7 +5,6 @@
 
 extern _physicObject playerPhysicsObject;
 
-extern float playerMass;            // Set from startup script
 extern float playerRadius;        // Set from startup script
 extern float playerFriction;        // Set from startup script
 extern float playerElastic;        // Set from startup script
@@ -22,5 +21,13 @@ void sys_destroyPlayerPhysics ();
 // Set the player physics position in the world
 void sys_setPlayerPhysicsPosition ( cpVect newPosition );
 
+// Change the physics shape filter for the player on level change
+void sys_changePlayerPhysicsFilter();
+
 // Stop player movement
 void sys_stopPlayerMovement ();
+
+
+
+
+void sys_disablePlayerCollision();

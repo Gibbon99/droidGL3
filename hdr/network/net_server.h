@@ -29,3 +29,6 @@ void net_shutdownServer();
 
 // New client connected - record their details
 bool net_addNewClient(RakNet::SystemAddress clientAddressReceived, RakNet::RakNetGUID clientGUID );
+
+// Process the world simulation
+void net_processWorldStep();

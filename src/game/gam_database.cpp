@@ -17,6 +17,7 @@ bool io_getDBDroidInfo ( const std::string &fileName )
 	PHYSFS_sint64       fileLength;
 	_dataBaseEntry      tempDataBaseEntry;
 
+
 	char *sourceText = nullptr;
 
 	fileLength = io_getFileSize ((char *) fileName.c_str ());
@@ -52,15 +53,15 @@ bool io_getDBDroidInfo ( const std::string &fileName )
 		return false;
 	}
 
-	tempDataBaseEntry.maxHealth = static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "max_health", "50" ), nullptr, 10 ));
+	tempDataBaseEntry.maxHealth = static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "max_health", "50" ), nullptr, 10 ));
 
 	if ( dataBaseEntry.empty ())    // 001 base droid stats
 	{
-		tempDataBaseEntry.maxSpeed = strtof ( iniFile.GetValue ( "mainSection", "max_speed", "3" ), nullptr );
-		tempDataBaseEntry.maxSpeed += baseGameSpeed;
+		tempDataBaseEntry.maxSpeed = strtof ( iniFile.GetValue ( "droidInfo", "max_speed", "3" ), nullptr );
+		tempDataBaseEntry.maxSpeed /= baseGameSpeed;
 
-		tempDataBaseEntry.accelerate = strtof ( iniFile.GetValue ( "mainSection", "accelerate", "1.5" ), nullptr );
-		tempDataBaseEntry.accelerate += baseGameSpeed;
+		tempDataBaseEntry.accelerate = strtof ( iniFile.GetValue ( "droidInfo", "accelerate", "1.5" ), nullptr );
+		tempDataBaseEntry.accelerate /= baseGameSpeed;
 	}
 	else
 	{
@@ -68,15 +69,19 @@ bool io_getDBDroidInfo ( const std::string &fileName )
 		// All other droid speeds and acceleration are based on player droid values
 		// Easy to change overall speed of the game
 		//
-		tempDataBaseEntry.maxSpeed = dataBaseEntry[0].maxSpeed + strtof ( iniFile.GetValue ( "mainSection", "max_speed", "1.5" ), nullptr );
-		tempDataBaseEntry.accelerate = dataBaseEntry[0].accelerate + strtof ( iniFile.GetValue ( "mainSection", "accelerate", "1.5" ), nullptr );
+		tempDataBaseEntry.maxSpeed = dataBaseEntry[0].maxSpeed + strtof ( iniFile.GetValue ( "droidInfo", "max_speed", "1.5" ), nullptr );
+		tempDataBaseEntry.accelerate = dataBaseEntry[0].accelerate + strtof ( iniFile.GetValue ( "droidInfo", "accelerate", "1.5" ), nullptr );
+
+		tempDataBaseEntry.maxSpeed /= baseGameSpeed;
+		tempDataBaseEntry.accelerate /= baseGameSpeed;
+
 	}
 
-	tempDataBaseEntry.score = static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "score", "50" ), nullptr, 10 ));
-	tempDataBaseEntry.bounceDamage = static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "bounce_damage", "50" ), nullptr, 10 ));
-	tempDataBaseEntry.canShoot = static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "can_shoot", "50" ), nullptr, 10 ));
-	tempDataBaseEntry.rechargeTime = static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "rechargeTime", "50" ), nullptr, 10 ));
-	tempDataBaseEntry.bulletType = static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "bullet_type", "50" ), nullptr, 10 ));
+	tempDataBaseEntry.score = static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "score", "50" ), nullptr, 10 ));
+	tempDataBaseEntry.bounceDamage = static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "bounce_damage", "50" ), nullptr, 10 ));
+	tempDataBaseEntry.canShoot = static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "can_shoot", "50" ), nullptr, 10 ));
+	tempDataBaseEntry.rechargeTime = static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "rechargeTime", "50" ), nullptr, 10 ));
+	tempDataBaseEntry.bulletType = static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "bullet_type", "50" ), nullptr, 10 ));
 	//
 	// Map the type of bullet to the sprite image for it
 	//
@@ -98,28 +103,31 @@ bool io_getDBDroidInfo ( const std::string &fileName )
 		case 3: // Disrupter
 			tempDataBaseEntry.bulletType = BULLET_TYPE_DISRUPTER;
 			break;
+
+		default:
+			break;
 	}
 
-	tempDataBaseEntry.chanceToShoot = static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "chance_to_shoot", "50" ), nullptr, 10 ));
-	tempDataBaseEntry.bulletDamage = static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "bullet_damage", "50" ), nullptr, 10 ));
-	tempDataBaseEntry.disrupterImmune = static_cast<bool>(static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "disrupter_immune", "0" ), nullptr, 10 )));
-	tempDataBaseEntry.tokenCount = static_cast<int>(strtol ( iniFile.GetValue ( "mainSection", "token_count", "5" ), nullptr, 10 ));
-	tempDataBaseEntry.height = iniFile.GetValue ( "mainSection", "height", "" );
-	tempDataBaseEntry.weight = iniFile.GetValue ( "mainSection", "weight", "" );
-	tempDataBaseEntry.dbImageFileName = iniFile.GetValue ( "mainSection", "dbImageFileName", "" );
+	tempDataBaseEntry.chanceToShoot = static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "chance_to_shoot", "50" ), nullptr, 10 ));
+	tempDataBaseEntry.bulletDamage = static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "bullet_damage", "50" ), nullptr, 10 ));
+	tempDataBaseEntry.disrupterImmune = static_cast<bool>(static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "disrupter_immune", "0" ), nullptr, 10 )));
+	tempDataBaseEntry.tokenCount = static_cast<int>(strtol ( iniFile.GetValue ( "droidInfo", "token_count", "5" ), nullptr, 10 ));
+	tempDataBaseEntry.height = iniFile.GetValue ( "droidInfo", "height", "" );
+	tempDataBaseEntry.weight = iniFile.GetValue ( "droidInfo", "weight", "" );
+	tempDataBaseEntry.dbImageFileName = iniFile.GetValue ( "droidInfo", "dbImageFileName", "" );
 
 	//
 	// Read in key for text language
 	//
-	tempDataBaseEntry.description =     iniFile.GetValue ( "mainSection", "description", "" );
-	tempDataBaseEntry.className =       iniFile.GetValue ( "mainSection", "className", "" );
-	tempDataBaseEntry.drive =           iniFile.GetValue ( "mainSection", "drive", "" );
-	tempDataBaseEntry.brain =           iniFile.GetValue ( "mainSection", "brain", "" );
-	tempDataBaseEntry.weapon =          iniFile.GetValue ( "mainSection", "weapon", "" );
-	tempDataBaseEntry.sensor1 =         iniFile.GetValue ( "mainSection", "sensor1", "" );
-	tempDataBaseEntry.sensor2 =         iniFile.GetValue ( "mainSection", "sensor2", "" );
-	tempDataBaseEntry.sensor3 =         iniFile.GetValue ( "mainSection", "sensor3", "" );
-	tempDataBaseEntry.notes =           iniFile.GetValue ( "mainSection", "notes", "" );
+	tempDataBaseEntry.description =     iniFile.GetValue ( "droidInfo", "description", "" );
+	tempDataBaseEntry.className =       iniFile.GetValue ( "droidInfo", "className", "" );
+	tempDataBaseEntry.drive =           iniFile.GetValue ( "droidInfo", "drive", "" );
+	tempDataBaseEntry.brain =           iniFile.GetValue ( "droidInfo", "brain", "" );
+	tempDataBaseEntry.weapon =          iniFile.GetValue ( "droidInfo", "weapon", "" );
+	tempDataBaseEntry.sensor1 =         iniFile.GetValue ( "droidInfo", "sensor1", "" );
+	tempDataBaseEntry.sensor2 =         iniFile.GetValue ( "droidInfo", "sensor2", "" );
+	tempDataBaseEntry.sensor3 =         iniFile.GetValue ( "droidInfo", "sensor3", "" );
+	tempDataBaseEntry.notes =           iniFile.GetValue ( "droidInfo", "notes", "" );
 
 	//
 	// Now get the text string using that text key for the current language
@@ -146,7 +154,6 @@ bool io_getDBDroidInfo ( const std::string &fileName )
 
 	return true;
 }
-
 
 //------------------------------------------------------------
 //

@@ -232,7 +232,7 @@ void gam_debugDoorTriggers()
 // ----------------------------------------------------------------------------
 //
 // Setup each door doorTrigger for this level
-void gam_doorTriggerSetup()
+void gam_doorTriggerSetup(const string &levelName)
 // ----------------------------------------------------------------------------
 {
   int 	    i;
@@ -248,14 +248,13 @@ void gam_doorTriggerSetup()
   numDoorsOnLevel = 0;
   doorCounter = 0;
 
-  for (i = 0; i != levelInfo.at(lvl_getCurrentLevelName()).levelDimensions.x * levelInfo.at(lvl_getCurrentLevelName()).levelDimensions.y; i++)
+  for (i = 0; i != levelInfo.at( levelName ).levelDimensions.x * levelInfo.at( levelName ).levelDimensions.y; i++)
     {
-      currentTile = levelInfo.at(lvl_getCurrentLevelName()).tiles[(((int)sourceY * (levelInfo.at(lvl_getCurrentLevelName()).levelDimensions.x)) + (int)sourceX)];
+      currentTile = levelInfo.at( levelName ).tiles[(((int)sourceY * (levelInfo.at( levelName ).levelDimensions.x)) + (int)sourceX)];
       if (currentTile < 0)
         {
           con_print(CON_ERROR, true, "Tile found in gam_doorTriggerSetup is below 0. loop [ %i ]", i);
         }
-
 
       if	(
           (DOOR_ACROSS == currentTile) ||
@@ -329,7 +328,7 @@ void gam_doorTriggerSetup()
 
       destX++;
       sourceX++;
-      if (destX == (levelInfo.at(lvl_getCurrentLevelName ()).levelDimensions.x))
+      if (destX == (levelInfo.at( levelName ).levelDimensions.x))
         {
           destX = 0;
           sourceX = 0;

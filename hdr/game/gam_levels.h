@@ -7,6 +7,7 @@
 #include "hdr/system/sys_main.h"
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/game/gam_lifts.h"
+#include "hdr/game/gam_healing.h"
 
 #define MAP_VERSION             115
 
@@ -68,6 +69,18 @@ typedef struct
 	int posY;
 } _liftBasic;
 
+//-----------------------------------------------------------------------------
+//
+// structure to hold information for healing tiles
+//
+//-----------------------------------------------------------------------------
+
+typedef struct
+{
+	int         pos;                // position in array
+	int         currentFrame;       // which frame are we on
+	float       frameDelay;         // animation counter
+} _basicHealing;
 
 typedef struct _droid
 {
@@ -97,9 +110,25 @@ typedef struct _droid
 	int             overTile;                   // which tile is the droid on
 	int             currentMode;                // What is the droid doing; transfer, healing, terminal etc
 
-	cpBody          *body;                // Used for physics and collisions
+	cpBody          *body;                      // Used for physics and collisions
 	cpShape         *shape;
+	float           mass;                       // Used for collision response
 
+	bool            ignoreCollisions;           // Ignoring collisions for the time period
+	bool            isExploding;
+
+	int             targetIndex;                // Which droid shot this droid
+	bool            beenShotByPlayer;
+	float           beenShotCountdown;
+
+	int             collisionCount;             // how many collision have occured to ignore them
+	bool            hasCollided;
+	int             collidedWith;               // Who did the droid hit
+
+	int             playerDroidTypeDBIndex;     // What sort of droid is the player
+	int             droidTransferedIntoIndex;
+
+	bool            inTransferMode;
 	/*
 cpVect acceleration;
 
@@ -107,7 +136,7 @@ cpVect screenPos;
 cpVect previousWaypoints;        // This is the line segment start point
 
 
-float mass;                     // Used for collision response
+
 //
 // Weapon
 bool weaponCanFire;
@@ -115,10 +144,10 @@ float weaponDelay;
 //
 // States
 bool isStopped;
-bool hasCollided;
+
 bool isAlive;
 bool visibleToPlayer;
-bool isExploding;
+
 // Animation
 float currentFrameDelay;
 int currentFrame;
@@ -136,18 +165,16 @@ int ai_currentState;
 int ai_nextState;
 float ai_noActionCounter;
 float ai_noActionCount;
-int collidedWith;    // Who did the droid hit
-bool ignoreCollisions;
+
+
 float ignoreCollisionsCounter;
-int collisionCount;        // how many collision have occured to ignore them
+
 bool witnessShooting;
 bool witnessTransfer;
 float chanceToShoot;
-bool beenShotByPlayer;
-float beenShotCountdown;
 float witnessShootingCountDown;
 float witnessTransferCountDown;
-int targetIndex;        // Which droid shot this droid
+
 
 cpVect originPosition;     // Remember this to return to
 bool foundOriginPath;
@@ -190,8 +217,16 @@ typedef struct _levelStruct{
 	//
 	int                     deckNumber;         // Use this to reference by a number
 	int                     numEnemiesAlive;
+	bool                    containsClient;
 	vector<_liftBasic>      lifts;
 	vector<_droid>          droid;
+	vector<_basicHealing>   healing;
+	bool                    wallPhysicsCreated = false;
+	bool                    droidPhysicsCreated = false;
+	vector<_physicObject>   solidWalls;
+	cpShapeFilter           deckShapeFilter;
+	cpBitmask               deckCategory;
+	cpBitmask               deckMask;
 } _levelStruct;
 
 //extern int                  currentLevel;

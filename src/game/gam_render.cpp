@@ -489,7 +489,7 @@ void gam_initLevelDrawing (const string levelName )
 //----------------------------------------------------------------------------------------
 //
 // Reset the level init
-void gam_resetLevelInit()
+void gam_resetRenderLevelInit ()
 //----------------------------------------------------------------------------------------
 {
 	levelInitDone = false;

@@ -1,3 +1,4 @@
+#include "hdr/game/gam_database.h"
 #include "hdr/io/io_gameprefs.h"
 #include "hdr/game/gam_levels.h"
 #include "hdr/game/gam_render.h"
@@ -135,7 +136,6 @@ bool sys_initAll()
 		}
 
 		sys_setupPhysicsEngine ();
-		sys_setupPlayerPhysics ();
 		sys_setupCollisionHandlers ();
 
 		if (!gl_addShaders())
@@ -183,6 +183,12 @@ bool sys_initAll()
 			return false;
 
 		gui_prepareGUI();
+
+		if (!gam_getDBInformation())
+		{
+			con_print(CON_ERROR, true, "Unable to load database information.");
+			return false;
+		}
 
 	}   // end of file system check
 

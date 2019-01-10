@@ -183,7 +183,7 @@ bool aud_playSound ( int whichSound, float distance, int loops, float angle )
 	sound[whichSound].channel = Mix_PlayChannel (-1, sound[whichSound].sample, loops);
 	if ( -1 == sound[whichSound].channel )
 	{
-		printf ("Mix_PlayChannel error [ %s ]", Mix_GetError ());
+		printf ("Mix_PlayChannel error [ %s ]\n", Mix_GetError ());
 		return false;
 	}
 

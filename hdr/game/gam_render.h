@@ -19,4 +19,4 @@ void gam_drawFullLevel(string levelName, string whichShader, GLuint sourceTextur
 void gam_initLevelDrawing (const string levelName );
 
 // Reset the level init
-void gam_resetLevelInit();
+void gam_resetRenderLevelInit ();

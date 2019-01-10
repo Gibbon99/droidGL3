@@ -10,10 +10,12 @@ float           baseGameSpeed;
 
 //------------------------------------------------------------------------------
 //
-// Start a new game
+// Start a new game - initiated from the GUI
 void gam_startNewGame (int gameType)
 //------------------------------------------------------------------------------
 {
+	std::string      startingLevel;
+
 	switch (gameType)
 	{
 		case NET_GAME_JOIN_NETWORK:
@@ -29,7 +31,7 @@ void gam_startNewGame (int gameType)
 	}
 
 	//
-	// Turn off timers while changing level
+	// Turn off timers setting up for a new game
 	gam_setHealingState (false);
 	gam_setPlayerAnimateState (false);
 	gam_setDoorAnimateState (false);
@@ -42,13 +44,23 @@ void gam_startNewGame (int gameType)
 
 	currentAlertLevel = ALERT_GREEN_TILE;
 
+	gam_initialPlayerSetup ();          // Called before setting up enemy physics
+
+	for ( auto &levelItr : levelInfo )
+	{
+		sys_createSolidWalls    ( levelItr.first );
+		gam_initDroidValues     ( levelItr.first );
+		sys_createEnemyPhysics  ( levelItr.first );
+		gam_findHealingTiles    ( levelItr.first );
+		gam_findLiftPositions   ( levelItr.first );
+//		gam_doorTriggerSetup();
+	}
+
 	gl_createAllSprites ();     // TODO: Move this startup somewhere
 
-	gam_initialPlayerSetup ();
-
-	lvl_changeToLevel (lvl_getStartingLevel (), true, 0);
-
-	gam_doorTriggerSetup();
+	startingLevel = lvl_getStartingLevel ();
+	lvl_changeToLevel (startingLevel, true, 0);
+	levelInfo.at(startingLevel).containsClient = true;
 
 	sys_changeMode (MODE_GAME);
 

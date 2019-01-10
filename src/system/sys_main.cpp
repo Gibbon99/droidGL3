@@ -162,13 +162,9 @@ void sys_gameTickRun()
 
             io_processInputActions ();
 
-			drd_animateThisLevel (lvl_getCurrentLevelName ());
-
 			gam_processPlayerMovement ();
 
-			ai_processDroidMovement (lvl_getCurrentLevelName () );
-
-            gam_doorCheckTriggerAreas(lvl_getCurrentLevelName ());
+			net_processWorldStep();
 
 			cpSpaceStep (space, SKIP_TICKS);
 
@@ -203,7 +199,7 @@ int main (int argc, char *argv[] )
 
 	sys_initAll();
 
-	sys_testPrintValue();
+//	sys_testPrintValue();
 
 	testLightPosition.x = 843;
 	testLightPosition.y = 420;

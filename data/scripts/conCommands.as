@@ -46,7 +46,7 @@ void as_setGameVariables()
 
     g_showDoorTriggers = false;
 
-	baseGameSpeed = 1.0f;
+	baseGameSpeed = 10.0f;
 
 //    sdf_addFontInfo(0, "Digital.ttf", 24);
   //  sdf_addFontInfo(1, "oldDigital.ttf", 28);
@@ -61,7 +61,7 @@ void as_setGameVariables()
     healingAnimateInterval = 150;
     //
     // Speed to animate the moving doors in milliseconds
-    doorAnimateInterval = 100;
+    doorAnimateInterval = 10;
     //
     // Variables for physics engine
     shipDamping = 0.2;
@@ -69,16 +69,18 @@ void as_setGameVariables()
     wallFriction = 0.8;
     wallRadius = 2.0;
 
-    playerMass = 0.6;
     playerRadius = 12.0;
     playerFriction = 0.5;
     playerElastic = 0.8;
     //
     // Slowdown factor
-    gravity = 0.0002;
+    gravity = 0.02;
     //
     // Max number of clients allowed on server
     maxNumClients = 4;
+
+	droidBeenShotValue = 3.0f;
+	collisionExplosionDamage = 3;
 }
 
 //-----------------------------------------------------------------------------

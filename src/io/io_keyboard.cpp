@@ -1,3 +1,4 @@
+#include <hdr/game/gam_physicsPlayer.h>
 #include "hdr/game/gam_game.h"
 #include "hdr/game/gam_render.h"
 #include "hdr/game/gam_lightCaster.h"
@@ -406,6 +407,11 @@ void io_handleKeyboardEvent ( SDL_Event event )
 	if ( event.key.keysym.sym == SDLK_ESCAPE && event.type == SDL_KEYDOWN )
 		sys_changeMode ( MODE_SHUTDOWN );
 
+	if ( event.key.keysym.sym == SDLK_c && event.type == SDL_KEYDOWN )
+	{
+		sys_disablePlayerCollision();
+		return;
+	}
 	switch ( currentMode )
 	{
 		case MODE_CONSOLE:

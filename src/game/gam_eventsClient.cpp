@@ -5,11 +5,12 @@
 //----------------------------------------------------------------------------------------
 //
 // Farm out the events received by the client for action
-void gam_handleClientInPacket( RakNet::Packet passPacket )
+void gam_handleClientInPacket ( RakNet::Packet passPacket )
 //----------------------------------------------------------------------------------------
 {
-	float varX, varY, varZ;
-	int dataType;
+	float       varX, varY, varZ;
+	int         dataType;
+	int         deckNumber;
 
 	// TODO Add time variable and RakNet time to each packet
 
@@ -24,24 +25,30 @@ void gam_handleClientInPacket( RakNet::Packet passPacket )
 			break;
 
 		case NET_DROID_WORLDPOS:
-				bsin.Read (networkServerTick);
-				for ( int index = 0; index != levelInfo.at ( lvl_getCurrentLevelName ()).numDroids; index++ )
+
+			bsin.Read ( networkServerTick );
+			//
+			// Which deck are these droids on
+			bsin.Read ( deckNumber );
+
+			for ( int index = 0; index != levelInfo.at( lvl_returnLevelNameFromDeck(deckNumber)).numDroids; index++ )   // also send alive flag
+			{
+				// World position according to the server
+				bsin.ReadVector ( varX, varY, varZ );
+				levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].serverWorldPos.x = varX;
+				levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].serverWorldPos.y = varY;
+
+				// Current speed according to the server
+				bsin.ReadVector ( varX, varY, varZ );
+				levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].serverVelocity.x = varX;
+				levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].serverVelocity.y = varY;
+
+
+				if (((int) levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].serverWorldPos.x -
+				     (int) levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].worldPos.x) > 1 )
 				{
-					// World position according to the server
-					bsin.ReadVector ( varX, varY, varZ );
-					levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x = varX;
-					levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.y = varY;
-
-					// Current speed according to the server
-					bsin.ReadVector (varX, varY, varZ);
-					levelInfo.at (lvl_getCurrentLevelName()).droid[index].serverVelocity.x = varX;
-					levelInfo.at (lvl_getCurrentLevelName()).droid[index].serverVelocity.y = varY;
-
-
-					if ( ((int)levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x - (int)levelInfo.at ( lvl_getCurrentLevelName()).droid[index].worldPos.x) > 1)
-					{
-						levelInfo.at (lvl_getCurrentLevelName ()).droid[index].worldPos.x = levelInfo.at (lvl_getCurrentLevelName ()).droid[index].serverWorldPos.x;
-					}
+					levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].worldPos.x = levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].serverWorldPos.x;
+				}
 
 /*
 					if (0 == index)
@@ -50,7 +57,7 @@ void gam_handleClientInPacket( RakNet::Packet passPacket )
 						       levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].serverWorldPos.y - levelInfo.at ( lvl_getCurrentLevelName ()).droid[index].worldPos.y );
 					}
 					*/
-				}
+			}
 			break;
 
 		default:
@@ -68,15 +75,15 @@ int gam_processClientEventQueue ( void *ptr )
 
 	while ( runThreads )
 	{
-		SDL_Delay (THREAD_DELAY_MS);
+		SDL_Delay ( THREAD_DELAY_MS );
 
 		if ( !clientEventInQueue.empty ())   // stuff in the queue to process
 		{
-			if ( SDL_LockMutex (clientEventInMutex) == 0 )
+			if ( SDL_LockMutex ( clientEventInMutex ) == 0 )
 			{
 				tempEventData = clientEventInQueue.front ();
 				clientEventInQueue.pop ();
-				SDL_UnlockMutex (clientEventInMutex);
+				SDL_UnlockMutex ( clientEventInMutex );
 			}
 
 			switch ( tempEventData.eventAction )
@@ -93,6 +100,6 @@ int gam_processClientEventQueue ( void *ptr )
 			}
 		}
 	}
-	printf ("CLIENT EVENTS thread stopped.\n");
+	printf ( "CLIENT EVENTS thread stopped.\n" );
 	return 0;
 }
