@@ -56,9 +56,9 @@ void drd_renderThisLevel ( const string levelName, float interpolate )
 
 //			drawPosition = cpvadd(levelInfo.at (levelName).droid[index].worldPos, cpvmult(levelInfo.at (levelName).droid[index].velocity, interpolate));
 
-			drawPosition = levelInfo.at ( levelName ).droid[index].serverWorldPos;
+//			drawPosition = levelInfo.at ( levelName ).droid[index].serverWorldPos;
 
-//			drawPosition = levelInfo.at ( levelName ).droid[index].worldPos;
+			drawPosition = levelInfo.at ( levelName ).droid[index].worldPos;
 
 			drawPosition.y = (int) drawPosition.y;   // Remove the fraction portion to stop blurring in Y direction
 
@@ -121,6 +121,52 @@ void gam_initDroidValues ( const string levelName )
 		tempDroid.collisionCount = 0;             // how many collision have occured to ignore them
 		tempDroid.hasCollided = false;
 		tempDroid.collidedWith = -1;               // Who did the droid hit
+
+
+		tempDroid.ignoreCollisionsCounter = IGNORE_COLLISION_TIME;
+
+		tempDroid.playerDroidTypeDBIndex = 0;     // What sort of droid is the player
+		tempDroid.droidTransferedIntoIndex = 0;
+
+		tempDroid.inTransferMode = false;
+
+		tempDroid.chanceToShoot = 0.0f;
+
+		tempDroid.visibleToPlayer = true;
+
+		//
+// Weapon
+		tempDroid.weaponCanFire = false;
+		tempDroid.weaponDelay = 0.0f;
+
+		tempDroid.witnessShooting = false;
+		tempDroid.witnessTransfer = false;
+
+		tempDroid.witnessShootingCountDown = 0.0f;
+		tempDroid.witnessTransferCountDown = 0.0f;
+
+		// AI variables
+//		int ai_currentState;
+		tempDroid.ai_moveMode = AI_MODE_WAYPOINT;
+
+		// Pathfinding
+		tempDroid.aStarPathIndex = -1;            // Index into which path to use
+		tempDroid.numberPathNodes = -1;
+		tempDroid.currentAStarIndex = -1;         // Index into aStarWaypoints array
+		tempDroid.aStarDestinationFound = false;
+		tempDroid.aStarInitDone = false;
+		tempDroid.previousWaypoints = {};
+
+		tempDroid.onFleeTile = false;
+		tempDroid.foundFleeTile = false;
+
+		tempDroid.isNotPatrolling = false;        // Used to enter resume branch
+		tempDroid.onResumeDestTile = false;
+		tempDroid.destSet = false;                // Does the droid have a destination
+
+		tempDroid.onHealingTile = false;
+		tempDroid.foundHealingTile = false;
+
 
 		levelInfo.at ( levelName ).droid.push_back ( tempDroid );
 	}
@@ -265,6 +311,8 @@ void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 			{
 				gam_doDamageToPlayer ( DAMAGE_COLLISION, whichDroid );
 
+				printf("Droid health [ %i ]\n", levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth);
+
 				levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth -= collisionDamageInflicted;
 				if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth <= 0 )
 				{
@@ -272,5 +320,30 @@ void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 				}
 			}
 			break;
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+//
+// process ignore collosions
+void gam_processIgnoreCollisions ( const string whichLevel, int whichDroid )
+//-----------------------------------------------------------------------------
+{
+	if ( levelInfo.at(whichLevel).droid[whichDroid].collisionCount < ( rand() % 5 ) + 3 )
+	{
+		return;
+	}
+
+	levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisions = true;
+
+	levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisionsCounter -= 1.0f * (1.0f / 30.0f);
+
+	if ( levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisionsCounter < 0.0f )
+	{
+		levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisionsCounter = IGNORE_COLLISION_TIME;
+		levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisions = false;
+		levelInfo.at(whichLevel).droid[whichDroid].collisionCount = 0;
+		levelInfo.at(whichLevel).droid[whichDroid].hasCollided = false;
 	}
 }

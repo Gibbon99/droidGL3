@@ -10,3 +10,9 @@ int sys_pack4Bytes(char one, char two, char three, char four);
 
 // Returns 4 char bytes into passed in array from INT parameter
 void sys_getPackedBytes(int sourceNumber, unsigned char *returnArray);
+
+// Is an object visible on the screen
+bool sys_visibleOnScreen ( cpVect worldCoord, int shapeSize );
+
+// Convert worldPosition coords to screen coords
+cpVect sys_worldToScreen ( cpVect worldPos, int shapeSize );

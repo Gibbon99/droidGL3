@@ -1,5 +1,6 @@
-#include <hdr/game/gam_droidAIPatrol.h>
-#include <hdr/game/gam_doors.h>
+#include "hdr/game/gam_droidAIPatrol.h"
+#include "hdr/game/gam_doors.h"
+#include "hdr/game/gam_droidAI.h"
 #include "hdr/network/net_server.h"
 #include "hdr/network/net_common.h"
 #include "hdr/game/gam_player.h"
@@ -127,11 +128,14 @@ void net_processWorldStep()
 	{
 		if (levelItr.second.containsClient)
 		{
-			ai_processDroidMovement ( levelItr.first );
-
+			gam_AStarProcessPaths (levelItr.first );
 			drd_animateThisLevel ( levelItr.first );
 
 			gam_doorCheckTriggerAreas ( levelItr.first );
+
+			drd_processDroidAI ( levelItr.first );
+
+			ai_processDroidMovement ( levelItr.first  );
 		}
 	}
 }

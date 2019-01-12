@@ -97,6 +97,9 @@ void gam_processPlayerMovement ()
 	playerDroid.middlePosition.x = playerDroid.worldPos.x + (DROID_SIZE * 0.5);
 	playerDroid.middlePosition.y = playerDroid.worldPos.y + (DROID_SIZE * 0.5);
 
+	viewableScreenCoord.x = playerDroid.worldPos.x - ( winWidth / 2 );
+	viewableScreenCoord.y = playerDroid.worldPos.y - ( winHeight / 2 );
+
 	playerDroid.overTile = gam_getTileUnderPlayer (lvl_getCurrentLevelName (), playerDroid.middlePosition.x / TILE_SIZE, playerDroid.middlePosition.y / TILE_SIZE);
 //	net_sendPositionUpdate (0);
 }

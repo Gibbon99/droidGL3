@@ -29,7 +29,7 @@ cpVect as_vectTest(cpVect cpParam)
 void as_setGameVariables()
 //-----------------------------------------------------------------------------
 {
-    drawHUD = true;
+    drawHUD = false;
 
     nearPlane = 0.0;
     farPlane = 400.0;
@@ -81,6 +81,15 @@ void as_setGameVariables()
 
 	droidBeenShotValue = 3.0f;
 	collisionExplosionDamage = 3;
+	collisionDamageInflicted = 1;
+
+	//
+	// How many aStar paths to run at once
+	numAStarPaths = 10;
+
+	wayPointDestinationSize = 5.0f;
+
+	badHealthFactor = 0.3f;
 }
 
 //-----------------------------------------------------------------------------

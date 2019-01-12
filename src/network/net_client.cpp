@@ -49,7 +49,7 @@ void net_clientSendDiscoverPing(unsigned short serverPort)
 
 //------------------------------------------------------------------------
 //
-// Callback for timer function - button focus animate flash
+// Callback for timer function - network discovery
 Uint32 net_clientConnectionCallback ( Uint32 interval, void *param )
 //------------------------------------------------------------------------
 {

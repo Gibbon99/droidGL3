@@ -41,6 +41,7 @@ bool    quitProgram;
 int     loops;
 float   interpolation;
 int     currentMode;
+cpVect  viewableScreenCoord;
 
 Uint32 currentServerTick;
 Uint32 currentClientTick;
@@ -111,7 +112,7 @@ void sys_displayScreen(float interpolation)
 
 	fnt_printText (vec2{0,winHeight - 16}, vec4{1,1,1,1}, "FPS [ %i ] Think [ %i ] Inter [ %3.4f ] frameTime [ %3.4f ] Mouse [ %f %f ]", fpsPrint, thinkFpsPrint, interpolation,frameTime / 1000.0f, mousePosition.x, mousePosition.y);
 
-	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "OutQueue [ %ul ] PacketCount Client [ %i - %s ] Server [ Out %i In %i - %s ]", networkOutQueueSize, networkPacketCountSentClient, clientRunning ? "true" : "false", networkPacketCountSentServer, networkPacketCountReceiveServer,  serverRunning ? "true" : "false");
+	fnt_printText (vec2{0, winHeight - 32}, vec4{1, 1, 1, 1}, "OutQueue [ %i ] PacketCount Client [ %i - %s ] Server [ Out %i In %i - %s ]", networkOutQueueSize, networkPacketCountSentClient, clientRunning ? "true" : "false", networkPacketCountSentServer, networkPacketCountReceiveServer,  serverRunning ? "true" : "false");
 
 	fnt_printText (vec2{0, winHeight - 48}, vec4{1, 1, 1, 1}, "networkServerTick [ %i ] currentServerTick [ %i ] Diff [ %i ] Framecount [ %i ]", networkServerTick, currentServerTick, currentServerTick - networkServerTick, frameCount);
 

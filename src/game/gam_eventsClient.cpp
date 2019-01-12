@@ -47,7 +47,7 @@ void gam_handleClientInPacket ( RakNet::Packet passPacket )
 				if (((int) levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].serverWorldPos.x -
 				     (int) levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].worldPos.x) > 1 )
 				{
-					levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].worldPos.x = levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].serverWorldPos.x;
+//					levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].worldPos.x = levelInfo.at ( lvl_returnLevelNameFromDeck(deckNumber) ).droid[index].serverWorldPos.x;
 				}
 
 /*

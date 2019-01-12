@@ -5,9 +5,9 @@
 // structure to hold information for healing tiles
 //
 //-----------------------------------------------------------------------------
-bool doHealingAnimate = true;
-SDL_TimerID timerHealingAnimate;
-Uint32 healingAnimateInterval;      // From script
+bool            doHealingAnimate = true;
+SDL_TimerID     timerHealingAnimate;
+Uint32          healingAnimateInterval;      // From script
 
 // ----------------------------------------------------------------------------
 //
@@ -63,13 +63,15 @@ void gam_initHealingAnimateTimer ( Uint32 interval )
 void gam_findHealingTiles ( string levelName )
 // ----------------------------------------------------------------------------
 {
-	int                 index;
-	_basicHealing       tempHealing{};
+	int             index;
+	int             currentTile;
+	int             countX, countY;
+	int             countHealing;
+	_basicHealing   tempHealing{};
 
 	CHECK_LEVEL_NAME
 
-	for ( index = 0;
-	      index < levelInfo.at ( levelName ).levelDimensions.x * levelInfo.at ( levelName ).levelDimensions.y; index++ )
+	for ( index = 0; index < levelInfo.at ( levelName ).levelDimensions.x * levelInfo.at ( levelName ).levelDimensions.y; index++ )
 	{
 		switch ( levelInfo.at ( levelName ).tiles[index] )
 		{
@@ -87,4 +89,39 @@ void gam_findHealingTiles ( string levelName )
 				break;
 		}
 	}
+
+	countHealing = 0;
+	countX = 0;
+	countY = 0;
+	for (index = 0; index < levelInfo.at(levelName).levelDimensions.x * levelInfo.at(levelName).levelDimensions.y; index++)
+	{
+		currentTile = levelInfo.at(levelName).tiles[ ( ( countY * ( levelInfo.at(levelName).levelDimensions.x ) ) + countX )];
+
+		switch (currentTile )
+		{
+			case HEALING_TILE:
+			case HEALING_TILE + 1:
+			case HEALING_TILE + 2:
+			case HEALING_TILE + 3:
+				levelInfo.at(levelName).healing[countHealing].worldPos.x = countX * TILE_SIZE;
+				levelInfo.at(levelName).healing[countHealing].worldPos.y = countY * TILE_SIZE;
+
+				countHealing++;
+
+				break;
+
+			default:
+				break;
+		}
+
+		countX++;
+
+		if ( countX == levelInfo.at(levelName).levelDimensions.x )
+		{
+			countX = 0;
+			countY++;
+		}
+	}
 }
+
+

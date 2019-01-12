@@ -80,6 +80,7 @@ typedef struct
 	int         pos;                // position in array
 	int         currentFrame;       // which frame are we on
 	float       frameDelay;         // animation counter
+	cpVect      worldPos;           // Position in world coords
 } _basicHealing;
 
 typedef struct _droid
@@ -124,41 +125,65 @@ typedef struct _droid
 	int             collisionCount;             // how many collision have occured to ignore them
 	bool            hasCollided;
 	int             collidedWith;               // Who did the droid hit
+	float ignoreCollisionsCounter;
 
 	int             playerDroidTypeDBIndex;     // What sort of droid is the player
 	int             droidTransferedIntoIndex;
 
 	bool            inTransferMode;
+
+	float chanceToShoot;
+
+	bool visibleToPlayer;
+
+	//
+// Weapon
+	bool weaponCanFire;
+	float weaponDelay;
+
+	bool witnessShooting;
+	bool witnessTransfer;
+
+	float witnessShootingCountDown;
+	float witnessTransferCountDown;
+
+	// AI variables
+	int ai_currentState;
+	int ai_moveMode;
+
+	// Pathfinding
+	int aStarPathIndex;            // Index into which path to use
+	int numberPathNodes;
+	int currentAStarIndex;         // Index into aStarWaypoints array
+	bool aStarDestinationFound;
+	bool aStarInitDone;
+	cpVect previousWaypoints;
+
+	bool onFleeTile;
+	bool foundFleeTile;
+
+	bool isNotPatrolling;        // Used to enter resume branch
+	bool onResumeDestTile;
+	bool destSet;                // Does the droid have a destination
+
+	bool onHealingTile;
+	bool foundHealingTile;
 	/*
 cpVect acceleration;
 
 cpVect screenPos;
-cpVect previousWaypoints;        // This is the line segment start point
 
 
-
-//
-// Weapon
-bool weaponCanFire;
-float weaponDelay;
 //
 // States
 bool isStopped;
-
 bool isAlive;
-bool visibleToPlayer;
 
 // Animation
 float currentFrameDelay;
 int currentFrame;
 
-// Pathfinding
-int aStarPathIndex;            // Index into which path to use
-int ai_moveMode;
-int numberPathNodes;
-int currentAStarIndex;         // Index into aStarWaypoints array
-bool aStarDestinationFound;
-bool aStarInitDone;
+
 
 // AI variables
 int ai_currentState;
@@ -166,31 +191,14 @@ int ai_nextState;
 float ai_noActionCounter;
 float ai_noActionCount;
 
-
-float ignoreCollisionsCounter;
-
-bool witnessShooting;
-bool witnessTransfer;
-float chanceToShoot;
-float witnessShootingCountDown;
-float witnessTransferCountDown;
-
-
 cpVect originPosition;     // Remember this to return to
 bool foundOriginPath;
 bool returnToOrigin;
 bool foundOriginPosition;
-bool onHealingTile;
-bool foundHealingTile;
+
 float healingCount;
 bool foundWPTile;        // Go here after healing
 
-bool onFleeTile;
-bool foundFleeTile;
-
-bool isNotPatrolling;        // Used to enter resume branch
-bool onResumeDestTile;
-bool destSet;                // Does the droid have a destination
 cpVect destinationTile;        // Where is the droid heading
 bool resumeDestFound;        // Set from running thread - aStar found destination
 bool resumeThreadStarted;    // Is the thread started and running

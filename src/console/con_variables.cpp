@@ -1,3 +1,4 @@
+#include "hdr/game/gam_pathFind.h"
 #include "hdr/game/gam_droidAI.h"
 #include "hdr/game/gam_game.h"
 #include "hdr/gui/gui_scrollBox.h"
@@ -82,6 +83,21 @@ _hostScriptFunctions hostVariables[] =
 	{"float droidBeenShotValue",            &droidBeenShotValue},
 	{"int collisionExplosionDamage",        &collisionExplosionDamage},
 	{"int collisionDamageInflicted",        &collisionDamageInflicted},
+
+	{"float witnessShootValue",             &witnessShootValue},
+	{"float witnessTransferValue",          &witnessTransferValue},
+	{"float ai_beenShot",                   &ai_beenShot},
+	{"float ai_healthAmount",               &ai_healthAmount},
+	{"float ai_playerVisible",              &ai_playerVisible},
+	{"float ai_witnessShoot",               &ai_witnessShoot},
+	{"float ai_witnessTransfer",            &ai_witnessTransfer},
+	{"float ai_greenFactor",                &ai_greenFactor},
+	{"float ai_yellowFactor",               &ai_yellowFactor},
+	{"float ai_redFactor",                  &ai_redFactor},
+
+	{"int numAStarPaths",                   &numAStarPaths},
+	{"float wayPointDestinationSize",       &wayPointDestinationSize},
+	{"float badHealthFactor",               &badHealthFactor},
 
 	{"float g_gamma",                       &g_gamma},
 	{"bool g_debugShowWaypoints",           &g_debugShowWaypoints},

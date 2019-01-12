@@ -14,3 +14,6 @@ void drd_animateThisLevel ( std::string levelName );
 
 // damageSource can be either a bullet, explosion or collision
 void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int sourceDroid );
+
+// process ignore collosions
+void gam_processIgnoreCollisions ( std::string whichLevel, int whichDroid );

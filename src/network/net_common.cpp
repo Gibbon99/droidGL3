@@ -36,8 +36,6 @@ SDL_Thread *userEventNetworkInThread;
 void net_sendPacket ( RakNet::BitStream *bitStream, int packetSource, int whichClient )
 //-----------------------------------------------------------------------------
 {
-	unsigned long clientIndex = 0;
-
 	switch ( packetSource )
 	{
 		case USER_EVENT_NETWORK_FROM_CLIENT:        // From the client to the server
@@ -54,13 +52,13 @@ void net_sendPacket ( RakNet::BitStream *bitStream, int packetSource, int whichC
 				if ( -1 == whichClient )      // to all clients
 				{
 					netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, RakNet::UNASSIGNED_RAKNET_GUID, true );    // Broadcast to all connected clients
+					networkPacketCountSentServer++;
 				}
 				else
 				{
 					if ( netClientInfo[whichClient].inUse )
 					{
-						if ( netServer->GetConnectionState ( netClientInfo[whichClient].systemAddress ) ==
-						     RakNet::IS_CONNECTED )
+						if ( netServer->GetConnectionState ( netClientInfo[whichClient].systemAddress ) == RakNet::IS_CONNECTED )
 						{
 							netServer->Send ( bitStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, netClientInfo[whichClient].systemAddress, false );
 							networkPacketCountSentServer++;
@@ -387,7 +385,8 @@ int net_processNetworkOutQueue ( void *ptr )
 
 		networkOutQueueSize = networkOutQueue.size ();
 
-		while ( !networkOutQueue.empty ())   // stuff in the queue to process
+//		while ( !networkOutQueue.empty ())   // stuff in the queue to process
+		if ( !networkOutQueue.empty ())   // stuff in the queue to process
 		{
 			if ( SDL_LockMutex ( networkInMutex ) == 0 )
 			{

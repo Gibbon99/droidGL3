@@ -1,3 +1,4 @@
+#include "hdr/game/gam_droidAI.h"
 #include "hdr/game/gam_database.h"
 #include "hdr/io/io_gameprefs.h"
 #include "hdr/game/gam_levels.h"
@@ -189,6 +190,8 @@ bool sys_initAll()
 			con_print(CON_ERROR, true, "Unable to load database information.");
 			return false;
 		}
+
+		ai_setupAITree ();
 
 	}   // end of file system check
 

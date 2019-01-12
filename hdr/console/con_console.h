@@ -33,15 +33,6 @@ typedef int	( *ExternFunc ) ( ... );
 
 extern int conFontSize;
 
-/*
-typedef struct
-{
-	char		command[MAX_STRING_SIZE];
-	char		usage[MAX_STRING_SIZE];
-	ExternFunc	conFunc;
-} _conCommand;
-*/
-
 //-----------------------------------------------------------------------------
 //
 // AngelScript engine

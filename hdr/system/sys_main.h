@@ -50,14 +50,14 @@ extern Uint32 frameStart;
 extern Uint32 frameTime;
 extern Uint32 frameCount;
 
-extern bool quitProgram;
-extern int  fps, thinkFPS;
-extern int  winWidth, winHeight;    // Screen size
-extern int  currentMode;
-extern bool fullScreen;
-extern int  vsyncType;
-
-extern float interpolation;
+extern bool         quitProgram;
+extern int          fps, thinkFPS;
+extern int          winWidth, winHeight;    // Screen size
+extern int          currentMode;
+extern bool         fullScreen;
+extern int          vsyncType;
+extern cpVect       viewableScreenCoord;
+extern float        interpolation;
 
 extern vec3 quadPosition;
 

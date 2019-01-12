@@ -52,8 +52,6 @@ static void handleDamageDroidCollision ( cpSpace *space, cpShape *shape, int *pa
 	// deference pointer to data
 	valuesPassed = *(static_cast<int*>(passedInValues));
 
-	printf("Got passed in value [ %i ]\n", valuesPassed);
-
 	values[0] = static_cast<unsigned char>((valuesPassed >> 24) & 0xff);        // whichlevel
 	values[1] = static_cast<unsigned char>((valuesPassed >> 16) & 0xff);        // which enemy droid index
 	values[2] = static_cast<unsigned char>((valuesPassed >> 8) & 0xff);         // Damage type
@@ -66,7 +64,6 @@ static void handleDamageDroidCollision ( cpSpace *space, cpShape *shape, int *pa
 
 //	delete valuesPassed;
 }
-
 
 //-------------------------------------------------------------------
 //
@@ -105,7 +102,7 @@ void handleCollisionDroidToDroid ( cpArbiter *arb, cpSpace *space, int *unused )
 
 			cpSpaceAddPostStepCallback ( space, (cpPostStepFunc) handleDamageDroidCollision, a, passValue );
 
-			evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
+// TODO fix up			evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 		else    // Player collided with exploding sprite - take damage
 		{
@@ -136,23 +133,23 @@ void handleCollisionDroidToDroid ( cpArbiter *arb, cpSpace *space, int *unused )
 		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].isExploding )
 		{
 			drd_damageToDroid ( valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], DAMAGE_EXPLOSION, valuesPassedDroid_A[BYTE_ENEMY_INDEX] );
-			evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
+// TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 		else
 		{
 			drd_damageToDroid ( valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, valuesPassedDroid_A[BYTE_ENEMY_INDEX] );
-			evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
+// TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 
 		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).droid[valuesPassedDroid_B[BYTE_ENEMY_INDEX]].isExploding )
 		{
 			drd_damageToDroid ( valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_EXPLOSION, valuesPassedDroid_B[BYTE_ENEMY_INDEX] );
-			evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
+// TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 		else
 		{
 			drd_damageToDroid ( valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, valuesPassedDroid_B[BYTE_ENEMY_INDEX] );
-			evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
+// TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 	}
 
