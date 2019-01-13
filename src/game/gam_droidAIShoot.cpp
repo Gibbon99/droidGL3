@@ -71,8 +71,8 @@ int ai_findBulletDest (int whichDroid, const string levelName)
 int ai_shootBullet (int whichDroid, const string levelName)
 //-----------------------------------------------------------------------------
 {
-	cpVect bulletStartPos = { 0, 0 };
-	cpVect bulletDestPos = { 0, 0 };
+	cpVect bulletStartPos;
+	cpVect bulletDestPos;
 
 #ifdef DEBUG_SHOOT
 	printf ("Fire bullet [ %i ]\n", whichDroid);
@@ -129,23 +129,23 @@ void gam_findChanceToShoot (int whichDroid, const string levelName)
 	// Reset to 0 at the start for each?
 	//
 
-	if (false == levelInfo.at(levelName).droid[whichDroid].isAlive)
+	if (levelInfo.at(levelName).droid[whichDroid].currentMode == DROID_MODE_DEAD)
 		return;
 
-	if (false == dataBaseEntry[levelInfo.at(levelName).droid[whichDroid].droidType].canShoot)
+	if ( !dataBaseEntry[levelInfo.at( levelName).droid[whichDroid].droidType].canShoot )
 		return;
 
 	//
 	// Process how long droid remembers being shot for
 	//
-	if (true == levelInfo.at(levelName).droid[whichDroid].beenShotByPlayer)
+	if ( levelInfo.at( levelName).droid[whichDroid].beenShotByPlayer )
 	{
 		levelInfo.at(levelName).droid[whichDroid].beenShotCountdown -= 1.0f * thinkInterval;
 		if (levelInfo.at(levelName).droid[whichDroid].beenShotCountdown < 0.0f)
 			levelInfo.at(levelName).droid[whichDroid].beenShotByPlayer = false;
 	}
 
-	if (true == levelInfo.at(levelName).droid[whichDroid].beenShotByPlayer)
+	if ( levelInfo.at( levelName).droid[whichDroid].beenShotByPlayer )
 		levelInfo.at(levelName).droid[whichDroid].chanceToShoot += ai_beenShot;
 	else
 		levelInfo.at(levelName).droid[whichDroid].chanceToShoot -= ai_beenShot;
@@ -153,7 +153,7 @@ void gam_findChanceToShoot (int whichDroid, const string levelName)
 	//
 	// Process how long droid remembers witnessing a shooting by the player
 	//
-	if (true == levelInfo.at(levelName).droid[whichDroid].witnessShooting)
+	if ( levelInfo.at( levelName).droid[whichDroid].witnessShooting )
 	{
 		levelInfo.at(levelName).droid[whichDroid].witnessShootingCountDown -= 1.0f * thinkInterval;
 		if (levelInfo.at(levelName).droid[whichDroid].witnessShootingCountDown < 0.0f)
@@ -168,7 +168,7 @@ void gam_findChanceToShoot (int whichDroid, const string levelName)
 	//
 	// Process how long droid remembers witnessing a transfer by the player
 	//
-	if (true == levelInfo.at(levelName).droid[whichDroid].witnessTransfer)
+	if ( levelInfo.at( levelName).droid[whichDroid].witnessTransfer )
 	{
 		levelInfo.at(levelName).droid[whichDroid].witnessTransferCountDown -= 1.0f * thinkInterval;
 		if (levelInfo.at(levelName).droid[whichDroid].witnessTransferCountDown < 0.0f)
@@ -203,12 +203,15 @@ void gam_findChanceToShoot (int whichDroid, const string levelName)
 		case ALERT_RED_TILE:
 			levelInfo.at(levelName).droid[whichDroid].chanceToShoot += ai_redFactor;
 			break;
+
+		default:
+			break;
 	}
 
 	//
 	// See if the player is visible or not - enemy will not shoot unless can see player
 	//
-	if (false == levelInfo.at(levelName).droid[whichDroid].visibleToPlayer)
+	if ( !levelInfo.at( levelName).droid[whichDroid].visibleToPlayer )
 		levelInfo.at(levelName).droid[whichDroid].chanceToShoot = 0.0f;
 	//
 	// Cap the chance to always above zero
@@ -227,9 +230,9 @@ void gam_processWitnessTransfer(const string levelName)
 {
 	for (int i = 0; i != levelInfo.at(levelName).numDroids; i++)
 	{
-		if (true == levelInfo.at(levelName).droid[i].isAlive)
+		if (DROID_MODE_NORMAL == levelInfo.at(levelName).droid[i].currentMode)
 		{
-			if (true == levelInfo.at(levelName).droid[i].visibleToPlayer)
+			if ( levelInfo.at( levelName).droid[i].visibleToPlayer )
 			{
 				levelInfo.at(levelName).droid[i].witnessTransfer = true;
 				levelInfo.at(levelName).droid[i].witnessTransferCountDown = witnessTransferValue;
@@ -247,9 +250,9 @@ void gam_processWitnessShooting (const string levelName)
 {
 	for (int i = 0; i != levelInfo.at(levelName).numDroids; i++)
 	{
-		if (true == levelInfo.at(levelName).droid[i].isAlive)
+		if (DROID_MODE_NORMAL == levelInfo.at(levelName).droid[i].currentMode)
 		{
-			if (true == levelInfo.at(levelName).droid[i].visibleToPlayer)
+			if ( levelInfo.at( levelName).droid[i].visibleToPlayer )
 			{
 				levelInfo.at(levelName).droid[i].witnessShooting = true;
 				levelInfo.at(levelName).droid[i].witnessShootingCountDown = witnessShootValue;

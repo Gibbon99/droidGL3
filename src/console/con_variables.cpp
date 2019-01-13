@@ -1,3 +1,4 @@
+#include "hdr/game/gam_lineOfSight.h"
 #include "hdr/game/gam_pathFind.h"
 #include "hdr/game/gam_droidAI.h"
 #include "hdr/game/gam_game.h"
@@ -107,6 +108,9 @@ _hostScriptFunctions hostVariables[] =
 	{"bool g_showDoorTriggers",             &g_showDoorTriggers},
 	{"bool drawHUD",                        &drawHUD},
 	{"float g_scaleViewBy",                 &g_scaleViewBy},
+	{"bool allDroidsVisible",               &allDroidsVisible},
+	{"float g_LineOfSightStep",             &g_LineOfSightStep},
+
 
 	{"float baseGameSpeed",                 &baseGameSpeed},
 

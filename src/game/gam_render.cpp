@@ -538,7 +538,7 @@ void gam_drawFullLevel ( const string levelName, const string whichShader, GLuin
 
     gam_debugDoorTriggers();
 
-	drd_renderThisLevel (levelName, interpolate);
+	gam_renderThisLevel ( levelName, interpolate );
 
 #ifdef USE_BLIT
 	viewPortX = static_cast<GLsizei>(winWidth * aspectRatioX);

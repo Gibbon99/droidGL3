@@ -85,13 +85,16 @@ typedef struct
 
 typedef struct _droid
 {
-	bool 			isAlive;
+
+	int             currentMode;                // What is the droid doing; transfer, healing, terminal etc
+//	bool 			isAlive;
 	int 			droidType;
 	int 			currentHealth;
 	int 			wayPointIndex;
 	int 			wayPointDirection;
 	std::string 	spriteName;
 	int 			currentFrame;
+	int             numberOfFrames;
 	float 			frameDelay;
 	glm::vec2   	renderOffset;
 
@@ -109,14 +112,14 @@ typedef struct _droid
 	cpVect          serverVelocity;             // Current speed according to the server
 
 	int             overTile;                   // which tile is the droid on
-	int             currentMode;                // What is the droid doing; transfer, healing, terminal etc
+
 
 	cpBody          *body;                      // Used for physics and collisions
 	cpShape         *shape;
 	float           mass;                       // Used for collision response
 
 	bool            ignoreCollisions;           // Ignoring collisions for the time period
-	bool            isExploding;
+//	bool            isExploding;
 
 	int             targetIndex;                // Which droid shot this droid
 	bool            beenShotByPlayer;
@@ -125,32 +128,32 @@ typedef struct _droid
 	int             collisionCount;             // how many collision have occured to ignore them
 	bool            hasCollided;
 	int             collidedWith;               // Who did the droid hit
-	float ignoreCollisionsCounter;
+	float           ignoreCollisionsCounter;
 
 	int             playerDroidTypeDBIndex;     // What sort of droid is the player
 	int             droidTransferedIntoIndex;
 
 	bool            inTransferMode;
 
-	float chanceToShoot;
+	float           chanceToShoot;
 
-	bool visibleToPlayer;
+	bool            visibleToPlayer;
 
 	//
 // Weapon
-	bool weaponCanFire;
-	float weaponDelay;
+	bool            weaponCanFire;
+	float           weaponDelay;
 
-	bool witnessShooting;
-	bool witnessTransfer;
+	bool            witnessShooting;
+	bool            witnessTransfer;
 
-	float witnessShootingCountDown;
-	float witnessTransferCountDown;
+	float           witnessShootingCountDown;
+	float           witnessTransferCountDown;
 
 	// AI variables
-	int ai_currentState;
-	int ai_moveMode;
 
+	int ai_moveMode;
+	int             ai_currentState;
 	// Pathfinding
 	int aStarPathIndex;            // Index into which path to use
 	int numberPathNodes;

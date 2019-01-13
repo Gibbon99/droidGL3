@@ -675,7 +675,7 @@ void drd_processDroidAI ( const string levelName )
 {
 	for ( int i = 0; i != levelInfo.at(levelName).numDroids; i++ )
 	{
-		if ( levelInfo.at( levelName).droid[i].isAlive && !levelInfo.at( levelName).droid[i].isExploding )
+		if ( levelInfo.at( levelName).droid[i].currentMode == DROID_MODE_NORMAL )
 		{
 			gam_findChanceToShoot ( i, levelName );
 

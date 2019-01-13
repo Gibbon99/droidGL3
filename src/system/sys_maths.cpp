@@ -100,3 +100,34 @@ cpVect sys_worldToScreen ( cpVect worldPos, int shapeSize )
 	}
 	return screenCoords;
 }
+
+//-----------------------------------------------------------------------------
+//
+// Get the distance between two points
+int sys_getDistance(cpVect point1, cpVect point2)
+//-----------------------------------------------------------------------------
+{
+	cpVect tempPoint;
+	int         distance;
+
+	tempPoint.x = point2.x - point1.x;
+	tempPoint.y = point2.y - point1.y;
+
+	distance = sqrt(tempPoint.x * tempPoint.x + tempPoint.y * tempPoint.y);
+
+	return distance;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Get the direction of a vector
+cpVect sys_getVectorDirection(cpVect vectA, cpVect vectB)
+//-----------------------------------------------------------------------------
+{
+	cpVect direction;
+
+	direction.x = vectB.x - vectA.x;
+	direction.y = vectB.y - vectA.y;
+
+	return direction;
+}

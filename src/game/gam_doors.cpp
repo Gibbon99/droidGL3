@@ -162,7 +162,7 @@ void gam_doorCheckTriggerAreas(string levelName)
     {
       for (j = 0; j != levelInfo.at(levelName).numDroids; j++)
         {
-          if (true == levelInfo.at(levelName).droid[j].isAlive)
+          if (DROID_MODE_NORMAL == levelInfo.at(levelName).droid[j].currentMode)
             {
               if ((levelInfo.at(levelName).droid[j].worldPos.x + (SPRITE_SIZE / 2) > doorTrigger[i].topLeft.x) &&
                   (levelInfo.at(levelName).droid[j].worldPos.y + (SPRITE_SIZE / 2) > doorTrigger[i].topLeft.y) &&

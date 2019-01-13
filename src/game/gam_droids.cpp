@@ -12,7 +12,7 @@
 //------------------------------------------------------------------------------
 //
 // Animate the droid
-void drd_animateThisLevel ( const string levelName )
+void gam_animateThisLevel ( const string levelName )
 //------------------------------------------------------------------------------
 {
 	if ( levelName.empty ())
@@ -23,16 +23,35 @@ void drd_animateThisLevel ( const string levelName )
 
 	for ( int index = 0; index != levelInfo.at ( levelName ).numDroids; index++ )
 	{
-		levelInfo.at ( levelName ).droid[index].frameDelay += 1.0f / 3.0f;
-
-		if ( levelInfo.at ( levelName ).droid[index].frameDelay > 1.0f )
+		if ( (levelInfo.at ( levelName ).droid[index].currentMode == DROID_MODE_NORMAL ) ||
+				(levelInfo.at ( levelName ).droid[index].currentMode == DROID_MODE_EXPLODING ))
 		{
-			levelInfo.at ( levelName ).droid[index].frameDelay = 0.0f;
-			levelInfo.at ( levelName ).droid[index].currentFrame++;
+			levelInfo.at ( levelName ).droid[index].frameDelay += 1.0f / 3.0f;
 
-			if ( levelInfo.at ( levelName ).droid[index].currentFrame ==
-			     sprites.at ( levelInfo.at ( levelName ).droid[index].spriteName ).numberOfFrames )
-				levelInfo.at ( levelName ).droid[index].currentFrame = 0;
+			if ( levelInfo.at ( levelName ).droid[index].frameDelay > 1.0f )
+			{
+				levelInfo.at ( levelName ).droid[index].frameDelay = 0.0f;
+				levelInfo.at ( levelName ).droid[index].currentFrame++;
+
+				switch ( levelInfo.at ( levelName ).droid[index].currentMode )
+				{
+					case DROID_MODE_NORMAL:
+						if ( levelInfo.at ( levelName ).droid[index].currentFrame ==
+						     sprites.at ( levelInfo.at ( levelName ).droid[index].spriteName ).numberOfFrames )
+							levelInfo.at ( levelName ).droid[index].currentFrame = 0;
+						break;
+
+					case DROID_MODE_EXPLODING:
+						if ( levelInfo.at ( levelName ).droid[index].currentFrame ==
+						     sprites.at ( "explosion" ).numberOfFrames )
+							levelInfo.at ( levelName ).droid[index].currentMode = DROID_MODE_DEAD;
+						break;
+
+					default:
+						break;
+				}
+
+			}
 		}
 	}
 }
@@ -40,7 +59,7 @@ void drd_animateThisLevel ( const string levelName )
 //------------------------------------------------------------------------------
 //
 // Render the droids for this level
-void drd_renderThisLevel ( const string levelName, float interpolate )
+void gam_renderThisLevel ( const string levelName, float interpolate )
 //------------------------------------------------------------------------------
 {
 	cpVect drawPosition;
@@ -51,6 +70,7 @@ void drd_renderThisLevel ( const string levelName, float interpolate )
 	for ( int index = 0; index != levelInfo.at ( levelName ).numDroids; index++ )
 	{
 
+		if ( levelInfo.at ( levelName ).droid[index].visibleToPlayer)
 //	    if (sys_visibleOnScreen(levelInfo.at(levelName).droid[index].worldPos, 32))
 		{
 
@@ -62,8 +82,23 @@ void drd_renderThisLevel ( const string levelName, float interpolate )
 
 			drawPosition.y = (int) drawPosition.y;   // Remove the fraction portion to stop blurring in Y direction
 
-			gl_renderSprite ( levelInfo.at ( levelName ).droid[index].spriteName, glm::vec2{drawPosition.x, drawPosition.y},
-								levelInfo.at ( levelName ).droid[index].currentFrame, glm::vec3{1, 1, 0} );
+			switch ( levelInfo.at ( levelName ).droid[index].currentMode )
+			{
+				case DROID_MODE_NORMAL:
+					gl_renderSprite ( levelInfo.at ( levelName ).droid[index].spriteName, glm::vec2{drawPosition.x,
+					                                                                                drawPosition.y}, levelInfo.at ( levelName ).droid[index].currentFrame, glm::vec3{
+							1, 1, 0} );
+					break;
+
+				case DROID_MODE_EXPLODING:
+					gl_renderSprite ( "explosion", glm::vec2{drawPosition.x,
+					                                         drawPosition.y}, levelInfo.at ( levelName ).droid[index].currentFrame, glm::vec3{
+							1, 1, 0} );
+					break;
+
+				default:
+					break;
+			}
 		}
 	}
 }
@@ -83,13 +118,18 @@ void gam_initDroidValues ( const string levelName )
 	for ( int i = 0; i != levelInfo.at ( levelName ).numDroids; i++ )
 	{
 
-		tempDroid.isAlive = true;
+//		tempDroid.isAlive = true;
 		tempDroid.droidType = levelInfo.at ( levelName ).droidTypes[i];
 		tempDroid.currentHealth = dataBaseEntry[tempDroid.droidType].maxHealth;
 		tempDroid.wayPointIndex = wayPointCount++; //rand() % (levelInfo.at(levelName).numWaypoints - 1);
 		tempDroid.wayPointDirection = WAYPOINT_DOWN;
 		tempDroid.spriteName = gl_getSpriteName ( tempDroid.droidType );
 		tempDroid.currentFrame = 0;
+		if ( sprites.empty ())
+			tempDroid.numberOfFrames = 9;
+		else
+			tempDroid.numberOfFrames = sprites.at ( "001" ).numberOfFrames;
+
 		tempDroid.frameDelay = 0.0f;
 		tempDroid.currentSpeed = 0.0f;
 		tempDroid.acceleration = dataBaseEntry[tempDroid.droidType].accelerate;
@@ -106,13 +146,13 @@ void gam_initDroidValues ( const string levelName )
 		tempDroid.serverVelocity = {0.0, 0.0};
 
 		tempDroid.overTile = 0;
-		tempDroid.currentMode = 0;      // TODO - set when the modes are done
+		tempDroid.currentMode = DROID_MODE_NORMAL;      // TODO - set when the modes are done
 
 		tempDroid.mass = static_cast<int>(strtol ( dataBaseEntry[tempDroid.droidType].weight.c_str (), nullptr, 10 ));  // This value plus the players base value
 		tempDroid.mass += static_cast<int>(strtol ( dataBaseEntry[0].weight.c_str (), nullptr, 10 ));
 
 		tempDroid.ignoreCollisions = false;
-		tempDroid.isExploding = false;
+//		tempDroid.isExploding = false;
 
 		tempDroid.targetIndex = -1;                // Which droid shot this droid
 		tempDroid.beenShotByPlayer = false;
@@ -181,49 +221,65 @@ void gam_initDroidValues ( const string levelName )
 void gam_destroyDroid ( int whichLevel, int whichDroid )
 //-----------------------------------------------------------------------------
 {
-	if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].isExploding )
-		return;
+	switch ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentMode )
+	{
+		case DROID_MODE_EXPLODING:
+			return;
+			break;
 
-	if ( !levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].isAlive )
-		return;
+		case DROID_MODE_NORMAL:
 
-	if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].droidType < 6 )
-		evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_EXPLODE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
-	else
-		evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_EXPLODE_2, 0, 0, glm::vec2 (), glm::vec2 (), "" );
+			if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].droidType < 6 )
+				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_EXPLODE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
+			else
+				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_EXPLODE_2, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 
-	levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].isExploding = true;
-	levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentFrame = 0;
+			levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentFrame = 0;
+			levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentMode = DROID_MODE_EXPLODING;
+			levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].numberOfFrames = sprites.at ( "explosion" ).numberOfFrames;
+
+//			levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].isExploding = true;
+
 //	levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentFrameDelay = 0.0f;
 //	levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].isStopped = true;
-	// TODO gam_addToScore ( dataBaseEntry[levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].droidType].score );
+			// TODO gam_addToScore ( dataBaseEntry[levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].droidType].score );
 
-	/* TODO
-	if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].aStarPathIndex > -1 )
-		gam_AStarRemovePath ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].aStarPathIndex, false );
+			/* TODO
+			if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].aStarPathIndex > -1 )
+				gam_AStarRemovePath ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].aStarPathIndex, false );
 
-	par_addEmitter ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].worldPos, PARTICLE_TYPE_EXPLOSION, -1 );
-*/
+			par_addEmitter ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].worldPos, PARTICLE_TYPE_EXPLOSION, -1 );
+		*/
 
 //
 // TODO: Need extra checks here
 //
-	levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).numEnemiesAlive = levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).numDroids;
+			levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).numEnemiesAlive = levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).numDroids;
 
-	for (int i = 0; i != levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).numDroids; i++)
-	{
-		if ( !levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[i].isAlive ||
-		     levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[i].isExploding )
-		{
-			levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).numEnemiesAlive--;
-		}
-	}
+			for ( int i = 0; i != levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).numDroids; i++ )
+			{
+				if ( !levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[i].currentMode == DROID_MODE_NORMAL ||
+				     levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[i].currentMode == DROID_MODE_EXPLODING )
+				{
+					levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).numEnemiesAlive--;
+				}
+			}
 
-	if ( 0 == levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).numEnemiesAlive )
-	{
+			if ( 0 == levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).numEnemiesAlive )
+			{
 // TODO 		gam_powerDownLevel ( whichLevel, true );
-		con_print ( CON_INFO, false, "No enemies left on deck. [ %i ]", whichLevel );
+				con_print ( CON_INFO, false, "No enemies left on deck. [ %i ]", whichLevel );
+			}
+
+			return;
+			break;
+
+		default:
+
+
+			return;
 	}
+
 }
 
 //---------------------------------------------------------------
@@ -231,7 +287,7 @@ void gam_destroyDroid ( int whichLevel, int whichDroid )
 // Do damage to a droid
 //
 // damageSource can be either a bullet, explosion or collision
-void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int sourceDroid )
+void gam_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int sourceDroid )
 //---------------------------------------------------------------
 {
 	switch ( damageSource )
@@ -239,22 +295,22 @@ void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 		case DAMAGE_BULLET:
 			if ( -1 == sourceDroid ) // Player bullet
 			{
-				if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].isExploding )
+				if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentMode == DROID_MODE_EXPLODING )
 					return;
 
-				levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].targetIndex = sourceDroid;	// Set player as the target
-				levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].beenShotByPlayer = true;
-				levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].beenShotCountdown = droidBeenShotValue;
+				levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].targetIndex = sourceDroid;    // Set player as the target
+				levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].beenShotByPlayer = true;
+				levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].beenShotCountdown = droidBeenShotValue;
 
 				//
 				// Need to work out bullet damage when using non firing droid
 				//
 				if ( dataBaseEntry[playerDroid.playerDroidTypeDBIndex].canShoot )
-					levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth -= dataBaseEntry[playerDroid.playerDroidTypeDBIndex].bulletDamage;
+					levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth -= dataBaseEntry[playerDroid.playerDroidTypeDBIndex].bulletDamage;
 				else
-					levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth -= dataBaseEntry[0].bulletDamage;
+					levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth -= dataBaseEntry[0].bulletDamage;
 
-				if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth <= 0 )
+				if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth <= 0 )
 				{
 					gam_destroyDroid ( whichLevel, whichDroid );
 				}
@@ -268,12 +324,12 @@ void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 				if ( sourceDroid == whichDroid )
 					return;
 
-				levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].targetIndex = sourceDroid;	// Set this droid as the target
-				levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].beenShotByPlayer = false;
-				levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth -= dataBaseEntry[levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[sourceDroid].droidType].bulletDamage;
+				levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].targetIndex = sourceDroid;    // Set this droid as the target
+				levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].beenShotByPlayer = false;
+				levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth -= dataBaseEntry[levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[sourceDroid].droidType].bulletDamage;
 				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 
-				if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth <= 0 )
+				if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth <= 0 )
 				{
 					gam_destroyDroid ( whichLevel, whichDroid );
 				}
@@ -283,7 +339,7 @@ void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 
 		case DAMAGE_EXPLOSION:
 
-			if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].isExploding )
+			if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentMode == DROID_MODE_EXPLODING )
 				return;
 
 			if ( -1 == sourceDroid )
@@ -297,9 +353,9 @@ void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 				//
 				// Enemy Droid is colliding with another one exploding
 				evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
-				levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth -= collisionExplosionDamage;
+				levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth -= collisionExplosionDamage;
 
-				if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth <= 0 )
+				if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth <= 0 )
 				{
 					gam_destroyDroid ( whichLevel, whichDroid );
 				}
@@ -311,10 +367,10 @@ void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 			{
 				gam_doDamageToPlayer ( DAMAGE_COLLISION, whichDroid );
 
-				printf("Droid health [ %i ]\n", levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth);
+				printf ( "Droid health [ %i ]\n", levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth );
 
-				levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth -= collisionDamageInflicted;
-				if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentHealth <= 0 )
+				levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth -= collisionDamageInflicted;
+				if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth <= 0 )
 				{
 					gam_destroyDroid ( whichLevel, whichDroid );
 				}
@@ -330,20 +386,20 @@ void drd_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 void gam_processIgnoreCollisions ( const string whichLevel, int whichDroid )
 //-----------------------------------------------------------------------------
 {
-	if ( levelInfo.at(whichLevel).droid[whichDroid].collisionCount < ( rand() % 5 ) + 3 )
+	if ( levelInfo.at ( whichLevel ).droid[whichDroid].collisionCount < (rand () % 5) + 3 )
 	{
 		return;
 	}
 
-	levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisions = true;
+	levelInfo.at ( whichLevel ).droid[whichDroid].ignoreCollisions = true;
 
-	levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisionsCounter -= 1.0f * (1.0f / 30.0f);
+	levelInfo.at ( whichLevel ).droid[whichDroid].ignoreCollisionsCounter -= 1.0f * (1.0f / 30.0f);
 
-	if ( levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisionsCounter < 0.0f )
+	if ( levelInfo.at ( whichLevel ).droid[whichDroid].ignoreCollisionsCounter < 0.0f )
 	{
-		levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisionsCounter = IGNORE_COLLISION_TIME;
-		levelInfo.at(whichLevel).droid[whichDroid].ignoreCollisions = false;
-		levelInfo.at(whichLevel).droid[whichDroid].collisionCount = 0;
-		levelInfo.at(whichLevel).droid[whichDroid].hasCollided = false;
+		levelInfo.at ( whichLevel ).droid[whichDroid].ignoreCollisionsCounter = IGNORE_COLLISION_TIME;
+		levelInfo.at ( whichLevel ).droid[whichDroid].ignoreCollisions = false;
+		levelInfo.at ( whichLevel ).droid[whichDroid].collisionCount = 0;
+		levelInfo.at ( whichLevel ).droid[whichDroid].hasCollided = false;
 	}
 }

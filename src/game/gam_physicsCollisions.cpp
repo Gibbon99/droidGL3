@@ -58,9 +58,9 @@ static void handleDamageDroidCollision ( cpSpace *space, cpShape *shape, int *pa
 	values[3] = static_cast<unsigned char>(valuesPassed & 0xff);                // sourceDroid
 
 	if ( 127 == values[3] )   // Player is the source
-		drd_damageToDroid ( values[0], values[1], values[2], -1 );
+		gam_damageToDroid ( values[0], values[1], values[2], -1 );
 	else
-		drd_damageToDroid ( values[0], values[1], values[2], values[3] );
+		gam_damageToDroid ( values[0], values[1], values[2], values[3] );
 
 //	delete valuesPassed;
 }
@@ -95,7 +95,7 @@ void handleCollisionDroidToDroid ( cpArbiter *arb, cpSpace *space, int *unused )
 	{
 		//
 		// Process player vs enemy collision
-		if ( !levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].isExploding )
+		if ( !levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].currentMode == DROID_MODE_EXPLODING )
 		{
 			packedValue = sys_pack4Bytes (valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, 127 );
 			*passValue = packedValue;
@@ -130,25 +130,25 @@ void handleCollisionDroidToDroid ( cpArbiter *arb, cpSpace *space, int *unused )
 		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].collidedWith = valuesPassedDroid_B[BYTE_ENEMY_INDEX];
 		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).droid[valuesPassedDroid_B[BYTE_ENEMY_INDEX]].collidedWith = valuesPassedDroid_A[BYTE_ENEMY_INDEX];
 
-		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].isExploding )
+		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].currentMode == DROID_MODE_EXPLODING )
 		{
-			drd_damageToDroid ( valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], DAMAGE_EXPLOSION, valuesPassedDroid_A[BYTE_ENEMY_INDEX] );
+			gam_damageToDroid ( valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], DAMAGE_EXPLOSION, valuesPassedDroid_A[BYTE_ENEMY_INDEX] );
 // TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 		else
 		{
-			drd_damageToDroid ( valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, valuesPassedDroid_A[BYTE_ENEMY_INDEX] );
+			gam_damageToDroid ( valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, valuesPassedDroid_A[BYTE_ENEMY_INDEX] );
 // TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 
-		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).droid[valuesPassedDroid_B[BYTE_ENEMY_INDEX]].isExploding )
+		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).droid[valuesPassedDroid_B[BYTE_ENEMY_INDEX]].currentMode == DROID_MODE_EXPLODING )
 		{
-			drd_damageToDroid ( valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_EXPLOSION, valuesPassedDroid_B[BYTE_ENEMY_INDEX] );
+			gam_damageToDroid ( valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_EXPLOSION, valuesPassedDroid_B[BYTE_ENEMY_INDEX] );
 // TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 		else
 		{
-			drd_damageToDroid ( valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, valuesPassedDroid_B[BYTE_ENEMY_INDEX] );
+			gam_damageToDroid ( valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, valuesPassedDroid_B[BYTE_ENEMY_INDEX] );
 // TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 	}

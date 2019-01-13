@@ -90,6 +90,9 @@ void as_setGameVariables()
 	wayPointDestinationSize = 5.0f;
 
 	badHealthFactor = 0.3f;
+
+	allDroidsVisible = false;       // overwrite the line of sight
+	g_LineOfSightStep = 1.0f;
 }
 
 //-----------------------------------------------------------------------------

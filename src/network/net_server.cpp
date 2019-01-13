@@ -1,3 +1,4 @@
+#include "hdr/game/gam_lineOfSight.h"
 #include "hdr/game/gam_droidAIPatrol.h"
 #include "hdr/game/gam_doors.h"
 #include "hdr/game/gam_droidAI.h"
@@ -129,13 +130,15 @@ void net_processWorldStep()
 		if (levelItr.second.containsClient)
 		{
 			gam_AStarProcessPaths (levelItr.first );
-			drd_animateThisLevel ( levelItr.first );
+			gam_animateThisLevel ( levelItr.first );
 
 			gam_doorCheckTriggerAreas ( levelItr.first );
 
 			drd_processDroidAI ( levelItr.first );
 
 			ai_processDroidMovement ( levelItr.first  );
+
+			lvl_LOS( levelItr.first );
 		}
 	}
 }

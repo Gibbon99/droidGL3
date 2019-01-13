@@ -16,3 +16,9 @@ bool sys_visibleOnScreen ( cpVect worldCoord, int shapeSize );
 
 // Convert worldPosition coords to screen coords
 cpVect sys_worldToScreen ( cpVect worldPos, int shapeSize );
+
+// Get the direction of a vector
+cpVect sys_getVectorDirection(cpVect vectA, cpVect vectB);
+
+// Get the distance between two points
+int sys_getDistance(cpVect point1, cpVect point2);
