@@ -7,6 +7,32 @@
 
 cpCollisionHandler *handlerEnemyEnemy;
 cpCollisionHandler *handlerEnemyPlayer;
+cpCollisionHandler *handlerWallBullet;
+
+//-------------------------------------------------------------------
+//
+// Remove bullet if collided with wall
+bool handleCollisionWallBullet ( cpArbiter *arb, cpSpace *space, int *unused)
+//-------------------------------------------------------------------
+{
+	// A is the wall
+	// B is the bullet
+	cpShape *a, *b;
+	cpDataPointer dataPointer_A, dataPointer_B;
+	unsigned char valuesPassedDroid_A[4], valuesPassedDroid_B[4];
+
+	cpArbiterGetShapes ( arb, &a, &b );
+
+	dataPointer_A = cpShapeGetUserData ( a );
+	dataPointer_B = cpShapeGetUserData ( b );
+
+	sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_A), valuesPassedDroid_A );
+	sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_B), valuesPassedDroid_B );
+
+	evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_REMOVE_BULLET, valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], -1, glm::vec2{}, glm::vec2{}, "");
+
+	return cpTrue;
+}
 
 //-------------------------------------------------------------------
 //
@@ -215,4 +241,9 @@ void sys_setupCollisionHandlers ()
 	handlerEnemyPlayer = cpSpaceAddCollisionHandler ( space, PHYSIC_TYPE_ENEMY, PHYSIC_TYPE_PLAYER );
 	handlerEnemyPlayer->beginFunc = (cpCollisionBeginFunc) handleCollisionTransferCheck;
 	handlerEnemyPlayer->postSolveFunc = (cpCollisionPostSolveFunc) handleCollisionDroidToDroid;
+	//
+	// Handle collision between wall and bullet
+	//
+	handlerWallBullet = cpSpaceAddCollisionHandler ( space, PHYSIC_TYPE_WALL, PHYSIC_TYPE_BULLET );
+	handlerWallBullet->beginFunc = (cpCollisionBeginFunc) handleCollisionWallBullet;
 }

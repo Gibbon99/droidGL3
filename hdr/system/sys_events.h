@@ -81,7 +81,11 @@ USER_EVENT_TTF_INIT_FAIL,
 
 USER_EVENT_GUI,
 USER_EVENT_GUI_MOUSE_TIMER,
-USER_EVENT_GUI_ANIMATE_TIMER
+USER_EVENT_GUI_ANIMATE_TIMER,
+
+MAIN_LOOP_EVENT,
+MAIN_LOOP_EVENT_ADD_BULLET,
+MAIN_LOOP_EVENT_REMOVE_BULLET
 };
 
 typedef struct
@@ -101,6 +105,7 @@ extern std::queue<_myEventData> audioEventQueue;
 extern std::queue<_myEventData> loggingEventQueue;
 extern std::queue<_myEventData> gameEventQueue;
 extern std::queue<_myEventData> guiEventQueue;
+extern std::queue <_myEventData> mainLoopEventQueue;
 
 extern std::queue<_myEventData> clientEventInQueue;
 extern std::queue<_myEventData> networkClientOutQueue;
@@ -120,6 +125,8 @@ extern SDL_mutex *networkInMutex;
 
 extern SDL_mutex *serverEventInMutex;
 extern SDL_mutex *clientEventInMutex;
+
+extern SDL_mutex *mainLoopMutex;
 
 extern bool runThreads;
 

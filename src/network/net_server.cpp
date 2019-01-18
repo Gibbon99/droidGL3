@@ -5,6 +5,7 @@
 #include "hdr/network/net_server.h"
 #include "hdr/network/net_common.h"
 #include "hdr/game/gam_player.h"
+#include "hdr/game/gam_bullet.h"
 
 std::vector<_netClientInfo> netClientInfo;
 
@@ -130,6 +131,7 @@ void net_processWorldStep()
 		if (levelItr.second.containsClient)
 		{
 			gam_AStarProcessPaths (levelItr.first );
+
 			gam_animateThisLevel ( levelItr.first );
 
 			gam_doorCheckTriggerAreas ( levelItr.first );

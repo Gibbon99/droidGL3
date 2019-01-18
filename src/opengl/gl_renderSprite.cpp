@@ -25,6 +25,10 @@ void gl_createAllSprites()
 	gl_createSprite ("splash", glm::vec3{-1.0f, 0.0f, 0.0f}, 1, glm::vec2{1.6f, 1.2f}, glm::vec3{-1.0, 0.0, 0.0});
 
 	gl_createSprite ("explosion", glm::vec3{0.0f, 0.0f, 0.0f}, 25, glm::vec2{1.0f, 1.0f}, glm::vec3{-1.0, 0.0, 0.0});
+
+	gl_createSprite ("bullet_001", glm::vec3{1.0f, 0.0f, 1.0f}, 9, glm::vec2{1.0f, 1.0f}, glm::vec3{-1.0, 0.0, 0.0});
+	gl_createSprite ("bullet_476", glm::vec3{1.0f, 0.0f, 1.0f}, 9, glm::vec2{1.0f, 1.0f}, glm::vec3{-1.0, 0.0, 0.0});
+	gl_createSprite ("bullet_821", glm::vec3{1.0f, 0.0f, 1.0f}, 9, glm::vec2{1.0f, 1.0f}, glm::vec3{-1.0, 0.0, 0.0});
 }
 
 //------------------------------------------------------------------------

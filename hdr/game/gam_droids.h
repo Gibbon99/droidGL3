@@ -7,7 +7,8 @@ enum droidModes
 {
 	DROID_MODE_NORMAL = 0,
 	DROID_MODE_EXPLODING,
-	DROID_MODE_DEAD
+	DROID_MODE_DEAD,
+	DROID_MODE_TRANSFER
 };
 
 //Setup initial values for enemy droids

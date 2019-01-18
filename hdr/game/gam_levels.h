@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <string>
+#include "hdr/game/gam_bullet.h"
 #include "hdr/libGL/chipmunk/chipmunk.h"
 #include "hdr/game/gam_droids.h"
 #include "hdr/system/sys_main.h"
@@ -83,6 +84,24 @@ typedef struct
 	cpVect      worldPos;           // Position in world coords
 } _basicHealing;
 
+typedef struct
+{
+	bool			isAlive;
+	cpFloat 		angle;
+	cpVect 			worldPos;
+	cpVect			travelDirection;
+	cpVect			size;
+	int				type;
+	int				currentAnimFrame;
+	float			animDelayCount;
+	float			speed;
+	int				sourceDroid;
+	bool			damageDone;	    // Use for disrupter to only damage once
+	int				particleIndex;	// Used to remove a particle emitter
+	string          bitmapName;
+	_physicObject	bulletPhysicsObject;
+} _bullet;
+
 typedef struct _droid
 {
 
@@ -112,7 +131,6 @@ typedef struct _droid
 	cpVect          serverVelocity;             // Current speed according to the server
 
 	int             overTile;                   // which tile is the droid on
-
 
 	cpBody          *body;                      // Used for physics and collisions
 	cpShape         *shape;
@@ -232,6 +250,7 @@ typedef struct _levelStruct{
 	vector<_liftBasic>      lifts;
 	vector<_droid>          droid;
 	vector<_basicHealing>   healing;
+	vector<_bullet>         bullet;
 	bool                    wallPhysicsCreated = false;
 	bool                    droidPhysicsCreated = false;
 	vector<_physicObject>   solidWalls;

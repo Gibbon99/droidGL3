@@ -540,6 +540,8 @@ void gam_drawFullLevel ( const string levelName, const string whichShader, GLuin
 
 	gam_renderThisLevel ( levelName, interpolate );
 
+	bul_renderBullet ( levelName );
+
 #ifdef USE_BLIT
 	viewPortX = static_cast<GLsizei>(winWidth * aspectRatioX);
 	viewPortY = static_cast<GLsizei>(winHeight * aspectRatioY);

@@ -1,3 +1,4 @@
+#include "hdr/game/gam_bullet.h"
 #include "hdr/gui/gui_language.h"
 #include "hdr/game/gam_database.h"
 #include "hdr/game/gam_game.h"

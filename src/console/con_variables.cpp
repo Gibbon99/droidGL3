@@ -110,6 +110,9 @@ _hostScriptFunctions hostVariables[] =
 	{"float g_scaleViewBy",                 &g_scaleViewBy},
 	{"bool allDroidsVisible",               &allDroidsVisible},
 	{"float g_LineOfSightStep",             &g_LineOfSightStep},
+	{"float bulletMass",                    &bulletMass},
+	{"float bulletTravelSpeed",             &bulletTravelSpeed},
+
 
 
 	{"float baseGameSpeed",                 &baseGameSpeed},

@@ -35,13 +35,14 @@ SDL_mutex *networkInMutex;
 SDL_mutex *serverEventInMutex;
 SDL_mutex *clientEventInMutex;
 
-
+SDL_mutex *mainLoopMutex;
 
 queue <_myEventData> consoleEventQueue;
 queue <_myEventData> audioEventQueue;
 queue <_myEventData> loggingEventQueue;
 queue <_myEventData> gameEventQueue;
 queue <_myEventData> guiEventQueue;
+queue <_myEventData> mainLoopEventQueue;
 
 queue<_myEventData> clientEventInQueue;
 //queue<_myEventData> networkClientOutQueue;
@@ -318,6 +319,13 @@ bool evt_registerUserEventSetup ()
 		return false;
 	}
 
+	mainLoopMutex = SDL_CreateMutex ();
+	if ( !mainLoopMutex )
+	{
+		printf ("Couldn't create mutex - mainLoopMutex\n");
+		return false;
+	}
+
 	SDL_DetachThread (userEventAudioThread);
 	SDL_DetachThread (userEventLoggingThread);
 	SDL_DetachThread (userEventGameThread);
@@ -378,6 +386,14 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 
 	switch ( type )
 	{
+		case MAIN_LOOP_EVENT:
+			if ( SDL_LockMutex (mainLoopMutex) == 0 )
+			{
+				mainLoopEventQueue.push (eventData);
+				SDL_UnlockMutex (mainLoopMutex);
+			}
+			break;
+
 		case USER_EVENT_CONSOLE:
 			if ( SDL_LockMutex (consoleMutex) == 0 )
 			{

@@ -8,6 +8,43 @@
 
 //----------------------------------------------------------------
 //
+// Handle the events that need to be run in the main loop
+// eg: Changes to physics world
+int gam_processMainLoopEventQueue()
+//----------------------------------------------------------------
+{
+	_myEventData tempEventData;
+
+	if ( !mainLoopEventQueue.empty() )
+	{
+		if ( SDL_LockMutex ( mainLoopMutex ) == 0)
+		{
+			tempEventData = mainLoopEventQueue.front();
+			mainLoopEventQueue.pop ();
+			SDL_UnlockMutex (mainLoopMutex);
+		}
+
+		switch ( tempEventData.eventAction )
+		{
+			case MAIN_LOOP_EVENT_ADD_BULLET:
+
+//				evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_ADD_BULLET, dataBaseEntry[0].bulletType, -1, false, glm::vec2{playerDroid.middlePosition.x, playerDroid.middlePosition.y}, glm::vec2{destPosition.x, destPosition.y}, lvl_getCurrentLevelName () );
+				bul_newBullet ( cpVect{tempEventData.vec2_1.x, tempEventData.vec2_1.y},
+				                cpVect{tempEventData.vec2_2.x, tempEventData.vec2_2.y},
+				                tempEventData.data1, tempEventData.data2, tempEventData.eventString );
+				break;
+
+			case MAIN_LOOP_EVENT_REMOVE_BULLET:
+				bul_removeBullet (tempEventData.data1, tempEventData.data2, tempEventData.data3);
+
+				break;
+		}
+	}
+	return 0;
+}
+
+//----------------------------------------------------------------
+//
 // Handle a game event - called by thread
 int gam_processGameEventQueue ( void *ptr )
 //----------------------------------------------------------------
@@ -80,6 +117,8 @@ int gam_processGameEventQueue ( void *ptr )
 				{
 					lvl_addPaddingToLevel(tempEventData.eventString);
 					levelInfo.at(tempEventData.eventString).lifts.reserve ( levelInfo.at(tempEventData.eventString).numLifts );
+					levelInfo.at(tempEventData.eventString).bullet.reserve ( 16 );  // Init bullet arrayu TODO
+					bul_initArray ( tempEventData.eventString );
 					break;
 				}
 

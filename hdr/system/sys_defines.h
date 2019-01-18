@@ -130,14 +130,6 @@ extern int __gl_error_code;
 
 #define SPRITE_SIZE   24
 
-enum bulletTypes
-{
-    BULLET_TYPE_NORMAL = 0,
-    BULLET_TYPE_SINGLE,
-    BULLET_TYPE_DOUBLE,
-    BULLET_TYPE_DISRUPTER
-};
-
 #if defined _WIN32_
 	#define uint unsigned int
 #endif

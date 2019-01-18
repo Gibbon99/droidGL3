@@ -1,5 +1,6 @@
 #include <unordered_map>
 #include <string>
+#include "hdr/game/gam_events.h"
 #include "hdr/gui/gui_button.h"
 #include "hdr/gui/gui_scrollBox.h"
 
@@ -165,7 +166,11 @@ void sys_gameTickRun()
 
 			gam_processPlayerMovement ();
 
+			gam_processMainLoopEventQueue();
+
 			net_processWorldStep();
+
+			bul_moveBullet ( );
 
 			cpSpaceStep (space, SKIP_TICKS);
 

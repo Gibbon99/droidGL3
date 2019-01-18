@@ -113,7 +113,7 @@ int sys_getDistance(cpVect point1, cpVect point2)
 	tempPoint.x = point2.x - point1.x;
 	tempPoint.y = point2.y - point1.y;
 
-	distance = sqrt(tempPoint.x * tempPoint.x + tempPoint.y * tempPoint.y);
+	distance = sqrt(tempPoint.x * tempPoint.x + tempPoint.y * tempPoint.y); // TODO - Use chipmunk to do this?
 
 	return distance;
 }

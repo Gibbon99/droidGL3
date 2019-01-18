@@ -1,4 +1,5 @@
 #include <hdr/game/gam_physicsPlayer.h>
+#include <hdr/game/gam_database.h>
 #include "hdr/game/gam_game.h"
 #include "hdr/game/gam_render.h"
 #include "hdr/game/gam_lightCaster.h"
@@ -121,25 +122,31 @@ void io_processActionKey ( int keyAction )
 			playerDroid.currentMode = DROID_MODE_TRANSFER;
 			return;
 		}
-
+*/
 		//
 		// Shoot a bullet - no shooting in transfer mode
-		if ( false == inTransferMode )
+		if ( DROID_MODE_TRANSFER != playerDroid.currentMode )
 		{
+/*
 			if ((playerVelocity.x != 0.0f) || (playerVelocity.y != 0.0f))
 				if ((inputAction[gameLeft].currentlyDown == true) || (inputAction[gameRight].currentlyDown == true) ||
 				    (inputAction[gameUp].currentlyDown == true) || (inputAction[gameDown].currentlyDown == true))
+				    */
 				{
-					if ( true == playerWeaponReadyToFire )
+//					if ( true == playerWeaponReadyToFire )
 					{
-						bul_newBullet ( playerWorldMiddlePos, cpvadd ( playerWorldPos, cpvmult ( playerVelocity, 1000 )), dataBaseEntry[
-								playerDroidTypeImage - 2].bulletType, -1 );
-						playerWeaponReadyToFire = false;
-						gam_processWitnessShooting ();
+						cpVect destPosition = cpvadd ( playerDroid.middlePosition, cpvmult ( playerDroid.velocity, 1000 ));
+						evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_ADD_BULLET, dataBaseEntry[0].bulletType, -1, false, glm::vec2{playerDroid.middlePosition.x, playerDroid.middlePosition.y}, glm::vec2{destPosition.x, destPosition.y}, lvl_getCurrentLevelName () );
+
+
+//						bul_newBullet ( playerDroid.middlePosition, cpvadd ( playerDroid.middlePosition, cpvmult ( playerDroid.velocity, 1000 )), dataBaseEntry[0].bulletType, -1, lvl_getCurrentLevelName () );
+
+//						playerWeaponReadyToFire = false;
+//						gam_processWitnessShooting ();
 					}
 				}
 		}
-		 */
+
 	}
 	else
 	{

@@ -93,6 +93,10 @@ void as_setGameVariables()
 
 	allDroidsVisible = false;       // overwrite the line of sight
 	g_LineOfSightStep = 1.0f;
+
+	bulletMass = 0.8f;
+
+	bulletTravelSpeed = 0.9f;
 }
 
 //-----------------------------------------------------------------------------
@@ -102,7 +106,6 @@ bool as_conCommandQuit()
 //-----------------------------------------------------------------------------
 {
     sys_changeMode(MODE_SHUTDOWN);
-    //quitProgram = true;
 
     return true;
 }
