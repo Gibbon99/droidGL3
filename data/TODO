@@ -38,6 +38,7 @@ When switching to scrSideView - GUI Render is drawing textboxes - only one back 
 Back button on sideview screen is not activated via mouse click
 Fix up 'over tile' coords - not triggering correctly when on lift or terminal tile
 Doors are appearing randomly after changing levels - viewable on deckView
+Droid stopping on healing tile too high - add SPRITE_SIZE to Y
 
 
 DONE

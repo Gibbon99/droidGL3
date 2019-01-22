@@ -73,7 +73,7 @@ void sys_displayScreen(float interpolation)
 	{
 		case MODE_SPLASH:
 			gl_set2DMode (glm::vec2{0,0}, glm::vec2{winWidth, winHeight}, glm::vec3{1,1,1,});
-			gl_renderSprite("splash", glm::vec2{0, 0}, 1, glm::vec3{0,0,0});
+        gl_renderSprite ("splash", glm::vec2{0, 0}, 0, 1, glm::vec3{0, 0, 0});
 			break;
 
 		case MODE_LOADING:

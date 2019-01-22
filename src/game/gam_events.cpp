@@ -1,10 +1,11 @@
-#include <hdr/io/io_textures.h>
-#include <hdr/game/gam_levels.h>
-#include <hdr/system/sys_events.h>
-#include <hdr/io/io_keyboard.h>
-#include <hdr/gui/gui_main.h>
+#include "hdr/io/io_textures.h"
+#include "hdr/game/gam_levels.h"
+#include "hdr/system/sys_events.h"
+#include "hdr/io/io_keyboard.h"
+#include "hdr/gui/gui_main.h"
 #include "hdr/game/gam_events.h"
 #include "hdr/system/sys_events.h"
+#include "hdr/game/gam_doors.h"
 
 //----------------------------------------------------------------
 //
@@ -119,6 +120,7 @@ int gam_processGameEventQueue ( void *ptr )
 					levelInfo.at(tempEventData.eventString).lifts.reserve ( levelInfo.at(tempEventData.eventString).numLifts );
 					levelInfo.at(tempEventData.eventString).bullet.reserve ( 16 );  // Init bullet arrayu TODO
 					bul_initArray ( tempEventData.eventString );
+                    gam_doorTriggerSetup ( tempEventData.eventString );
 					break;
 				}
 

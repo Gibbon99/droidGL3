@@ -61,7 +61,7 @@ void as_setGameVariables()
     healingAnimateInterval = 150;
     //
     // Speed to animate the moving doors in milliseconds
-    doorAnimateInterval = 10;
+    doorAnimateInterval = 30;
     //
     // Variables for physics engine
     shipDamping = 0.2;

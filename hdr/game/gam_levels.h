@@ -9,6 +9,7 @@
 #include "hdr/io/io_fileSystem.h"
 #include "hdr/game/gam_lifts.h"
 #include "hdr/game/gam_healing.h"
+#include "gam_doors.h"
 
 #define MAP_VERSION             115
 
@@ -250,7 +251,9 @@ typedef struct _levelStruct{
 	vector<_liftBasic>      lifts;
 	vector<_droid>          droid;
 	vector<_basicHealing>   healing;
-	vector<_bullet>         bullet;
+    vector<_doorTrigger>    doorTrigger;        // pointer to memory to hold door trigger information
+
+    vector<_bullet>         bullet;
 	bool                    wallPhysicsCreated = false;
 	bool                    droidPhysicsCreated = false;
 	vector<_physicObject>   solidWalls;

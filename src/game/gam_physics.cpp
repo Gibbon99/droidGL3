@@ -60,6 +60,7 @@ void drd_updateDroidPosition ( const string levelName, int whichDroid )
 void sys_createEnemyPhysics ( const string levelName )
 //-------------------------------------------------------------------
 {
+    std::bitset<32>         droidBitset;        // Use standard bitmasks
 	cpShapeFilter           droidShapeFilter;
 	int                     packedValue;
 
@@ -90,7 +91,6 @@ void sys_createEnemyPhysics ( const string levelName )
 		//
 		// Setup the bitmasks for collision filtering
 		//
-		std::bitset<32>     droidBitset;        // Use standard bitmasks
 
 		droidBitset.reset();                    // Clear it
 		droidBitset = levelInfo.at ( levelName ).deckCategory;  // Set category to this level
@@ -100,7 +100,7 @@ void sys_createEnemyPhysics ( const string levelName )
 
 		droidBitset = levelInfo.at ( levelName ).deckCategory;      // will collide with everything on this level ( this category )
 		droidBitset[PHYSIC_TYPE_PLAYER] = true;                     // and the player
-		droidShapeFilter.mask = static_cast<cpBitmask>(droidBitset.to_ulong());          // Set shipmunk cpBitmask
+		droidShapeFilter.mask = static_cast<cpBitmask>(droidBitset.to_ulong());          // Set chipmunk cpBitmask
 
 		droidShapeFilter.group = CP_NO_GROUP;                       // Doesn't belong to any group
 

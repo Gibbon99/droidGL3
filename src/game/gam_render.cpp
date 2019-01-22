@@ -536,7 +536,7 @@ void gam_drawFullLevel ( const string levelName, const string whichShader, GLuin
 	gam_showLineSegments (levelName);
 	gam_showWayPoints (levelName);
 
-    gam_debugDoorTriggers();
+    gam_debugDoorTriggers(levelName);
 
 	gam_renderThisLevel ( levelName, interpolate );
 
@@ -636,7 +636,10 @@ void gam_drawFullLevel ( const string levelName, const string whichShader, GLuin
 	glViewport (0, 0, winWidth, winHeight);
 	gl_set2DMode(glm::vec2{0,0}, glm::vec2{winWidth,winHeight}, glm::vec3(1, 1, 1));
 
-	gl_draw2DQuad (viewPortPosition, viewSize, "quad3d", io_getTextureID ("viewTexture"), glm::vec3{0, 0, 0}, glm::vec3{-1.0, 0.0, 0.0}, texCoords);
+  gl_draw2DQuad (viewPortPosition, 0, viewSize, "quad3d", io_getTextureID ("viewTexture"), glm::vec3{0, 0,
+                                                                                                     0}, glm::vec3{-1.0,
+                                                                                                                   0.0,
+                                                                                                                   0.0}, texCoords);
 
 #endif
 	//

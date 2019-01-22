@@ -385,6 +385,10 @@ int io_returnStandardInputValueKeyboard ( SDL_Keycode keyValue )
 			return MY_INPUT_ESCAPE;
 			break;
 
+	  case SDLK_LCTRL:
+	        return MY_INPUT_ACTION;
+	        break;
+
 		case SDLK_RETURN:
 			return MY_INPUT_ACTION;
 			break;

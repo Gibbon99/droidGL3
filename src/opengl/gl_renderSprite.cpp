@@ -97,6 +97,7 @@ void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames,
 	tempSprite.numberOfFrames = numberOfFrames;
 	tempSprite.scaleBy = scaleBy;
 	tempSprite.tintColor = tintColor;
+
 	if (keyColor.r != -1)
 	{
 		tempSprite.useKeyColor = true;
@@ -166,7 +167,7 @@ glm::vec2 gl_getScaleby(string whichSprite)
 // Render a image file
 //
 // Position is the center of the sprite
-void gl_renderSprite(string whichSprite, glm::vec2 position, int frameNumber, glm::vec3 tintColor)
+void gl_renderSprite (string whichSprite, glm::vec2 position, float rotateAngle, int frameNumber, glm::vec3 tintColor)
 //---------------------------------------------------------------------
 {
 	static int          errorCount = 0;
@@ -212,11 +213,12 @@ void gl_renderSprite(string whichSprite, glm::vec2 position, int frameNumber, gl
 
 		if (spriteItr->second.useKeyColor)  // Needs key color shader
 		{
-			gl_draw2DQuad ( renderPosition, textureSize, "colorKey", io_getTextureID (whichSprite), spriteItr->second.keyColor, spriteItr->second.tintColor, texCoords);
+            gl_draw2DQuad (renderPosition, rotateAngle, textureSize, "colorKey", io_getTextureID (whichSprite), spriteItr->second.keyColor, spriteItr->second.tintColor, texCoords);
 		}
 		else
 		{
-			gl_draw2DQuad ( position, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0,0,0}, spriteItr->second.tintColor, texCoords);
+            gl_draw2DQuad (position, rotateAngle, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0, 0,
+                                                                                                        0}, spriteItr->second.tintColor, texCoords);
 		}
 	}
 	else    // Sprite name could not be found

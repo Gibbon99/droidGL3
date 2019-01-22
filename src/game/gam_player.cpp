@@ -181,7 +181,7 @@ void gam_initPlayerAnimateTimer ( Uint32 interval )
 void gam_renderPlayerSprite ()
 //------------------------------------------------------------------------------
 {
-    gl_renderSprite ("001", glm::vec2{winWidth / 2, winHeight / 2}, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 1.0} );
+  gl_renderSprite ("001", glm::vec2{winWidth / 2, winHeight / 2}, 0, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 1.0});
 
 //	gl_renderSprite ("001", glm::vec2{playerDroid.serverWorldPos.x, playerDroid.serverWorldPos.y}, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 0.0});
 }

@@ -35,5 +35,6 @@ void s_renderHUD()
 		haveSize = true;
 	}
 // TODO - Draw as sprite - after configuring parameters
-	gl_draw2DQuad ( renderPosition, textureSize, "colorKey", io_getTextureID ("hud"), glm::vec3{0, 0, 0}, glm::vec3{-1.0, 0.0, 0.0}, texCoords);
+  gl_draw2DQuad (renderPosition, 0, textureSize, "colorKey", io_getTextureID ("hud"), glm::vec3{0, 0, 0}, glm::vec3{
+      -1.0, 0.0, 0.0}, texCoords);
 }

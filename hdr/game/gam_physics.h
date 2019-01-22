@@ -9,7 +9,8 @@ enum PHYSIC_TYPES
 	PHYSIC_TYPE_PLAYER = 21,      // one more than the number of levels
 	PHYSIC_TYPE_ENEMY,
 	PHYSIC_TYPE_BULLET,
-	PHYSIC_TYPE_WALL
+	PHYSIC_TYPE_WALL,
+	PHYSIC_TYPE_DOOR
 };
 
 extern bool                        physicsStarted;

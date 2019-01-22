@@ -899,7 +899,7 @@ void gui_displayGUI()
 	guiTintColor.b = 1.0f;
 	//
 	// Put the OpenGL texture onto the visible framebuffer
-	gl_draw2DQuad ( guiPosition, guiSize, "colorKey", io_getTextureID ("guiScreen"), guiColorKey, guiTintColor, texCoords);
+  gl_draw2DQuad (guiPosition, 0, guiSize, "colorKey", io_getTextureID ("guiScreen"), guiColorKey, guiTintColor, texCoords);
 
 	s_renderHUD ();
 

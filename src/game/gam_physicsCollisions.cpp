@@ -5,9 +5,11 @@
 #include "hdr/system/sys_maths.h"
 #include "hdr/game/gam_physicsCollisions.h"
 
+cpCollisionHandler *handlerPlayerBullet;
 cpCollisionHandler *handlerEnemyEnemy;
 cpCollisionHandler *handlerEnemyPlayer;
 cpCollisionHandler *handlerWallBullet;
+cpCollisionHandler *handlerDoorBullet;
 
 //-------------------------------------------------------------------
 //
@@ -184,6 +186,37 @@ void handleCollisionDroidToDroid ( cpArbiter *arb, cpSpace *space, int *unused )
 
 //-------------------------------------------------------------------
 //
+// Collision between PLAYER and BULLET
+// Ignore if it is a player bullet
+bool handleCollisionPlayerBulletCheck ( cpArbiter *arb, cpSpace *space, int *unused )
+//-------------------------------------------------------------------
+{
+  // Get the cpShapes involved in the collision
+  //
+  // The order is A = PLAYER and B = BULLET
+  //
+  cpShape             *a, *b;
+  cpDataPointer       dataPointer_A, dataPointer_B;
+  unsigned char       valuesPassedDroid_A[4], valuesPassedDroid_B[4];
+
+  cpArbiterGetShapes ( arb, &a, &b );
+
+  dataPointer_A = cpShapeGetUserData ( a );
+  dataPointer_B = cpShapeGetUserData ( b );
+
+  sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_A), valuesPassedDroid_A );
+  sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_B), valuesPassedDroid_B );
+
+  if (levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).bullet[valuesPassedDroid_B[BYTE_PLAYER_FLAG]].sourceDroid == -1)
+    {
+      return cpFalse;   // don't proceed with collision
+    }
+
+    return cpTrue;    // continue processing - hit enemy droid
+}
+
+//-------------------------------------------------------------------
+//
 // Collision between PLAYER and DROID - check transfer status
 // Continue to post solve if TRANSFER == FALSE
 bool handleCollisionTransferCheck ( cpArbiter *arb, cpSpace *space, int *unused )
@@ -225,10 +258,51 @@ bool handleCollisionTransferCheck ( cpArbiter *arb, cpSpace *space, int *unused 
 
 //-------------------------------------------------------------------
 //
+// Handle bullet hitting door sensor
+bool handleDoorBullet ( cpArbiter *arb, cpSpace *space, int *unused )
+//-------------------------------------------------------------------
+{
+  // Get the cpShapes involved in the collision
+  //
+  // The order is A = DOOR and B = BULLET
+  //
+  cpShape             *a, *b;
+  cpDataPointer       dataPointer_A, dataPointer_B;
+  unsigned char       valuesPassedDroid_A[4], valuesPassedDroid_B[4];
+
+  cpArbiterGetShapes ( arb, &a, &b );
+
+  dataPointer_A = cpShapeGetUserData ( a );
+  dataPointer_B = cpShapeGetUserData ( b );
+
+  sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_A), valuesPassedDroid_A );
+  sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_B), valuesPassedDroid_B );
+
+  switch ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).doorTrigger[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].currentFrame )
+    {
+      case DOOR_ACROSS_OPENED:
+      case DOOR_UP_OPENED:
+        return cpFalse;
+      break;
+
+      default:
+        evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_REMOVE_BULLET, valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], -1, glm::vec2{}, glm::vec2{}, "");
+      return cpTrue;
+      break;
+    }
+}
+
+//-------------------------------------------------------------------
+//
 // Setup all the collision handlers
 void sys_setupCollisionHandlers ()
 //-------------------------------------------------------------------
 {
+    //
+    // Handle collision between PLAYER and BULLET
+    //
+    handlerPlayerBullet = cpSpaceAddCollisionHandler ( space, PHYSIC_TYPE_PLAYER, PHYSIC_TYPE_BULLET );
+    handlerPlayerBullet->beginFunc = (cpCollisionBeginFunc) handleCollisionPlayerBulletCheck;
 	//
 	// Handle collision between ENEMY and ENEMY
 	//
@@ -246,4 +320,9 @@ void sys_setupCollisionHandlers ()
 	//
 	handlerWallBullet = cpSpaceAddCollisionHandler ( space, PHYSIC_TYPE_WALL, PHYSIC_TYPE_BULLET );
 	handlerWallBullet->beginFunc = (cpCollisionBeginFunc) handleCollisionWallBullet;
+    //
+    // Handle collision between door and bullet
+    //
+    handlerDoorBullet = cpSpaceAddCollisionHandler ( space, PHYSIC_TYPE_DOOR, PHYSIC_TYPE_BULLET );
+    handlerDoorBullet->beginFunc = (cpCollisionBeginFunc) handleDoorBullet;
 }
