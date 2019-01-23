@@ -295,6 +295,10 @@ void gam_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 		case DAMAGE_BULLET:
 			if ( -1 == sourceDroid ) // Player bullet
 			{
+
+			  printf("Droid [ %i ] hit by player bullet.\n", whichDroid);
+
+
 				if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentMode == DROID_MODE_EXPLODING )
 					return;
 

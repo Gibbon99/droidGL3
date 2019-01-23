@@ -2,10 +2,12 @@ GAME
 -----
 Bullets - player and droids
 Physics - collisions between droids / bullets / players / explosions
-Doors - use physics for detection
 Alert level
 Lightmap for alerts and bullets
 Different tile styles and colors
+Transfer game
+Add score on destroyed droid
+Score increment on Alert Level
 
 Terminal
 ---------
@@ -45,3 +47,4 @@ DONE
 -----
 05/01/19 - DONE - Deck overview screen
 07/01/19 - DONE - Show location indicator on sideview
+23/01/19 - DONE - Doors - use physics for detection

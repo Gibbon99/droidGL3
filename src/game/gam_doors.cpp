@@ -384,6 +384,9 @@ void gam_doorTriggerSetup (const string levelName)
 
               center.x = (sourceX * TILE_SIZE) + (TILE_SIZE / 2);
               center.y = (sourceY * TILE_SIZE);
+
+              width = TILE_SIZE;
+              height = TILE_SIZE / 3;
             }
 
             levelInfo.at ( levelName ).doorTrigger.push_back( tempDoorTrigger );

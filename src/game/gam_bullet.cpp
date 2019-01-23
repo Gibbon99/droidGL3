@@ -42,12 +42,9 @@ void bul_removeBullet (int whichDeck, int whichBullet_1, int whichBullet_2)
     {
       cpSpaceRemoveShape (space, levelInfo.at (levelName).bullet[whichBullet_1].bulletPhysicsObject.shape);
       cpShapeFree (levelInfo.at (levelName).bullet[whichBullet_1].bulletPhysicsObject.shape);
-
-      printf ("Removed - bullet [ %i ]\n", whichBullet_1);
-
     }
   else
-    printf ("ERROR: Attempted to remove non existant shape - bullet [ %i ]\n", whichBullet_1);
+    printf ("ERROR: Attempted to remove non existent shape - bullet [ %i ]\n", whichBullet_1);
 
   if (cpTrue ==
       cpSpaceContainsBody (space, levelInfo.at (levelName).bullet[whichBullet_1].bulletPhysicsObject.body))
@@ -56,7 +53,7 @@ void bul_removeBullet (int whichDeck, int whichBullet_1, int whichBullet_2)
       cpBodyFree (levelInfo.at (levelName).bullet[whichBullet_1].bulletPhysicsObject.body);
     }
   else
-    printf ("ERROR: Attempted to remove non existant body - bullet [ %i ]\n", whichBullet_1);
+    printf ("ERROR: Attempted to remove non existent body - bullet [ %i ]\n", whichBullet_1);
 
   cpSpaceReindexStatic (space);
 
@@ -228,16 +225,17 @@ void bul_newBullet (cpVect sourcePos, cpVect destPos, int type, int sourceDroid,
   if (-1 == sourceDroid)
     {
       tempBullet.travelDirection = cpvnormalize (bul_getPlayerBulletDirection ());
-      printf ("New bullet added from Player\n");
+      tempBullet.sourceDroid = 127;
     }
   else
     {
       tempBullet.travelDirection = cpvsub (destPos, sourcePos);
+      tempBullet.sourceDroid = sourceDroid;
       printf ("New bullet added from Droid [ %i ]\n", sourceDroid);
     }
 
   tempBullet.isAlive = true;
-  tempBullet.sourceDroid = sourceDroid;
+
 
   if (BULLET_TYPE_DISRUPTER != type) // if bullet is not a disrupter
     {
@@ -245,11 +243,9 @@ void bul_newBullet (cpVect sourcePos, cpVect destPos, int type, int sourceDroid,
         type = BULLET_TYPE_NORMAL; // Default to normal 001 bullet type
 
       tempBullet.currentAnimFrame = 0;
-      tempBullet.speed = 0.003f; //bulletTravelSpeed;
+      tempBullet.speed = 0.009f; //bulletTravelSpeed;
 
       tempBullet.angle = cpvtoangle (tempBullet.travelDirection);
-
-      printf ("Bullet angle [ %3.3f ]\n", tempBullet.angle);
 
       tempBullet.bitmapName = bul_getBulletImageByType (type);
       tempBullet.size.x = sprites.at (tempBullet.bitmapName).frameWidth;
@@ -305,8 +301,6 @@ void bul_newBullet (cpVect sourcePos, cpVect destPos, int type, int sourceDroid,
           // Pack in deck number
           // Array index number
           int bulletIndex = sys_pack4Bytes ((char) lvl_getDeckNumber (levelName), bulletCount, 0, 0);
-
-          printf ("New bullet index [ %i ]\n", static_cast<int>( bulletCount ));
 
           cpShapeSetUserData (tempBullet.bulletPhysicsObject.shape, (cpDataPointer) bulletIndex);    // Passed into collision routine
 

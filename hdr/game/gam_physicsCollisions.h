@@ -1,9 +1,9 @@
 #pragma once
 
-#define BYTE_LEVEL          0
-#define BYTE_ENEMY_INDEX    1
-#define BYTE_PLAYER_FLAG    2
-#define BYTE_SPARE          3
+#define BYTE_ZERO           0
+#define BYTE_ONE            1
+#define BYTE_TWO            2
+#define BYTE_THREE          3
 
 #include "hdr/system/sys_main.h"
 #include "hdr/libGL/chipmunk/chipmunk.h"

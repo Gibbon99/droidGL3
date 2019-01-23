@@ -10,6 +10,85 @@ cpCollisionHandler *handlerEnemyEnemy;
 cpCollisionHandler *handlerEnemyPlayer;
 cpCollisionHandler *handlerWallBullet;
 cpCollisionHandler *handlerDoorBullet;
+cpCollisionHandler *handlerEnemyBullet;
+
+
+//-------------------------------------------------------------------
+//
+// Post-Step callback for hitting droid - needed in post-step so when its
+// destroyed the shape and body are removed from the world
+static void handleDamageDroidCollision ( cpSpace *space, cpShape *shape, int *passedInValues )
+//-------------------------------------------------------------------
+{
+  unsigned char values[4];
+
+  int valuesPassed = 0; // = new int ();
+
+  // deference pointer to data
+  valuesPassed = *(static_cast<int*>(passedInValues));
+
+  values[0] = static_cast<unsigned char>((valuesPassed >> 24) & 0xff);        // whichlevel
+  values[1] = static_cast<unsigned char>((valuesPassed >> 16) & 0xff);        // which enemy droid index
+  values[2] = static_cast<unsigned char>((valuesPassed >> 8) & 0xff);         // Damage type
+  values[3] = static_cast<unsigned char>(valuesPassed & 0xff);                // sourceDroid
+
+  printf("Inside damage [ %i %i %i %i ]\n", values[0], values[1], values[2], values[3]);
+
+
+  if ( 127 == values[3] )   // Player is the source
+    gam_damageToDroid ( values[0], values[1], values[2], -1 );
+  else
+    gam_damageToDroid ( values[0], values[1], values[2], values[3] );
+
+//	delete valuesPassed;
+}
+
+//-------------------------------------------------------------------
+//
+// Handle bullet hitting enemy droid - could be another enemy or player bullet
+bool handleCollisionEnemyBullet ( cpArbiter *arb, cpSpace *space, int *unused )
+//-------------------------------------------------------------------
+{
+  // Get the cpShapes involved in the collision
+  //
+  // The order is A = ENEMY and B = BULLET
+  //
+  // A is the ENEMY Droid
+  // B is the bullet
+  //
+  cpShape *a, *b;
+  cpDataPointer dataPointer_A, dataPointer_B;
+  unsigned char valuesPassedDroid_A[4], valuesPassedDroid_B[4];
+
+  cpArbiterGetShapes ( arb, &a, &b );
+
+  dataPointer_A = cpShapeGetUserData ( a );
+  dataPointer_B = cpShapeGetUserData ( b );
+
+  sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_A), valuesPassedDroid_A );
+  sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_B), valuesPassedDroid_B );
+
+  int *passValueBullet = new int ();        // Memory leak?? using delete passValue causes bad values to be passed
+  int packedValue = 0;
+
+  char sourceDroid;
+
+  sourceDroid = static_cast<char>(levelInfo.at (lvl_returnLevelNameFromDeck (valuesPassedDroid_B[BYTE_ZERO])).bullet[valuesPassedDroid_B[BYTE_ONE]].sourceDroid);
+
+  printf ("bullet hit droid [ %i ]  - level [ %i ] source [ %i ]\n", valuesPassedDroid_A[BYTE_ONE], valuesPassedDroid_A[BYTE_ZERO], sourceDroid);
+
+
+  packedValue = sys_pack4Bytes (valuesPassedDroid_A[BYTE_ZERO], valuesPassedDroid_A[BYTE_ONE], DAMAGE_BULLET, sourceDroid );
+  *passValueBullet = packedValue;
+
+  cpSpaceAddPostStepCallback ( space, (cpPostStepFunc) handleDamageDroidCollision, a, passValueBullet );
+
+    //
+  // Remove the bullet after the collision
+  evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_REMOVE_BULLET, valuesPassedDroid_B[BYTE_ZERO], valuesPassedDroid_B[BYTE_ONE], -1, glm::vec2{}, glm::vec2{}, "");
+
+  return cpFalse;	// should this be true or false
+}
 
 //-------------------------------------------------------------------
 //
@@ -31,7 +110,7 @@ bool handleCollisionWallBullet ( cpArbiter *arb, cpSpace *space, int *unused)
 	sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_A), valuesPassedDroid_A );
 	sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_B), valuesPassedDroid_B );
 
-	evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_REMOVE_BULLET, valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], -1, glm::vec2{}, glm::vec2{}, "");
+	evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_REMOVE_BULLET, valuesPassedDroid_B[BYTE_ZERO], valuesPassedDroid_B[BYTE_ONE], -1, glm::vec2{}, glm::vec2{}, "");
 
 	return cpTrue;
 }
@@ -59,38 +138,11 @@ bool handleCollisionDroidCheck ( cpArbiter *arb, cpSpace *space, int *unused )
 	sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_A), valuesPassedDroid_A );
 	sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_B), valuesPassedDroid_B );
 
-	if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].ignoreCollisions ||
-	     levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).droid[valuesPassedDroid_B[BYTE_ENEMY_INDEX]].ignoreCollisions )
+	if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).droid[valuesPassedDroid_A[BYTE_ONE]].ignoreCollisions ||
+	     levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_ZERO] )).droid[valuesPassedDroid_B[BYTE_ONE]].ignoreCollisions )
 		return cpFalse;
 
 	return cpTrue;
-}
-
-//-------------------------------------------------------------------
-//
-// Post-Step callback for hitting droid - needed in post-step so when its
-// destroyed the shape and body are removed from the world
-static void handleDamageDroidCollision ( cpSpace *space, cpShape *shape, int *passedInValues )
-//-------------------------------------------------------------------
-{
-	unsigned char values[4];
-
-	int valuesPassed = 0; // = new int ();
-
-	// deference pointer to data
-	valuesPassed = *(static_cast<int*>(passedInValues));
-
-	values[0] = static_cast<unsigned char>((valuesPassed >> 24) & 0xff);        // whichlevel
-	values[1] = static_cast<unsigned char>((valuesPassed >> 16) & 0xff);        // which enemy droid index
-	values[2] = static_cast<unsigned char>((valuesPassed >> 8) & 0xff);         // Damage type
-	values[3] = static_cast<unsigned char>(valuesPassed & 0xff);                // sourceDroid
-
-	if ( 127 == values[3] )   // Player is the source
-		gam_damageToDroid ( values[0], values[1], values[2], -1 );
-	else
-		gam_damageToDroid ( values[0], values[1], values[2], values[3] );
-
-//	delete valuesPassed;
 }
 
 //-------------------------------------------------------------------
@@ -119,13 +171,13 @@ void handleCollisionDroidToDroid ( cpArbiter *arb, cpSpace *space, int *unused )
 	int *passValue = new int ();        // Memory leak?? using delete passValue causes bad values to be passed
 	int packedValue = 0;
 
-	if ( 1 == valuesPassedDroid_B[BYTE_PLAYER_FLAG] )    // Is B the player
+	if ( 1 == valuesPassedDroid_B[BYTE_TWO] )    // Is B the player
 	{
 		//
 		// Process player vs enemy collision
-		if ( !levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].currentMode == DROID_MODE_EXPLODING )
+		if ( !levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).droid[valuesPassedDroid_A[BYTE_ONE]].currentMode == DROID_MODE_EXPLODING )
 		{
-			packedValue = sys_pack4Bytes (valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, 127 );
+			packedValue = sys_pack4Bytes (valuesPassedDroid_A[BYTE_ZERO], valuesPassedDroid_A[BYTE_ONE], DAMAGE_COLLISION, 127 );
 			*passValue = packedValue;
 
 			cpSpaceAddPostStepCallback ( space, (cpPostStepFunc) handleDamageDroidCollision, a, passValue );
@@ -134,10 +186,10 @@ void handleCollisionDroidToDroid ( cpArbiter *arb, cpSpace *space, int *unused )
 		}
 		else    // Player collided with exploding sprite - take damage
 		{
-			if ( valuesPassedDroid_A[BYTE_ENEMY_INDEX] != playerDroid.droidTransferedIntoIndex )
+			if ( valuesPassedDroid_A[BYTE_ONE] != playerDroid.droidTransferedIntoIndex )
 				// Ignore explosion if colliding with recently transferred droid
 			{
-				packedValue = sys_pack4Bytes (valuesPassedDroid_A[BYTE_LEVEL], DAMAGE_EXPLOSION, 0, 0 );
+				packedValue = sys_pack4Bytes (valuesPassedDroid_A[BYTE_ZERO], DAMAGE_EXPLOSION, 0, 0 );
 				*passValue = packedValue;
 
 				cpSpaceAddPostStepCallback ( space, (cpPostStepFunc) handleDamageDroidCollision, a, passValue );
@@ -149,34 +201,34 @@ void handleCollisionDroidToDroid ( cpArbiter *arb, cpSpace *space, int *unused )
 	{
 		//
 		// Droid collided with another droid
-		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].collisionCount++;
-		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).droid[valuesPassedDroid_B[BYTE_ENEMY_INDEX]].collisionCount++;
+		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).droid[valuesPassedDroid_A[BYTE_ONE]].collisionCount++;
+		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_ZERO] )).droid[valuesPassedDroid_B[BYTE_ONE]].collisionCount++;
 
-		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].hasCollided = true;
-		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).droid[valuesPassedDroid_B[BYTE_ENEMY_INDEX]].hasCollided = true;
+		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).droid[valuesPassedDroid_A[BYTE_ONE]].hasCollided = true;
+		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_ZERO] )).droid[valuesPassedDroid_B[BYTE_ONE]].hasCollided = true;
 
-		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].collidedWith = valuesPassedDroid_B[BYTE_ENEMY_INDEX];
-		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).droid[valuesPassedDroid_B[BYTE_ENEMY_INDEX]].collidedWith = valuesPassedDroid_A[BYTE_ENEMY_INDEX];
+		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).droid[valuesPassedDroid_A[BYTE_ONE]].collidedWith = valuesPassedDroid_B[BYTE_ONE];
+		levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_ZERO] )).droid[valuesPassedDroid_B[BYTE_ONE]].collidedWith = valuesPassedDroid_A[BYTE_ONE];
 
-		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].currentMode == DROID_MODE_EXPLODING )
+		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).droid[valuesPassedDroid_A[BYTE_ONE]].currentMode == DROID_MODE_EXPLODING )
 		{
-			gam_damageToDroid ( valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], DAMAGE_EXPLOSION, valuesPassedDroid_A[BYTE_ENEMY_INDEX] );
+			gam_damageToDroid ( valuesPassedDroid_B[BYTE_ZERO], valuesPassedDroid_B[BYTE_ONE], DAMAGE_EXPLOSION, valuesPassedDroid_A[BYTE_ONE] );
 // TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 		else
 		{
-			gam_damageToDroid ( valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, valuesPassedDroid_A[BYTE_ENEMY_INDEX] );
+			gam_damageToDroid ( valuesPassedDroid_B[BYTE_ZERO], valuesPassedDroid_B[BYTE_ONE], DAMAGE_COLLISION, valuesPassedDroid_A[BYTE_ONE] );
 // TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 
-		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).droid[valuesPassedDroid_B[BYTE_ENEMY_INDEX]].currentMode == DROID_MODE_EXPLODING )
+		if ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_ZERO] )).droid[valuesPassedDroid_B[BYTE_ONE]].currentMode == DROID_MODE_EXPLODING )
 		{
-			gam_damageToDroid ( valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_EXPLOSION, valuesPassedDroid_B[BYTE_ENEMY_INDEX] );
+			gam_damageToDroid ( valuesPassedDroid_A[BYTE_ZERO], valuesPassedDroid_A[BYTE_ONE], DAMAGE_EXPLOSION, valuesPassedDroid_B[BYTE_ONE] );
 // TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_DAMAGE, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 		else
 		{
-			gam_damageToDroid ( valuesPassedDroid_A[BYTE_LEVEL], valuesPassedDroid_A[BYTE_ENEMY_INDEX], DAMAGE_COLLISION, valuesPassedDroid_B[BYTE_ENEMY_INDEX] );
+			gam_damageToDroid ( valuesPassedDroid_A[BYTE_ZERO], valuesPassedDroid_A[BYTE_ONE], DAMAGE_COLLISION, valuesPassedDroid_B[BYTE_ONE] );
 // TODO fix up						evt_sendEvent ( USER_EVENT_AUDIO, AUDIO_PLAY_SAMPLE, SND_COLLIDE_1, 0, 0, glm::vec2 (), glm::vec2 (), "" );
 		}
 	}
@@ -207,7 +259,7 @@ bool handleCollisionPlayerBulletCheck ( cpArbiter *arb, cpSpace *space, int *unu
   sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_A), valuesPassedDroid_A );
   sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_B), valuesPassedDroid_B );
 
-  if (levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_LEVEL] )).bullet[valuesPassedDroid_B[BYTE_PLAYER_FLAG]].sourceDroid == -1)
+  if (levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_B[BYTE_ZERO] )).bullet[valuesPassedDroid_B[BYTE_TWO]].sourceDroid == -1)
     {
       return cpFalse;   // don't proceed with collision
     }
@@ -239,7 +291,7 @@ bool handleCollisionTransferCheck ( cpArbiter *arb, cpSpace *space, int *unused 
 	sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_A), valuesPassedDroid_A );
 	sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_B), valuesPassedDroid_B );
 
-	if ( 1 == valuesPassedDroid_B[BYTE_PLAYER_FLAG] )    // Is B the player
+	if ( 1 == valuesPassedDroid_B[BYTE_TWO] )    // Is B the player
 	{
 		if ( !playerDroid.inTransferMode )
 			return cpTrue;    // Continue processing collision
@@ -248,7 +300,7 @@ bool handleCollisionTransferCheck ( cpArbiter *arb, cpSpace *space, int *unused 
 	// Ignore collision and start transfer process
 	// Transfer into Droid
 	//
-	cpBodySetVelocity ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).droid[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].body, cpVect{ 0, 0} );
+	cpBodySetVelocity ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).droid[valuesPassedDroid_A[BYTE_ONE]].body, cpVect{ 0, 0} );
 // TODO	trn_startTransferMode ( whichDroid_A );
 //	sys_changeMode ( MODE_TRANSFER_INTRO, true );
 
@@ -278,7 +330,7 @@ bool handleDoorBullet ( cpArbiter *arb, cpSpace *space, int *unused )
   sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_A), valuesPassedDroid_A );
   sys_getPackedBytes ( static_cast<int>((intptr_t) dataPointer_B), valuesPassedDroid_B );
 
-  switch ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_LEVEL] )).doorTrigger[valuesPassedDroid_A[BYTE_ENEMY_INDEX]].currentFrame )
+  switch ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).doorTrigger[valuesPassedDroid_A[BYTE_ONE]].currentFrame )
     {
       case DOOR_ACROSS_OPENED:
       case DOOR_UP_OPENED:
@@ -286,7 +338,7 @@ bool handleDoorBullet ( cpArbiter *arb, cpSpace *space, int *unused )
       break;
 
       default:
-        evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_REMOVE_BULLET, valuesPassedDroid_B[BYTE_LEVEL], valuesPassedDroid_B[BYTE_ENEMY_INDEX], -1, glm::vec2{}, glm::vec2{}, "");
+        evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_REMOVE_BULLET, valuesPassedDroid_B[BYTE_ZERO], valuesPassedDroid_B[BYTE_ONE], -1, glm::vec2{}, glm::vec2{}, "");
       return cpTrue;
       break;
     }
@@ -325,4 +377,9 @@ void sys_setupCollisionHandlers ()
     //
     handlerDoorBullet = cpSpaceAddCollisionHandler ( space, PHYSIC_TYPE_DOOR, PHYSIC_TYPE_BULLET );
     handlerDoorBullet->beginFunc = (cpCollisionBeginFunc) handleDoorBullet;
+    //
+    // Handle BULLET hitting an ENEMY
+    //
+    handlerEnemyBullet = cpSpaceAddCollisionHandler ( space, PHYSIC_TYPE_ENEMY, PHYSIC_TYPE_BULLET );
+    handlerEnemyBullet->postSolveFunc = (cpCollisionPostSolveFunc)handleCollisionEnemyBullet;
 }
