@@ -172,6 +172,9 @@ bool sys_initAll()
 		gam_setPlayerAnimateState ( false );
 		gam_initPlayerAnimateTimer (150 );
 
+		gam_setaStarState (false);
+		gam_initaStarPathTimer (aStarPathInterval);
+
 		if (!gui_initGUI())
 		{
 			con_print(CON_ERROR, true, "Unable to start GUI system.");

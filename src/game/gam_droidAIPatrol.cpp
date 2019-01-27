@@ -35,42 +35,42 @@ void ai_processDroidMovement ( const string levelName )
 	for ( int index = 0; index != levelInfo.at ( levelName ).numDroids; index++ )
 	{
 
+        if ( levelInfo.at ( levelName ).droid[index].currentMode != DROID_MODE_DEAD)
+          {
 
+            maxWorldSize.x = levelInfo.at (levelName).levelDimensions.x * TILE_SIZE;
+            maxWorldSize.y = levelInfo.at (levelName).levelDimensions.y * TILE_SIZE;
 
-		maxWorldSize.x = levelInfo.at( levelName ).levelDimensions.x * TILE_SIZE;
-		maxWorldSize.y = levelInfo.at( levelName ).levelDimensions.y * TILE_SIZE;
+            //
+            // Check body is valid
+            //
+            if (cpTrue == cpSpaceContainsBody (space, levelInfo.at (levelName).droid[index].body))
+              {
+                tempPosition = cpBodyGetPosition (levelInfo.at (levelName).droid[index].body);
 
-		//
-		// Check body is valid
-		//
-		if ( cpTrue == cpSpaceContainsBody (space, levelInfo.at( levelName ).droid[index].body) )
-		{
-			tempPosition = cpBodyGetPosition (levelInfo.at (levelName).droid[index].body);
+                if ((tempPosition.x < 0) || (tempPosition.y < 0) || (tempPosition.x > maxWorldSize.x)
+                    || (tempPosition.y > maxWorldSize.y))
+                  {
+                    printf ("ERROR: Setting invalid worldPos [ %3.3f %3.3f ] from body Droid [ %i ] Level [ %s ] Frame [ %i ]\n",
+                            tempPosition.x, tempPosition.y, index, levelName.c_str (), static_cast<int>(frameCount));
+                    return;
+                  }
 
-			if ( (tempPosition.x < 0) || (tempPosition.y < 0) || (tempPosition.x > maxWorldSize.x) || (tempPosition.y > maxWorldSize.y) )
-			{
-				printf ("ERROR: Setting invalid worldPos [ %3.3f %3.3f ] from body Droid [ %i ] Level [ %s ] Frame [ %i ]\n",
-				        tempPosition.x, tempPosition.y, index, levelName.c_str(), static_cast<int>(frameCount));
-				return;
-			}
+                levelInfo.at (levelName).droid[index].worldPos = tempPosition;
+              }
+            else
+              {
+                printf ("ERROR: Attempting to get position from invalid body - droid [ %i ]\n", index);
+                return;
+              }
 
-			levelInfo.at (levelName).droid[index].worldPos = tempPosition;
-		}
-		else
-		{
-			printf ("ERROR: Attempting to get position from invalid body - droid [ %i ]\n", index);
-			return;
-		}
+            if (isServer)
+              {
+                BSOut.WriteVector (levelInfo.at (levelName).droid[index].worldPos.x, levelInfo.at (levelName).droid[index].worldPos.y, 0.0);
 
-
-
-
-		if ( isServer )
-		{
-			BSOut.WriteVector ( levelInfo.at ( levelName ).droid[index].worldPos.x, levelInfo.at ( levelName ).droid[index].worldPos.y, 0.0 );
-
-			BSOut.WriteVector ( levelInfo.at ( levelName ).droid[index].velocity.x, levelInfo.at ( levelName ).droid[index].velocity.y, 0.0 );
-		}
+                BSOut.WriteVector (levelInfo.at (levelName).droid[index].velocity.x, levelInfo.at (levelName).droid[index].velocity.y, 0.0);
+              }
+          }
 	}
 
 	if ( isServer )

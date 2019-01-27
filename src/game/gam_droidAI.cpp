@@ -684,7 +684,7 @@ void drd_processDroidAI ( const string levelName )
 
 			gam_processIgnoreCollisions ( levelName, i );
 
-//			gam_droidWeaponCharge ( levelName, i );
+			gam_droidWeaponCharge ( i, levelName );
 
 //			drd_updateDroidPosition ( i );
 		}

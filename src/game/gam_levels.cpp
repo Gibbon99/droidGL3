@@ -1,4 +1,5 @@
 #include <bitset>
+#include <hdr/game/gam_pathFind.h>
 
 #include "hdr/game/gam_render.h"
 #include "hdr/game/gam_player.h"
@@ -42,7 +43,7 @@ inline bool lvl_isLevelValid (string levelName)
 std::string lvl_getStartingLevel ()
 //-----------------------------------------------------------------------------------------------------
 {
-  return "Bridge";       // TODO: Make a random choice
+  return "Engineering";       // TODO: Make a random choice
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -475,7 +476,11 @@ unordered_map<string, _levelStruct>::const_iterator lvl_getLevelIndex (const str
 std::string lvl_returnLevelNameFromDeck (int deckNumber)
 //-----------------------------------------------------------------------------------------------------
 {
-  for (auto levelItr : levelInfo)
+//
+// Using   for (auto levelItr : levelInfo)
+// Results in massive FPS drop
+//
+  for (auto const &levelItr : levelInfo)
     {
       if (deckNumber == levelItr.second.deckNumber)
         {
@@ -568,6 +573,7 @@ void lvl_changeToLevel (const std::string levelName, bool startOnLift, int which
   gam_setHealingState (false);
   gam_setPlayerAnimateState (false);
   gam_setDoorAnimateState (false);
+  gam_setaStarState (false);
 
   previousLevelName = currentLevelName;
   if (!previousLevelName.empty ())
@@ -602,6 +608,7 @@ void lvl_changeToLevel (const std::string levelName, bool startOnLift, int which
   gam_setHealingState (true);
   gam_setPlayerAnimateState (true);
   gam_setDoorAnimateState (true);
+  gam_setaStarState (true);
 
 //	net_sendCurrentLevel(levelName);
 }

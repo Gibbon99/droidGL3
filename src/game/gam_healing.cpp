@@ -1,3 +1,4 @@
+#include <hdr/game/gam_pathFind.h>
 #include "hdr/game/gam_healing.h"
 
 //-----------------------------------------------------------------------------
@@ -32,6 +33,9 @@ Uint32 gam_healingAnimateTimerCallback ( Uint32 interval, void *param )
 				levelItr.second.tiles[healingItr.pos] = healingItr.currentFrame;
 			}
 		}
+
+        gam_AStarProcessPaths (levelItr.first );
+
 	}
 	return healingAnimateInterval;
 }

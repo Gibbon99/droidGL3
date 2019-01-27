@@ -1,6 +1,6 @@
 #include "hdr/game/gam_droidAIHealth.h"
 
-#define AI_HEALTH_DEBUG 1
+//#define AI_HEALTH_DEBUG 1
 
 /*stayHealthy (SELECTOR - stop on success)
 
@@ -22,14 +22,13 @@ int ai_isDroidHealthy ( int whichDroid, const string levelName )
 	//
 	int badHealthLevel = 0;
 
-	badHealthLevel = dataBaseEntry[levelInfo.at( levelName ).droid[whichDroid].droidType].maxHealth * badHealthFactor;
+	badHealthLevel = static_cast<int>(dataBaseEntry[levelInfo.at(levelName ).droid[whichDroid].droidType].maxHealth * badHealthFactor);
 
-	if ( ( levelInfo.at( levelName ).droid[whichDroid].currentHealth <= badHealthLevel ) && ( 0 != levelInfo.at( levelName ).healing.size() ) )
+	if ( ( levelInfo.at( levelName ).droid[whichDroid].currentHealth <= badHealthLevel ) && ( !levelInfo.at( levelName ).healing.empty() ) )
 	{
 #ifdef AI_HEALTH_DEBUG
 		printf ("Droid [ %i ] has health [ %i ] from level [ %i ]\n", whichDroid, levelInfo.at( levelName ).droid[whichDroid].currentHealth, badHealthLevel);
 #endif
-
 		return AI_RESULT_FAILED;
 	}
 	else
@@ -107,8 +106,8 @@ int ai_reachedHealingTile ( int whichDroid, const string levelName )
 				return AI_RESULT_FAILED;
 			}
 
-			healingTileLocation.x = ( int ) healingTileLocation.x / TILE_SIZE;
-			healingTileLocation.y = ( int ) healingTileLocation.y / TILE_SIZE;
+			healingTileLocation.x = healingTileLocation.x / (float)TILE_SIZE;
+			healingTileLocation.y = healingTileLocation.y / (float)TILE_SIZE;
 
 #ifdef AI_HEALTH_DEBUG
 			con_print ( true, false, "[ %i ] - Starting AStar to find nearest healing tile", whichDroid );

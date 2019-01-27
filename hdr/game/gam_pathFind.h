@@ -35,7 +35,9 @@ typedef struct
 
 extern vector<_nodeList>        path;
 extern int                      numAStarPaths;        // Set from Script
-extern int                     debugAStarIndex;
+extern int                      debugAStarIndex;
+extern Uint32                   aStarPathInterval;      // From script
+
 
 // Allocate new structure if required or reuse existing one
 // Start thread process
@@ -64,4 +66,12 @@ void gam_resetAllPaths ();
 
 // Process all the currently active paths
 void gam_AStarProcessPaths ( std::string levelName );
+
+// Set the state of the aStar path finding timer
+void gam_setaStarState ( bool newState );
+
+// Initiate the timer to process the aStar pathfinding
+//
+// Pass in time in milliseconds
+void gam_initaStarPathTimer ( Uint32 interval );
 

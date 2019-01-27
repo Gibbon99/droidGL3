@@ -155,8 +155,6 @@ int net_processNetworkTraffic ( void *ptr )
 	RakNet::Packet *p;
 	RakNet::RakString rs;
 
-//	RakNet::Packet sendPacket;
-
 	unsigned char packetIdentifier;
 	_netClientInfo tempNetClientInfo;
 
@@ -266,7 +264,7 @@ int net_processNetworkTraffic ( void *ptr )
 
 					case ID_GAME_MESSAGE_1:
 					{
-						RakNet::Packet passPacket;
+                        RakNet::Packet passPacket;
 
 						passPacket = *p;    // Does this work - does it copy the data* from the packet??
 						//

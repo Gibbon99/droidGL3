@@ -113,7 +113,7 @@ _hostScriptFunctions hostVariables[] =
 	{"float bulletMass",                    &bulletMass},
 	{"float bulletTravelSpeed",             &bulletTravelSpeed},
 
-
+    {"float aStarPathInterval",             &aStarPathInterval},
 
 	{"float baseGameSpeed",                 &baseGameSpeed},
 

@@ -45,3 +45,6 @@ void sys_createEnemyPhysics( std::string levelName);
 
 // Update the droids information from physics properties
 void drd_updateDroidPosition ( std::string levelName, int whichDroid );
+
+// Remove the physics body for the enemy droid
+void sys_removeEnemyPhysics ( int whichDroid, std::string levelName );

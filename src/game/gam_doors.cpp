@@ -217,10 +217,15 @@ void gam_doorCheckTriggerAreas (const string levelName)
 
   for (i = 0; i != levelInfo.at ( levelName ).doorTrigger.size(); i++)
     {
-      levelInfo.at ( levelName ).doorTrigger[i].inUse = (playerDroid.middlePosition.x > levelInfo.at ( levelName ).doorTrigger[i].topLeft.x)
+      levelInfo.at ( levelName ).doorTrigger[i].inUse = false;
+
+      if ( (playerDroid.middlePosition.x > levelInfo.at ( levelName ).doorTrigger[i].topLeft.x)
                              && (playerDroid.middlePosition.y > levelInfo.at ( levelName ).doorTrigger[i].topLeft.y)
                              && (playerDroid.middlePosition.x < levelInfo.at ( levelName ).doorTrigger[i].botRight.x)
-                             && (playerDroid.middlePosition.y < levelInfo.at ( levelName ).doorTrigger[i].botRight.y);
+                             && (playerDroid.middlePosition.y < levelInfo.at ( levelName ).doorTrigger[i].botRight.y))
+        {
+          levelInfo.at ( levelName ).doorTrigger[i].inUse = true;
+        }
     }
   //
   // now check all the enemy sprites against the doors
@@ -363,12 +368,12 @@ void gam_doorTriggerSetup (const string levelName)
 
               center.x = (sourceX * TILE_SIZE) + (TILE_SIZE / 2);
               center.y = (sourceY * TILE_SIZE) + (TILE_SIZE / 2);
-              width = TILE_SIZE / 3;    // TODO: Check they are never used
+              width = TILE_SIZE / 3;
               height = TILE_SIZE;
             }
           else
             {
-              tempDoorTrigger.currentFrame = DOOR_ACROSS;        // reset to default frame TODO Check frame type ( closed ?? )
+              tempDoorTrigger.currentFrame = DOOR_ACROSS_CLOSED;        // reset to default frame TODO Check frame type ( closed ?? )
 
               tempDoorTrigger.topLeft.x = (sourceX * TILE_SIZE); // - (TILE_SIZE / 2);
               tempDoorTrigger.topLeft.y = (sourceY * TILE_SIZE) - (TILE_SIZE / 2);

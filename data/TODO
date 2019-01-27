@@ -8,6 +8,7 @@ Different tile styles and colors
 Transfer game
 Add score on destroyed droid
 Score increment on Alert Level
+Make explosions passable - but still do damage
 
 Terminal
 ---------
@@ -33,6 +34,8 @@ Sideview screen from terminal
 Terminal screen
 Database droid information screen
 
+Replace levelInfo.at with Iterators to avoid unordered_map::at function each frame
+
 BUGS
 -----
 Physics when changing lots of levels
@@ -48,3 +51,4 @@ DONE
 05/01/19 - DONE - Deck overview screen
 07/01/19 - DONE - Show location indicator on sideview
 23/01/19 - DONE - Doors - use physics for detection
+24/01/19 - DONE - Player bullets - damage to enemy droids - still needs rotating of bullet sprite

@@ -1,5 +1,6 @@
-#include <hdr/game/gam_physicsPlayer.h>
-#include <hdr/game/gam_database.h>
+#include "hdr/game/gam_physicsPlayer.h"
+#include "hdr/game/gam_database.h"
+#include "hdr/game/gam_droidAIShoot.h"
 #include "hdr/game/gam_game.h"
 #include "hdr/game/gam_render.h"
 #include "hdr/game/gam_lightCaster.h"
@@ -142,7 +143,7 @@ void io_processActionKey ( int keyAction )
 //						bul_newBullet ( playerDroid.middlePosition, cpvadd ( playerDroid.middlePosition, cpvmult ( playerDroid.velocity, 1000 )), dataBaseEntry[0].bulletType, -1, lvl_getCurrentLevelName () );
 
 //						playerWeaponReadyToFire = false;
-//						gam_processWitnessShooting ();
+                        gam_processWitnessShooting (lvl_getCurrentLevelName ());
 					}
 				}
 		}

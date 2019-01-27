@@ -130,8 +130,6 @@ void net_processWorldStep()
 	{
 		if (levelItr.second.containsClient)
 		{
-			gam_AStarProcessPaths (levelItr.first );
-
 			gam_animateThisLevel ( levelItr.first );
 
 			gam_doorCheckTriggerAreas ( levelItr.first );

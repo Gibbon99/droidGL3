@@ -26,7 +26,20 @@ void gam_animateThisLevel ( const string levelName )
 		if ( (levelInfo.at ( levelName ).droid[index].currentMode == DROID_MODE_NORMAL ) ||
 				(levelInfo.at ( levelName ).droid[index].currentMode == DROID_MODE_EXPLODING ))
 		{
-			levelInfo.at ( levelName ).droid[index].frameDelay += 1.0f / 3.0f;
+            switch ( levelInfo.at ( levelName ).droid[index].currentMode )
+              {
+                case DROID_MODE_NORMAL:
+                  levelInfo.at ( levelName ).droid[index].frameDelay += 1.0f / 3.0f;
+                  break;
+
+                case DROID_MODE_EXPLODING:
+                  levelInfo.at ( levelName ).droid[index].frameDelay += 1.0f / 1.5f;
+                  break;
+
+                default:
+                  break;
+              }
+
 
 			if ( levelInfo.at ( levelName ).droid[index].frameDelay > 1.0f )
 			{
@@ -42,9 +55,11 @@ void gam_animateThisLevel ( const string levelName )
 						break;
 
 					case DROID_MODE_EXPLODING:
-						if ( levelInfo.at ( levelName ).droid[index].currentFrame ==
-						     sprites.at ( "explosion" ).numberOfFrames )
-							levelInfo.at ( levelName ).droid[index].currentMode = DROID_MODE_DEAD;
+						if ( levelInfo.at ( levelName ).droid[index].currentFrame == sprites.at ( "explosion" ).numberOfFrames )
+                          {
+                            levelInfo.at (levelName).droid[index].currentMode = DROID_MODE_DEAD;
+                            evt_sendEvent ( MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_REMOVE_DROID_PHYSICS, index, 0, 0, glm::vec2{}, glm::vec2{}, levelName );
+                          }
 						break;
 
 					default:
@@ -69,37 +84,35 @@ void gam_renderThisLevel ( const string levelName, float interpolate )
 
 	for ( int index = 0; index != levelInfo.at ( levelName ).numDroids; index++ )
 	{
+	  if (levelInfo.at ( levelName ).droid[index].currentMode != DROID_MODE_DEAD)
+        {
 
-		if ( levelInfo.at ( levelName ).droid[index].visibleToPlayer)
+          if (levelInfo.at (levelName).droid[index].visibleToPlayer)
 //	    if (sys_visibleOnScreen(levelInfo.at(levelName).droid[index].worldPos, 32))
-		{
+            {
 
-//			drawPosition = cpvadd(levelInfo.at (levelName).droid[index].worldPos, cpvmult(levelInfo.at (levelName).droid[index].velocity, interpolate));
+              drawPosition = levelInfo.at (levelName).droid[index].worldPos;
 
-//			drawPosition = levelInfo.at ( levelName ).droid[index].serverWorldPos;
+              drawPosition.y = (int) drawPosition.y;   // Remove the fraction portion to stop blurring in Y direction
 
-			drawPosition = levelInfo.at ( levelName ).droid[index].worldPos;
+              switch (levelInfo.at (levelName).droid[index].currentMode)
+                {
+                  case DROID_MODE_NORMAL:
+                    gl_renderSprite (levelInfo.at (levelName).droid[index].spriteName, glm::vec2{drawPosition.x,
+                                                                                                 drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
+                        1, 1, 0});
+                  break;
 
-			drawPosition.y = (int) drawPosition.y;   // Remove the fraction portion to stop blurring in Y direction
+                  case DROID_MODE_EXPLODING:
+                    gl_renderSprite ("explosion", glm::vec2{drawPosition.x,
+                                                            drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
+                        1, 1, 0});
+                  break;
 
-			switch ( levelInfo.at ( levelName ).droid[index].currentMode )
-			{
-				case DROID_MODE_NORMAL:
-                  gl_renderSprite (levelInfo.at (levelName).droid[index].spriteName, glm::vec2{drawPosition.x,
-                                                                                               drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
-                      1, 1, 0});
-					break;
-
-				case DROID_MODE_EXPLODING:
-                  gl_renderSprite ("explosion", glm::vec2{drawPosition.x,
-                                                          drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
-                      1, 1, 0});
-					break;
-
-				default:
-					break;
-			}
-		}
+                  default: break;
+                }
+            }
+        }
 	}
 }
 
@@ -238,6 +251,8 @@ void gam_destroyDroid ( int whichLevel, int whichDroid )
 			levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentMode = DROID_MODE_EXPLODING;
 			levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].numberOfFrames = sprites.at ( "explosion" ).numberOfFrames;
 
+			if (levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].aStarPathIndex > -1 )
+              gam_AStarRemovePath ( levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].aStarPathIndex );
 //			levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].isExploding = true;
 
 //	levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].currentFrameDelay = 0.0f;
@@ -245,8 +260,6 @@ void gam_destroyDroid ( int whichLevel, int whichDroid )
 			// TODO gam_addToScore ( dataBaseEntry[levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].droidType].score );
 
 			/* TODO
-			if ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].aStarPathIndex > -1 )
-				gam_AStarRemovePath ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].aStarPathIndex, false );
 
 			par_addEmitter ( levelInfo.at( lvl_returnLevelNameFromDeck ( whichLevel)).droid[whichDroid].worldPos, PARTICLE_TYPE_EXPLOSION, -1 );
 		*/
@@ -390,6 +403,9 @@ void gam_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 void gam_processIgnoreCollisions ( const string whichLevel, int whichDroid )
 //-----------------------------------------------------------------------------
 {
+    if ( levelInfo.at ( whichLevel).droid[whichDroid].currentMode == DROID_MODE_DEAD)
+      return;
+
 	if ( levelInfo.at ( whichLevel ).droid[whichDroid].collisionCount < (rand () % 5) + 3 )
 	{
 		return;
@@ -406,4 +422,22 @@ void gam_processIgnoreCollisions ( const string whichLevel, int whichDroid )
 		levelInfo.at ( whichLevel ).droid[whichDroid].collisionCount = 0;
 		levelInfo.at ( whichLevel ).droid[whichDroid].hasCollided = false;
 	}
+}
+
+//-----------------------------------------------------------------------------
+//
+// Process weapon timings
+void gam_droidWeaponCharge ( int whichDroid, const string levelName )
+//-----------------------------------------------------------------------------
+{
+  if (levelInfo.at (levelName ).droid[whichDroid].weaponCanFire)
+    return;
+
+  levelInfo.at ( levelName ).droid[whichDroid].weaponDelay += dataBaseEntry[levelInfo.at ( levelName ).droid[whichDroid].droidType].rechargeTime * (1.0f * (1.0f / 30.0f));
+
+  if ( levelInfo.at ( levelName ).droid[whichDroid].weaponDelay > 1.0f )
+    {
+      levelInfo.at ( levelName ).droid[whichDroid].weaponDelay = 0.0f;
+      levelInfo.at ( levelName ).droid[whichDroid].weaponCanFire = true;
+    }
 }

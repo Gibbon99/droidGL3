@@ -3,7 +3,7 @@
 #include "hdr/game/gam_levels.h"
 #include "hdr/game/gam_pathFind.h"
 
-#define DEBUG_ASTAR 1
+//#define DEBUG_ASTAR 1
 
 #define USE_VALID_TEST \
 	if (false == path[whichPath].inUse) \
@@ -30,6 +30,16 @@ Flag set when the path is found and the compressed waypoints are copied into the
 vector<_nodeList>       path;
 int                     numAStarPaths; // Set from script
 int                     debugAStarIndex;
+
+//-----------------------------------------------------------------------------
+//
+// structure to hold information for healing tiles
+//
+//-----------------------------------------------------------------------------
+bool            doaStarPath = true;
+SDL_TimerID     aStarPathTimer;
+Uint32          aStarPathInterval;      // From script
+
 
 //-----------------------------------------------------------------------------
 //
@@ -319,8 +329,8 @@ bool gam_AStarGenerateNewNode ( int whichPath, int whichDirection )
 void gam_AStarDebugDraw ( cpVect lineStart, cpVect lineFinish, int whichPath, int count )
 //------------------------------------------------------------
 {
-	lineStart = sys_worldToScreen ( lineStart, 2 );
-	lineFinish = sys_worldToScreen ( lineFinish, 2 );
+//	lineStart = sys_worldToScreen ( lineStart, 2 );
+//	lineFinish = sys_worldToScreen ( lineFinish, 2 );
 
 	gl_drawLine (glm::vec3{lineStart.x, lineStart.y, 0}, glm::vec3{lineFinish.x, lineFinish.y, 0}, "colorLine", vec4 (1, 0, 0, 1));
 
@@ -344,6 +354,12 @@ void gam_AStarDebugWayPoints ( int whichPath )
 
 	if (-1 == whichPath)
 		return;
+
+	if (path.empty())
+	  return;
+
+	if (path[whichPath].wayPoints.empty())
+	  return;
 
 	cpVect lineStart;
 	cpVect lineFinish;
@@ -497,7 +513,7 @@ void gam_AStarCompressWaypoints ( int whichPath )
 		     ( path[whichPath].wayPoints[current - 1].y != path[whichPath].wayPoints[current + 1].y ) )
 		{
 			newPoints.push_back ( path[whichPath].wayPoints[current] );
-			current++;
+    		current++;
 		}
 		else
 		{
@@ -534,6 +550,7 @@ void gam_AStarConvertToCoords ( int whichPath )
 		tempWaypoint.y = path[whichPath].foundPath[i].tileLocation.y * TILE_SIZE;
 
 		tempWaypoint.x += TILE_SIZE / 2;
+		tempWaypoint.y += TILE_SIZE / 2;
 
 		path[whichPath].wayPoints.push_back ( tempWaypoint );
 
@@ -541,8 +558,10 @@ void gam_AStarConvertToCoords ( int whichPath )
 		tempWaypoint.y /= TILE_SIZE;
 	}
 
+
 	if ( path[whichPath].wayPoints.size() > 4 )
 		gam_AStarCompressWaypoints ( whichPath );
+
 }
 
 //-----------------------------------------------------------------------------
@@ -745,4 +764,45 @@ void gam_resetAllPaths()
 {
 	for ( int i = 0; i != (int)path.size(); i++ )
 		gam_AStarRemovePath ( i );
+}
+
+
+
+
+// ----------------------------------------------------------------------------
+//
+// Animate healing tiles called from timer callback
+// Does healing tiles on all levels
+Uint32 gam_aStarPathTimerCallback ( Uint32 interval, void *param )
+// ----------------------------------------------------------------------------
+{
+  if ( !doaStarPath )
+    return interval;
+
+  for ( auto &levelItr : levelInfo )
+    {
+      gam_AStarProcessPaths (levelItr.first );
+    }
+
+  return interval;
+}
+
+// ----------------------------------------------------------------------------
+//
+// Set the state of the aStar path finding timer
+void gam_setaStarState ( bool newState )
+// ----------------------------------------------------------------------------
+{
+  doaStarPath = newState;
+}
+
+// ----------------------------------------------------------------------------
+//
+// Initiate the timer to process the aStar pathfinding
+//
+// Pass in time in milliseconds
+void gam_initaStarPathTimer ( Uint32 interval )
+// ----------------------------------------------------------------------------
+{
+  aStarPathTimer = evt_registerTimer ( interval, gam_aStarPathTimerCallback, "Process aStar paths" );
 }

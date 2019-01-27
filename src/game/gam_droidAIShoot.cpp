@@ -16,8 +16,6 @@ float ai_greenFactor;
 float ai_yellowFactor;
 float ai_redFactor;
 
-
-
 float thinkInterval = 1.0f / 30.f;
 
 //-----------------------------------------------------------------------------
@@ -26,24 +24,24 @@ float thinkInterval = 1.0f / 30.f;
 int ai_notShoot (int whichDroid, const string levelName)
 //-----------------------------------------------------------------------------
 {
-	if (false == dataBaseEntry[levelInfo.at(levelName).droid[whichDroid].droidType].canShoot)
-		return AI_RESULT_SUCCESS;
+  if (!dataBaseEntry[levelInfo.at (levelName).droid[whichDroid].droidType].canShoot)
+    return AI_RESULT_SUCCESS;
 
-	if (levelInfo.at(levelName).droid[whichDroid].chanceToShoot < 10.0f)
-		return AI_RESULT_SUCCESS;
-
-#ifdef DEBUG_SHOOT
-	printf ("Droid [ %i ] can shoot\n", whichDroid);
-#endif
-
-	if (false == levelInfo.at(levelName).droid[whichDroid].weaponCanFire)
-		return AI_RESULT_SUCCESS;
+  if (levelInfo.at (levelName).droid[whichDroid].chanceToShoot < 10.0f)
+    return AI_RESULT_SUCCESS;
 
 #ifdef DEBUG_SHOOT
-	printf ("Droid [ %i ] weapon is ready\n", whichDroid);
+  printf ("Droid [ %i ] can shoot\n", whichDroid);
 #endif
 
-	return AI_RESULT_FAILED;
+  if (!levelInfo.at (levelName).droid[whichDroid].weaponCanFire)
+    return AI_RESULT_SUCCESS;
+
+#ifdef DEBUG_SHOOT
+  printf ("Droid [ %i ] weapon is ready\n", whichDroid);
+#endif
+
+  return AI_RESULT_FAILED;
 }
 
 //-----------------------------------------------------------------------------
@@ -52,17 +50,17 @@ int ai_notShoot (int whichDroid, const string levelName)
 int ai_findBulletDest (int whichDroid, const string levelName)
 //-----------------------------------------------------------------------------
 {
-	if (true == levelInfo.at(levelName).droid[whichDroid].visibleToPlayer)
-	{
+  if (levelInfo.at (levelName).droid[whichDroid].visibleToPlayer)
+    {
 #ifdef DEBUG_SHOOT
-		printf ("Droid has a destination to shoot at [ %i ]\n", whichDroid);
+      printf ("Droid has a destination to shoot at [ %i ]\n", whichDroid);
 #endif
-		return AI_RESULT_FAILED;
-	}
-	else
-	{
-		return AI_RESULT_SUCCESS;
-	}
+      return AI_RESULT_FAILED;
+    }
+  else
+    {
+      return AI_RESULT_SUCCESS;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -71,52 +69,49 @@ int ai_findBulletDest (int whichDroid, const string levelName)
 int ai_shootBullet (int whichDroid, const string levelName)
 //-----------------------------------------------------------------------------
 {
-	cpVect bulletStartPos;
-	cpVect bulletDestPos;
+  cpVect bulletStartPos;
+  cpVect bulletDestPos;
 
 #ifdef DEBUG_SHOOT
-	printf ("Fire bullet [ %i ]\n", whichDroid);
+  printf ("Fire bullet [ %i ]\n", whichDroid);
 #endif
 
-	bulletStartPos = levelInfo.at(levelName).droid[whichDroid].worldPos;
-	bulletStartPos.y += TILE_SIZE / 2;
+  bulletStartPos = levelInfo.at (levelName).droid[whichDroid].worldPos;
+  bulletStartPos.y += TILE_SIZE / 2;
 
-	if (levelInfo.at(levelName).droid[whichDroid].targetIndex == -1) // Player is the target
-	{
+  if (levelInfo.at (levelName).droid[whichDroid].targetIndex == -1) // Player is the target
+    {
 #ifdef USE_LEADING_SHOT
-		if (false == gam_calculateInterceptShotPosition (levelInfo.at(levelName).droid[whichDroid].worldPos,
-	                                                     playerWorldPos,
-	                                                     playerVelocity,
-	                                                     10.0f + baseGameSpeed,
-	                                                     bulletStartPos))
+      if (false == gam_calculateInterceptShotPosition (levelInfo.at(levelName).droid[whichDroid].worldPos,
+                                                       playerWorldPos,
+                                                       playerVelocity,
+                                                       10.0f + baseGameSpeed,
+                                                       bulletStartPos))
 #endif
-		{
-			// Default to player position
-			bulletDestPos = playerDroid.worldPos;
+      {
+        // Default to player position
+        bulletDestPos = playerDroid.worldPos;
 
 #ifdef USE_LEADING_SHOT
-			printf ("DID NOT find solution to leading shot.\n");
+        printf ("DID NOT find solution to leading shot.\n");
 #endif
-		}
-	}
-	else
-	{
-		bulletDestPos = levelInfo.at(levelName).droid[levelInfo.at(levelName).droid[whichDroid].targetIndex].worldPos;
-	}
+      }
+    }
+  else
+    {
+      bulletDestPos = levelInfo.at (levelName).droid[levelInfo.at (levelName).droid[whichDroid].targetIndex].worldPos;
+    }
 
-	bulletDestPos.y += TILE_SIZE / 2;
+  bulletDestPos.y += TILE_SIZE / 2;
 
-	/*
-	bul_newBullet (bulletStartPos,
-	               bulletDestPos,
-	               dataBaseEntry[levelInfo.at(levelName).droid[whichDroid].droidType].bulletType,
-	               whichDroid);
-*/
+  evt_sendEvent (MAIN_LOOP_EVENT, MAIN_LOOP_EVENT_ADD_BULLET, dataBaseEntry[levelInfo.at (levelName).droid[whichDroid].droidType].bulletType, whichDroid, false, glm::vec2{
+      levelInfo.at (levelName).droid[whichDroid].worldPos.x,
+      levelInfo.at (levelName).droid[whichDroid].worldPos.y}, glm::vec2{bulletDestPos.x, bulletDestPos.y}, levelName);
 
-	levelInfo.at(levelName).droid[whichDroid].chanceToShoot = 0.0f;
-	levelInfo.at(levelName).droid[whichDroid].weaponCanFire = false;
+  levelInfo.at (levelName).droid[whichDroid].chanceToShoot = 0.0f;
+  levelInfo.at (levelName).droid[whichDroid].weaponCanFire = false;
 
-	return AI_RESULT_SUCCESS;
+  return AI_RESULT_SUCCESS;
 }
 
 //------------------------------------------------------------
@@ -125,99 +120,99 @@ int ai_shootBullet (int whichDroid, const string levelName)
 void gam_findChanceToShoot (int whichDroid, const string levelName)
 //------------------------------------------------------------
 {
-	//
-	// Reset to 0 at the start for each?
-	//
+  //
+  // Reset to 0 at the start for each?
+  //
 
-	if (levelInfo.at(levelName).droid[whichDroid].currentMode == DROID_MODE_DEAD)
-		return;
+  if (levelInfo.at (levelName).droid[whichDroid].currentMode == DROID_MODE_DEAD)
+    return;
 
-	if ( !dataBaseEntry[levelInfo.at( levelName).droid[whichDroid].droidType].canShoot )
-		return;
+  if (!dataBaseEntry[levelInfo.at (levelName).droid[whichDroid].droidType].canShoot)
+    return;
 
-	//
-	// Process how long droid remembers being shot for
-	//
-	if ( levelInfo.at( levelName).droid[whichDroid].beenShotByPlayer )
-	{
-		levelInfo.at(levelName).droid[whichDroid].beenShotCountdown -= 1.0f * thinkInterval;
-		if (levelInfo.at(levelName).droid[whichDroid].beenShotCountdown < 0.0f)
-			levelInfo.at(levelName).droid[whichDroid].beenShotByPlayer = false;
-	}
+  //
+  // Process how long droid remembers being shot for
+  //
+  if (levelInfo.at (levelName).droid[whichDroid].beenShotByPlayer)
+    {
+      levelInfo.at (levelName).droid[whichDroid].beenShotCountdown -= 1.0f * thinkInterval;
+      if (levelInfo.at (levelName).droid[whichDroid].beenShotCountdown < 0.0f)
+        levelInfo.at (levelName).droid[whichDroid].beenShotByPlayer = false;
+    }
 
-	if ( levelInfo.at( levelName).droid[whichDroid].beenShotByPlayer )
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot += ai_beenShot;
-	else
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot -= ai_beenShot;
+  if (levelInfo.at (levelName).droid[whichDroid].beenShotByPlayer)
+    levelInfo.at (levelName).droid[whichDroid].chanceToShoot += ai_beenShot;
+  else
+    levelInfo.at (levelName).droid[whichDroid].chanceToShoot -= ai_beenShot;
 
-	//
-	// Process how long droid remembers witnessing a shooting by the player
-	//
-	if ( levelInfo.at( levelName).droid[whichDroid].witnessShooting )
-	{
-		levelInfo.at(levelName).droid[whichDroid].witnessShootingCountDown -= 1.0f * thinkInterval;
-		if (levelInfo.at(levelName).droid[whichDroid].witnessShootingCountDown < 0.0f)
-			levelInfo.at(levelName).droid[whichDroid].witnessShooting = false;
+  //
+  // Process how long droid remembers witnessing a shooting by the player
+  //
+  if (levelInfo.at (levelName).droid[whichDroid].witnessShooting)
+    {
+      levelInfo.at (levelName).droid[whichDroid].witnessShootingCountDown -= 1.0f * thinkInterval;
+      if (levelInfo.at (levelName).droid[whichDroid].witnessShootingCountDown < 0.0f)
+        levelInfo.at (levelName).droid[whichDroid].witnessShooting = false;
 
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot += ai_witnessShoot;
-		levelInfo.at(levelName).droid[whichDroid].targetIndex = -1;
-	}
-	else
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot -= ai_witnessShoot;
+      levelInfo.at (levelName).droid[whichDroid].chanceToShoot += ai_witnessShoot;
+      levelInfo.at (levelName).droid[whichDroid].targetIndex = -1;
+    }
+  else
+    levelInfo.at (levelName).droid[whichDroid].chanceToShoot -= ai_witnessShoot;
 
-	//
-	// Process how long droid remembers witnessing a transfer by the player
-	//
-	if ( levelInfo.at( levelName).droid[whichDroid].witnessTransfer )
-	{
-		levelInfo.at(levelName).droid[whichDroid].witnessTransferCountDown -= 1.0f * thinkInterval;
-		if (levelInfo.at(levelName).droid[whichDroid].witnessTransferCountDown < 0.0f)
-			levelInfo.at(levelName).droid[whichDroid].witnessTransfer = false;
+  //
+  // Process how long droid remembers witnessing a transfer by the player
+  //
+  if (levelInfo.at (levelName).droid[whichDroid].witnessTransfer)
+    {
+      levelInfo.at (levelName).droid[whichDroid].witnessTransferCountDown -= 1.0f * thinkInterval;
+      if (levelInfo.at (levelName).droid[whichDroid].witnessTransferCountDown < 0.0f)
+        levelInfo.at (levelName).droid[whichDroid].witnessTransfer = false;
 
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot += ai_witnessTransfer;
-	}
-	else
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot -= ai_witnessTransfer;
+      levelInfo.at (levelName).droid[whichDroid].chanceToShoot += ai_witnessTransfer;
+    }
+  else
+    levelInfo.at (levelName).droid[whichDroid].chanceToShoot -= ai_witnessTransfer;
 
-	//
-	// Is Droid healthy enough to engage in combat
-	//
-	if (levelInfo.at(levelName).droid[whichDroid].currentHealth > dataBaseEntry[levelInfo.at(levelName).droid[whichDroid].droidType].maxHealth / 2)
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot += ai_healthAmount;
-	else
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot -= ai_healthAmount;
+  //
+  // Is Droid healthy enough to engage in combat
+  //
+  if (levelInfo.at (levelName).droid[whichDroid].currentHealth
+      > dataBaseEntry[levelInfo.at (levelName).droid[whichDroid].droidType].maxHealth / 2)
+    levelInfo.at (levelName).droid[whichDroid].chanceToShoot += ai_healthAmount;
+  else
+    levelInfo.at (levelName).droid[whichDroid].chanceToShoot -= ai_healthAmount;
 
-	//
-	// Add the effect of the current alert level
-	//
-	switch (currentAlertLevel)
-	{
-		case ALERT_GREEN_TILE:
-			levelInfo.at(levelName).droid[whichDroid].chanceToShoot -= ai_greenFactor;
-			break;
+  //
+  // Add the effect of the current alert level
+  //
+  switch (currentAlertLevel)
+    {
+      case ALERT_GREEN_TILE: levelInfo.at (levelName).droid[whichDroid].chanceToShoot -= ai_greenFactor;
+      break;
 
-		case ALERT_YELLOW_TILE:
-			levelInfo.at(levelName).droid[whichDroid].chanceToShoot += ai_yellowFactor;
-			break;
+      case ALERT_YELLOW_TILE: levelInfo.at (levelName).droid[whichDroid].chanceToShoot += ai_yellowFactor;
+      break;
 
-		case ALERT_RED_TILE:
-			levelInfo.at(levelName).droid[whichDroid].chanceToShoot += ai_redFactor;
-			break;
+      case ALERT_RED_TILE: levelInfo.at (levelName).droid[whichDroid].chanceToShoot += ai_redFactor;
+      break;
 
-		default:
-			break;
-	}
+      default: break;
+    }
 
-	//
-	// See if the player is visible or not - enemy will not shoot unless can see player
-	//
-	if ( !levelInfo.at( levelName).droid[whichDroid].visibleToPlayer )
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot = 0.0f;
-	//
-	// Cap the chance to always above zero
-	//
-	if (levelInfo.at(levelName).droid[whichDroid].chanceToShoot < 0.0f)
-		levelInfo.at(levelName).droid[whichDroid].chanceToShoot = 0.0f;
+  //
+  // See if the player is visible or not - enemy will not shoot unless can see player
+  //
+  if (!levelInfo.at (levelName).droid[whichDroid].visibleToPlayer)
+    levelInfo.at (levelName).droid[whichDroid].chanceToShoot = 0.0f;
+  //
+  // Cap the chance to always above zero
+  //
+  if (levelInfo.at (levelName).droid[whichDroid].chanceToShoot < 0.0f)
+    levelInfo.at (levelName).droid[whichDroid].chanceToShoot = 0.0f;
+
+  if (levelInfo.at (levelName).droid[whichDroid].chanceToShoot > 0.0f)
+    printf ("Shoot [ %3.3f ]\n", levelInfo.at (levelName).droid[whichDroid].chanceToShoot);
 }
 
 //------------------------------------------------------------
@@ -225,20 +220,20 @@ void gam_findChanceToShoot (int whichDroid, const string levelName)
 // Flag if a droid witnesses the player transferring into another droid
 //
 // Called when a transfer succeeds
-void gam_processWitnessTransfer(const string levelName)
+void gam_processWitnessTransfer (const string levelName)
 //------------------------------------------------------------
 {
-	for (int i = 0; i != levelInfo.at(levelName).numDroids; i++)
-	{
-		if (DROID_MODE_NORMAL == levelInfo.at(levelName).droid[i].currentMode)
-		{
-			if ( levelInfo.at( levelName).droid[i].visibleToPlayer )
-			{
-				levelInfo.at(levelName).droid[i].witnessTransfer = true;
-				levelInfo.at(levelName).droid[i].witnessTransferCountDown = witnessTransferValue;
-			}
-		}
-	}
+  for (int i = 0; i != levelInfo.at (levelName).numDroids; i++)
+    {
+      if (DROID_MODE_NORMAL == levelInfo.at (levelName).droid[i].currentMode)
+        {
+          if (levelInfo.at (levelName).droid[i].visibleToPlayer)
+            {
+              levelInfo.at (levelName).droid[i].witnessTransfer = true;
+              levelInfo.at (levelName).droid[i].witnessTransferCountDown = witnessTransferValue;
+            }
+        }
+    }
 }
 //------------------------------------------------------------
 //
@@ -248,18 +243,18 @@ void gam_processWitnessTransfer(const string levelName)
 void gam_processWitnessShooting (const string levelName)
 //------------------------------------------------------------
 {
-	for (int i = 0; i != levelInfo.at(levelName).numDroids; i++)
-	{
-		if (DROID_MODE_NORMAL == levelInfo.at(levelName).droid[i].currentMode)
-		{
-			if ( levelInfo.at( levelName).droid[i].visibleToPlayer )
-			{
-				levelInfo.at(levelName).droid[i].witnessShooting = true;
-				levelInfo.at(levelName).droid[i].witnessShootingCountDown = witnessShootValue;
-				levelInfo.at(levelName).droid[i].targetIndex = -1;
-			}
-		}
-	}
+  for (int i = 0; i != levelInfo.at (levelName).numDroids; i++)
+    {
+      if (DROID_MODE_NORMAL == levelInfo.at (levelName).droid[i].currentMode)
+        {
+          if (levelInfo.at (levelName).droid[i].visibleToPlayer)
+            {
+              levelInfo.at (levelName).droid[i].witnessShooting = true;
+              levelInfo.at (levelName).droid[i].witnessShootingCountDown = witnessShootValue;
+              levelInfo.at (levelName).droid[i].targetIndex = -1;
+            }
+        }
+    }
 }
 
 

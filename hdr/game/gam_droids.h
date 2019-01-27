@@ -25,3 +25,6 @@ void gam_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 
 // process ignore collosions
 void gam_processIgnoreCollisions ( std::string whichLevel, int whichDroid );
+
+// Process weapon timings
+void gam_droidWeaponCharge ( int whichDroid, std::string levelName );

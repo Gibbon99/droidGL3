@@ -77,6 +77,8 @@ bool handleCollisionEnemyBullet ( cpArbiter *arb, cpSpace *space, int *unused )
 
   printf ("bullet hit droid [ %i ]  - level [ %i ] source [ %i ]\n", valuesPassedDroid_A[BYTE_ONE], valuesPassedDroid_A[BYTE_ZERO], sourceDroid);
 
+  levelInfo.at( lvl_returnLevelNameFromDeck (valuesPassedDroid_A[BYTE_ZERO]) ).droid[valuesPassedDroid_A[BYTE_ONE]].beenShotByPlayer = true;  // check right index
+  levelInfo.at( lvl_returnLevelNameFromDeck (valuesPassedDroid_A[BYTE_ZERO]) ).droid[valuesPassedDroid_A[BYTE_ONE]].targetIndex = sourceDroid;
 
   packedValue = sys_pack4Bytes (valuesPassedDroid_A[BYTE_ZERO], valuesPassedDroid_A[BYTE_ONE], DAMAGE_BULLET, sourceDroid );
   *passValueBullet = packedValue;

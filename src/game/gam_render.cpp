@@ -1,13 +1,14 @@
-#include <hdr/opengl/gl_openGLWrap.h>
-#include <hdr/opengl/gl_shaders.h>
-#include <hdr/opengl/gl_fbo.h>
-#include <hdr/game/gam_renderDebug.h>
-#include <hdr/io/io_mouse.h>
-#include <hdr/game/gam_lightCaster.h>
-#include <hdr/opengl/gl_renderSprite.h>
-#include <hdr/game/gam_hud.h>
-#include <hdr/game/gam_player.h>
-#include <hdr/game/gam_doors.h>
+#include "hdr/opengl/gl_openGLWrap.h"
+#include "hdr/opengl/gl_shaders.h"
+#include "hdr/opengl/gl_fbo.h"
+#include "hdr/game/gam_renderDebug.h"
+#include "hdr/io/io_mouse.h"
+#include "hdr/game/gam_lightCaster.h"
+#include "hdr/opengl/gl_renderSprite.h"
+#include "hdr/game/gam_hud.h"
+#include "hdr/game/gam_player.h"
+#include "hdr/game/gam_doors.h"
+#include "hdr/game/gam_pathFind.h"
 #include "hdr/game/gam_render.h"
 
 #define USE_TILE_LOOKUP 1
@@ -26,25 +27,24 @@ typedef struct
 	glm::vec2 textureCoords;
 } _tileCoords;
 
-vector<_tileCoords> tileCoords;
-vector<unsigned int> tileCoordsIndex;
+vector<_tileCoords>       tileCoords;
+vector<unsigned int>      tileCoordsIndex;
 
-vector<float> singleTileTexCoords;
+vector<float>             singleTileTexCoords;
 
-int numTileAcrossInTexture, numTilesDownInTexture;
-float tileTextureWidth;
-int indexCounter = 0;
+int                       numTileAcrossInTexture, numTilesDownInTexture;
+float                     tileTextureWidth;
+int                       indexCounter = 0;
 
-float       aspectRatioX, aspectRatioY;;
-float       g_scaleViewBy = 1.4f;
-int         g_playFieldSize = 256;
+float                     aspectRatioX, aspectRatioY;;
+float                     g_scaleViewBy = 1.4f;
+int                       g_playFieldSize = 256;
 
-GLuint      fullLevelTexture = 0;
-GLuint      fullLevel_FBO = 0;
-glm::vec2   backingSize{};
-glm::vec2   viewTextureSize{};
-bool        levelInitDone = false;
-
+GLuint                    fullLevelTexture = 0;
+GLuint                    fullLevel_FBO = 0;
+glm::vec2                 backingSize{};
+glm::vec2                 viewTextureSize{};
+bool                      levelInitDone = false;
 
 //-----------------------------------------------------------------------------
 //
@@ -79,9 +79,9 @@ vec2 gam_getTileTexCoords ( int whichTile )
 void gam_blitFrameBufferToScreen ( const string &whichShader, const string levelName, GLuint whichTexture, glm::vec2 viewSize, float interpolate )
 //-----------------------------------------------------------------------------
 {
-	_tileCoords tempCoord;
-	float startTexX, widthTex, heightTex;
-	cpFloat startTexY;
+	_tileCoords       tempCoord;
+	float             startTexX, widthTex, heightTex;
+	cpFloat           startTexY;
 
 	tileCoords.clear ();
 	tileCoordsIndex.clear ();
@@ -308,26 +308,34 @@ void inline gam_drawSingleTile ( float destX, float destY, int whichTile )
 void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint whichTexture )
 //-----------------------------------------------------------------------------
 {
-	int countX, countY, index;
-	int whichTile = 0;
-	cpFloat tilePtr = 0;
-	GLuint vao = 0;
-	GLuint vbo = 0;
-	GLuint elementbuffer = 0;
-	static bool initDone = false;
+	int             countX, countY, index;
+	int             whichTile = 0;
+	cpFloat         tilePtr = 0;
+	GLuint          vao = 0;
+	GLuint          vbo = 0;
+	GLuint          elementbuffer = 0;
+    _levelStruct    levelItr;
+	static          bool          initDone = false;
+	static          string        previousLevelName;
 
 	countY = 0;
 	countX = 0;
 
-	tileCoords.clear ();
-	tileCoordsIndex.clear ();
+	tileCoords.clear();
+	tileCoordsIndex.clear();
+
 	indexCounter = 0;
 
-	for ( index = 0; index < levelInfo.at (levelName).levelDimensions.x * levelInfo.at (levelName).levelDimensions.y; index++ )
-	{
-		tilePtr = static_cast<int>((countY * levelInfo.at (levelName).levelDimensions.x) + countX);
+	//
+	// Cache iterator to avoid costly levelInfo.at function
+	//
+    levelItr = levelInfo.at (levelName);
 
-		whichTile = levelInfo.at (levelName).tiles[static_cast<int>(tilePtr)];
+	for ( index = 0; index < levelItr.levelDimensions.x * levelItr.levelDimensions.y; index++ )
+	{
+		tilePtr = static_cast<int>((countY * levelItr.levelDimensions.x) + countX);
+
+        whichTile = levelItr.tiles[static_cast<int>(tilePtr)];
 
 		if ((whichTile > 0) && (whichTile < 64))
 		{
@@ -360,7 +368,7 @@ void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint
 			con_print (CON_ERROR, true, "Invalid tile index [ %i ].", whichTile);
 
 		countX++;
-		if ( countX == (int) levelInfo.at (levelName).levelDimensions.x )
+		if ( countX == (int) levelItr.levelDimensions.x )
 		{
 			countX = 0;
 			countY++;
@@ -417,7 +425,7 @@ void gam_drawAllTiles ( const string whichShader, const string levelName, GLuint
 	// Enable attribute to hold vertex information
 	GL_CHECK (glUniformMatrix4fv (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
 
-	GL_CHECK (glDrawElements (GL_TRIANGLES, (GLsizei) tileCoordsIndex.size (), GL_UNSIGNED_INT, (void *) 0));
+	GL_CHECK (glDrawElements (GL_TRIANGLES, (GLsizei) tileCoordsIndex.size (), GL_UNSIGNED_INT, (void *) nullptr));
 
 	glUseProgram (0);
 	glBindVertexArray (0);
@@ -535,6 +543,13 @@ void gam_drawFullLevel ( const string levelName, const string whichShader, GLuin
 
 	gam_showLineSegments (levelName);
 	gam_showWayPoints (levelName);
+
+    for ( int index = 0; index != levelInfo.at ( levelName ).numDroids; index++ )
+      {
+        if ( levelInfo.at ( levelName ).droid[index].aStarPathIndex > -1)
+          gam_AStarDebugWayPoints ( levelInfo.at ( levelName ).droid[index].aStarPathIndex );
+      }
+
 
     gam_debugDoorTriggers(levelName);
 

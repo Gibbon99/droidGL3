@@ -56,6 +56,24 @@ void drd_updateDroidPosition ( const string levelName, int whichDroid )
 
 //-------------------------------------------------------------------
 //
+// Remove the physics body for the enemy droid
+void sys_removeEnemyPhysics ( int whichDroid, const string levelName )
+//-------------------------------------------------------------------
+{
+  if (cpTrue == cpSpaceContainsShape (space, levelInfo.at ( levelName ).droid[whichDroid].shape))
+    {
+      cpSpaceRemoveShape (space, levelInfo.at ( levelName ).droid[whichDroid].shape);
+      cpSpaceRemoveBody (space, levelInfo.at ( levelName ).droid[whichDroid].body);
+
+      cpShapeFree (levelInfo.at ( levelName ).droid[whichDroid].shape);
+      cpBodyFree (levelInfo.at ( levelName ).droid[whichDroid].body);
+
+      cpSpaceReindexStatic ( space );
+    }
+}
+
+//-------------------------------------------------------------------
+//
 // Create the physics bodies and shapes for the enemy droids
 void sys_createEnemyPhysics ( const string levelName )
 //-------------------------------------------------------------------

@@ -37,8 +37,14 @@ int gam_processMainLoopEventQueue()
 
 			case MAIN_LOOP_EVENT_REMOVE_BULLET:
 				bul_removeBullet (tempEventData.data1, tempEventData.data2, tempEventData.data3);
-
 				break;
+
+		  case MAIN_LOOP_EVENT_REMOVE_DROID_PHYSICS:
+                sys_removeEnemyPhysics(tempEventData.data1, tempEventData.eventString);
+		        break;
+
+		  default:
+		        break;
 		}
 	}
 	return 0;
