@@ -8,6 +8,7 @@
 #include "hdr/game/gam_droidAIPatrol.h"
 #include "hdr/opengl/gl_renderSprite.h"
 #include "hdr/game/gam_droids.h"
+#include "hdr/gui/gui_terminal.h"
 
 //------------------------------------------------------------------------------
 //
@@ -178,8 +179,8 @@ void gam_initDroidValues ( const string levelName )
 
 		tempDroid.ignoreCollisionsCounter = IGNORE_COLLISION_TIME;
 
-		tempDroid.playerDroidTypeDBIndex = 0;     // What sort of droid is the player
-		tempDroid.droidTransferedIntoIndex = 0;
+		tempDroid.playerDroidTypeDBIndex = "001";     // What sort of droid is the player
+//		tempDroid.droidTransferedIntoIndex = 0;
 
 		tempDroid.inTransferMode = false;
 
@@ -322,8 +323,8 @@ void gam_damageToDroid ( int whichLevel, int whichDroid, int damageSource, int s
 				//
 				// Need to work out bullet damage when using non firing droid
 				//
-				if ( dataBaseEntry[playerDroid.playerDroidTypeDBIndex].canShoot )
-					levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth -= dataBaseEntry[playerDroid.playerDroidTypeDBIndex].bulletDamage;
+				if ( dataBaseEntry[gui_get3DTextureIndex (playerDroid.playerDroidTypeDBIndex)].canShoot )
+					levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth -= dataBaseEntry[gui_get3DTextureIndex (playerDroid.playerDroidTypeDBIndex)].bulletDamage;
 				else
 					levelInfo.at ( lvl_returnLevelNameFromDeck ( whichLevel )).droid[whichDroid].currentHealth -= dataBaseEntry[0].bulletDamage;
 

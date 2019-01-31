@@ -10,6 +10,7 @@ typedef struct
 	float       frameWidth;
 	float       frameHeight;
 	bool        useKeyColor;
+	bool        markedForDeletion;
 	glm::vec3   keyColor;
 	glm::vec3   tintColor;      // Overwrite pixels with this color
 	glm::vec2   scaleBy;
@@ -17,7 +18,8 @@ typedef struct
 	glm::vec2   textureSize;
 } _sprite;
 
-extern unordered_map<string, _sprite>      sprites;
+extern unordered_map<string, _sprite>       sprites;
+extern vector<string>                       droidToSpriteLookup;
 
 // Create the lookup table between droid type and sprite name
 void gl_setupDroidToSpriteLookup ();
@@ -38,3 +40,10 @@ void gl_createSprite ( string textureName, glm::vec3 keyColor, int numberOfFrame
 
 // Return the scaling values for a sprite
 glm::vec2 gl_getScaleby(string whichSprite);
+
+// Remove a sprite from the spriteSet
+void gl_removeSprite( string textureName );
+
+// Look through the sprite set and delete any that have been marked for deletion from other threads
+void gl_cleanSpriteMap ( );
+

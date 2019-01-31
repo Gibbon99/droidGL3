@@ -14,6 +14,7 @@
 #include "hdr/gui/gui_main.h"
 #include "hdr/gui/gui_render.h"
 #include "hdr/gui/gui_sideview.h"
+#include "hdr/gui/gui_terminal.h"
 #include "hdr/system/sys_sdfFont.h"
 
 //#define DEBUG_GUI_SETUP 1
@@ -871,6 +872,11 @@ void gui_displayGUI()
 			gui_showPlayerLocation ();
 			break;
 
+	  case MODE_DATABASE:
+            gui_drawGUI ();
+            gui_renderTerminal();
+            break;
+
 		default:
 			break;
 	}
@@ -899,7 +905,7 @@ void gui_displayGUI()
 	guiTintColor.b = 1.0f;
 	//
 	// Put the OpenGL texture onto the visible framebuffer
-  gl_draw2DQuad (guiPosition, 0, guiSize, "colorKey", io_getTextureID ("guiScreen"), guiColorKey, guiTintColor, texCoords);
+    gl_draw2DQuad (guiPosition, 0, guiSize, "colorKey", io_getTextureID ("guiScreen"), guiColorKey, guiTintColor, texCoords);
 
 	s_renderHUD ();
 

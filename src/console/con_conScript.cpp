@@ -1,4 +1,5 @@
 #include <utility>
+#include "hdr/gui/gui_terminal.h"
 #include "hdr/gui/gui_sideview.h"
 #include "hdr/gui/gui_main.h"
 #include "hdr/game/gam_game.h"
@@ -95,11 +96,12 @@ _hostScriptFunctions hostScriptFunctions[] =
 	{"void as_guiAddObjectToScreen (int guiObjectType, string &in, string &in)", 					( void * ) &gui_hostAddObjectToScreen},
 	{"void as_guiSetObjectFunctions(int guiObjectType, string &in, string &in)", 		            ( void * ) &gui_hostSetObjectFunctions},
 	{"void as_updateCheckedStatus  (string &in, bool newState)",                                    ( void * ) &gui_updateCheckedStatus},
-	{"void as_guiSetObjectFocus    (string &in)",                          ( void * ) &gui_setObjectFocus},
-	{"string gui_getString         (string &in )",                         ( void * ) &gui_getString},
-	{"void gui_addKeyAndText       (string &in, string &in)",              ( void * ) &gui_addKeyAndText},
-	{"void gam_startNewGame        (int gameType)",                        ( void * ) &gam_startNewGame},
-	{"void as_changeGameMode       (int newMode)",                         ( void * ) &sys_changeMode},
+	{"void as_guiSetObjectFocus    (string &in)",                           ( void * ) &gui_setObjectFocus},
+	{"string gui_getString         (string &in )",                          ( void * ) &gui_getString},
+	{"void gui_addKeyAndText       (string &in, string &in)",               ( void * ) &gui_addKeyAndText},
+	{"void gam_startNewGame        (int gameType)",                         ( void * ) &gam_startNewGame},
+	{"void as_changeGameMode       (int newMode)",                          ( void * ) &sys_changeMode},
+    {"void as_setDatabaseAnimateState( bool newState )",                    ( void * ) &gui_setDatabaseAnimateState},
 	{"",							nullptr},
 };
 

@@ -42,6 +42,7 @@ const int MODE_INTRO                = 10;
 const int MODE_LIFT_VIEW            = 11;
 const int MODE_SIDE_VIEW            = 12;
 const int MODE_DECK_VIEW            = 13;
+const int MODE_DATABASE             = 14;
 
 const int GUI_ACTIVE_COL            = 10;
 const int GUI_INACTIVE_COL          = 11;

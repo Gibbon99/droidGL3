@@ -114,6 +114,7 @@ void gam_initialPlayerSetup ()
 
 	playerDroid.mass = -1;
 	playerDroid.inTransferMode = false;
+	playerDroid.playerDroidTypeDBIndex = "001";
 
 	massWeight = static_cast<int>(strtof ( dataBaseEntry[0].weight.c_str(), nullptr ));
 

@@ -188,7 +188,7 @@ void handleCollisionDroidToDroid ( cpArbiter *arb, cpSpace *space, int *unused )
 		}
 		else    // Player collided with exploding sprite - take damage
 		{
-			if ( valuesPassedDroid_A[BYTE_ONE] != playerDroid.droidTransferedIntoIndex )
+// TODO			if ( valuesPassedDroid_A[BYTE_ONE] != playerDroid.droidTransferedIntoIndex )
 				// Ignore explosion if colliding with recently transferred droid
 			{
 				packedValue = sys_pack4Bytes (valuesPassedDroid_A[BYTE_ZERO], DAMAGE_EXPLOSION, 0, 0 );

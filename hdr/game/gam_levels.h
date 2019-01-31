@@ -105,9 +105,7 @@ typedef struct
 
 typedef struct _droid
 {
-
 	int             currentMode;                // What is the droid doing; transfer, healing, terminal etc
-//	bool 			isAlive;
 	int 			droidType;
 	int 			currentHealth;
 	int 			wayPointIndex;
@@ -149,8 +147,8 @@ typedef struct _droid
 	int             collidedWith;               // Who did the droid hit
 	float           ignoreCollisionsCounter;
 
-	int             playerDroidTypeDBIndex;     // What sort of droid is the player
-	int             droidTransferedIntoIndex;
+	string          playerDroidTypeDBIndex;     // What sort of droid is the player
+//	int             droidTransferedIntoIndex;
 
 	bool            inTransferMode;
 

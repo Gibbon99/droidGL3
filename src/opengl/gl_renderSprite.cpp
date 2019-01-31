@@ -4,7 +4,7 @@
 #include "hdr/opengl/gl_renderSprite.h"
 
 unordered_map<string, _sprite>      sprites;
-vector<string>      droidToSpriteLookup;
+vector<string>                      droidToSpriteLookup;
 
 //------------------------------------------------------------------------
 //
@@ -29,6 +29,8 @@ void gl_createAllSprites()
 	gl_createSprite ("bullet_001", glm::vec3{1.0f, 0.0f, 1.0f}, 9, glm::vec2{1.0f, 1.0f}, glm::vec3{-1.0, 0.0, 0.0});
 	gl_createSprite ("bullet_476", glm::vec3{1.0f, 0.0f, 1.0f}, 9, glm::vec2{1.0f, 1.0f}, glm::vec3{-1.0, 0.0, 0.0});
 	gl_createSprite ("bullet_821", glm::vec3{1.0f, 0.0f, 1.0f}, 9, glm::vec2{1.0f, 1.0f}, glm::vec3{-1.0, 0.0, 0.0});
+
+    gl_createSprite ("db_001", glm::vec3 (0.0f, 0.0f, 0.0f), 32, glm::vec2 (1.0f, 1.0f), glm::vec3 (-1.0, 1.0, 1.0));
 }
 
 //------------------------------------------------------------------------
@@ -97,6 +99,7 @@ void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames,
 	tempSprite.numberOfFrames = numberOfFrames;
 	tempSprite.scaleBy = scaleBy;
 	tempSprite.tintColor = tintColor;
+	tempSprite.markedForDeletion = false;
 
 	if (keyColor.r != -1)
 	{
@@ -231,4 +234,42 @@ void gl_renderSprite (string whichSprite, glm::vec2 position, float rotateAngle,
 		else
 			errorCount++;
 	}
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Remove a sprite from the spriteSet
+void gl_removeSprite( const string textureName )
+//-----------------------------------------------------------------------------------------------------
+{
+  auto spriteItr = sprites.find(textureName);
+
+  if ( spriteItr != sprites.end())
+    {
+      spriteItr->second.markedForDeletion = true;        // Clean up in main thread that has the OpenGL context
+      printf("Texture [ %s ] marked for deletion\n", textureName.c_str());
+      return;
+    }
+  printf("Could not find texture [ %s ] to delete\n", textureName.c_str());
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Look through the sprite set and delete any that have been marked for deletion from other threads
+void gl_cleanSpriteMap ( )
+//-----------------------------------------------------------------------------------------------------
+{
+  auto spriteItr = sprites.begin();
+
+  while (spriteItr != sprites.end())
+    {
+      if (spriteItr->second.markedForDeletion)
+        {
+          spriteItr = sprites.erase(spriteItr);
+
+          printf("Deleted sprite from map.\n");
+        }
+      else
+        ++spriteItr;
+    }
 }

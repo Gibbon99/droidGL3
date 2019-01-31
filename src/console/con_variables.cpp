@@ -1,3 +1,4 @@
+#include <hdr/gui/gui_terminal.h>
 #include "hdr/game/gam_lineOfSight.h"
 #include "hdr/game/gam_pathFind.h"
 #include "hdr/game/gam_droidAI.h"
@@ -80,6 +81,8 @@ _hostScriptFunctions hostVariables[] =
 	{"int introScrollSpeed",                &introScrollSpeed},
 	{"int introPauseTime",                  &introPauseTime},
 	{"int dbScrollSpeed",                   &dbScrollSpeed},
+
+    {"int dbAnimateSpeed",                  &dbAnimateSpeed},
 
 	{"float droidBeenShotValue",            &droidBeenShotValue},
 	{"int collisionExplosionDamage",        &collisionExplosionDamage},

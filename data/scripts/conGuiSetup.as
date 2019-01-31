@@ -81,6 +81,10 @@ void as_guiHandleActionEvent ( string &in objectID )
 
 		if (objectID == "buttonTermInfo" )
 		{
+            as_changeGameMode ( MODE_DATABASE );
+            as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrDataBaseView" ) );
+            as_guiSetObjectFocus ( "buttonDataBaseReturn" );
+            as_setDatabaseAnimateState ( true );
 			return;
 		}
 
@@ -120,7 +124,34 @@ void as_guiHandleActionEvent ( string &in objectID )
 			return;
 		}
 	}
+    else if (currentGUIScreen == as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrDataBaseView" ) )
+    {
+        if (objectID == "buttonDataBaseReturn")
+        {
+            as_setDatabaseAnimateState ( false );
+            as_changeGameMode ( MODE_GUI );
+            as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrTerminal" ) );
+            as_guiSetObjectFocus ( "buttonTermLogOff" );
+            return;
+        }
+    }
 }
+
+//------------------------------------------------------------
+//
+// Setup the elements for the terminal of the ship GUI screen
+void as_setupDataBaseView()
+//------------------------------------------------------------
+{
+    as_guiCreateNewScreen ("scrDataBaseView");
+
+    as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn" );
+    as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn", GUI_COORD_TYPE_PERCENT, 50, 80, 30, 10 );
+    as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn", GUI_LABEL_CENTER, gui_getString ( "buttonOptionsBack" ));
+    as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn", "scr_guiHandleActionEvent");
+    as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn", "scrDataBaseView" );
+}
+
 
 //------------------------------------------------------------
 //
@@ -292,6 +323,8 @@ void as_setupGUI()
 	focusAnimateIntervalValue = 7;      // Color animation in milliseconds
 	getMousePositionInterval = 50;      // How often to get the mouse position in milliseconds - to fast is too many events
 
+    dbAnimateSpeed = 75;
+
 	as_setIntroValues();
 
 	as_guiCreateNewScreen ( "scrMainMenu" );
@@ -329,7 +362,8 @@ void as_setupGUI()
 	as_createOptionsScreen ();
 	as_setupGUITerminal ();
 	as_setupSideView ();
-	as_setupDeckView();
+	as_setupDeckView ();
+    as_setupDataBaseView ();
 
 	as_guiSetObjectColor ( GUI_OBJECT_BUTTON, "ALL", GUI_ACTIVE_COL, 255, 255, 255, 255 );
 	as_guiSetObjectColor ( GUI_OBJECT_BUTTON, "ALL", GUI_INACTIVE_COL, 155, 155, 155, 255 );

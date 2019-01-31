@@ -1,3 +1,4 @@
+#include <hdr/gui/gui_terminal.h>
 #include "hdr/game/gam_droidAI.h"
 #include "hdr/game/gam_database.h"
 #include "hdr/io/io_gameprefs.h"
@@ -158,6 +159,7 @@ bool sys_initAll()
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "bullet_001.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "bullet_476.bmp");
 		evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "bullet_821.bmp");
+        evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "db_001.bmp");
 
 		gl_setupDroidToSpriteLookup ();
 
@@ -197,6 +199,9 @@ bool sys_initAll()
 			con_print(CON_ERROR, true, "Unable to load database information.");
 			return false;
 		}
+
+        gui_setDatabaseAnimateState( false );
+        gam_initDataBaseAnimateTimer ( dbAnimateSpeed );
 
 		ai_setupAITree ();
 

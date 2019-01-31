@@ -9,6 +9,7 @@ Transfer game
 Add score on destroyed droid
 Score increment on Alert Level
 Make explosions passable - but still do damage
+Work out player animation speed based on current / max health
 
 Terminal
 ---------
@@ -33,7 +34,6 @@ Options screens
 Sideview screen from terminal
 Terminal screen
 Database droid information screen
-
 Replace levelInfo.at with Iterators to avoid unordered_map::at function each frame
 
 BUGS
@@ -43,7 +43,7 @@ When switching to scrSideView - GUI Render is drawing textboxes - only one back 
 Back button on sideview screen is not activated via mouse click
 Fix up 'over tile' coords - not triggering correctly when on lift or terminal tile
 Doors are appearing randomly after changing levels - viewable on deckView
-Droid stopping on healing tile too high - add SPRITE_SIZE to Y
+Physics being cleaned up from menu and they haven't been created yet
 
 
 DONE
@@ -52,3 +52,4 @@ DONE
 07/01/19 - DONE - Show location indicator on sideview
 23/01/19 - DONE - Doors - use physics for detection
 24/01/19 - DONE - Player bullets - damage to enemy droids - still needs rotating of bullet sprite
+29/02/19 - FIXED - Droid stopping on healing tile too high - add SPRITE_SIZE to Y
