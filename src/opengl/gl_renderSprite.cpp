@@ -220,8 +220,7 @@ void gl_renderSprite (string whichSprite, glm::vec2 position, float rotateAngle,
 		}
 		else
 		{
-            gl_draw2DQuad (position, rotateAngle, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0, 0,
-                                                                                                        0}, spriteItr->second.tintColor, texCoords);
+            gl_draw2DQuad (position, rotateAngle, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0, 0, 0}, spriteItr->second.tintColor, texCoords);
 		}
 	}
 	else    // Sprite name could not be found

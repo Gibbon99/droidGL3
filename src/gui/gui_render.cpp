@@ -52,12 +52,13 @@ void gui_drawGUI ()
 	indexCount = 0;
 
 // TODO - Drawing textboxes for scrSideView somehow
-	for ( auto it = guiScreens[currentGUIScreen].objectIDIndex.begin (); it != guiScreens[currentGUIScreen].objectIDIndex.end (); ++it )
+  for (indexCount = 0; indexCount != guiScreens[currentGUIScreen].objectIDIndex.size(); indexCount++)
+//	for ( auto it = guiScreens[currentGUIScreen].objectIDIndex.begin (); it != guiScreens[currentGUIScreen].objectIDIndex.end (); ++it )
 	{
 		if ( guiScreens[currentGUIScreen].selectedObject == indexCount )
 			gui_drawObject ( guiScreens[currentGUIScreen].objectType[indexCount], guiScreens[currentGUIScreen].objectIDIndex[indexCount], true );
 		else
 			gui_drawObject ( guiScreens[currentGUIScreen].objectType[indexCount], guiScreens[currentGUIScreen].objectIDIndex[indexCount], false );
-		indexCount++;
+//		indexCount++;
 	}
 }

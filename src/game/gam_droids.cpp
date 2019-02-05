@@ -34,7 +34,7 @@ void gam_animateThisLevel ( const string levelName )
                   break;
 
                 case DROID_MODE_EXPLODING:
-                  levelInfo.at ( levelName ).droid[index].frameDelay += 1.0f / 1.5f;
+                  levelInfo.at ( levelName ).droid[index].frameDelay += 1.0f / 1.0f;
                   break;
 
                 default:

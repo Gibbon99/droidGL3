@@ -66,22 +66,6 @@ _hostScriptFunctions hostVariables[] =
 	{"int introFontBlue",                   &introFontBlue},
 	{"int introFontAlpha",                  &introFontAlpha},
 
-	{"int dbStartX",                        &dbStartX},
-	{"int dbStartY",                        &dbStartY},
-	{"int dbWidth",                         &dbWidth},
-	{"int dbHeight",                        &dbHeight},
-	{"int dbBackRed",                       &dbBackRed},
-	{"int dbBackGreen",                     &dbBackGreen},
-	{"int dbBackBlue",                      &dbBackBlue},
-	{"int dbBackAlpha",                     &dbBackAlpha},
-	{"int dbFontRed",                       &dbFontRed},
-	{"int dbFontGreen",                     &dbFontGreen},
-	{"int dbFontBlue",                      &dbFontBlue},
-	{"int dbFontAlpha",                     &dbFontAlpha},
-	{"int introScrollSpeed",                &introScrollSpeed},
-	{"int introPauseTime",                  &introPauseTime},
-	{"int dbScrollSpeed",                   &dbScrollSpeed},
-
     {"int dbAnimateSpeed",                  &dbAnimateSpeed},
 
 	{"float droidBeenShotValue",            &droidBeenShotValue},
@@ -119,6 +103,24 @@ _hostScriptFunctions hostVariables[] =
     {"float aStarPathInterval",             &aStarPathInterval},
 
 	{"float baseGameSpeed",                 &baseGameSpeed},
+
+    {"int dbStartX",                        &dbStartX},
+    {"int dbStartY",                        &dbStartY},
+    {"int dbWidth",                         &dbWidth},
+    {"int dbHeight",                        &dbHeight},
+    {"int dbBackRed",                       &dbBackRed},
+    {"int dbBackGreen",                     &dbBackGreen},
+    {"int dbBackBlue",                      &dbBackBlue},
+    {"int dbBackAlpha",                     &dbBackAlpha},
+    {"int dbFontRed",                       &dbFontRed},
+    {"int dbFontGreen",                     &dbFontGreen},
+    {"int dbFontBlue",                      &dbFontBlue},
+    {"int dbFontAlpha",                     &dbFontAlpha},
+    {"int introScrollSpeed",                &introScrollSpeed},
+    {"int introPauseTime",                  &introPauseTime},
+    {"int dbScrollSpeed",                   &dbScrollSpeed},
+    {"float dbImagePositionX",              &dbImagePositionX},
+    {"float dbImagePositionY",              &dbImagePositionY},
 
 	{"",                                    nullptr},
 };

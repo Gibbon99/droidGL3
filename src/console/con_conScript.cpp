@@ -102,11 +102,12 @@ _hostScriptFunctions hostScriptFunctions[] =
 	{"void gam_startNewGame        (int gameType)",                         ( void * ) &gam_startNewGame},
 	{"void as_changeGameMode       (int newMode)",                          ( void * ) &sys_changeMode},
     {"void as_setDatabaseAnimateState( bool newState )",                    ( void * ) &gui_setDatabaseAnimateState},
+    {"void as_getNextDataBaseRecord ()",                                    ( void * ) &gui_getNextDataBaseRecord},
+    {"void as_getPreviousDataBaseRecord()",                                 ( void * ) &gui_getPreviousDataBaseRecord},
+    {"void as_enterTerminalMode()",                                         ( void * ) &gui_enterTerminalMode},
+    {"void as_exitTerminalMode()",                                          ( void * ) &gui_exitTerminalMode},
 	{"",							nullptr},
 };
-
-//{"void as_gui_changeToGUIScreen		(int newScreen)", 					( const void * ) &gui_changeToGUIScreen},
-
 
 //-----------------------------------------------------------------------------
 //

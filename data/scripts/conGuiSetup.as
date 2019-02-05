@@ -85,6 +85,7 @@ void as_guiHandleActionEvent ( string &in objectID )
             as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrDataBaseView" ) );
             as_guiSetObjectFocus ( "buttonDataBaseReturn" );
             as_setDatabaseAnimateState ( true );
+            as_enterTerminalMode();
 			return;
 		}
 
@@ -128,10 +129,23 @@ void as_guiHandleActionEvent ( string &in objectID )
     {
         if (objectID == "buttonDataBaseReturn")
         {
+            as_exitTerminalMode();
             as_setDatabaseAnimateState ( false );
             as_changeGameMode ( MODE_GUI );
             as_changeGUIScreen ( as_guiFindIndex ( GUI_OBJECT_SCREEN, "scrTerminal" ) );
             as_guiSetObjectFocus ( "buttonTermLogOff" );
+            return;
+        }
+
+        if (objectID == "buttonDataBasePrevious")
+        {
+            as_getPreviousDataBaseRecord();
+            return;
+        }
+
+        if (objectID == "buttonDataBaseNext")
+        {
+            as_getNextDataBaseRecord();
             return;
         }
     }
@@ -145,13 +159,24 @@ void as_setupDataBaseView()
 {
     as_guiCreateNewScreen ("scrDataBaseView");
 
+    as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonDataBasePrevious" );
+    as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonDataBasePrevious", GUI_COORD_TYPE_PERCENT, 15, 80, 25, 10 );
+    as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonDataBasePrevious", GUI_LABEL_CENTER, gui_getString ( "buttonPrevious" ));
+    as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonDataBasePrevious", "scr_guiHandleActionEvent");
+    as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonDataBasePrevious", "scrDataBaseView" );
+
     as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn" );
-    as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn", GUI_COORD_TYPE_PERCENT, 50, 80, 30, 10 );
+    as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn", GUI_COORD_TYPE_PERCENT, 50, 80, 25, 10 );
     as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn", GUI_LABEL_CENTER, gui_getString ( "buttonOptionsBack" ));
     as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn", "scr_guiHandleActionEvent");
     as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonDataBaseReturn", "scrDataBaseView" );
-}
 
+    as_guiCreateObject           ( GUI_OBJECT_BUTTON, "buttonDataBaseNext" );
+    as_guiSetObjectPosition      ( GUI_OBJECT_BUTTON, "buttonDataBaseNext", GUI_COORD_TYPE_PERCENT, 85, 80, 25, 10 );
+    as_guiSetObjectLabel         ( GUI_OBJECT_BUTTON, "buttonDataBaseNext", GUI_LABEL_CENTER, gui_getString ( "buttonNext" ));
+    as_guiSetObjectFunctions     ( GUI_OBJECT_BUTTON, "buttonDataBaseNext", "scr_guiHandleActionEvent");
+    as_guiAddObjectToScreen      ( GUI_OBJECT_BUTTON, "buttonDataBaseNext", "scrDataBaseView" );
+}
 
 //------------------------------------------------------------
 //
@@ -255,14 +280,14 @@ void as_setdbValues ()
 //-----------------------------------------------------------------------------
 {
 	// Position of the droid rotating graphic
-//	dbImagePositionX = ( winWidth - 290.0f );
-//	dbImagePositionY = 165.0f;
+	dbImagePositionX = 650;
+	dbImagePositionY = 300;
 
 	// Position of the scrollbox in the droid database screen
-	dbStartX = 70;
-	dbStartY = 50;
-	dbWidth = ( winWidth - dbStartX ) - 40;
-	dbHeight = winHeight - dbStartY;
+	dbStartX = 20;
+	dbStartY = winHeight - 150;
+	dbWidth = 450;
+	dbHeight = 380;
 	dbBackRed = 0;
 	dbBackGreen = 0;
 	dbBackBlue = 255;
@@ -326,6 +351,7 @@ void as_setupGUI()
     dbAnimateSpeed = 75;
 
 	as_setIntroValues();
+    as_setdbValues ();
 
 	as_guiCreateNewScreen ( "scrMainMenu" );
 

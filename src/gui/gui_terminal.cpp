@@ -1,3 +1,7 @@
+#include <hdr/gui/gui_scrollBox.h>
+#include <hdr/game/gam_player.h>
+#include <hdr/gui/gui_language.h>
+#include <hdr/libGL/soil/soil.h>
 #include "hdr/gui/gui_terminal.h"
 
 GLuint        terminalDroidTexture;
@@ -7,6 +11,63 @@ int           dataBaseCurrentFrame = 0;
 SDL_TimerID   timerDataBaseAnimate;
 bool          do3DTextureAnimate = false;
 Uint32        dbAnimateSpeed;     // From Script
+SDL_TimerID   timerDataBaseScroll = 0;
+bool          doDataBaseScroll = false;
+float         dbImagePositionX, dbImagePositionY;
+string        _3DTextureFilename;
+bool          reloadDataBaseTexture = false;
+
+//------------------------------------------------------------------------
+//
+// Fine scroll the database scrollbox - called from Timer
+Uint32 gui_scrollDataBaseText(Uint32 interval, void *param )
+//------------------------------------------------------------------------
+{
+  if (!doDataBaseScroll)
+    return interval;
+
+  //
+  // Next pixel line
+  databaseScrollBox.scrollY++;
+
+  if (databaseScrollBox.scrollY > ttfFonts[gui_getFontIndex (guiFontName)].fontHeight)
+    {
+      databaseScrollBox.scrollY = 0;
+      gui_getNextTextLine(&databaseScrollBox);
+      databaseScrollBox.linesToPrint++;
+      if (databaseScrollBox.linesToPrint > databaseScrollBox.numVisibleLinesHeight)
+        databaseScrollBox.linesToPrint = databaseScrollBox.numVisibleLinesHeight;
+    }
+
+  return interval;
+}
+
+
+//------------------------------------------------------------------------
+//
+// Create timer to control the speed of the scrolling intro
+void gui_timerScrollSpeedDatabase(int newState, Uint32 scrollSpeed)
+//------------------------------------------------------------------------
+{
+  switch ( newState )
+    {
+      case USER_EVENT_TIMER_OFF:
+        {
+          doDataBaseScroll = false;
+          break;
+        }
+      case USER_EVENT_TIMER_ON:
+        {
+          if (timerDataBaseScroll == 0)
+            timerDataBaseScroll = evt_registerTimer(scrollSpeed, gui_scrollDataBaseText, "Database scroll speed");
+
+          doDataBaseScroll = true;
+          break;
+        }
+      default:
+        break;
+    }
+}
 
 // ----------------------------------------------------------------------------
 //
@@ -24,7 +85,6 @@ void gui_setDatabaseAnimateState( bool newState )
 Uint32 gam_dataBaseAnimateTimerCallback ( Uint32 interval, void *param )
 // ----------------------------------------------------------------------------
 {
-
   if ( !do3DTextureAnimate )
     return interval;
 
@@ -67,9 +127,8 @@ int gui_get3DTextureIndex (const std::string droidType)
 void gui_remove3DModelTexture (const std::string &droidType)
 //-----------------------------------------------------------------------------------------------------
 {
-  string terminalFileName;
 
-  terminalFileName = "db_" + droidType + ".jpg";
+  printf ("Delete database texture [ %s ]\n", droidType.c_str());
 
   gl_removeSprite (droidType);
   io_removeTextureFromMap (droidType);
@@ -78,18 +137,15 @@ void gui_remove3DModelTexture (const std::string &droidType)
 //-----------------------------------------------------------------------------------------------------
 //
 // Load the 3d texture to display in the terminal
-void gui_load3DModelTexture (const std::string &droidType)
+void gui_load3DModelTexture (const std::string &terminalFileName)
 //-----------------------------------------------------------------------------------------------------
 {
-  char *imageBuffer = nullptr;
-  int imageLength;
-  SDL_Surface *textureSurface;
-  SDL_RWops *filePointerMem;
-  string terminalFileName;
+  char            *imageBuffer = nullptr;
+  int             imageLength;
+  SDL_Surface     *textureSurface;
+  SDL_RWops       *filePointerMem;
 
-  terminalFileName = "db_" + droidType + ".jpg";
-
-//	con_print(CON_INFO, true, "Step 1 - load texture file [ %s ]", terminalFileName.c_str());
+  con_print(CON_INFO, true, "Step 1 - load texture file [ %s ]", terminalFileName.c_str());
 
   imageLength = (int) io_getFileSize (terminalFileName.c_str ());
   if (imageLength < 0)
@@ -98,7 +154,7 @@ void gui_load3DModelTexture (const std::string &droidType)
       return;
     }
 
-//	con_print (CON_INFO, true, "Image size [ %i ]", imageLength);
+con_print (CON_INFO, true, "Image size [ %i ]", imageLength);
 
   imageBuffer = (char *) malloc (sizeof (char) * imageLength);
   if (nullptr == imageBuffer)
@@ -122,24 +178,40 @@ void gui_load3DModelTexture (const std::string &droidType)
       evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_SOIL, 0, 0, vec2 (), vec2 (), terminalFileName);
     }
 
-  textureSurface = SDL_LoadBMP_RW (filePointerMem, 1);     // free stream
+  textureSurface = SDL_LoadBMP_RW (filePointerMem, 1);
   if (nullptr == textureSurface)
     {
       evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_SOIL, 0, 0, vec2 (), vec2 (), terminalFileName);
       return;
     }
 
+SDL_SaveBMP (textureSurface, "testDroid.bmp");
+
+  /*
+  glm::vec2   imageDimensions = io_getTextureSize ("db_001");
+
+  glBindTexture (GL_TEXTURE_2D, terminalDroidTexture);
+  glTexSubImage2D(terminalDroidTexture, 0, 0, 0,  textureSurface->w,  textureSurface->h,
+                       GL_RGBA,  GL_UNSIGNED_BYTE,  textureSurface->pixels);
+
+  glBindTexture (GL_TEXTURE_2D, 0);
+*/
+
+  //
+//  terminalDroidTexture = SOIL_load_OGL_texture_from_memory ((const unsigned char *)textureSurface->pixels, imageLength, SOIL_LOAD_AUTO, terminalDroidTexture, SOIL_FLAG_INVERT_Y ); //SOIL_FLAG_TEXTURE_REPEATS); SOIL_FLAG_MIPMAPS
+
+
+
+
+
+  // TODO Tell main thread to replace the texture date
 
   //
   // Upload SDL_Surface into a OpenGL texture
   //
   SDL_LockSurface (textureSurface);
 
-  if (!haveTextureID)
-    {
-      glGenTextures (1, &terminalDroidTexture);
-      haveTextureID = true;
-    }
+  terminalDroidTexture = io_getTextureID ( "db_001" );
 
   glBindTexture (GL_TEXTURE_2D, terminalDroidTexture);
 
@@ -149,9 +221,14 @@ void gui_load3DModelTexture (const std::string &droidType)
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  GLenum Mode = GL_RGBA;
+  int Mode = GL_RGB;
 
-  glTexImage2D (GL_TEXTURE_2D, 0, Mode, textureSurface->w, textureSurface->h, 0, Mode, GL_UNSIGNED_BYTE, textureSurface->pixels);
+  if (textureSurface->format->BytesPerPixel == 4)
+    {
+      Mode = GL_RGBA;
+    }
+
+  GL_CHECK(glTexImage2D (GL_TEXTURE_2D, 0, Mode, textureSurface->w, textureSurface->h, 0, Mode, GL_UNSIGNED_BYTE, textureSurface->pixels));
 
   SDL_UnlockSurface (textureSurface);
 
@@ -161,39 +238,149 @@ void gui_load3DModelTexture (const std::string &droidType)
 
   free (imageBuffer);
 
-  io_storeTextureInfoIntoMap (terminalDroidTexture, glm::vec2 (textureSurface->w, textureSurface->h), terminalFileName, true);
+//  io_storeTextureInfoIntoMap (terminalDroidTexture, glm::vec2 (textureSurface->w, textureSurface->h), terminalFileName, true);
 
-  gl_createSprite (terminalFileName, glm::vec3 (0, 0, 0), 32, glm::vec2 (1.0f, 1.0f), glm::vec3 (1.0, 1.0, 1.0));
+//  gl_createSprite (terminalFileName, glm::vec3 (0, 0, 0), 32, glm::vec2 (1.0f, 1.0f), glm::vec3 (1.0, 1.0, 1.0));
 }
 
 //-----------------------------------------------------------------------------------------------------
 //
-// Change to terminal mode
-void gui_changeToTerminalMode (const std::string textureName)
+// Check if the main thread needs to reload the database texture
+void gui_checkDataBaseTextureReload()
 //-----------------------------------------------------------------------------------------------------
 {
-  current3DTextureIndex = gui_get3DTextureIndex (textureName);
-  gui_load3DModelTexture (textureName);
+  if (reloadDataBaseTexture)
+    {
+      gui_load3DModelTexture ("db_" + droidToSpriteLookup[current3DTextureIndex] + ".bmp");
+
+      reloadDataBaseTexture = false;
+    }
 }
 
 //-----------------------------------------------------------------------------------------------------
 //
-// Exit terminal mode - clean up sprite
+// Enter terminal mode - start timer
+void gui_enterTerminalMode ()
+//-----------------------------------------------------------------------------------------------------
+{
+  reloadDataBaseTexture = true;
+
+  current3DTextureIndex = playerDroid.droidType;
+
+  databaseScrollBox.charPtr = 0;                       // start of the text
+  databaseScrollBox.scrollY = 0;
+
+  for (int i = 0; i != databaseScrollBox.numVisibleLinesHeight; i++)
+    {
+      databaseScrollBox.textLine[i] = "";
+    }
+  databaseScrollBox.sourceText = gui_getString("db_" + droidToSpriteLookup[current3DTextureIndex]);
+
+  gui_timerScrollSpeedDatabase(USER_EVENT_TIMER_ON, dbScrollSpeed);
+}
+
+//-----------------------------------------------------------------------------------------------------
+//
+// Exit terminal mode - stop timer
 void gui_exitTerminalMode ()
 //-----------------------------------------------------------------------------------------------------
 {
-  gui_remove3DModelTexture (droidToSpriteLookup[current3DTextureIndex]);
+  gui_timerScrollSpeedDatabase(USER_EVENT_TIMER_OFF, dbScrollSpeed);
 }
 
 //-----------------------------------------------------------------------------------------------------
 //
 // Render the terminal screen
-void gui_renderTerminal ()
+void gui_renderDataBase ()
 //-----------------------------------------------------------------------------------------------------
 {
-  string _3DTextureFilename;
+  int startX, startY, width, height, lineWidth;
+  int framePadding;
 
-  _3DTextureFilename = "db_" + droidToSpriteLookup[current3DTextureIndex];
+  glm::vec2 imageSize;
 
-  gl_renderSprite (_3DTextureFilename, glm::vec2{200,200}, 0, dataBaseCurrentFrame, glm::vec3{1, 1, 0});
+  if (timerDataBaseScroll == 0)
+    gui_timerScrollSpeedDatabase(USER_EVENT_TIMER_ON, dbScrollSpeed);
+
+  imageSize = io_getTextureSize ("db_001");
+
+  framePadding = 10;
+
+  startX = dbStartX + dbWidth + framePadding;
+  startY = (dbStartY - dbHeight) + (framePadding * 2) + 4;
+  width = dbWidth + (framePadding * 2);
+  height = dbHeight + (framePadding * 2);
+  lineWidth = 4;
+
+  roundedBoxRGBA (renderer, startX, startY, startX - width, startY + height, 8, 255, 255, 255, 255);
+
+  roundedBoxRGBA (renderer, startX - lineWidth, startY + lineWidth, (startX - width) + lineWidth, (startY + height) - lineWidth, 8, 0, 0, 0, 255);
+
+  width = sprites.at("db_001").textureSize.x / sprites.at("db_001").numberOfFrames;
+  height = sprites.at("db_001").frameHeight;
+
+  startX = dbImagePositionX + width + 100;    // Start drawing off screen
+  startY = dbImagePositionY - (height / 2);
+
+  width *= 2;
+  width += 100;
+
+  lineWidth = 1;
+
+  roundedRectangleRGBA (renderer, startX, startY, startX - width, startY + height, 8, 255, 255, 255, 255);
+
+  roundedRectangleRGBA (renderer, startX - lineWidth, startY + lineWidth, (startX - width) + lineWidth, (startY + height) - lineWidth, 8, 255, 255, 255, 255);
+
+  gui_drawScrollBox (&databaseScrollBox);
+
+  gl_renderSprite ("db_001", glm::vec2{dbImagePositionX,dbImagePositionY}, 0, dataBaseCurrentFrame, glm::vec3{1, 1, 0});
+}
+
+//------------------------------------------------------------------------
+//
+// Get the next droid
+void gui_getNextDataBaseRecord()
+//------------------------------------------------------------------------
+{
+  if (current3DTextureIndex == playerDroid.droidType)
+    return;
+
+  if (current3DTextureIndex < 23 )
+    {
+      current3DTextureIndex++;
+
+      databaseScrollBox.charPtr = 0;   // start of the text
+      databaseScrollBox.scrollY = 0;
+
+      for (int i = 0; i != databaseScrollBox.numVisibleLinesHeight; i++)
+        {
+          databaseScrollBox.textLine[i] = "";
+        }
+      databaseScrollBox.sourceText = gui_getString("db_" + droidToSpriteLookup[current3DTextureIndex]);
+
+      reloadDataBaseTexture = true;
+    }
+}
+
+//------------------------------------------------------------------------
+//
+// Get the previous droid
+void gui_getPreviousDataBaseRecord()
+//------------------------------------------------------------------------
+{
+  if (current3DTextureIndex > 0)
+    {
+      current3DTextureIndex--;
+
+      databaseScrollBox.charPtr = 0;
+      databaseScrollBox.scrollY = 0;
+
+      for (int i = 0; i != databaseScrollBox.numVisibleLinesHeight; i++)
+        {
+          databaseScrollBox.textLine[i] = "";
+        }
+      databaseScrollBox.sourceText = gui_getString("db_" + droidToSpriteLookup[current3DTextureIndex]);
+
+      reloadDataBaseTexture = true;
+    }
 }

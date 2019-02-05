@@ -187,8 +187,7 @@ void io_uploadTextureIntoGL ( intptr_t textureMemoryIndex )
 
 	//
 	// TODO: Does this leak memory?
-	if ( nullptr ==
-	     SOIL_load_image_from_memory ((const unsigned char *) textureMemory[(size_t) textureMemoryIndex].memPointer, textureMemory[(size_t) textureMemoryIndex].imageLength, &imageWidth, &imageHeight, &numChannels, SOIL_LOAD_AUTO ))
+	if ( nullptr == SOIL_load_image_from_memory ((const unsigned char *) textureMemory[(size_t) textureMemoryIndex].memPointer, textureMemory[(size_t) textureMemoryIndex].imageLength, &imageWidth, &imageHeight, &numChannels, SOIL_LOAD_AUTO ))
 	{
 		evt_sendEvent ( USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_ERROR, TEXTURE_LOAD_ERROR_SOIL, 0, 0, vec2 (), vec2 (), textureMemory[(size_t) textureMemoryIndex].textureName );
 		SOIL_free_image_data ((unsigned char *) textureMemory[(size_t) textureMemoryIndex].memPointer );
@@ -203,8 +202,7 @@ void io_uploadTextureIntoGL ( intptr_t textureMemoryIndex )
 		return;
 	}
 
-	evt_sendEvent ( USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_UPLOAD_DONE, textureID, 0, 0, vec2{imageWidth,
-	                                                                                          imageHeight}, vec2 (), textureMemory[(size_t) textureMemoryIndex].textureName );
+	evt_sendEvent ( USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_UPLOAD_DONE, textureID, 0, 0, vec2{imageWidth, imageHeight}, vec2 (), textureMemory[(size_t) textureMemoryIndex].textureName );
 
 	SOIL_free_image_data ((unsigned char *) textureMemory[(size_t) textureMemoryIndex].memPointer );
 }
@@ -340,7 +338,7 @@ void io_setTextureError ( const string fileName )
 {
 	_textureSet tempSet;
 
-	tempSet.textureID = -1;
+	tempSet.textureID = 0;
 	tempSet.loaded = false;
 	textureSet.insert ( std::pair<string, _textureSet> ( fileName, tempSet ));
 }

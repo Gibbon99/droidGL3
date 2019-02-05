@@ -236,6 +236,3 @@ bool gam_getDBInformation()
 
 	return true;
 }
-
-
-// evt_sendEvent (USER_EVENT_TEXTURE, USER_EVENT_TEXTURE_LOAD, 0, 0, 0, vec2(), vec2(), "hud.tga");

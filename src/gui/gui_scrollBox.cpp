@@ -63,11 +63,18 @@ bool gui_drawScrollBox(_scrollBox *scrollBox)
 			break;
 	}
 
-	boxRGBA(renderer, scrollBox->startX + scrollBox->width, (scrollBox->startY - scrollBox->height) + scrollBox->fontLineHeight,
-			scrollBox->startX, (scrollBox->startY - scrollBox->height) + (scrollBox->fontLineHeight * 2), 0, 0, 0, 255);
+	boxRGBA(renderer,
+	    scrollBox->startX + scrollBox->width,
+	    (scrollBox->startY - scrollBox->height) + (scrollBox->fontLineHeight - 2),
+	    scrollBox->startX,
+	    (scrollBox->startY - scrollBox->height) + (scrollBox->fontLineHeight * 2), 0, 0, 0, 255);
 
-	boxRGBA(renderer, scrollBox->startX + scrollBox->width, scrollBox->startY,
-	        scrollBox->startX, scrollBox->startY + scrollBox->fontLineHeight, 0, 0, 0, 255);
+	boxRGBA(renderer,
+	    scrollBox->startX + scrollBox->width,
+	    scrollBox->startY,
+	    scrollBox->startX,
+	    scrollBox->startY + (scrollBox->fontLineHeight), 0, 0, 0, 255);
+
 	return true;
 }
 
@@ -79,8 +86,6 @@ void gui_getNextTextLine(_scrollBox *scrollBox)
 {
 	string    nextWord;
 	string    nextLine;
-
-	// TODO detect the end of the text, and restart
 
 	int previousSpace = 0;
 	bool foundLine;

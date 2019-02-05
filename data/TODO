@@ -44,6 +44,7 @@ Back button on sideview screen is not activated via mouse click
 Fix up 'over tile' coords - not triggering correctly when on lift or terminal tile
 Doors are appearing randomly after changing levels - viewable on deckView
 Physics being cleaned up from menu and they haven't been created yet
+Get Droids to swap direction on collision
 
 
 DONE

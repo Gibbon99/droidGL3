@@ -73,3 +73,6 @@ void gui_timerScrollSpeedIntro(int newState, Uint32 scrollSpeed);
 
 // Create timer to pause the scrolling text
 void gui_timerScrollPauseIntro(int newState, Uint32 pauseTime);
+
+// Get the next line of text up to the scrollBox width
+void gui_getNextTextLine(_scrollBox *scrollBox);

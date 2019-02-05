@@ -874,7 +874,7 @@ void gui_displayGUI()
 
 	  case MODE_DATABASE:
             gui_drawGUI ();
-            gui_renderTerminal();
+        gui_renderDataBase ();
             break;
 
 		default:
@@ -955,7 +955,7 @@ void gui_surfaceToGL(SDL_Surface *whichSurface, string textureName)
 	newImageSize.x = whichSurface->w;
 	newImageSize.y = whichSurface->h;
 
-	io_storeTextureInfoIntoMap(newTextureID, newImageSize, textureName, false);
+    io_storeTextureInfoIntoMap(newTextureID, newImageSize, textureName, false);
 }
 
 //--------------------------------------------------------------------------
@@ -970,6 +970,8 @@ void gui_prepareGUI()
 	con_executeScriptFunction ( "scr_setupGUI", "" );
 
 	gui_setupScrollBox ( SCROLLBOX_INTRO, &introScrollBox, "scrollText" );
+
+	gui_setupScrollBox ( SCROLLBOX_DB, &databaseScrollBox, "db_001" );
 
 	guiReady = true;
 }
