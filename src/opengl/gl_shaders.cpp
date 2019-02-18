@@ -394,5 +394,8 @@ bool gl_addShaders ()
 	if ( !gl_createShader ("sdfFont", "distanceField.vert", "distanceField.frag", ""))
 		return false;
 
+  if ( !gl_createShader ("colorOnly", "colorOnly.vert", "colorOnly.frag", ""))
+    return false;
+
 	return true;
 }

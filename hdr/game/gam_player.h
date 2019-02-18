@@ -23,7 +23,7 @@ void gam_initPlayerAnimateTimer ( Uint32 interval );
 void gam_initialPlayerSetup ();
 
 // Process the player world position and movement
-void gam_processPlayerMovement ();
+void gam_processPlayerMovement (float interpolation);
 
 // Do damage to player health
 // Can either be from DAMAGE_BULLET, DAMAGE_COLLISION or DAMAGE_EXPLOSION

@@ -248,9 +248,6 @@ gl_draw2DQuad (glm::vec2 position, float rotateAngle, glm::vec2 quadSize, std::s
 //-----------------------------------------------------------------------------
 {
 
-
-  // TODO - Add rotate value - need to calculate model matrix if rotate angle != 0
-
   glm::vec3 quadVerts[4];
   static GLuint vao = 0;
   static GLuint buffers[2];
@@ -270,6 +267,22 @@ gl_draw2DQuad (glm::vec2 position, float rotateAngle, glm::vec2 quadSize, std::s
 
   quadVerts[3].x = position.x + quadSize.x;
   quadVerts[3].y = position.y;
+  quadVerts[3].z = 0.0f;
+
+  quadVerts[0].x = position.x - (quadSize.x / 2);
+  quadVerts[0].y = position.y - (quadSize.y / 2);
+  quadVerts[0].z = 0.0f;
+
+  quadVerts[1].x = position.x - (quadSize.x / 2);
+  quadVerts[1].y = position.y + (quadSize.y / 2);
+  quadVerts[1].z = 0.0f;
+
+  quadVerts[2].x = position.x + (quadSize.y / 2);
+  quadVerts[2].y = position.y + (quadSize.y / 2);
+  quadVerts[2].z = 0.0f;
+
+  quadVerts[3].x = position.x + (quadSize.y / 2);
+  quadVerts[3].y = position.y - (quadSize.y / 2);
   quadVerts[3].z = 0.0f;
 
   if (!initDone)
@@ -330,20 +343,15 @@ gl_draw2DQuad (glm::vec2 position, float rotateAngle, glm::vec2 quadSize, std::s
     }
   else
     {
-
-      glm::mat4 translateMatrix;
-      glm::mat4 inverseTranslateMatrix;
       glm::mat4 rotationMatrix;
 
-      translateMatrix = glm::translate (glm::mat4(), glm::vec3(1,1,0));
+      rotationMatrix = glm::mat4 (1.0f);
 
-      inverseTranslateMatrix = glm::inverse ( translateMatrix );
+      rotationMatrix = glm::translate (glm::mat4 (1.0f), glm::vec3 (position.x, position.y, 0)) *
+                       glm::rotate (glm::mat4 (1.0f), rotateAngle, glm::vec3 (0.0f, 0.0f, 1.0f)) *
+                       glm::translate (glm::mat4 (1.0f), glm::vec3 (-position.x, -position.y, 0));
 
-      rotationMatrix = rotate (glm::mat4(), rotateAngle, glm::vec3 (0, 0, 1));
-
-      glm::mat4 transform = translateMatrix * rotationMatrix * inverseTranslateMatrix;
-
-      MVP = projMatrix * viewMatrix * transform;
+      MVP = projMatrix * viewMatrix * rotationMatrix;
 
       GL_CHECK (glUniformMatrix4fv (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
     }
@@ -419,9 +427,14 @@ void gl_set2DMode (glm::vec2 startPos, glm::vec2 viewSize, const glm::vec3 scale
                            (startPos.x + viewSize.x) * scale.x, startPos.y,
                            (startPos.y + viewSize.y) * scale.y, 1.0f, -1.0f);
 
+  projMatrix = glm::ortho (startPos.x,
+                           (startPos.x + viewSize.x), startPos.y,
+                           (startPos.y + viewSize.y), 1.0f, -1.0f);
+
+
   viewMatrix = glm::mat4 ();
 
-  modelMatrix = glm::scale (glm::mat4 (), scale);
+  modelMatrix = glm::mat4(); //glm::scale (glm::mat4 (), scale);
 
   MVP = projMatrix * viewMatrix * modelMatrix;
 }
@@ -460,6 +473,7 @@ void gl_set3DMode (float interpolate)
 GLuint gl_createNewTexture (GLuint width, GLuint height)
 //-----------------------------------------------------------------------------
 {
+
   GLuint tempTextureID;
 
   glGenTextures (1, &tempTextureID);
@@ -477,3 +491,76 @@ GLuint gl_createNewTexture (GLuint width, GLuint height)
 
   return tempTextureID;
 }
+
+//-----------------------------------------------------------------------------
+//
+// Work out viewport transormation based on internal virtual screen size and actual size
+void gl_setupVirtualScreenViewport ()
+//-----------------------------------------------------------------------------
+{
+  int virtualWidth, virtualHeight;
+
+  virtualWidth = 512;
+  virtualHeight = 512;
+
+  float targetAspectRatio = virtualWidth / (float) virtualHeight;
+
+
+  // figure out the largest area that fits in this resolution at the desired aspect ratio
+  int width = winWidth;
+  int height = (int) (width / targetAspectRatio + .5f);
+
+  if (height > winHeight)
+    {
+      height = winHeight;
+      // PillarBox
+      width = (int) (height * targetAspectRatio + .5f);
+    }
+
+  // set up the new viewport centered in the backbuffer
+int  X = (winWidth / 2) - (width / 2);
+int  Y = (winHeight / 2) - (height / 2);
+
+  printf ("Viewport X [ %i ] Y [ %i ] Width [ %i ] Height [ %i ]\n",X, Y, width, height);
+}
+
+//-----------------------------------------------------------------------------
+//
+// Save the framebuffer to a file
+bool gl_screenShot(const string fileName)
+//-----------------------------------------------------------------------------
+{
+  unsigned char *pixels;
+  FILE *image;
+
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+
+  pixels = new unsigned char[viewport[2]*viewport[3]*3];
+
+  glReadPixels(0, 0, viewport[2], viewport[3], GL_BGR, GL_UNSIGNED_BYTE, pixels);
+
+  if((image=fopen(fileName.c_str(), "wb"))==NULL)
+    return false;
+
+  unsigned char TGAheader[12]={0,0,2,0,0,0,0,0,0,0,0,0};
+
+  unsigned char header[6]={((int)(viewport[2]%256)),
+                           ((int)(viewport[2]/256)),
+                           ((int)(viewport[3]%256)),
+                           ((int)(viewport[3]/256)),24,0};
+
+  // TGA header schreiben
+  fwrite(TGAheader, sizeof(unsigned char), 12, image);
+
+  // Header schreiben
+  fwrite(header, sizeof(unsigned char), 6, image);
+
+  fwrite(pixels, sizeof(unsigned char), viewport[2]*viewport[3]*3, image);
+
+  fclose(image);
+  delete [] pixels;
+
+  return true;
+}
+

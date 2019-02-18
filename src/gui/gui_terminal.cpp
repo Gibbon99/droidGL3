@@ -317,7 +317,7 @@ void gui_renderDataBase ()
   roundedBoxRGBA (renderer, startX - lineWidth, startY + lineWidth, (startX - width) + lineWidth, (startY + height) - lineWidth, 8, 0, 0, 0, 255);
 
   width = sprites.at("db_001").textureSize.x / sprites.at("db_001").numberOfFrames;
-  height = sprites.at("db_001").frameHeight;
+  height = sprites.at("db_001").frameHeightGL;
 
   startX = dbImagePositionX + width + 100;    // Start drawing off screen
   startY = dbImagePositionY - (height / 2);

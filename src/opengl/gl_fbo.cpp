@@ -100,10 +100,10 @@ void gl_renderToScreen()
 //-----------------------------------------------------------------------------------------------------
 //
 // Link a texture to a FBO
-bool gl_linkTextureToFBO(GLuint whichTexture, GLuint whichFBO)
+bool gl_linkTextureToFBO (GLuint whichTexture, GLuint whichFBO, GLuint bindOperation)
 //-----------------------------------------------------------------------------------------------------
 {
-	glBindFramebuffer (GL_FRAMEBUFFER, whichFBO);
+	glBindFramebuffer (bindOperation, whichFBO);
 	//
 	// Set the target texture as the color target for the frameBuffer
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, whichTexture, 0);

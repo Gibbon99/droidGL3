@@ -208,6 +208,9 @@ bool lib_openWindow ()
 
 	printf("SDL_GetWindowSize size [ %i %i ]\n", width, height);
 
+
+  gl_setupVirtualScreenViewport ();
+
 //	lib_getWindowInfo ();
 	return true;
 }

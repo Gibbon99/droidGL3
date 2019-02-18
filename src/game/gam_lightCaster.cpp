@@ -1,3 +1,4 @@
+#include <hdr/game/gam_render.h>
 #include "hdr/system/sys_main.h"
 #include "hdr/libGL/glm/glm.hpp"
 #include "hdr/game/gam_levels.h"
@@ -29,6 +30,9 @@ vector<_lightCaster>        lightCasters;
 
 vector<_lightLineSegment>   copyLineSegments;
 
+int                         lightCasterSize = 256;
+GLuint                      lightCaster_FBO = 0;
+
 //-------------------------------------------------------------------------------
 //
 // Add a new light caster for this level
@@ -55,7 +59,7 @@ void light_addNewCaster(const glm::vec3 position, const glm::vec3 color, GLuint 
 	tempLightCaster.position = position;
 	tempLightCaster.color = color;
 	tempLightCaster.radius = radius;
-	tempLightCaster.textureID = gl_createNewTexture(256, 256);
+	tempLightCaster.textureID = gl_createNewTexture(lightCasterSize, lightCasterSize);
 
 	lightCasters.push_back(tempLightCaster);
 }
@@ -140,8 +144,6 @@ void light_createAnglesFromPoints (vec3 lightPosition)
 glm::vec3 light_getIntersectPoint(_lightLineSegment ray, _lightLineSegment segment, bool *intersectFound, float *param)
 //-----------------------------------------------------------------------------------------------------
 {
-	glm::vec3   returnValue{0,0,0};
-
 	*intersectFound = false;
 
 	// RAY in parametric: Point + Direction*T1
@@ -189,23 +191,22 @@ glm::vec3 light_getIntersectPoint(_lightLineSegment ray, _lightLineSegment segme
 	// Return the POINT OF INTERSECTION
 	*intersectFound = true;
 	*param = T1;
-	returnValue =  glm::vec3(r_px + r_dx * T1, r_py + r_dy * T1, 0.0f);
-	return returnValue;
-//	return {x: r_px + r_dx * T1, y: r_py + r_dy * T1, param: T1};
+	return glm::vec3(r_px + r_dx * T1, r_py + r_dy * T1, 0.0f);
 }
 
 //-----------------------------------------------------------------------------
 //
 // Draw the shadowHull
 void light_createShadowTexture ( std::set<_lightHullPoint> const &drawShadowHull, const glm::vec3 casterPosition,
-                                 const string whichShader )
+                                 const string whichShader, const string levelName )
 //-----------------------------------------------------------------------------
 {
-	static GLuint vao = 0;
-	static GLuint buffers;
-	static bool initDone = false;
+	static GLuint           vao = 0;
+	static GLuint           buffers;
+	static bool             initDone = false;
+	static GLuint           lightCasterTextureID = 0;
 
-	glm::vec4 debugColor{1.0f, 1.0f, 1.0f, 1.0f};
+	glm::vec4 debugColor{100.0f, 1.0f, 1.0f, 0.5f};
 
 	typedef struct
 	{
@@ -218,17 +219,21 @@ void light_createShadowTexture ( std::set<_lightHullPoint> const &drawShadowHull
 
 	if (0 == io_getTextureID ("lightcaster"))
 	{
-		glm::vec2 fullSize;
-
-		fullSize = io_getTextureSize ("fullLevelTexture");
-		io_storeTextureInfoIntoMap(gl_createNewTexture (256, 256), glm::vec2{256, 256}, "lightcaster", false);
-
-		scaleValue.x = fullSize.x / 256;
-		scaleValue.y = fullSize.y / 256;
-		scaleValue.z = 0.0f;
-
-		printf("Scale x [ %3.3f ] Y [ %3.3f ]\n", scaleValue.x, scaleValue.y);
+        lightCasterTextureID = gl_createNewTexture (static_cast<GLuint>(lightCasterSize), static_cast<GLuint>(lightCasterSize));
+		io_storeTextureInfoIntoMap(lightCasterTextureID, glm::vec2{lightCasterSize, lightCasterSize}, "lightcaster", false);
 	}
+
+    if ( 0 == lightCaster_FBO)
+      {
+        lightCaster_FBO = gl_createFBO (glm::vec2{lightCasterSize, lightCasterSize});
+        //
+        // Check it was created ok
+        if (0 == lightCaster_FBO)
+          {
+            con_print (CON_ERROR, true, "Unable to create backing FBO for lightCaster screen. Critical error.");
+            return;
+          }
+      }
 
 
 	//
@@ -247,6 +252,7 @@ void light_createShadowTexture ( std::set<_lightHullPoint> const &drawShadowHull
 	{
 		tempTexHullPoints.position.x = sourceItr.position.x;
 		tempTexHullPoints.position.y = sourceItr.position.y;
+        tempTexHullPoints.position.z = sourceItr.position.z;
 		hullPoints.push_back(tempTexHullPoints);
 	}
 
@@ -275,31 +281,37 @@ void light_createShadowTexture ( std::set<_lightHullPoint> const &drawShadowHull
 		initDone = false;
 	}
 
+//    gl_linkTextureToFBO (io_getTextureID("lightcaster"), lightCaster_FBO, GL_DRAW_FRAMEBUFFER);
+//    gl_linkTextureToFBO (io_getTextureID (levelName), fullLevel_FBO, GL_DRAW_FRAMEBUFFER);
 
 
 
-	GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
+//    glViewport (0, 0, lightCasterSize, lightCasterSize); // Render on the whole backing FBO
+//    gl_set2DMode (glm::vec2{0.0, 0.0}, glm::vec2{lightCasterSize,lightCasterSize}, glm::vec3 (1, 1, 1));
 
-	if (!gl_renderToFrameBuffer ("lightcaster"))
-	{
-		printf("Unable to use frame buffer.\n");
-	}
+    GL_CHECK (glBindVertexArray (vao));
+    GL_CHECK (glUseProgram (gl_getShaderID (whichShader)));
 
-//	gl_set2DMode ( 256, 256, scaleValue);
-
-	GL_CHECK (glBindVertexArray (vao));
 	//
 	// Enable attribute to hold vertex information
-//	GL_CHECK (glUniform4fv                 (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr (debugColor)));
+    GL_CHECK (glUniform1f                  (gl_getUniform (whichShader, "gamma"), g_gamma));
+	GL_CHECK (glUniform4fv                 (gl_getUniform (whichShader, "inColor"), 1, glm::value_ptr (debugColor)));
 	GL_CHECK (glUniformMatrix4fv           (gl_getUniform (whichShader, "MVP_Matrix"), 1, false, glm::value_ptr (MVP)));
+
+//    GL_CHECK (glBindVertexArray (vao));
+
 	GL_CHECK (glEnableVertexAttribArray    (gl_getAttrib  (whichShader, "inPosition")));
 	//
 	// Create the black and white hull mask texture
 	//
 	GL_CHECK (glDrawArrays (GL_TRIANGLE_FAN, 0, hullPoints.size ()));
 
+    glUseProgram (0);
+
 	glDeleteBuffers (1, &buffers);
 	glDeleteVertexArrays (1, &vao);
+
+  gl_screenShot("lightcaster.tga");
 
 //	gl_renderToScreen ();
 }
@@ -414,12 +426,12 @@ void light_createLightCaster (string levelName, vec3 lightPosition)
 
 	light_createLightHull (lightPosition);
 
-//	light_createShadowTexture (lightHull, lightPosition, "colorLine");
-	light_createShadowTexture (lightHull, lightPosition, "quad3d");
+	light_createShadowTexture (lightHull, lightPosition, "colorOnly", levelName);
+//	light_createShadowTexture (lightHull, lightPosition, "quad3d", levelName);
 
 	if (g_debugShowHullCircle)
 	{
-		for ( auto itr: lightLineSegments )
+		for (const auto &itr: lightLineSegments )
 		{
 			gl_drawLine (itr.start, itr.end, "colorLine", vec4 (1, 0, 1, 1));
 		}

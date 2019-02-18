@@ -7,8 +7,8 @@ typedef struct
 {
 	string      textureName;
 	int         numberOfFrames;
-	float       frameWidth;
-	float       frameHeight;
+	float       frameWidthGL;
+	float       frameHeightGL;
 	bool        useKeyColor;
 	bool        markedForDeletion;
 	glm::vec3   keyColor;

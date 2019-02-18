@@ -124,7 +124,7 @@ int gam_processGameEventQueue ( void *ptr )
 				{
 					lvl_addPaddingToLevel(tempEventData.eventString);
 					levelInfo.at(tempEventData.eventString).lifts.reserve ( levelInfo.at(tempEventData.eventString).numLifts );
-					levelInfo.at(tempEventData.eventString).bullet.reserve ( 16 );  // Init bullet arrayu TODO
+					levelInfo.at(tempEventData.eventString).bullet.reserve ( 16 );
 					bul_initArray ( tempEventData.eventString );
                     gam_doorTriggerSetup ( tempEventData.eventString );
 					break;

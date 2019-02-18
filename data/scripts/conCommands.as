@@ -35,8 +35,8 @@ void as_setGameVariables()
     farPlane = 400.0;
     cameraDistance = 350.0;
 
-    g_scaleViewBy = 3.1;
-    g_playFieldSize = 256;  // Tiles across / down in multiples of 32
+    g_scaleViewBy = 2.8f; //3.1;
+    g_playFieldSize = 224;  // Tiles across / down in multiples of 32
 
     g_debugShowWaypoints = false;
     g_debugShowPhysicsLines = false;
@@ -97,6 +97,9 @@ void as_setGameVariables()
 	bulletMass = 0.8f;
 
 	bulletTravelSpeed = 0.9f;
+
+    bulletAnimateInterval = 70;
+
     //
     // Counter for how long droid remembers being shot
     droidBeenShotValue = 3.0f;
@@ -136,3 +139,5 @@ void as_addAllScriptCommands()
     sys_addScriptCommand("quit", "Quit the program", "bool as_conCommandQuit()", false);
     sys_addScriptCommand("exit", "Quit the program", "bool as_conCommandQuit()", false);
 }
+
+

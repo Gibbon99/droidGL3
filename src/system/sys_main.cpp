@@ -55,7 +55,7 @@ Uint32 frameCount;
 
 vec3 quadPosition{640.0f, 380.0f, -560.0f};
 
-vec3 testLightPosition;
+vec2 testLightPosition{};
 
 // TODO: AntiAliasing shader for final view render of texture
 
@@ -72,6 +72,10 @@ void sys_displayScreen (float interpolation)
 
   switch (currentMode)
     {
+      case MODE_TEST_ROTATE:
+        bul_testRotate();
+        break;
+
       case MODE_SPLASH: gl_set2DMode (glm::vec2{0, 0}, glm::vec2{winWidth, winHeight}, glm::vec3{1, 1, 1,});
       gl_renderSprite ("splash", glm::vec2{0, 0}, 0, 1, glm::vec3{0, 0, 0});
       break;
@@ -144,6 +148,9 @@ void sys_gameTickRun ()
 {
   switch (currentMode)
     {
+      case MODE_TEST_ROTATE:
+        break;
+
       case MODE_SHUTDOWN: quitProgram = true;
       break;
 
@@ -165,9 +172,9 @@ void sys_gameTickRun ()
 
       case MODE_GAME:
 
-        io_processInputActions ();
+      io_processInputActions ();
 
-      gam_processPlayerMovement ();
+      gam_processPlayerMovement (interpolation);
 
       gam_processMainLoopEventQueue ();
 

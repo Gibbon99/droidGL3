@@ -15,7 +15,7 @@ enum droidModes
 void gam_initDroidValues ( std::string levelName );
 
 // Render the droids for this level
-void gam_renderThisLevel ( std::string levelName, float interpolate );
+void gam_renderDroids (std::string levelName, float interpolate);
 
 // Animate the droid
 void gam_animateThisLevel ( std::string levelName );

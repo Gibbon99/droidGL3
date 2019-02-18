@@ -123,13 +123,14 @@ void gl_createSprite(string textureName, glm::vec3 keyColor, int numberOfFrames,
 	}
 	if (1 == tempSprite.numberOfFrames)
 	{
-		tempSprite.frameWidth = tempSprite.textureSize.x;
-		tempSprite.frameHeight = tempSprite.textureSize.y;
+		tempSprite.frameWidthGL = tempSprite.textureSize.x;
+		tempSprite.frameHeightGL = tempSprite.textureSize.y;
+
 	}
 	else
 	{
-		tempSprite.frameWidth = (tempSprite.textureSize.x / tempSprite.numberOfFrames) / tempSprite.textureSize.x;
-		tempSprite.frameHeight = tempSprite.textureSize.y;
+		tempSprite.frameWidthGL = (tempSprite.textureSize.x / tempSprite.numberOfFrames) / tempSprite.textureSize.x;
+		tempSprite.frameHeightGL = tempSprite.textureSize.y;
 	}
 
 	tempSprite.renderOffset.x = (tempSprite.textureSize.x / tempSprite.numberOfFrames) * 0.5f;
@@ -192,7 +193,7 @@ void gl_renderSprite (string whichSprite, glm::vec2 position, float rotateAngle,
 		textureSize.x *= spriteItr->second.scaleBy.x;
 		textureSize.y *= spriteItr->second.scaleBy.y;
 
-		frameWidth = spriteItr->second.frameWidth;
+		frameWidth = spriteItr->second.frameWidthGL;
 
 		framePosition.x = frameWidth * frameNumber;
 		framePosition.y = 0.0f;
@@ -211,8 +212,8 @@ void gl_renderSprite (string whichSprite, glm::vec2 position, float rotateAngle,
 
 		renderPosition = position;
 
-		renderPosition.x -= spriteItr->second.renderOffset.x;
-		renderPosition.y -= spriteItr->second.renderOffset.y;
+//		renderPosition.x += spriteItr->second.renderOffset.x;
+//		renderPosition.y += spriteItr->second.renderOffset.y;
 
 		if (spriteItr->second.useKeyColor)  // Needs key color shader
 		{
@@ -220,7 +221,7 @@ void gl_renderSprite (string whichSprite, glm::vec2 position, float rotateAngle,
 		}
 		else
 		{
-            gl_draw2DQuad (position, rotateAngle, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0, 0, 0}, spriteItr->second.tintColor, texCoords);
+            gl_draw2DQuad (renderPosition, rotateAngle, textureSize, "quad3d", io_getTextureID (whichSprite), glm::vec3{0, 0, 0}, spriteItr->second.tintColor, texCoords);
 		}
 	}
 	else    // Sprite name could not be found

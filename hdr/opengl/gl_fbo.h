@@ -22,4 +22,4 @@ void gl_getFramebufferInfo(GLenum target, GLuint fbo);
 GLuint gl_getReadBuffer ();
 
 // Link a texture to a FBO
-bool gl_linkTextureToFBO ( GLuint whichTexture, GLuint whichFBO );
+bool gl_linkTextureToFBO (GLuint whichTexture, GLuint whichFBO, GLuint bindOperation);

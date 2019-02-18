@@ -11,22 +11,21 @@
 #include "hdr/game/gam_lifts.h"
 #include "hdr/network/net_client.h"
 
-vector<_levelMemory> levelMemoryPointers;
-unordered_map<string, _levelStruct> levelInfo;
-//unordered_map<string, _levelStruct>::const_iterator currentLevelItr;
+vector<_levelMemory>                  levelMemoryPointers;
+unordered_map<string, _levelStruct>   levelInfo;
 
-int numTotalLevelsToLoad = 0;
-bool allLevelsLoaded = false;
+int       numTotalLevelsToLoad = 0;
+bool      allLevelsLoaded = false;
 
 //----------------------------------------------------------------------------
 //
 // Structure holding all the level information
 //
 //-----------------------------------------------------------------------------
-int currentLevel = -1;
-vec2 drawOffset;
-string currentLevelName;
-int currentAlertLevel = ALERT_GREEN_TILE;
+int       currentLevel = -1;
+vec2      drawOffset;
+string    currentLevelName;
+int       currentAlertLevel = ALERT_RED_TILE;
 
 //-----------------------------------------------------------------------------------------------------
 //
@@ -92,8 +91,6 @@ void lvl_loadLevelFromFile (const string fileName, int deckNumber)
   int levelLength;
   long levelMemoryIndex;
 
-//	con_print(CON_INFO, true, "Step 1 - load level file [ %s ]", fileName.c_str());
-
   levelLength = (int) io_getFileSize (fileName.c_str ());
 
   if (levelLength < 0)
@@ -101,8 +98,6 @@ void lvl_loadLevelFromFile (const string fileName, int deckNumber)
       evt_sendEvent (USER_EVENT_GAME, USER_EVENT_LEVEL_ERROR, LEVEL_LOAD_ERROR_NOT_FOUND, 0, 0, vec2 (), vec2 (), fileName);
       return;
     }
-
-//	con_print (CON_INFO, true, "Level size [ %i ]", levelLength);
 
   levelBuffer = (char *) malloc (sizeof (char) * levelLength);
 
@@ -120,13 +115,7 @@ void lvl_loadLevelFromFile (const string fileName, int deckNumber)
       return;
     }
 
-//	con_print (CON_INFO, true, "File is loaded into memory [ %i ]", levelBuffer);
-
   levelMemoryIndex = lvl_addLevelInfo (levelBuffer, levelLength, fileName, deckNumber);
-
-//	con_print (CON_INFO, true, "Index into array for [ %s ] is [ %i ]", fileName.c_str (), levelMemoryIndex);
-
-//	con_print (CON_INFO, true, "Send event to main thread to load the level into memory structure.");
 
   evt_sendSDLEvent (EVENT_TYPE_DO_LEVEL_LOAD, (int) levelMemoryIndex, 0);
 }
@@ -206,12 +195,8 @@ bool lvl_loadLevel (intptr_t levelMemoryIndex)
       lineStart.x += (drawOffset.x * 0.5) * TILE_SIZE;
       lineStart.y += (drawOffset.y * 0.5) * TILE_SIZE;
 
-      lineStart.x -= (TILE_SIZE * 0.5);
-
       lineFinish.x += (drawOffset.x * 0.5) * TILE_SIZE;
       lineFinish.y += (drawOffset.y * 0.5) * TILE_SIZE;
-
-      lineFinish.x -= (TILE_SIZE * 0.5);
 
       tempLevel.lineSegments.push_back (lineStart);
       tempLevel.lineSegments.push_back (lineFinish);
@@ -231,8 +216,6 @@ bool lvl_loadLevel (intptr_t levelMemoryIndex)
       //
       tempWaypoint.x += (drawOffset.x * 0.5) * TILE_SIZE;
       tempWaypoint.y += (drawOffset.y * 0.5) * TILE_SIZE;
-
-      tempWaypoint.x -= (TILE_SIZE * 0.5);
 
       tempLevel.wayPoints.push_back (tempWaypoint);
     }
@@ -272,17 +255,11 @@ bool lvl_loadLevel (intptr_t levelMemoryIndex)
   tempLevel.wallPhysicsCreated = false;
   tempLevel.droidPhysicsCreated = false;
 
-//	tempLevel.deckCategory = static_cast<cpBitmask>(bitmask);
-//	bitmask *= 2;
-
-//	printf("Finished loading file from memory [ %s ]\n", tempLevel.levelName);
-
   if (SDL_LockMutex (levelMutex) == 0)
     {
       levelInfo.insert (std::pair<string, _levelStruct> (tempLevel.levelName, tempLevel));
       SDL_UnlockMutex (levelMutex);
     }
-//	printf("Unable to lock levelMutex\n");
 
   free (levelMemoryPointers[levelMemoryIndex].memPointer);
 

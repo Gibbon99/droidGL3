@@ -1,9 +1,59 @@
 #include <hdr/system/sys_maths.h>
+#include <hdr/io/io_mouse.h>
 #include "hdr/game/gam_player.h"
 #include "hdr/game/gam_bullet.h"
 
 float bulletMass;
 float bulletTravelSpeed;
+
+bool            doBulletAnimate = true;
+SDL_TimerID     timerBulletAnimate;
+Uint32          bulletAnimateInterval;      // From script
+
+// ----------------------------------------------------------------------------
+//
+// Animate healing tiles called from timer callback
+// Does healing tiles on all levels
+Uint32 bul_bulletAnimateTimerCallback ( Uint32 interval, void *param )
+// ----------------------------------------------------------------------------
+{
+  if ( !doBulletAnimate )
+    return interval;
+
+  for (int i = 0; i != levelInfo.at (lvl_getCurrentLevelName ()).bullet.size (); i++)
+    {
+      if (levelInfo.at (lvl_getCurrentLevelName ()).bullet[i].type != BULLET_TYPE_DISRUPTER)
+        {
+          if (levelInfo.at (lvl_getCurrentLevelName ()).bullet[i].isAlive)
+            {
+              levelInfo.at (lvl_getCurrentLevelName ()).bullet[i].currentAnimFrame++;
+              if (levelInfo.at (lvl_getCurrentLevelName ()).bullet[i].currentAnimFrame > 8)
+                levelInfo.at (lvl_getCurrentLevelName ()).bullet[i].currentAnimFrame = 0;
+            }
+        }
+    }
+  return interval;
+}
+
+// ----------------------------------------------------------------------------
+//
+// Set the state of the healing tile timer
+void bul_setBulletAnimateState (bool newState)
+// ----------------------------------------------------------------------------
+{
+  doBulletAnimate = newState;
+}
+
+// ----------------------------------------------------------------------------
+//
+// Initiate the timer to animate the bullet sprites
+//
+// Pass in time in milliseconds
+void bul_initBulletAnimateTimer (Uint32 interval)
+// ----------------------------------------------------------------------------
+{
+   timerBulletAnimate = evt_registerTimer ( interval, bul_bulletAnimateTimerCallback, "Bullet animation" );
+}
 
 //-----------------------------------------------------------------------------
 //
@@ -13,7 +63,7 @@ void bul_initArray (const string levelName)
 {
   _bullet tempBullet;
 
-  for (int i = 0; i != 16; i++)
+  for (int i = 0; i != NUM_STARTING_BULLETS; i++)
     {
       tempBullet.isAlive = false;
       levelInfo.at (levelName).bullet.push_back (tempBullet);
@@ -92,36 +142,18 @@ void bul_removeBullet (int whichDeck, int whichBullet_1, int whichBullet_2)
 
 //-----------------------------------------------------------------------------
 //
-// Get the direction for a bullet to travel in - not the same as the current
-// direction vector
-cpVect bul_getPlayerBulletDirection ()
+// Get the angle of rotation for the bullet
+double bul_getBulletAngle(cpVect sourcePos, cpVect destPos)
 //-----------------------------------------------------------------------------
 {
-  cpVect bulletDirection;
+  glm::vec3 a, b;
 
-  bulletDirection.x = 0;
-  bulletDirection.y = 0;
+  double angle = (atan2(destPos.y - sourcePos.y, destPos.x - sourcePos.x) * ( 180 / 3.1415f ));
 
-// TODO rotate angle of sprite
-/*
-	if ( true == inputAction[gameLeft].currentlyDown )
-		bulletDirection.x = -1;
+  if (angle < 0)
+    angle = 360 - ( -angle );
 
-	if ( true == inputAction[gameRight].currentlyDown )
-		bulletDirection.x = 1;
-
-	if ( true == inputAction[gameDown].currentlyDown )
-		bulletDirection.y = 1;
-
-	if ( true == inputAction[gameUp].currentlyDown )
-		bulletDirection.y = -1;
-
-//	return bulletDirection;
-*/
-  bulletDirection.x = playerDroid.velocity.x;
-  bulletDirection.y = playerDroid.velocity.y;
-
-  return bulletDirection;
+  return angle;
 }
 
 //-----------------------------------------------------------------------------
@@ -166,13 +198,13 @@ cpVect bul_getStartingPosition (cpVect currentPos, int bulletType, cpVect direct
       return bulletStart;
     }
 
-  if (direction.x < 0)
+  if (direction.x < 0)      // Left
     {
       bulletStart.x -= size.x + SPRITE_SIZE;
       bulletStart.y -= SPRITE_SIZE / 2;
     }
 
-  if (direction.x > 0)
+  if (direction.x > 0)      // Right
     {
       bulletStart.x += size.x;
       bulletStart.y -= SPRITE_SIZE / 2;
@@ -218,19 +250,23 @@ cpVect bul_getStartingPosition (cpVect currentPos, int bulletType, cpVect direct
 void bul_newBullet (cpVect sourcePos, cpVect destPos, int type, int sourceDroid, const string levelName)
 //-----------------------------------------------------------------------------
 {
-  _bullet tempBullet;
-  cpShapeFilter bulletShapeFilter;
-  std::bitset<32> bulletBitset;
+  _bullet               tempBullet;
+  cpShapeFilter         bulletShapeFilter;
+  std::bitset<32>       bulletBitset;
+
+  bul_setBulletAnimateState ( true );
 
   if (-1 == sourceDroid)
     {
-      tempBullet.travelDirection = cpvnormalize (bul_getPlayerBulletDirection ());
+      tempBullet.travelDirection = cpvnormalize (playerDroid.velocity); //bul_getPlayerBulletDirection ());
       tempBullet.sourceDroid = 127;
     }
   else
     {
       tempBullet.travelDirection = cpvsub (destPos, sourcePos);
       tempBullet.sourceDroid = sourceDroid;
+
+
       printf ("New bullet added from Droid [ %i ]\n", sourceDroid);
     }
 
@@ -245,11 +281,11 @@ void bul_newBullet (cpVect sourcePos, cpVect destPos, int type, int sourceDroid,
       tempBullet.currentAnimFrame = 0;
       tempBullet.speed = 0.009f; //bulletTravelSpeed;
 
-      tempBullet.angle = cpvtoangle (tempBullet.travelDirection);
+      tempBullet.angle = bul_getBulletAngle(sourcePos, destPos);
 
       tempBullet.bitmapName = bul_getBulletImageByType (type);
-      tempBullet.size.x = sprites.at (tempBullet.bitmapName).frameWidth;
-      tempBullet.size.y = sprites.at (tempBullet.bitmapName).frameHeight;
+      tempBullet.size.x = sprites.at (tempBullet.bitmapName).frameWidthGL;
+      tempBullet.size.y = sprites.at (tempBullet.bitmapName).frameHeightGL;
 
       tempBullet.worldPos = bul_getStartingPosition (sourcePos, type, tempBullet.travelDirection, tempBullet.size);
       //
@@ -362,9 +398,74 @@ void bul_renderBullet (const string levelName)
 
               gl_renderSprite (levelInfo.at (levelName).bullet[i].bitmapName, glm::vec2{
                                 levelInfo.at (levelName).bullet[i].worldPos.x,
-                                levelInfo.at (levelName).bullet[i].worldPos.y}, 0.0f, levelInfo.at (levelName).bullet[i].currentAnimFrame, glm::vec3{
-                                -1, 0, 0});
+                                levelInfo.at (levelName).bullet[i].worldPos.y},
+                               (float)levelInfo.at (levelName).bullet[i].angle,
+                                levelInfo.at (levelName).bullet[i].currentAnimFrame,
+                                glm::vec3{-1.0f, 0.0f, 0.0f});
             }
         }
     }
+}
+
+
+
+float angleBetween(glm::vec3 a, glm::vec3 b)
+{
+  float angle = atan2(b.y - a.y, b.x - a.x );
+
+  angle = angle * ( 180 / 3.1415f);
+
+  if (angle < 0)
+  {
+    angle = 360 - (-angle);
+  }
+  return angle;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Test rotate a bullet sprite
+void bul_testRotate()
+//-----------------------------------------------------------------------------
+{
+
+ static bool bulletAdded = false;
+ static double    bulletAngle;
+
+ SDL_Point    mouseTestPos;
+ cpVect       mouseLoc;
+
+ mouseTestPos = io_getMousePointLocation();
+ mouseLoc.x = mouseTestPos.x;
+ mouseLoc.y = mouseTestPos.y;
+
+ if (!bulletAdded)
+   {
+     SDL_ShowCursor (SDL_ENABLE);
+
+     bul_newBullet (cpVect{400, 300}, cpVect {400, 300}, BULLET_TYPE_NORMAL, -1, lvl_getCurrentLevelName ());
+
+     io_mouseTimerState ( USER_EVENT_TIMER_ON);
+
+     bulletAngle = 0;
+
+     bulletAdded = true;
+   }
+
+   cpVect bulletMiddle;
+
+ bulletMiddle = levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].worldPos;
+ bulletMiddle.x -= sprites["bullet_001"].renderOffset.x / 2;
+ bulletMiddle.y -= sprites["bullet_001"].renderOffset.y / 2;
+
+ bulletAngle = bul_getBulletAngle(bulletMiddle, mouseLoc);
+
+  gl_renderSprite (levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].bitmapName,
+//                   glm::vec2{levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].worldPos.x, levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].worldPos.y},
+                   glm::vec2{bulletMiddle.x, bulletMiddle.y},
+                   static_cast<float>(-bulletAngle),
+                   levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].currentAnimFrame, glm::vec3{-1, 0, 0});
+
+  printf ("Bullet angle [ %3.3f ] Mouse [ %3.3f %3.3f ]\n", bulletAngle, mouseLoc.x, mouseLoc.y);
+
 }

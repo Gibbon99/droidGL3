@@ -7,7 +7,7 @@ extern double       deltaTime;
 extern bool         g_debugShowHullCircle;
 extern bool         g_debugShowHullLines;
 
-extern vec3         testLightPosition;
+extern vec2         testLightPosition;
 
 typedef struct
 {

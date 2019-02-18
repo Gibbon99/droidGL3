@@ -1,6 +1,7 @@
 GAME
 -----
 Bullets - player and droids
+Bullets - animate sprite
 Physics - collisions between droids / bullets / players / explosions
 Alert level
 Lightmap for alerts and bullets

@@ -113,17 +113,17 @@ void io_processActionKey ( int keyAction )
 				return;
 			}
 
-		/*
-		//
-		// Go into transfer mode
-		if ((playerDroid.velocity.x == 0.0) && (playerDroid.velocity.y == 0.0) &&
-		    (inputAction[gameLeft].currentlyDown == false) && (false == inputAction[gameRight].currentlyDown) &&
-		    (false == inputAction[gameDown].currentlyDown) && (false == inputAction[gameUp].currentlyDown))
+
+        //
+        // Go into transfer mode
+        if ((playerDroid.overTile != TERMINAL_TOP) && (playerDroid.overTile != TERMINAL_BOTTOM) &&
+            (playerDroid.overTile != TERMINAL_LEFT) && (playerDroid.overTile != TERMINAL_RIGHT) &&
+            (playerDroid.overTile != LIFT_TILE) )
 		{
 			playerDroid.currentMode = DROID_MODE_TRANSFER;
 			return;
 		}
-*/
+
 		//
 		// Shoot a bullet - no shooting in transfer mode
 		if ( DROID_MODE_TRANSFER != playerDroid.currentMode )
@@ -424,7 +424,22 @@ void io_handleKeyboardEvent ( SDL_Event event )
 		sys_disablePlayerCollision();
 		return;
 	}
-	switch ( currentMode )
+
+      if (event.key.keysym.sym == SDLK_w && event.type == SDL_KEYDOWN )
+        {
+          printf ("zDistance [ %3.3f ]\n", zDistance);
+          zDistance += 0.1f;
+          return;
+        }
+
+  if (event.key.keysym.sym == SDLK_s && event.type == SDL_KEYDOWN )
+    {
+      zDistance -= 0.1f;
+      return;
+    }
+
+
+  switch ( currentMode )
 	{
 		case MODE_CONSOLE:
 			if ( event.type == SDL_TEXTINPUT )

@@ -17,7 +17,7 @@ Uint32      playerAnimateInterval;      // From script
 //------------------------------------------------------------------------------
 //
 // Process the player world position and movement
-void gam_processPlayerMovement ()
+void gam_processPlayerMovement (float interpolation)
 //------------------------------------------------------------------------------
 {
 	if ( eventMoveLeft )
@@ -100,7 +100,10 @@ void gam_processPlayerMovement ()
 	viewableScreenCoord.x = playerDroid.worldPos.x - ( winWidth / 2 );
 	viewableScreenCoord.y = playerDroid.worldPos.y - ( winHeight / 2 );
 
-	playerDroid.overTile = gam_getTileUnderPlayer (lvl_getCurrentLevelName (), playerDroid.middlePosition.x / TILE_SIZE, playerDroid.middlePosition.y / TILE_SIZE);
+    playerDroid.viewWorldPos = cpvadd (playerDroid.worldPos, cpvmult (playerDroid.velocity, interpolation)); // TODO: Move this to tick loop
+
+
+    playerDroid.overTile = gam_getTileUnderPlayer (lvl_getCurrentLevelName (), playerDroid.middlePosition.x / TILE_SIZE, playerDroid.middlePosition.y / TILE_SIZE);
 //	net_sendPositionUpdate (0);
 }
 
@@ -182,9 +185,7 @@ void gam_initPlayerAnimateTimer ( Uint32 interval )
 void gam_renderPlayerSprite ()
 //------------------------------------------------------------------------------
 {
-  gl_renderSprite ("001", glm::vec2{winWidth / 2, winHeight / 2}, 0, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 1.0});
-
-//	gl_renderSprite ("001", glm::vec2{playerDroid.serverWorldPos.x, playerDroid.serverWorldPos.y}, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 0.0});
+	gl_renderSprite ("001", glm::vec2{playerDroid.viewWorldPos.x, (int)playerDroid.viewWorldPos.y}, 0, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 0.0});
 }
 
 //------------------------------------------------------------------------------

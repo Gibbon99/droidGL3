@@ -99,6 +99,7 @@ _hostScriptFunctions hostVariables[] =
 	{"float g_LineOfSightStep",             &g_LineOfSightStep},
 	{"float bulletMass",                    &bulletMass},
 	{"float bulletTravelSpeed",             &bulletTravelSpeed},
+    {"int bulletAnimateInterval",         &bulletAnimateInterval},
 
     {"float aStarPathInterval",             &aStarPathInterval},
 
@@ -120,7 +121,7 @@ _hostScriptFunctions hostVariables[] =
     {"int introPauseTime",                  &introPauseTime},
     {"int dbScrollSpeed",                   &dbScrollSpeed},
     {"float dbImagePositionX",              &dbImagePositionX},
-    {"float dbImagePositionY",              &dbImagePositionY},
+    {"float dbImagePositionY",                &dbImagePositionY},
 
 	{"",                                    nullptr},
 };

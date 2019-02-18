@@ -75,7 +75,7 @@ void gam_animateThisLevel ( const string levelName )
 //------------------------------------------------------------------------------
 //
 // Render the droids for this level
-void gam_renderThisLevel ( const string levelName, float interpolate )
+void gam_renderDroids (const string levelName, float interpolate)
 //------------------------------------------------------------------------------
 {
 	cpVect drawPosition;
@@ -99,14 +99,12 @@ void gam_renderThisLevel ( const string levelName, float interpolate )
               switch (levelInfo.at (levelName).droid[index].currentMode)
                 {
                   case DROID_MODE_NORMAL:
-                    gl_renderSprite (levelInfo.at (levelName).droid[index].spriteName, glm::vec2{drawPosition.x,
-                                                                                                 drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
+                    gl_renderSprite (levelInfo.at (levelName).droid[index].spriteName, glm::vec2{drawPosition.x, drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
                         1, 1, 0});
                   break;
 
                   case DROID_MODE_EXPLODING:
-                    gl_renderSprite ("explosion", glm::vec2{drawPosition.x,
-                                                            drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
+                    gl_renderSprite ("explosion", glm::vec2{drawPosition.x, drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
                         1, 1, 0});
                   break;
 

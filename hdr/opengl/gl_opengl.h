@@ -51,3 +51,9 @@ void gl_displayErrors ();
 
 // Create a new empty texture
 GLuint gl_createNewTexture(GLuint width, GLuint height);
+
+// Work out viewport transormation based on internal virtual screen size and actual size
+void gl_setupVirtualScreenViewport ();
+
+// Save the framebuffer to a file
+bool gl_screenShot(std::string fileName);

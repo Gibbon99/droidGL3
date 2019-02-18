@@ -890,8 +890,10 @@ void gui_displayGUI()
 	glm::vec3 guiColorKey;
 	glm::vec3 guiTintColor;
 
-	guiPosition.x = 0.0f;
-	guiPosition.y = 0.0f;
+	guiPosition.x = winWidth / 2; //0.0f;
+	guiPosition.y = winHeight / 2; //0.0f;
+
+//  	glm::vec2 screenRatio.x = static_cast<float>(winWidth) / static_cast<float>(winHeight);
 
 	guiSize.x = winWidth;
 	guiSize.y = winHeight;

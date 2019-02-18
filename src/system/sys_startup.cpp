@@ -177,6 +177,9 @@ bool sys_initAll()
 		gam_setaStarState (false);
 		gam_initaStarPathTimer (aStarPathInterval);
 
+        bul_setBulletAnimateState ( false );
+        bul_initBulletAnimateTimer (bulletAnimateInterval);
+
 		if (!gui_initGUI())
 		{
 			con_print(CON_ERROR, true, "Unable to start GUI system.");
