@@ -333,7 +333,8 @@ void gui_renderDataBase ()
 
   gui_drawScrollBox (&databaseScrollBox);
 
-  gl_renderSprite ("db_001", glm::vec2{dbImagePositionX,dbImagePositionY}, 0, dataBaseCurrentFrame, glm::vec3{1, 1, 0});
+  gl_renderSprite ("db_001", 0, glm::vec2{dbImagePositionX, dbImagePositionY}, 0, dataBaseCurrentFrame, glm::vec3{1, 1,
+                                                                                                                  0});
 }
 
 //------------------------------------------------------------------------

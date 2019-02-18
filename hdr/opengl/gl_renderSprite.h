@@ -33,7 +33,8 @@ string gl_getSpriteName ( int droidType );
 // Render a image file
 //
 // Position is the center of the sprite
-void gl_renderSprite (string whichSprite, glm::vec2 position, float rotateAngle, int frameNumber, glm::vec3 tintColor);
+void
+gl_renderSprite (string whichSprite, char spriteType, glm::vec2 position, float rotateAngle, int frameNumber, glm::vec3 tintColor);
 
 // Create a sprite object
 void gl_createSprite ( string textureName, glm::vec3 keyColor, int numberOfFrames, glm::vec2 scaleBy, glm::vec3 tintColor );

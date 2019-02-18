@@ -116,7 +116,7 @@ void gam_initialPlayerSetup ()
 	float   massWeight;
 
 	playerDroid.mass = -1;
-	playerDroid.inTransferMode = false;
+	playerDroid.currentMode = DROID_MODE_NORMAL;
 	playerDroid.playerDroidTypeDBIndex = "001";
 
 	massWeight = static_cast<int>(strtof ( dataBaseEntry[0].weight.c_str(), nullptr ));
@@ -185,7 +185,12 @@ void gam_initPlayerAnimateTimer ( Uint32 interval )
 void gam_renderPlayerSprite ()
 //------------------------------------------------------------------------------
 {
-	gl_renderSprite ("001", glm::vec2{playerDroid.viewWorldPos.x, (int)playerDroid.viewWorldPos.y}, 0, playerDroid.currentFrame, glm::vec3{1.0, 1.0, 0.0});
+  if (playerDroid.currentMode == DROID_MODE_TRANSFER)
+    gl_renderSprite ("001", SPRITE_TYPE_PLAYER, glm::vec2{playerDroid.viewWorldPos.x, (int)playerDroid.viewWorldPos.y},0, playerDroid.currentFrame,
+                                                          glm::vec3{0.0f, 0.0f, 1.0f});
+  else
+    gl_renderSprite ("001", SPRITE_TYPE_PLAYER, glm::vec2{playerDroid.viewWorldPos.x, (int)playerDroid.viewWorldPos.y}, 0, playerDroid.currentFrame,
+                                                          glm::vec3{1.0f, 1.0f, 1.0f});
 }
 
 //------------------------------------------------------------------------------
@@ -196,7 +201,6 @@ int gam_getTileUnderPlayer ( string levelName, float posX, float posY )
 {
 	return levelInfo.at(levelName).tiles[((int)(posY) * levelInfo.at(levelName).levelDimensions.x) + (int)posX];
 }
-
 
 //-----------------------------------------------------------------------------
 //

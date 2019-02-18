@@ -396,12 +396,12 @@ void bul_renderBullet (const string levelName)
             {
               levelInfo.at (levelName).bullet[i].worldPos = cpBodyGetPosition (levelInfo.at (levelName).bullet[i].bulletPhysicsObject.body);
 
-              gl_renderSprite (levelInfo.at (levelName).bullet[i].bitmapName, glm::vec2{
-                                levelInfo.at (levelName).bullet[i].worldPos.x,
-                                levelInfo.at (levelName).bullet[i].worldPos.y},
-                               (float)levelInfo.at (levelName).bullet[i].angle,
-                                levelInfo.at (levelName).bullet[i].currentAnimFrame,
-                                glm::vec3{-1.0f, 0.0f, 0.0f});
+              gl_renderSprite (levelInfo.at (levelName).bullet[i].bitmapName, 0, glm::vec2{
+                                   levelInfo.at (levelName).bullet[i].worldPos.x,
+                                   levelInfo.at (levelName).bullet[i].worldPos.y},
+                               (float) levelInfo.at (levelName).bullet[i].angle,
+                               levelInfo.at (levelName).bullet[i].currentAnimFrame,
+                               glm::vec3{-1.0f, 0.0f, 0.0f});
             }
         }
     }
@@ -460,8 +460,8 @@ void bul_testRotate()
 
  bulletAngle = bul_getBulletAngle(bulletMiddle, mouseLoc);
 
-  gl_renderSprite (levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].bitmapName,
-//                   glm::vec2{levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].worldPos.x, levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].worldPos.y},
+  gl_renderSprite (levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].bitmapName, 0,
+      //                   glm::vec2{levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].worldPos.x, levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].worldPos.y},
                    glm::vec2{bulletMiddle.x, bulletMiddle.y},
                    static_cast<float>(-bulletAngle),
                    levelInfo.at (lvl_getCurrentLevelName ()).bullet[0].currentAnimFrame, glm::vec3{-1, 0, 0});

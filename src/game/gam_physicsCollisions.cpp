@@ -295,7 +295,7 @@ bool handleCollisionTransferCheck ( cpArbiter *arb, cpSpace *space, int *unused 
 
 	if ( 1 == valuesPassedDroid_B[BYTE_TWO] )    // Is B the player
 	{
-		if ( !playerDroid.inTransferMode )
+		if ( playerDroid.currentMode != DROID_MODE_TRANSFER )
 			return cpTrue;    // Continue processing collision
 	}
 	//

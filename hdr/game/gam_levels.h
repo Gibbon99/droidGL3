@@ -150,8 +150,6 @@ typedef struct _droid
 	string          playerDroidTypeDBIndex;     // What sort of droid is the player
 //	int             droidTransferedIntoIndex;
 
-	bool            inTransferMode;
-
 	float           chanceToShoot;
 
 	bool            visibleToPlayer;

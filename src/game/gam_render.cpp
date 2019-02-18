@@ -564,7 +564,7 @@ void gam_resetRenderLevelInit ()
 // 3. Render the entire level to the backing texture
 // 4. Render viewable playfield texture to another texture
 // 5.
-void gam_drawFullLevel (const string levelName, const string whichShader, GLuint sourceTexture, float interpolate)
+void gam_renderFullLevel (const string levelName, const string whichShader, GLuint sourceTexture, float interpolate)
 //----------------------------------------------------------------------------------------
 {
   static glm::vec2 viewSize;
@@ -625,29 +625,11 @@ void gam_drawFullLevel (const string levelName, const string whichShader, GLuint
 
   bul_renderBullet (levelName);
 
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
-  light_createLightCaster (levelName, glm::vec3{playerDroid.worldPos.x, playerDroid.worldPos.y, 0});
+  //glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
-
-
-
-//	glViewport(0,0,256, 256); // Render on the whole framebuffer
-
-//  light_createLightCaster (levelName, glm::vec3{playerDroid.worldPos.x, playerDroid.worldPos.y, 0});
-
-	glm::vec2       lightSize;
-	lightSize = io_getTextureSize ("lightcaster");
-
-//  glViewport (0, 0, static_cast<GLsizei>(lightSize.x), static_cast<GLsizei>(lightSize.y)); // Render on the whole backing FBO
-//  gl_set2DMode (glm::vec2{0.0, 0.0}, lightSize, glm::vec3 (1, 1, 1));
-
-
-
-
-
-//	light_createLightCaster (vec3(750.0, 400.0, 0.0));
+  //light_createLightCaster (levelName, glm::vec3{playerDroid.worldPos.x, playerDroid.worldPos.y, 0});
 
 //----------------------------------------------------------------------------
 //
@@ -676,14 +658,14 @@ void gam_drawFullLevel (const string levelName, const string whichShader, GLuint
                  glm::vec3{-1.0, 0.0, 0.0}, texCoords);
 
 
-  glViewport (0, 0, lightSize.x, lightSize.y);
-  gl_set2DMode (glm::vec2{0, 0}, lightSize, glm::vec3 (1, 1, 1));
+//  glViewport (0, 0, lightSize.x, lightSize.y);
+//  gl_set2DMode (glm::vec2{0, 0}, lightSize, glm::vec3 (1, 1, 1));
 
-  gl_draw2DQuad (glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, 0, lightSize, "quad3d", io_getTextureID ("lightcaster"), glm::vec3{0,0,0},
-                 glm::vec3{-1.0, 0.0, 0.0}, texCoords);
+//  gl_draw2DQuad (glm::vec2{playerDroid.worldPos.x, playerDroid.worldPos.y}, 0, lightSize, "quad3d", io_getTextureID ("lightcaster"), glm::vec3{0,0,0},
+//                 glm::vec3{-1.0, 0.0, 0.0}, texCoords);
 
-  gl_draw2DQuad (glm::vec2{0, 0}, 0, lightSize, "quad3d", io_getTextureID ("lightcaster"), glm::vec3{0,0,0},
-                 glm::vec3{-1.0, 0.0, 0.0}, texCoords);
+//  gl_draw2DQuad (glm::vec2{0, 0}, 0, lightSize, "quad3d", io_getTextureID ("lightcaster"), glm::vec3{0,0,0},
+//                 glm::vec3{-1.0, 0.0, 0.0}, texCoords);
 
   //
   // Render HUD on top of everything

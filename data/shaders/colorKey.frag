@@ -20,12 +20,12 @@ void main()
 	if (textureColor.rgb == colorKey.rgb)
 		discard;
 
-	if (tintColor.r > -1.0)
+	if (tintColor.r > -1.0f)
 		textureColor.rgb = tintColor;
 	//
 	// Apply Gamma setting to the texture colors
-	vec4 finalGamma = vec4 (1.0 / gamma);
-	finalGamma.w = 1.0;
+	vec4 finalGamma = vec4 (1.0f / gamma);
+	finalGamma.w = 1.0f;
 	pixelColor = pow (textureColor, finalGamma);
 }
 

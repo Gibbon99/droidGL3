@@ -99,13 +99,13 @@ void gam_renderDroids (const string levelName, float interpolate)
               switch (levelInfo.at (levelName).droid[index].currentMode)
                 {
                   case DROID_MODE_NORMAL:
-                    gl_renderSprite (levelInfo.at (levelName).droid[index].spriteName, glm::vec2{drawPosition.x, drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
-                        1, 1, 0});
+                    gl_renderSprite (levelInfo.at (levelName).droid[index].spriteName, SPRITE_TYPE_DROID, glm::vec2{drawPosition.x,drawPosition.y}, 0,
+                        levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{ 1.0f, 1.0f, 0.0f});
                   break;
 
                   case DROID_MODE_EXPLODING:
-                    gl_renderSprite ("explosion", glm::vec2{drawPosition.x, drawPosition.y}, 0, levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{
-                        1, 1, 0});
+                    gl_renderSprite ("explosion", SPRITE_TYPE_DROID, glm::vec2{drawPosition.x, drawPosition.y}, 0,
+                        levelInfo.at (levelName).droid[index].currentFrame, glm::vec3{ 1.0f, 1.0f, 0.0f});
                   break;
 
                   default: break;
@@ -180,7 +180,7 @@ void gam_initDroidValues ( const string levelName )
 		tempDroid.playerDroidTypeDBIndex = "001";     // What sort of droid is the player
 //		tempDroid.droidTransferedIntoIndex = 0;
 
-		tempDroid.inTransferMode = false;
+		tempDroid.currentMode = DROID_MODE_NORMAL;
 
 		tempDroid.chanceToShoot = 0.0f;
 
