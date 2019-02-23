@@ -11,13 +11,19 @@ Add score on destroyed droid
 Score increment on Alert Level
 Make explosions passable - but still do damage
 Work out player animation speed based on current / max health
+Particles for bullets and explosions
+
+Transfer
+--------
+GUI Element - load sprite
+GUI Timer - Start timer and mode to change to when expired
+GUI Sound - Change mode when sound finishes
 
 Terminal
 ---------
 Load Database text into languages files
-Load routine for 3d models for display
 Handle key presses
-Add new MODE
+
 
 LOCATION
 ---------
@@ -55,3 +61,4 @@ DONE
 23/01/19 - DONE - Doors - use physics for detection
 24/01/19 - DONE - Player bullets - damage to enemy droids - still needs rotating of bullet sprite
 29/02/19 - FIXED - Droid stopping on healing tile too high - add SPRITE_SIZE to Y
+17/02/19 - DONE - Load routine for 3d models for display

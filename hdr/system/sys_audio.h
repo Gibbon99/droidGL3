@@ -40,3 +40,6 @@ bool aud_playSound ( int whichSound, float distance, int loops, float angle );
 
 // Set the global volume to a new level
 void aud_setAudioGain ( int newLevel );
+
+// Check if a sample is still playing - return bool
+bool aud_isSoundPlaying ( int whichSound );

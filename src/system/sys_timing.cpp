@@ -26,5 +26,5 @@ void sys_initTimingVars ()
 	fps = 0;
 	thinkFPS = 0;
 
-	fpsTimerID = evt_registerTimer(1000, fpsTimerCallback, "FPS Counter");
+	fpsTimerID = evt_registerTimer (1000, fpsTimerCallback, "FPS Counter", 0);
 }

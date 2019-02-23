@@ -52,7 +52,7 @@ void bul_setBulletAnimateState (bool newState)
 void bul_initBulletAnimateTimer (Uint32 interval)
 // ----------------------------------------------------------------------------
 {
-   timerBulletAnimate = evt_registerTimer ( interval, bul_bulletAnimateTimerCallback, "Bullet animation" );
+   timerBulletAnimate = evt_registerTimer (interval, bul_bulletAnimateTimerCallback, "Bullet animation", 0);
 }
 
 //-----------------------------------------------------------------------------

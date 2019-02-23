@@ -96,7 +96,7 @@ void gui_timerFocusAnimation(int newState)
 		case USER_EVENT_TIMER_ON:
 		{
 			if (guiFocusTimerID == 0)
-				guiFocusTimerID = evt_registerTimer( static_cast<Uint32>(focusAnimateIntervalValue), gui_focusAnimateCallback, "GUI Focus Animation");
+				guiFocusTimerID = evt_registerTimer (static_cast<Uint32>(focusAnimateIntervalValue), gui_focusAnimateCallback, "GUI Focus Animation", 0);
 
 			doButtonAnimate = true;
 			break;

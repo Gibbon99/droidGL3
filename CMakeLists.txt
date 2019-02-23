@@ -252,7 +252,7 @@ set ( CXX_SRCS
 		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_textBox.cpp 
 		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_label.cpp 
 		${CMAKE_CURRENT_LIST_DIR}/src/gui/gui_language.cpp
-        src/gui/gui_scrollBox.cpp hdr/gui/gui_scrollBox.h src/gui/gui_sideview.cpp hdr/gui/gui_sideview.h src/game/gam_database.cpp hdr/game/gam_database.h src/gui/gui_deckView.cpp hdr/game/gui_deckView.h src/game/gam_droidAI.cpp hdr/game/gam_droidAI.h src/game/gam_droidAIShoot.cpp src/game/gam_pathFind.cpp hdr/game/gam_pathFind.h src/game/gam_droidAIFlee.cpp hdr/game/gam_droidAIFlee.h src/game/gam_droidAIHealth.cpp hdr/game/gam_droidAIHealth.h src/game/gam_droidAIResume.cpp hdr/game/gam_droidAIResume.h src/game/gam_lineOfSight.cpp hdr/game/gam_lineOfSight.h src/game/gam_bullet.cpp hdr/game/gam_bullet.h src/gui/gui_terminal.cpp hdr/gui/gui_terminal.h)
+        src/gui/gui_scrollBox.cpp hdr/gui/gui_scrollBox.h src/gui/gui_sideview.cpp hdr/gui/gui_sideview.h src/game/gam_database.cpp hdr/game/gam_database.h src/gui/gui_deckView.cpp hdr/game/gui_deckView.h src/game/gam_droidAI.cpp hdr/game/gam_droidAI.h src/game/gam_droidAIShoot.cpp src/game/gam_pathFind.cpp hdr/game/gam_pathFind.h src/game/gam_droidAIFlee.cpp hdr/game/gam_droidAIFlee.h src/game/gam_droidAIHealth.cpp hdr/game/gam_droidAIHealth.h src/game/gam_droidAIResume.cpp hdr/game/gam_droidAIResume.h src/game/gam_lineOfSight.cpp hdr/game/gam_lineOfSight.h src/game/gam_bullet.cpp hdr/game/gam_bullet.h src/gui/gui_terminal.cpp hdr/gui/gui_terminal.h src/game/gam_transfer.cpp hdr/game/gam_transfer.h src/gui/gui_renderTransfer.cpp hdr/gui/gui_renderTransfer.h)
 
 # Define the C sources
 set(C_SRCS

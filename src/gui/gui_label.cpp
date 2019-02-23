@@ -7,13 +7,9 @@
 void gui_drawLabel( int objectIndex, bool hasFocus )
 //--------------------------------------------------------------------------
 {
-	Sint16      width, height;
 	int         fontLineWidth, fontLineHeight;
-	Sint16      startX, startY, gapSize, lineWidth;
+	Sint16      startX, startY;
 	glm::vec2   labelPosition;
-	glm::vec2   contentsPosition;
-	SDL_Color   buttonColor;
-	SDL_Color   cornerColor;
 	SDL_Color   labelColor;
 
 	if (guiLabels.empty())
@@ -25,7 +21,7 @@ void gui_drawLabel( int objectIndex, bool hasFocus )
 	startX = static_cast<Sint16>(guiLabels[objectIndex].boundingBox.x);
 	startY = static_cast<Sint16>(guiLabels[objectIndex].boundingBox.y);
 
-	labelColor = guiTextBoxes[objectIndex].attributes.labelHasFocusColor;
+	labelColor = guiLabels[objectIndex].labelHasFocusColor;
 
 	//
 	// Draw the text label for the button

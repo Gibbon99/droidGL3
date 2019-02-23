@@ -245,7 +245,7 @@ void gui_timerScrollPauseIntro(int newState, Uint32 pauseTime)
 		case USER_EVENT_TIMER_ON:
 		{
 			if (introScrollPauseTimerID == 0)
-				introScrollPauseTimerID = evt_registerTimer(pauseTime, gui_introPauseCallback, "Pause intro scroll");
+				introScrollPauseTimerID = evt_registerTimer (pauseTime, gui_introPauseCallback, "Pause intro scroll", 0);
 			break;
 		}
 		default:
@@ -269,7 +269,7 @@ void gui_timerScrollSpeedIntro(int newState, Uint32 scrollSpeed)
 		case USER_EVENT_TIMER_ON:
 		{
 			if (introScrollTimerID == 0)
-				introScrollTimerID = evt_registerTimer(scrollSpeed, gui_scrollIntroText, "Intro scroll speed");
+				introScrollTimerID = evt_registerTimer (scrollSpeed, gui_scrollIntroText, "Intro scroll speed", 0);
 
 			doIntroScroll = true;
 			break;

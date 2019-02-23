@@ -1,5 +1,6 @@
 #include <hdr/game/gam_levels.h>
 #include <hdr/gui/gui_main.h>
+#include <hdr/game/gam_transfer.h>
 #include "hdr/io/io_textures.h"
 #include "hdr/system/sys_events.h"
 #include "hdr/io/io_logfile.h"
@@ -21,6 +22,7 @@ SDL_Thread *userEventGameThread;
 SDL_Thread *userEventGuiThread;
 SDL_Thread *userEventServerThread;
 SDL_Thread *userEventClientThread;
+SDL_Thread *userEventTransferThread;
 
 SDL_mutex *consoleMutex;
 SDL_mutex *audioMutex;
@@ -29,6 +31,7 @@ SDL_mutex *gameMutex;
 SDL_mutex *guiMutex;
 SDL_mutex *levelMutex;
 SDL_mutex *textureSetMutex;
+SDL_mutex *transferMutex;
 
 SDL_mutex *networkInMutex;
 
@@ -43,12 +46,13 @@ queue <_myEventData> loggingEventQueue;
 queue <_myEventData> gameEventQueue;
 queue <_myEventData> guiEventQueue;
 queue <_myEventData> mainLoopEventQueue;
+queue <_myEventData> transferEventQueue;
 
-queue<_myEventData> clientEventInQueue;
+queue <_myEventData> clientEventInQueue;
 //queue<_myEventData> networkClientOutQueue;
 
-queue<_myEventData> serverEventInQueue;
-queue<_myEventData> networkOutQueue;
+queue <_myEventData> serverEventInQueue;
+queue <_myEventData> networkOutQueue;
 
 bool runThreads = true;     // Master flag to control state of detached threads
 bool doCursorAnimation = false;     // Flag to animate the cursor in callback
@@ -71,11 +75,89 @@ typedef struct
 
 vector<_registeredThreads>          registeredThreads;
 
+typedef struct
+{
+  _myEventData          timerAndEvent;
+  SDL_TimerID           timerID = 0;
+  string                eventName;
+  Uint32                nextEventTime = 0;
+} _timerAndEvent;
+
+vector<_timerAndEvent>                timerAndEvent;
+
+//------------------------------------------------------------------------
+//
+// Remove a timer event and stop the SDL_Timer
+void evt_removeTimerAndEvent(SDL_TimerID whichTimer)
+//------------------------------------------------------------------------
+{
+	for (int timerIndex = 0; timerIndex < timerAndEvent.size(); timerIndex++)
+	{
+		if (timerAndEvent[timerIndex].timerID == whichTimer)
+		{
+
+		    printf ("Removing timer [ %i ]\n", whichTimer);
+
+			SDL_RemoveTimer(whichTimer);
+			timerAndEvent.erase(timerAndEvent.begin() + timerIndex);
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+//
+// Function called by timed Event - run once and then change to next event
+Uint32 evt_timerAndEventFunction(Uint32 interval, void *param )
+//------------------------------------------------------------------------
+{
+  _myEventData        nextEventData;
+  unsigned long       timerEventIndex;
+  Uint32              nextEventTime = 0;
+
+  timerEventIndex = (unsigned long)(param);
+  nextEventData = timerAndEvent[timerEventIndex].timerAndEvent;
+
+  nextEventTime = timerAndEvent[timerEventIndex].nextEventTime;
+
+  evt_sendEvent ( nextEventData.eventType, nextEventData.eventAction,
+                  nextEventTime, nextEventData.data2, nextEventData.data3,
+                  nextEventData.vec2_1, nextEventData.vec2_2, nextEventData.eventString );
+
+  printf ("Change to event [ %s ] number [ %lu ]\n", timerAndEvent[timerEventIndex].eventName.c_str(), timerEventIndex);
+
+  timerAndEvent.erase(timerAndEvent.begin() + timerEventIndex);
+
+  return 0;
+}
+
+//------------------------------------------------------------------------
+//
+// Add a timer with next mode to change too
+SDL_TimerID evt_registerTimerAndEvent(Uint32 timerInterval, const _myEventData &nextEventData, const std::string &eventName)
+//------------------------------------------------------------------------
+{
+  unsigned long       nextEventID = 0;
+  _timerAndEvent      nextTimerEvent;
+  SDL_TimerID         nextTimerEventTimerID = 0;
+
+  nextTimerEvent.timerAndEvent = nextEventData;
+  nextTimerEvent.eventName = eventName;
+  nextTimerEvent.nextEventTime = timerInterval;
+
+  timerAndEvent.push_back(nextTimerEvent);
+
+  nextEventID = timerAndEvent.size() - 1;
+  nextTimerEventTimerID = evt_registerTimer (timerInterval, evt_timerAndEventFunction, eventName, nextEventID);
+  timerAndEvent[nextEventID + 1].timerID = nextTimerEventTimerID;
+
+  return nextTimerEventTimerID;
+}
+
 //------------------------------------------------------------------------
 //
 // Keep a list of threads that have been created. They will be detached and remove themselves
 // at shutdown
-SDL_Thread  *evt_registerThread(SDL_ThreadFunction threadFunction, const std::string &threadName)
+SDL_Thread *evt_registerThread(SDL_ThreadFunction threadFunction, const std::string &threadName)
 //------------------------------------------------------------------------
 {
 	_registeredThreads      newThread;
@@ -101,14 +183,14 @@ SDL_Thread  *evt_registerThread(SDL_ThreadFunction threadFunction, const std::st
 //------------------------------------------------------------------------
 //
 // Keep a list of the timers and remove them at shutdown
-SDL_TimerID evt_registerTimer(Uint32 timerInterval, SDL_TimerCallback timerFunction, const std::string timerName)
+SDL_TimerID evt_registerTimer (Uint32 timerInterval, SDL_TimerCallback timerFunction, const std::string timerName, unsigned long dataIndex)
 //------------------------------------------------------------------------
 {
 	_registeredTimers       newTimer;
 
 	newTimer.timerID = 0;
 
-	newTimer.timerID = SDL_AddTimer ( timerInterval, timerFunction, nullptr );   // Time in milliseconds
+	newTimer.timerID = SDL_AddTimer ( timerInterval, timerFunction, (void *)dataIndex );   // Time in milliseconds
 	if (newTimer.timerID == 0)
 	{
 		con_print(CON_ERROR, true, "Unable to create new timer for [ %s ] - [ %s ]", timerName.c_str(), SDL_GetError ());
@@ -222,9 +304,9 @@ bool evt_registerUserEventSetup ()
 		sys_shutdownToSystem ();
 	}
 
-	testLevelLoad = evt_registerTimer(500, evt_getLevelInfo, "Check level loading");
+	testLevelLoad = evt_registerTimer (500, evt_getLevelInfo, "Check level loading", 0);
 
-	timerCursorFlash = evt_registerTimer(500, evt_cursorTimerCallback, "Console cursor animation");
+	timerCursorFlash = evt_registerTimer (500, evt_cursorTimerCallback, "Console cursor animation", 0);
 
 	userEventConsoleThread = evt_registerThread(con_processConsoleUserEvent, "userEventConsoleThread");
 	if ( nullptr == userEventConsoleThread )
@@ -253,6 +335,10 @@ bool evt_registerUserEventSetup ()
 	userEventClientThread = evt_registerThread(gam_processClientEventQueue, "userEventClientThread");
 	if ( nullptr == userEventClientThread )
 		return false;
+
+    userEventTransferThread = evt_registerThread(gam_processTransferEventQueue, "userEventTransferThread");
+    if ( nullptr == userEventTransferThread )
+      return false;
 
 	consoleMutex = SDL_CreateMutex ();
 	if ( !consoleMutex )
@@ -326,10 +412,18 @@ bool evt_registerUserEventSetup ()
 		return false;
 	}
 
+    transferMutex = SDL_CreateMutex ();
+    if ( !transferMutex )
+    {
+      printf ("Couldn't create mutex - transferMutex\n");
+      return false;
+    }
+
 	SDL_DetachThread (userEventAudioThread);
 	SDL_DetachThread (userEventLoggingThread);
 	SDL_DetachThread (userEventGameThread);
 	SDL_DetachThread (userEventServerThread);
+	SDL_DetachThread (userEventTransferThread);
 
 	return true;
 }
@@ -386,6 +480,14 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, con
 
 	switch ( type )
 	{
+        case USER_EVENT_TRANSFER:
+          if ( SDL_LockMutex (transferMutex) == 0 )
+            {
+              transferEventQueue.push (eventData);
+              SDL_UnlockMutex (transferMutex);
+            }
+            break;
+
 		case MAIN_LOOP_EVENT:
 			if ( SDL_LockMutex (mainLoopMutex) == 0 )
 			{

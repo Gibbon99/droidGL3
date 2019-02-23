@@ -59,7 +59,7 @@ void gui_timerScrollSpeedDatabase(int newState, Uint32 scrollSpeed)
       case USER_EVENT_TIMER_ON:
         {
           if (timerDataBaseScroll == 0)
-            timerDataBaseScroll = evt_registerTimer(scrollSpeed, gui_scrollDataBaseText, "Database scroll speed");
+            timerDataBaseScroll = evt_registerTimer (scrollSpeed, gui_scrollDataBaseText, "Database scroll speed", 0);
 
           doDataBaseScroll = true;
           break;
@@ -103,7 +103,7 @@ Uint32 gam_dataBaseAnimateTimerCallback ( Uint32 interval, void *param )
 void gam_initDataBaseAnimateTimer ( Uint32 interval )
 // ----------------------------------------------------------------------------
 {
-  timerDataBaseAnimate = evt_registerTimer(interval, gam_dataBaseAnimateTimerCallback, "Database animation");
+  timerDataBaseAnimate = evt_registerTimer (interval, gam_dataBaseAnimateTimerCallback, "Database animation", 0);
 }
 
 //-----------------------------------------------------------------------------------------------------

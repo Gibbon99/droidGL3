@@ -59,7 +59,7 @@ void io_mouseTimerState ( int newState )
 		case USER_EVENT_TIMER_ON:
 		{
 			if (0 == getMouseTimer)
-				getMouseTimer = evt_registerTimer(getMousePositionInterval, io_getMousePositionCallback, "Mouse position");
+				getMouseTimer = evt_registerTimer (getMousePositionInterval, io_getMousePositionCallback, "Mouse position", 0);
 
 			runMousePositionCallback = true;
 			break;

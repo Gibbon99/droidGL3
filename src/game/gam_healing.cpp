@@ -57,7 +57,7 @@ void gam_setHealingState ( bool newState )
 void gam_initHealingAnimateTimer ( Uint32 interval )
 // ----------------------------------------------------------------------------
 {
-	timerHealingAnimate = evt_registerTimer ( interval, gam_healingAnimateTimerCallback, "Healing tile animation" );
+	timerHealingAnimate = evt_registerTimer (interval, gam_healingAnimateTimerCallback, "Healing tile animation", 0);
 }
 
 // ----------------------------------------------------------------------------

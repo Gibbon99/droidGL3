@@ -86,7 +86,7 @@ void net_startConnectionToServer(int newState)
 
 		case USER_EVENT_TIMER_ON:
 		{
-			net_clientConnectionTimer = evt_registerTimer(1000, net_clientConnectionCallback, "Network client discovery");
+			net_clientConnectionTimer = evt_registerTimer (1000, net_clientConnectionCallback, "Network client discovery", 0);
 			break;
 		}
 

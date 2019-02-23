@@ -804,5 +804,5 @@ void gam_setaStarState ( bool newState )
 void gam_initaStarPathTimer ( Uint32 interval )
 // ----------------------------------------------------------------------------
 {
-  aStarPathTimer = evt_registerTimer ( interval, gam_aStarPathTimerCallback, "Process aStar paths" );
+  aStarPathTimer = evt_registerTimer (interval, gam_aStarPathTimerCallback, "Process aStar paths", 0);
 }

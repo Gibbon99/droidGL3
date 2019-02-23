@@ -43,8 +43,18 @@ const int MODE_LIFT_VIEW            = 11;
 const int MODE_SIDE_VIEW            = 12;
 const int MODE_DECK_VIEW            = 13;
 const int MODE_DATABASE             = 14;
+const int MODE_TRANSFER_INTRO_0     = 15;
+const int MODE_TRANSFER_INTRO_1     = 16;
+const int MODE_TRANSFER_INTRO_2     = 17;
+const int MODE_TRANSFER_START       = 18;
+const int MODE_TRANSFER_SELECT_SIDE = 19;     // Countdown to choose side
+const int MODE_TRANSFER_SELECT      = 20;     // Play the transfer game
+const int MODE_TRANSFER_LOST        = 21;
+const int MODE_TRANSFER_COPY        = 22;
+const int MODE_TRANSFER_DEADLOCK    = 23;
+const int MODE_TRANSFER_FINISH      = 24;
 
-const int MODE_TEST_ROTATE          = 15;
+const int MODE_TEST_ROTATE          = 25;
 
 const int GUI_ACTIVE_COL            = 10;
 const int GUI_INACTIVE_COL          = 11;

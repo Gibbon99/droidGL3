@@ -1,4 +1,5 @@
 #include <hdr/system/sys_audio.h>
+#include <hdr/game/gam_transfer.h>
 #include "hdr/game/gam_physics.h"
 #include "hdr/game/gam_player.h"
 #include "hdr/game/gam_physicsPlayer.h"
@@ -295,18 +296,16 @@ bool handleCollisionTransferCheck ( cpArbiter *arb, cpSpace *space, int *unused 
 
 	if ( 1 == valuesPassedDroid_B[BYTE_TWO] )    // Is B the player
 	{
-		if ( playerDroid.currentMode != DROID_MODE_TRANSFER )
-			return cpTrue;    // Continue processing collision
-	}
-	//
-	// Ignore collision and start transfer process
-	// Transfer into Droid
-	//
-	cpBodySetVelocity ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).droid[valuesPassedDroid_A[BYTE_ONE]].body, cpVect{ 0, 0} );
-// TODO	trn_startTransferMode ( whichDroid_A );
-//	sys_changeMode ( MODE_TRANSFER_INTRO, true );
+		if ( playerDroid.currentMode == DROID_MODE_TRANSFER )
+          {
+            printf ("collision - start transfer\n");
+            gam_initTransfer(valuesPassedDroid_A[BYTE_ONE]);    // Pass in the droid to transfer with
+            cpBodySetVelocity ( levelInfo.at ( lvl_returnLevelNameFromDeck ( valuesPassedDroid_A[BYTE_ZERO] )).droid[valuesPassedDroid_A[BYTE_ONE]].body, cpVect{ 0, 0} );
+            return cpFalse;    // Don't continue processing collision
+          }
 
-	return cpFalse;    // Don't continue processing collision
+	}
+	return cpTrue;    // Continue processing collision
 }
 
 

@@ -176,7 +176,7 @@ Uint32 gam_playerAnimateTimerCallback ( Uint32 interval, void *param )
 void gam_initPlayerAnimateTimer ( Uint32 interval )
 // ----------------------------------------------------------------------------
 {
-	timerPlayerAnimate = evt_registerTimer(interval, gam_playerAnimateTimerCallback, "Player animation");
+	timerPlayerAnimate = evt_registerTimer (interval, gam_playerAnimateTimerCallback, "Player animation", 0);
 }
 
 //------------------------------------------------------------------------------

@@ -243,6 +243,75 @@ void as_setupGUITerminal ()
 
 //-----------------------------------------------------------------------------
 //
+// Create the display other droid information screen
+void as_createIntro_2()
+//-----------------------------------------------------------------------------
+{
+    as_guiCreateNewScreen ( "scrTransferIntro2" );
+
+    as_guiCreateObject             ( GUI_OBJECT_LABEL, "scrTransferIntro2Heading");
+    as_guiAddObjectToScreen        ( GUI_OBJECT_LABEL, "scrTransferIntro2Heading", "scrTransferIntro2" );
+    as_guiSetObjectPosition        ( GUI_OBJECT_LABEL, "scrTransferIntro2Heading", GUI_COORD_TYPE_PERCENT,      10, 20, 10, 10 );
+    as_guiSetObjectLabel           ( GUI_OBJECT_LABEL, "scrTransferIntro2Heading", GUI_LABEL_CENTER, "This is the droid you wish to control." );
+}
+
+//-----------------------------------------------------------------------------
+//
+// Create the display player information screen
+void as_createIntro_1()
+//-----------------------------------------------------------------------------
+{
+    as_guiCreateNewScreen ( "scrTransferIntro1" );
+
+    as_guiCreateObject             ( GUI_OBJECT_LABEL, "scrTransferIntro1Heading");
+    as_guiAddObjectToScreen        ( GUI_OBJECT_LABEL, "scrTransferIntro1Heading", "scrTransferIntro1" );
+    as_guiSetObjectPosition        ( GUI_OBJECT_LABEL, "scrTransferIntro1Heading", GUI_COORD_TYPE_PERCENT,      10, 20, 10, 10 );
+    as_guiSetObjectLabel           ( GUI_OBJECT_LABEL, "scrTransferIntro1Heading", GUI_LABEL_CENTER, "This is the droid you currently control." );
+}
+
+//-----------------------------------------------------------------------------
+//
+// Create the transfer choose side screen
+void as_createTransferChooseSide()
+//-----------------------------------------------------------------------------
+{
+	as_guiCreateNewScreen ( "scrTransferStart" );
+
+	as_guiCreateObject             ( GUI_OBJECT_LABEL, "scrTransferChooseHeading");
+	as_guiAddObjectToScreen        ( GUI_OBJECT_LABEL, "scrTransferChooseHeading", "scrTransferStart" );
+	as_guiSetObjectPosition        ( GUI_OBJECT_LABEL, "scrTransferChooseHeading", GUI_COORD_TYPE_PERCENT,      10, 20, 10, 10 );
+	as_guiSetObjectLabel           ( GUI_OBJECT_LABEL, "scrTransferChooseHeading", GUI_LABEL_CENTER, "Choose the side." );
+}
+
+
+//-----------------------------------------------------------------------------
+//
+// Create the display player information screen
+void as_createIntro_0()
+//-----------------------------------------------------------------------------
+{
+    as_guiCreateNewScreen ( "scrTransferIntro0" );
+
+    as_guiCreateObject             ( GUI_OBJECT_LABEL, "scrTransferIntro0Heading");
+    as_guiAddObjectToScreen        ( GUI_OBJECT_LABEL, "scrTransferIntro0Heading", "scrTransferIntro0" );
+    as_guiSetObjectPosition        ( GUI_OBJECT_LABEL, "scrTransferIntro0Heading", GUI_COORD_TYPE_PERCENT,      10, 20, 10, 10 );
+    as_guiSetObjectLabel           ( GUI_OBJECT_LABEL, "scrTransferIntro0Heading", GUI_LABEL_CENTER, "Commencing transfer process...." );
+}
+
+//-----------------------------------------------------------------------------
+//
+// Setup the transfer screens
+void as_createTransferScreens()
+//-----------------------------------------------------------------------------
+{
+    as_createIntro_0();
+    as_createIntro_1();
+    as_createIntro_2();
+	as_createTransferChooseSide();
+}
+
+//-----------------------------------------------------------------------------
+//
 // Create the options screen
 void as_createOptionsScreen()
 //-----------------------------------------------------------------------------
@@ -390,6 +459,7 @@ void as_setupGUI()
 	as_setupSideView ();
 	as_setupDeckView ();
     as_setupDataBaseView ();
+    as_createTransferScreens ();
 
 	as_guiSetObjectColor ( GUI_OBJECT_BUTTON, "ALL", GUI_ACTIVE_COL, 255, 255, 255, 255 );
 	as_guiSetObjectColor ( GUI_OBJECT_BUTTON, "ALL", GUI_INACTIVE_COL, 155, 155, 155, 255 );
@@ -411,6 +481,8 @@ void as_setupGUI()
 	as_guiSetObjectColor ( GUI_OBJECT_TEXTBOX, "ALL", GUI_INACTIVE_CORNER_COL, 55, 55, 55, 255 );
 	as_guiSetObjectColor ( GUI_OBJECT_TEXTBOX, "ALL", GUI_ACTIVE_LABEL_COL, 0, 255, 255, 255 );
 	as_guiSetObjectColor ( GUI_OBJECT_TEXTBOX, "ALL", GUI_INACTIVE_LABEL_COL, 55, 55, 55, 255 );
+
+    as_guiSetObjectColor ( GUI_OBJECT_LABEL, "ALL", GUI_ACTIVE_LABEL_COL, 255, 255, 255, 255 );
 
 	as_guiSetObjectColor ( GUI_OBJECT_LABEL, "scrOptionsHeading", GUI_ACTIVE_COL, 255, 255, 255, 255 );
 	as_guiSetObjectColor ( GUI_OBJECT_LABEL, "scrOptionsHeading", GUI_INACTIVE_COL, 155, 155, 155, 255 );

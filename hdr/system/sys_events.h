@@ -86,7 +86,12 @@ USER_EVENT_GUI_ANIMATE_TIMER,
 MAIN_LOOP_EVENT,
 MAIN_LOOP_EVENT_ADD_BULLET,
 MAIN_LOOP_EVENT_REMOVE_BULLET,
-MAIN_LOOP_EVENT_REMOVE_DROID_PHYSICS
+MAIN_LOOP_EVENT_REMOVE_DROID_PHYSICS,
+
+USER_EVENT_TRANSFER,
+TRANSFER_EVENT_INTRO_0,
+TRANSFER_EVENT_INTRO_1,
+TRANSFER_EVENT_INTRO_2
 };
 
 typedef struct
@@ -106,11 +111,10 @@ extern std::queue<_myEventData> audioEventQueue;
 extern std::queue<_myEventData> loggingEventQueue;
 extern std::queue<_myEventData> gameEventQueue;
 extern std::queue<_myEventData> guiEventQueue;
-extern std::queue <_myEventData> mainLoopEventQueue;
+extern std::queue<_myEventData> mainLoopEventQueue;
+extern std::queue<_myEventData> transferEventQueue;
 
 extern std::queue<_myEventData> clientEventInQueue;
-extern std::queue<_myEventData> networkClientOutQueue;
-
 extern std::queue<_myEventData> serverEventInQueue;
 extern std::queue<_myEventData> networkOutQueue;
 
@@ -121,6 +125,7 @@ extern SDL_mutex *gameMutex;
 extern SDL_mutex *guiMutex;
 extern SDL_mutex *levelMutex;
 extern SDL_mutex *textureSetMutex;
+extern SDL_mutex *transferMutex;
 
 extern SDL_mutex *networkInMutex;
 
@@ -154,7 +159,8 @@ void evt_sendEvent ( uint type, int action, int data1, int data2, int data3, vec
 void evt_cursorChangeState ( int newState );
 
 // Keep a list of the timers and remove them at shutdown
-SDL_TimerID evt_registerTimer(Uint32 timerInterval, SDL_TimerCallback timerFunction, std::string timerName);
+SDL_TimerID
+evt_registerTimer (Uint32 timerInterval, SDL_TimerCallback timerFunction, const std::string timerName, unsigned long dataIndex);
 
 //
 // Remove all the timers
@@ -162,3 +168,9 @@ void evt_removeAllTimers();
 
 // Remove a single timer - pass in SDL_TimerID as index
 void evt_removeTimer(SDL_TimerID whichTimerID);
+
+// Add a timer with next mode to change too
+SDL_TimerID evt_registerTimerAndEvent(Uint32 timerInterval, const _myEventData &nextEventData, const std::string &eventName);
+
+// Remove a timer event and stop the SDL_Timer
+void evt_removeTimerAndEvent(SDL_TimerID whichTimer);

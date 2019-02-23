@@ -199,7 +199,7 @@ void gam_setDoorAnimateState (bool newState)
 void gam_initDoorAnimateTimer (Uint32 interval)
 // ----------------------------------------------------------------------------
 {
-  timerDoorAnimate = evt_registerTimer (interval, gam_animateDoorCallback, "Door animation");
+  timerDoorAnimate = evt_registerTimer (interval, gam_animateDoorCallback, "Door animation", 0);
 }
 
 // ----------------------------------------------------------------------------

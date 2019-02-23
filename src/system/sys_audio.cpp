@@ -1,7 +1,7 @@
 #include <SDL_rwops.h>
 #include "hdr/system/sys_main.h"
 
-#include <hdr/io/io_fileSystem.h>
+#include "hdr/io/io_fileSystem.h"
 #include "hdr/system/sys_audio.h"
 
 
@@ -40,8 +40,8 @@ _sounds sound[] = {{nullptr, "collosion1.wav",       false},
 
 int as_audioVolume;
 int as_numAudioSamples;         // Set from script
-bool as_useSound = true;                // Set from script
-int as_numMultiSamples;        // Set from script
+bool as_useSound = true;        // Set from script
+int as_numMultiSamples;         // Set from script
 bool pauseSound = false;
 bool audioAvailable = false;
 

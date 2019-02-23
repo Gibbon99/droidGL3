@@ -1,6 +1,7 @@
 #include <unordered_map>
 #include <string>
 #include <hdr/gui/gui_terminal.h>
+#include <hdr/game/gam_transfer.h>
 #include "hdr/game/gam_events.h"
 #include "hdr/gui/gui_button.h"
 #include "hdr/gui/gui_scrollBox.h"
@@ -101,6 +102,19 @@ void sys_displayScreen (float interpolation)
         gui_displayGUI ();
       break;
 
+      case MODE_TRANSFER_INTRO_0:         // Show commencing message
+      case MODE_TRANSFER_INTRO_1:       // Show current droid information
+      case MODE_TRANSFER_INTRO_2:       // Show target droid information
+      case MODE_TRANSFER_START:         //
+      case MODE_TRANSFER_SELECT_SIDE:   // Countdown to choose side
+      case MODE_TRANSFER_SELECT:        // Play the transfer game
+      case MODE_TRANSFER_LOST:          // Lost the transfer
+      case MODE_TRANSFER_COPY:          // Won the transfer
+      case MODE_TRANSFER_DEADLOCK:      // Deadlock - start again
+      case MODE_TRANSFER_FINISH:        // Clean up
+        gui_displayGUI ();
+      break;
+
       case MODE_GAME:
 //			gam_processMovement (interpolation);
 
@@ -159,12 +173,15 @@ void sys_gameTickRun ()
           sys_changeMode (MODE_INIT);
       break;
 
-      case MODE_INIT: sys_changeMode (MODE_GUI);         // change here
+      case MODE_INIT:
+        sys_changeMode (MODE_GUI);         // change here
       break;
 
-      case MODE_CONSOLE: break;
+      case MODE_CONSOLE:
+        break;
 
-      case MODE_GUI: break;
+      case MODE_GUI:
+        break;
 
       case MODE_INIT_GAME:
         //gam_startNewGame ();
@@ -172,23 +189,37 @@ void sys_gameTickRun ()
 
       case MODE_GAME:
 
-      io_processInputActions ();
+        io_processInputActions ();
 
-      gam_processPlayerMovement (interpolation);
+        gam_processPlayerMovement (interpolation);
 
-      gam_processMainLoopEventQueue ();
+        gam_processMainLoopEventQueue ();
 
-      net_processWorldStep ();
+        net_processWorldStep ();
 
-      bul_moveBullet ();
+        bul_moveBullet ();
 
-      cpSpaceStep (space, SKIP_TICKS);
+        cpSpaceStep (space, SKIP_TICKS);
 
-      net_processNetworkOutQueue (nullptr);
+        net_processNetworkOutQueue (nullptr);
+      break;
+
+      case MODE_TRANSFER_INTRO_0:         // Show commencing message
+      case MODE_TRANSFER_INTRO_1:       // Show current droid information
+      case MODE_TRANSFER_INTRO_2:       // Show target droid information
+      case MODE_TRANSFER_START:         //
+      case MODE_TRANSFER_SELECT_SIDE:   // Countdown to choose side
+      case MODE_TRANSFER_SELECT:        // Play the transfer game
+      case MODE_TRANSFER_LOST:          // Lost the transfer
+      case MODE_TRANSFER_COPY:          // Won the transfer
+      case MODE_TRANSFER_DEADLOCK:      // Deadlock - start again
+      case MODE_TRANSFER_FINISH:        // Clean up
+        gam_processTransfer();
       break;
 
       default: break;
     }
+
   evt_handleEvents ();
 
   io_cleanTextureMap ();
